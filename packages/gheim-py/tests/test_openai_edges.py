@@ -203,7 +203,7 @@ def async_client(monkeypatch: pytest.MonkeyPatch):
 # ---------- A.1 tool-call argument restoration ----------
 
 def test_sync_tool_call_arguments_are_restored(sync_client):
-    inner = sync_client._gheim_chat.completions.inner
+    inner = sync_client.chat.completions.inner
     inner.response = FakeCompletion(
         choices=[
             FakeChoice(
@@ -234,7 +234,7 @@ def test_sync_tool_call_arguments_are_restored(sync_client):
 
 
 async def test_async_tool_call_arguments_are_restored(async_client):
-    inner = async_client._gheim_chat.completions.inner
+    inner = async_client.chat.completions.inner
     inner.response = FakeCompletion(
         choices=[
             FakeChoice(
@@ -266,7 +266,7 @@ async def test_async_tool_call_arguments_are_restored(async_client):
 # ---------- A.2 gheim_session reuse across calls ----------
 
 def test_sync_session_reuse_across_calls_keeps_sentinel_stable(sync_client):
-    inner = sync_client._gheim_chat.completions.inner
+    inner = sync_client.chat.completions.inner
     inner.response = FakeCompletion(
         choices=[FakeChoice(message=FakeMessage(role="assistant", content="<PERSON_1> noted"))]
     )
@@ -290,7 +290,7 @@ def test_sync_session_reuse_across_calls_keeps_sentinel_stable(sync_client):
 
 
 async def test_async_session_reuse_across_calls_keeps_sentinel_stable(async_client):
-    inner = async_client._gheim_chat.completions.inner
+    inner = async_client.chat.completions.inner
     inner.response = FakeCompletion(
         choices=[FakeChoice(message=FakeMessage(role="assistant", content="<PERSON_1> noted"))]
     )
@@ -319,7 +319,7 @@ def _finish_only_chunk() -> FakeChunk:
 
 
 def test_sync_streaming_passes_role_only_and_finish_only_chunks(sync_client):
-    inner = sync_client._gheim_chat.completions.inner
+    inner = sync_client.chat.completions.inner
     inner.response = [
         _role_only_chunk(),
         FakeChunk(choices=[FakeChoiceChunk(delta=FakeDelta(content="Hi "))]),
@@ -341,7 +341,7 @@ def test_sync_streaming_passes_role_only_and_finish_only_chunks(sync_client):
 
 
 async def test_async_streaming_passes_role_only_and_finish_only_chunks(async_client):
-    inner = async_client._gheim_chat.completions.inner
+    inner = async_client.chat.completions.inner
     inner.response = [
         _role_only_chunk(),
         FakeChunk(choices=[FakeChoiceChunk(delta=FakeDelta(content="Hi "))]),
@@ -364,7 +364,7 @@ async def test_async_streaming_passes_role_only_and_finish_only_chunks(async_cli
 # ---------- A.4 early break in async iteration ----------
 
 async def test_async_streaming_early_break_does_not_raise(async_client):
-    inner = async_client._gheim_chat.completions.inner
+    inner = async_client.chat.completions.inner
     inner.response = [
         FakeChunk(choices=[FakeChoiceChunk(delta=FakeDelta(content="Hi "))]),
         FakeChunk(choices=[FakeChoiceChunk(delta=FakeDelta(content="<PERSON_1>"))]),
@@ -386,7 +386,7 @@ async def test_async_streaming_early_break_does_not_raise(async_client):
 # ---------- A.5 exception inside async iteration ----------
 
 async def test_async_streaming_propagates_upstream_exception(async_client):
-    inner = async_client._gheim_chat.completions.inner
+    inner = async_client.chat.completions.inner
     inner.response = [
         FakeChunk(choices=[FakeChoiceChunk(delta=FakeDelta(content="Hi <"))]),
         RuntimeError("upstream blew up"),
@@ -407,7 +407,7 @@ async def test_async_streaming_propagates_upstream_exception(async_client):
 # ---------- A.6 detector override per-call ----------
 
 def test_sync_per_call_detector_override(sync_client):
-    inner = sync_client._gheim_chat.completions.inner
+    inner = sync_client.chat.completions.inner
     inner.response = FakeCompletion(
         choices=[FakeChoice(message=FakeMessage(role="assistant", content="ok"))]
     )

@@ -93,6 +93,28 @@ from gheim import anonymize_messages
 redacted = anonymize_messages(messages, session)  # preserves role/name/tool_call_id
 ```
 
+## Wrapped endpoints
+
+The drop-in `OpenAI` / `AsyncOpenAI` clients automatically protect every
+text-carrying endpoint: `chat.completions`, `responses`, `completions` (legacy),
+`embeddings`, `moderations`, `audio.speech`, `audio.transcriptions`,
+`audio.translations`, `images.generate`, `images.edit`. Tool-call arguments and
+SSE delta chunks are restored on the way back. See the
+[monorepo README](https://github.com/joelbarmettlerUZH/gheim) for the full
+coverage matrix and the embeddings caveat.
+
+### Strict mode
+
+`gheim_strict=True` (default) raises `RuntimeError` if you call an unwrapped
+endpoint (`beta.assistants`, `batches`, `files`, `uploads`, `fine_tuning`,
+`vector_stores`). The error message names `client.raw.<path>` as the documented
+escape hatch.
+
+```python
+client = OpenAI(gheim_strict=False)  # downgrade to one-time warnings
+client.raw.beta.assistants.create(...)  # always works regardless of strict mode
+```
+
 ## Detector backends
 
 ```python

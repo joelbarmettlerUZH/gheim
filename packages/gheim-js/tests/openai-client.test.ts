@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type OpenAIClass from "openai";
-import { OpenAI } from "../src/openai.ts";
+import { OpenAI } from "../src/openai/index.ts";
 import type { Detector, Span } from "../src/detectors/base.ts";
 
 class FakeDetector implements Detector {

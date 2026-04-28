@@ -130,7 +130,7 @@ def sync_client(monkeypatch: pytest.MonkeyPatch):
 
 
 def test_sync_non_streaming_round_trip(sync_client):
-    inner = sync_client._gheim_chat.completions.inner
+    inner = sync_client.chat.completions.inner
     inner.response = FakeCompletion(
         choices=[FakeChoice(message=FakeMessage(role="assistant", content="Hello <PERSON_1>!"))]
     )
@@ -148,7 +148,7 @@ def test_sync_non_streaming_round_trip(sync_client):
 
 
 def test_sync_streaming_round_trip(sync_client):
-    inner = sync_client._gheim_chat.completions.inner
+    inner = sync_client.chat.completions.inner
     inner.response = _make_chunks(["Hi ", "<PER", "SON_1>", ", how can I help?"])
     sess = Session(detector=FakeDetector({"Joel": "private_person"}))
     stream = sync_client.chat.completions.create(
@@ -214,7 +214,7 @@ def async_client(monkeypatch: pytest.MonkeyPatch):
 
 
 async def test_async_non_streaming_round_trip(async_client):
-    inner = async_client._gheim_chat.completions.inner
+    inner = async_client.chat.completions.inner
     inner.response = FakeCompletion(
         choices=[FakeChoice(message=FakeMessage(role="assistant", content="Hello <PERSON_1>!"))]
     )
@@ -229,7 +229,7 @@ async def test_async_non_streaming_round_trip(async_client):
 
 
 async def test_async_streaming_round_trip(async_client):
-    inner = async_client._gheim_chat.completions.inner
+    inner = async_client.chat.completions.inner
     inner.response = _make_chunks(["Hi ", "<PER", "SON_1>", ", how can I help?"])
     sess = Session(detector=FakeDetector({"Joel": "private_person"}))
     stream = await async_client.chat.completions.create(
@@ -246,7 +246,7 @@ async def test_async_streaming_round_trip(async_client):
 
 async def test_async_streaming_handles_held_back_tail(async_client):
     """Tail buffer must surface as a synthetic final chunk."""
-    inner = async_client._gheim_chat.completions.inner
+    inner = async_client.chat.completions.inner
     # Last delta ends with an incomplete sentinel — flush() must emit it after stream end.
     inner.response = _make_chunks(["done <PERSON_"])
     sess = Session(detector=FakeDetector({"Joel": "private_person"}))

@@ -5,7 +5,7 @@ import {
   anonymizeOpenAIMessages,
   deanonymizeOpenAIResponse,
   deanonymizeOpenAIStream,
-} from "../src/openai.ts";
+} from "../src/openai/index.ts";
 import type { Detector, Span } from "../src/detectors/base.ts";
 
 class FakeDetector implements Detector {

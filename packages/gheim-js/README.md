@@ -93,6 +93,28 @@ OpenAI-typed helpers when you want manual control:
 import { anonymizeOpenAIMessages, deanonymizeOpenAIStream } from "gheim/openai";
 ```
 
+## Wrapped endpoints
+
+The drop-in `OpenAI` client automatically protects every text-carrying endpoint:
+`chat.completions`, `responses`, `completions` (legacy), `embeddings`,
+`moderations`, `audio.speech`, `audio.transcriptions`, `audio.translations`,
+`images.generate`, `images.edit`. Tool-call arguments and SSE delta chunks are
+restored on the way back. See the
+[monorepo README](https://github.com/joelbarmettlerUZH/gheim) for the full
+coverage matrix and the embeddings caveat.
+
+### Strict mode
+
+`gheimStrict: true` (default) throws `GheimStrictError` if you call an
+unwrapped endpoint (`beta`, `batches`, `files`, `uploads`, `fineTuning`,
+`vectorStores`). The error names `client.raw.<path>` as the escape hatch.
+
+```ts
+const client = new OpenAI({ gheimStrict: false }); // downgrade to one-time warnings
+await client.ready();
+client.raw.beta.assistants.create(...);  // always works regardless of strict mode
+```
+
 ## Artifacts
 
 Ships as dual ESM + CJS with full `.d.ts`:

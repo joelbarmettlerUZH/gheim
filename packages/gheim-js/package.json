@@ -23,18 +23,18 @@
       "default": "./dist/esm/index.js"
     },
     "./openai": {
-      "types": "./dist/types/openai.d.ts",
-      "import": "./dist/esm/openai.js",
-      "require": "./dist/cjs/openai.cjs",
-      "default": "./dist/esm/openai.js"
+      "types": "./dist/types/openai/index.d.ts",
+      "import": "./dist/esm/openai/index.js",
+      "require": "./dist/cjs/openai/index.cjs",
+      "default": "./dist/esm/openai/index.js"
     },
     "./package.json": "./package.json"
   },
   "files": ["dist", "README.md", "LICENSE"],
   "scripts": {
     "build": "rm -rf dist && bun run build:esm && bun run build:cjs && bun run build:types",
-    "build:esm": "bun build ./src/index.ts ./src/openai.ts --outdir ./dist/esm --target node --format esm --external openai --external @huggingface/transformers",
-    "build:cjs": "bun build ./src/index.ts ./src/openai.ts --outdir ./dist/cjs --target node --format cjs --entry-naming '[dir]/[name].cjs' --external openai --external @huggingface/transformers",
+    "build:esm": "bun build ./src/index.ts ./src/openai/index.ts --outdir ./dist/esm --target node --format esm --external openai --external @huggingface/transformers",
+    "build:cjs": "bun build ./src/index.ts ./src/openai/index.ts --outdir ./dist/cjs --target node --format cjs --entry-naming '[dir]/[name].cjs' --external openai --external @huggingface/transformers",
     "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
     "test": "bun test",
     "test:live": "GHEIM_RUN_LIVE=1 bun test tests/live.test.ts",

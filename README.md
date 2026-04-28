@@ -173,6 +173,46 @@ environments.
 
 ---
 
+## Wrapped OpenAI endpoints
+
+The drop-in `OpenAI` / `AsyncOpenAI` clients automatically protect every
+text-carrying endpoint:
+
+| OpenAI endpoint | gheim treatment | notes |
+|---|---|---|
+| `chat.completions.create` | round-trip | messages + tool descriptions + speaker `name` redacted; tool-call `arguments` restored |
+| `responses.create` | round-trip | event-based streaming (`response.output_text.delta`, reasoning, audio transcript, function args) |
+| `completions.create` (legacy) | round-trip | `prompt` redacted, `choices[*].text` restored |
+| `embeddings.create` | input redacted | vectors come back unmodified — see "Embeddings caveat" below |
+| `moderations.create` | input redacted | category scores come back unmodified |
+| `audio.speech.create` (TTS) | input redacted | both `input` and `instructions` redacted |
+| `audio.transcriptions.create` | round-trip | `prompt` hint redacted; returned `text` and SSE deltas restored |
+| `audio.translations.create` | round-trip | same as transcriptions |
+| `images.generate` / `edit` | prompt redacted | image bytes pass through |
+| `models.list` / `retrieve` | passthrough | no PII |
+| `beta.assistants.*`, `beta.threads.*` | **strict-blocked** | stateful API needs cross-call session persistence — deferred. Use `responses.create` instead |
+| `batches.create` | **strict-blocked** | recursive JSONL handling deferred — pre-anonymize the input file |
+| `files.*`, `uploads.*`, `fine_tuning.*` | **strict-blocked** | document-level redaction is outside gheim's scope |
+
+**Strict mode** (default `gheim_strict=True` / `gheimStrict: true`) raises a
+clear `RuntimeError` on any blocked endpoint, pointing at `client.raw.<path>` as
+the documented escape hatch. Pass `gheim_strict=False` to downgrade to a
+one-time warning + pass-through per attribute.
+
+### Embeddings caveat
+
+When you embed redacted text, the vector represents the redacted form
+(`<PERSON_1> works at Acme`), not the original. This is by design — embeddings
+of customer PII can't be both protected and semantically faithful at once.
+
+Useful patterns:
+- Index the redacted text. Anonymize search queries through the **same session**
+  so they hit the same sentinels.
+- For long-running RAG indexes, persist `Session.to_json()` alongside the index.
+
+If embeddings of original text are non-negotiable for your workload, call
+`client.raw.embeddings.create(...)` to bypass gheim deliberately.
+
 ## Detected PII categories
 
 Eight categories, BIOES-tagged at the token level, aggregated to character spans:
