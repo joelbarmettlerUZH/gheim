@@ -1,0 +1,60 @@
+{
+  "name": "gheim",
+  "version": "0.1.0",
+  "description": "PII round-trip for LLM APIs — anonymize before the request, de-anonymize the stream on the way back.",
+  "license": "Apache-2.0",
+  "author": "Joel Barmettler <joel.barmettler@gmail.com>",
+  "homepage": "https://github.com/joelbarmettlerUZH/gheim",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joelbarmettlerUZH/gheim.git",
+    "directory": "packages/gheim-js"
+  },
+  "keywords": ["pii", "privacy", "redaction", "openai", "llm", "anonymization"],
+  "type": "module",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.cjs",
+      "default": "./dist/esm/index.js"
+    },
+    "./openai": {
+      "types": "./dist/types/openai.d.ts",
+      "import": "./dist/esm/openai.js",
+      "require": "./dist/cjs/openai.cjs",
+      "default": "./dist/esm/openai.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "rm -rf dist && bun run build:esm && bun run build:cjs && bun run build:types",
+    "build:esm": "bun build ./src/index.ts ./src/openai.ts --outdir ./dist/esm --target node --format esm --external openai --external @huggingface/transformers",
+    "build:cjs": "bun build ./src/index.ts ./src/openai.ts --outdir ./dist/cjs --target node --format cjs --entry-naming '[dir]/[name].cjs' --external openai --external @huggingface/transformers",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
+    "test": "bun test",
+    "test:live": "GHEIM_RUN_LIVE=1 bun test tests/live.test.ts",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "@types/bun": "latest",
+    "openai": "^4.50.0",
+    "typescript": "^5.5.0"
+  },
+  "peerDependencies": {
+    "openai": ">=4.0.0 <6.0.0",
+    "@huggingface/transformers": ">=3.0.0 <5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "openai": { "optional": true },
+    "@huggingface/transformers": { "optional": true }
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

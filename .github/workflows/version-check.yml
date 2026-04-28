@@ -1,0 +1,139 @@
+name: Version Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  gheim-py:
+    name: gheim (PyPI) version bump
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check changed paths
+        id: changed
+        run: |
+          git fetch origin "${{ github.base_ref }}" --depth=1
+          if git diff --name-only origin/${{ github.base_ref }} HEAD | grep -qE '^packages/gheim-py/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - if: steps.changed.outputs.changed == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - if: steps.changed.outputs.changed == 'true'
+        name: Install packaging
+        run: pip install --quiet packaging
+
+      - if: steps.changed.outputs.changed == 'true'
+        name: Compare versions
+        run: |
+          python - <<'PY'
+          import subprocess, tomllib
+          from packaging.version import Version
+
+          with open('packages/gheim-py/pyproject.toml', 'rb') as f:
+              pr = Version(tomllib.load(f)['project']['version'])
+          main = Version(tomllib.loads(subprocess.check_output(
+              ['git', 'show', 'origin/${{ github.base_ref }}:packages/gheim-py/pyproject.toml']
+          ).decode())['project']['version'])
+          if pr <= main:
+              print(f'::error title=gheim-py not bumped::{pr} must be > {main}')
+              raise SystemExit(1)
+          print(f'OK: gheim-py {main} -> {pr}')
+          PY
+
+  gheim-js:
+    name: gheim (npm) version bump
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check changed paths
+        id: changed
+        run: |
+          git fetch origin "${{ github.base_ref }}" --depth=1
+          if git diff --name-only origin/${{ github.base_ref }} HEAD | grep -qE '^packages/gheim-js/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - if: steps.changed.outputs.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - if: steps.changed.outputs.changed == 'true'
+        name: Compare versions
+        run: |
+          node - <<'JS'
+          const fs = require('fs');
+          const { execSync } = require('child_process');
+          const pr = JSON.parse(fs.readFileSync('packages/gheim-js/package.json', 'utf8')).version;
+          const main = JSON.parse(
+            execSync(`git show origin/${process.env.BASE}:packages/gheim-js/package.json`).toString()
+          ).version;
+          const cmp = (a, b) => a.split('.').map(Number).reduce((acc, n, i) =>
+            acc !== 0 ? acc : n - (Number(b.split('.')[i]) || 0), 0);
+          if (cmp(pr, main) <= 0) {
+            console.error(`::error title=gheim-js not bumped::${pr} must be > ${main}`);
+            process.exit(1);
+          }
+          console.log(`OK: gheim-js ${main} -> ${pr}`);
+          JS
+        env:
+          BASE: ${{ github.base_ref }}
+
+  gheim-server:
+    name: gheim-server version bump
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check changed paths
+        id: changed
+        run: |
+          git fetch origin "${{ github.base_ref }}" --depth=1
+          if git diff --name-only origin/${{ github.base_ref }} HEAD | grep -qE '^server/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - if: steps.changed.outputs.changed == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - if: steps.changed.outputs.changed == 'true'
+        run: pip install --quiet packaging
+
+      - if: steps.changed.outputs.changed == 'true'
+        name: Compare versions
+        run: |
+          python - <<'PY'
+          import subprocess, tomllib
+          from packaging.version import Version
+
+          with open('server/pyproject.toml', 'rb') as f:
+              pr = Version(tomllib.load(f)['project']['version'])
+          main = Version(tomllib.loads(subprocess.check_output(
+              ['git', 'show', 'origin/${{ github.base_ref }}:server/pyproject.toml']
+          ).decode())['project']['version'])
+          if pr <= main:
+              print(f'::error title=gheim-server not bumped::{pr} must be > {main}')
+              raise SystemExit(1)
+          print(f'OK: gheim-server {main} -> {pr}')
+          PY

@@ -1,0 +1,22 @@
+[tool.uv.workspace]
+members = ["packages/gheim-py", "server"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["packages/gheim-py/tests", "server/tests"]
+addopts = "-ra -q"
+asyncio_mode = "auto"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "pytest-asyncio>=0.24",
+    "openai>=1.50",
+]

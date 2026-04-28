@@ -1,0 +1,211 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  # ─────────────────────────── gheim (PyPI) ───────────────────────────
+  detect-py:
+    name: Detect gheim (py) version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      is-new: ${{ steps.v.outputs.is-new }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        name: Read version + check tag
+        run: |
+          version=$(grep -E '^version = ' packages/gheim-py/pyproject.toml | cut -d'"' -f2)
+          echo "version=$version" >> $GITHUB_OUTPUT
+          if git ls-remote --tags origin "refs/tags/py-v$version" | grep -q .; then
+            echo "is-new=false" >> $GITHUB_OUTPUT
+            echo "tag py-v$version exists — skipping"
+          else
+            echo "is-new=true" >> $GITHUB_OUTPUT
+            echo "tag py-v$version is new — will release"
+          fi
+
+  pypi:
+    name: Publish gheim to PyPI
+    needs: detect-py
+    if: needs.detect-py.outputs.is-new == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/gheim
+    permissions:
+      id-token: write   # PyPI Trusted Publisher (OIDC)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.12'
+      - name: Build sdist + wheel
+        working-directory: packages/gheim-py
+        run: uv build --no-sources
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: packages/gheim-py/dist
+          skip-existing: true
+
+  release-py:
+    name: Tag + release (py)
+    needs: [detect-py, pypi]
+    if: needs.detect-py.outputs.is-new == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "py-v${{ needs.detect-py.outputs.version }}" \
+            --title "gheim py v${{ needs.detect-py.outputs.version }}" \
+            --generate-notes \
+            --target ${{ github.sha }}
+
+  # ─────────────────────────── gheim (npm) ───────────────────────────
+  detect-js:
+    name: Detect gheim (js) version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      is-new: ${{ steps.v.outputs.is-new }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        run: |
+          version=$(node -p "require('./packages/gheim-js/package.json').version")
+          echo "version=$version" >> $GITHUB_OUTPUT
+          if git ls-remote --tags origin "refs/tags/js-v$version" | grep -q .; then
+            echo "is-new=false" >> $GITHUB_OUTPUT
+            echo "tag js-v$version exists — skipping"
+          else
+            echo "is-new=true" >> $GITHUB_OUTPUT
+            echo "tag js-v$version is new — will release"
+          fi
+
+  npm:
+    name: Publish gheim to npm
+    needs: detect-js
+    if: needs.detect-js.outputs.is-new == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/gheim
+    permissions:
+      id-token: write   # npm provenance
+    defaults:
+      run:
+        working-directory: packages/gheim-js
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun test
+      - run: bun run build
+      - env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public
+
+  release-js:
+    name: Tag + release (js)
+    needs: [detect-js, npm]
+    if: needs.detect-js.outputs.is-new == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "js-v${{ needs.detect-js.outputs.version }}" \
+            --title "gheim js v${{ needs.detect-js.outputs.version }}" \
+            --generate-notes \
+            --target ${{ github.sha }}
+
+  # ─────────────────────────── gheim-server (ghcr) ───────────────────────────
+  detect-server:
+    name: Detect gheim-server version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      is-new: ${{ steps.v.outputs.is-new }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        run: |
+          version=$(grep -E '^version = ' server/pyproject.toml | cut -d'"' -f2)
+          echo "version=$version" >> $GITHUB_OUTPUT
+          if git ls-remote --tags origin "refs/tags/server-v$version" | grep -q .; then
+            echo "is-new=false" >> $GITHUB_OUTPUT
+          else
+            echo "is-new=true" >> $GITHUB_OUTPUT
+          fi
+
+  ghcr:
+    name: Build + push gheim-server to ghcr
+    needs: detect-server
+    if: needs.detect-server.outputs.is-new == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/gheim-server
+          tags: |
+            type=raw,value=${{ needs.detect-server.outputs.version }}
+            type=raw,value=latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  release-server:
+    name: Tag + release (server)
+    needs: [detect-server, ghcr]
+    if: needs.detect-server.outputs.is-new == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "server-v${{ needs.detect-server.outputs.version }}" \
+            --title "gheim-server v${{ needs.detect-server.outputs.version }}" \
+            --generate-notes \
+            --target ${{ github.sha }}

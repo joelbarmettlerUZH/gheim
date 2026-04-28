@@ -1,0 +1,46 @@
+[project]
+name = "gheim"
+version = "0.1.0"
+description = "PII round-trip for LLM APIs — anonymize before the request, de-anonymize the stream on the way back."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Joel Barmettler", email = "joel.barmettler@gmail.com" }]
+keywords = ["pii", "privacy", "redaction", "openai", "llm", "anonymization"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+dependencies = [
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+local = [
+    "torch>=2.2",
+    "transformers>=4.45",
+]
+openai = [
+    "openai>=1.50",
+]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
+    "openai>=1.50",
+    "ruff>=0.6",
+]
+
+[project.urls]
+Homepage = "https://github.com/joelbarmettlerUZH/gheim"
+Issues = "https://github.com/joelbarmettlerUZH/gheim/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gheim"]

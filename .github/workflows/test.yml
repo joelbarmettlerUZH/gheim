@@ -1,0 +1,42 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Set Python version
+        run: uv python install ${{ matrix.python-version }}
+      - name: Sync workspace
+        run: uv sync --all-packages
+      - name: Run tests
+        run: uv run pytest
+
+  js:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/gheim-js
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Type-check
+        run: bun run lint
+      - name: Test
+        run: bun test
+      - name: Build
+        run: bun run build

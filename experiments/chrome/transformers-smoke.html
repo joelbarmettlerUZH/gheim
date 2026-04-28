@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>gheim — transformers.js browser smoke</title>
+<style>
+  body { font-family: ui-monospace, monospace; padding: 1em; max-width: 900px; }
+  pre { background: #f4f4f4; padding: 1em; white-space: pre-wrap; word-break: break-word; }
+  .ok { color: #080; }
+  .err { color: #c00; }
+  .info { color: #06a; }
+  h2 { margin-top: 1.5em; }
+</style>
+</head>
+<body>
+<h1>gheim — transformers.js browser smoke test</h1>
+<p>Loads <code>@huggingface/transformers</code> from CDN, runs a token-classification pipeline,
+and checks what fields come back on aggregated entities (critical for
+<code>gheim.LocalDetector</code>, which needs char offsets).</p>
+
+<h2>Status</h2>
+<pre id="status">starting...</pre>
+
+<h2>Spans</h2>
+<pre id="spans">(none yet)</pre>
+
+<script type="module">
+const status = document.getElementById('status');
+const spansEl = document.getElementById('spans');
+const log = (m, cls='') => {
+  const line = `[${(performance.now()/1000).toFixed(2)}s] ${m}\n`;
+  status.textContent += line;
+  console.log(`[GHEIM]`, m);
+};
+
+window.__GHEIM_SMOKE = { status: 'starting', spans: null, fields: null, error: null };
+
+try {
+  log('importing @huggingface/transformers@4.2.0 from jsdelivr...', 'info');
+  const { pipeline, env } = await import(
+    'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0/dist/transformers.min.js'
+  );
+  env.allowLocalModels = false;
+  log('imported', 'ok');
+
+  const MODEL = 'Xenova/bert-base-NER';
+  log(`creating pipeline (model=${MODEL})...`, 'info');
+  const clf = await pipeline('token-classification', MODEL);
+  log('pipeline ready', 'ok');
+
+  const TEXT = 'My name is Alice and I work at Microsoft in Seattle.';
+  log(`inference: "${TEXT}"`, 'info');
+  const out = await clf(TEXT, { aggregation_strategy: 'simple' });
+  log(`got ${out.length} entities`, 'ok');
+  spansEl.textContent = JSON.stringify(out, null, 2);
+
+  const fields = Object.keys(out[0] ?? {});
+  const hasGroup = out.some(s => s.entity_group);
+  const hasOffsets = out.every(s => Number.isFinite(s.start) && Number.isFinite(s.end));
+
+  log(`fields present: ${fields.join(', ')}`, 'info');
+  log(`hasEntityGroup=${hasGroup} hasCharOffsets=${hasOffsets}`, hasOffsets ? 'ok' : 'err');
+
+  if (hasGroup) {
+    log('SMOKE OK: transformers.js runs and produces aggregated entities in Chrome.', 'ok');
+  } else {
+    log('SMOKE FAILED: aggregation missing entity_group.', 'err');
+  }
+
+  window.__GHEIM_SMOKE = {
+    status: hasGroup ? 'ok' : 'failed',
+    spans: out,
+    fields,
+    hasEntityGroup: hasGroup,
+    hasCharOffsets: hasOffsets,
+    error: null,
+  };
+} catch (e) {
+  log('ERROR: ' + (e && e.message ? e.message : String(e)), 'err');
+  window.__GHEIM_SMOKE = { status: 'error', spans: null, fields: null, error: String(e && e.stack || e) };
+}
+</script>
+</body>
+</html>
