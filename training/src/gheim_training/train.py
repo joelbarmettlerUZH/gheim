@@ -149,18 +149,34 @@ def main() -> None:
 
     collator = DataCollatorForTokenClassification(tokenizer, label_pad_token_id=IGNORE_INDEX)
 
-    # Initialize wandb (only on rank 0 in DDP).
+    # Initialize wandb (only on rank 0 in DDP). Fail-soft: if wandb's
+    # network init hangs (we've seen 90s timeouts on a flaky upstream),
+    # fall back to offline mode so a 5h training run isn't lost to a
+    # transient connectivity issue. The bakeoff_xlmr run on 2026-05-04
+    # died after 4 minutes for exactly this reason.
     report_to = cfg.get("report_to", []) or []
     if "wandb" in report_to:
         import os
         if int(os.environ.get("RANK", "0")) == 0:
             import wandb
-            wandb.init(
-                project=cfg.get("wandb_project", "gheim-1"),
-                name=cfg.get("wandb_run_name", Path(cfg["output_dir"]).name),
-                entity=cfg.get("wandb_entity"),
-                config=cfg,
-            )
+            try:
+                wandb.init(
+                    project=cfg.get("wandb_project", "gheim-1"),
+                    name=cfg.get("wandb_run_name", Path(cfg["output_dir"]).name),
+                    entity=cfg.get("wandb_entity"),
+                    config=cfg,
+                    settings=wandb.Settings(init_timeout=180),
+                )
+            except Exception as exc:
+                print(f"WARN: wandb online init failed ({exc!r}); falling back "
+                      f"to WANDB_MODE=offline for this run.", flush=True)
+                os.environ["WANDB_MODE"] = "offline"
+                wandb.init(
+                    project=cfg.get("wandb_project", "gheim-1"),
+                    name=cfg.get("wandb_run_name", Path(cfg["output_dir"]).name),
+                    entity=cfg.get("wandb_entity"),
+                    config=cfg,
+                )
 
     # ta_kwargs is built from a YAML cfg; values are heterogeneous and
     # TrainingArguments has narrowly-typed parameters per field. The runtime

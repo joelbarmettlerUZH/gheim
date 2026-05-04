@@ -1,10 +1,13 @@
-base_model: ZurichNLP/swissbert-large
+base_model: ZurichNLP/swissbert
 output_dir: ./checkpoints/bakeoff-swissbert
 hub_model_id: joelbarmettler/gheim-1-swissbert-bakeoff
 
 # Same dataset as bakeoff_priv.yaml — only base_model differs (Phase 3 design).
-# SwissBERT-large is 270M dense, Switzerland-tuned XMOD; the 33-class
-# classifier head is randomly initialised here too.
+# ZurichNLP/swissbert is 270M dense, Switzerland-tuned XMOD with adapter
+# weights for de_CH/fr_CH/it_CH/rm_CH; the 33-class classifier head is
+# randomly initialised here. (The original CLAUDE.md plan said
+# "swissbert-large" but that repo doesn't exist — `swissbert` is the
+# public 270M model.)
 dataset_dir: ./data/built_bakeoff
 
 eval_split: validation
