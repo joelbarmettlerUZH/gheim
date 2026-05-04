@@ -995,3 +995,518 @@ Root Cause (first observed failure):
   error_file: <N/A>
   traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
 ============================================================
+STARTING bakeoff-swissbert (4th try, fp32) at 2026-05-04 20:40:43
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/437 [00:00<?, ?it/s]Loading weights: 100%|██████████| 437/437 [00:00<00:00, 18645.33it/s]
+[transformers] [1mXmodForTokenClassification LOAD REPORT[0m from: ZurichNLP/swissbert
+Key                       | Status     | 
+--------------------------+------------+-
+lm_head.layer_norm.weight | UNEXPECTED | 
+lm_head.dense.weight      | UNEXPECTED | 
+lm_head.layer_norm.bias   | UNEXPECTED | 
+lm_head.dense.bias        | UNEXPECTED | 
+lm_head.bias              | UNEXPECTED | 
+classifier.weight         | MISSING    | 
+classifier.bias           | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+XMOD default language set to 'de_CH'
+Loading weights:   0%|          | 0/437 [00:00<?, ?it/s]Loading weights: 100%|██████████| 437/437 [00:00<00:00, 18556.80it/s]
+[transformers] [1mXmodForTokenClassification LOAD REPORT[0m from: ZurichNLP/swissbert
+Key                       | Status     | 
+--------------------------+------------+-
+lm_head.layer_norm.bias   | UNEXPECTED | 
+lm_head.bias              | UNEXPECTED | 
+lm_head.dense.weight      | UNEXPECTED | 
+lm_head.dense.bias        | UNEXPECTED | 
+lm_head.layer_norm.weight | UNEXPECTED | 
+classifier.bias           | MISSING    | 
+classifier.weight         | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+XMOD default language set to 'de_CH'
+[transformers] warmup_ratio is deprecated and will be removed in v5.2. Use `warmup_steps` instead.
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /home/joelbarmettler/.netrc.
+wandb: Currently logged in as: joel-barmettler (university-of-zurich) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /home/joelbarmettler/projects/gheim/wandb/run-20260504_204051-x9j9hwm0
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run bakeoff-swissbert
+wandb: ⭐️ View project at https://wandb.ai/university-of-zurich/gheim-1
+wandb: 🚀 View run at https://wandb.ai/university-of-zurich/gheim-1/runs/x9j9hwm0
+[transformers] warmup_ratio is deprecated and will be removed in v5.2. Use `warmup_steps` instead.
+  0%|          | 0/6597 [00:00<?, ?it/s][rank0]: Traceback (most recent call last):
+[rank0]:   File "<frozen runpy>", line 198, in _run_module_as_main
+[rank0]:   File "<frozen runpy>", line 88, in _run_code
+[rank0]:   File "/home/joelbarmettler/projects/gheim/training/src/gheim_training/train.py", line 270, in <module>
+[rank0]:     main()
+[rank0]:     ~~~~^^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/training/src/gheim_training/train.py", line 251, in main
+[rank0]:     trainer.train()
+[rank0]:     ~~~~~~~~~~~~~^^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1427, in train
+[rank0]:     return inner_training_loop(
+[rank0]:         args=args,
+[rank0]:     ...<2 lines>...
+[rank0]:         ignore_keys_for_eval=ignore_keys_for_eval,
+[rank0]:     )
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1509, in _inner_training_loop
+[rank0]:     self._run_epoch(
+[rank0]:     ~~~~~~~~~~~~~~~^
+[rank0]:         model=model,
+[rank0]:         ^^^^^^^^^^^^
+[rank0]:     ...<9 lines>...
+[rank0]:         steps_trained_in_current_epoch=steps_trained_in_current_epoch,
+[rank0]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:     )
+[rank0]:     ^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1737, in _run_epoch
+[rank0]:     tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1909, in training_step
+[rank0]:     loss = self.compute_loss(model, inputs, num_items_in_batch=num_items_in_batch)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1981, in compute_loss
+[rank0]:     outputs = model(**inputs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/parallel/distributed.py", line 1699, in forward
+[rank0]:     else self._run_ddp_forward(*inputs, **kwargs)
+[rank0]:          ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/parallel/distributed.py", line 1524, in _run_ddp_forward
+[rank0]:     return self.module(*inputs, **kwargs)  # type: ignore[index]
+[rank0]:            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/accelerate/utils/operations.py", line 823, in forward
+[rank0]:     return model_forward(*args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/accelerate/utils/operations.py", line 811, in __call__
+[rank0]:     return convert_to_fp32(self.model_forward(*args, **kwargs))
+[rank0]:                            ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+[rank0]:     return func(*args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/utils/generic.py", line 887, in wrapper
+[rank0]:     output = func(self, *args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/models/xmod/modeling_xmod.py", line 1253, in forward
+[rank0]:     outputs = self.roberta(
+[rank0]:         input_ids,
+[rank0]:     ...<6 lines>...
+[rank0]:         **kwargs,
+[rank0]:     )
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/utils/generic.py", line 963, in wrapper
+[rank0]:     output = func(self, *args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+[rank0]:     outputs = func(self, *args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/models/xmod/modeling_xmod.py", line 757, in forward
+[rank0]:     encoder_outputs = self.encoder(
+[rank0]:         embedding_output,
+[rank0]:     ...<7 lines>...
+[rank0]:         **kwargs,
+[rank0]:     )
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/models/xmod/modeling_xmod.py", line 562, in forward
+[rank0]:     hidden_states = layer_module(
+[rank0]:         hidden_states,
+[rank0]:     ...<5 lines>...
+[rank0]:         **kwargs,
+[rank0]:     )
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/modeling_layers.py", line 92, in __call__
+[rank0]:     return self._gradient_checkpointing_func(partial(super().__call__, **kwargs), *args)
+[rank0]:            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/_compile.py", line 54, in inner
+[rank0]:     return disable_fn(*args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/_dynamo/eval_frame.py", line 1263, in _fn
+[rank0]:     return fn(*args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/utils/checkpoint.py", line 512, in checkpoint
+[rank0]:     ret = function(*args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/models/xmod/modeling_xmod.py", line 531, in forward
+[rank0]:     layer_output = self.output(intermediate_output, residual, lang_ids)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/models/xmod/modeling_xmod.py", line 439, in forward
+[rank0]:     hidden_states = self.lang_adapter(lang_ids, hidden_states)
+[rank0]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/models/xmod/modeling_xmod.py", line 459, in lang_adapter
+[rank0]:     new_hidden_states[lang_mask] = adapted_lang_hidden_states
+[rank0]:     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+[rank0]: RuntimeError: Index put requires the source and destination dtypes match, got Float for the destination and BFloat16 for the source.
+[rank1]: Traceback (most recent call last):
+[rank1]:   File "<frozen runpy>", line 198, in _run_module_as_main
+[rank1]:   File "<frozen runpy>", line 88, in _run_code
+[rank1]:   File "/home/joelbarmettler/projects/gheim/training/src/gheim_training/train.py", line 270, in <module>
+[rank1]:     main()
+[rank1]:     ~~~~^^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/training/src/gheim_training/train.py", line 251, in main
+[rank1]:     trainer.train()
+[rank1]:     ~~~~~~~~~~~~~^^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1427, in train
+[rank1]:     return inner_training_loop(
+[rank1]:         args=args,
+[rank1]:     ...<2 lines>...
+[rank1]:         ignore_keys_for_eval=ignore_keys_for_eval,
+[rank1]:     )
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1509, in _inner_training_loop
+[rank1]:     self._run_epoch(
+[rank1]:     ~~~~~~~~~~~~~~~^
+[rank1]:         model=model,
+[rank1]:         ^^^^^^^^^^^^
+[rank1]:     ...<9 lines>...
+[rank1]:         steps_trained_in_current_epoch=steps_trained_in_current_epoch,
+[rank1]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank1]:     )
+[rank1]:     ^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1737, in _run_epoch
+[rank1]:     tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1909, in training_step
+[rank1]:     loss = self.compute_loss(model, inputs, num_items_in_batch=num_items_in_batch)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1981, in compute_loss
+[rank1]:     outputs = model(**inputs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+[rank1]:     return self._call_impl(*args, **kwargs)
+[rank1]:            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+[rank1]:     return forward_call(*args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/parallel/distributed.py", line 1699, in forward
+[rank1]:     else self._run_ddp_forward(*inputs, **kwargs)
+[rank1]:          ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/parallel/distributed.py", line 1524, in _run_ddp_forward
+[rank1]:     return self.module(*inputs, **kwargs)  # type: ignore[index]
+[rank1]:            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+[rank1]:     return self._call_impl(*args, **kwargs)
+[rank1]:            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+[rank1]:     return forward_call(*args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/accelerate/utils/operations.py", line 823, in forward
+[rank1]:     return model_forward(*args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/accelerate/utils/operations.py", line 811, in __call__
+[rank1]:     return convert_to_fp32(self.model_forward(*args, **kwargs))
+[rank1]:                            ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+[rank1]:     return func(*args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/utils/generic.py", line 887, in wrapper
+[rank1]:     output = func(self, *args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/models/xmod/modeling_xmod.py", line 1253, in forward
+[rank1]:     outputs = self.roberta(
+[rank1]:         input_ids,
+[rank1]:     ...<6 lines>...
+[rank1]:         **kwargs,
+[rank1]:     )
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+[rank1]:     return self._call_impl(*args, **kwargs)
+[rank1]:            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+[rank1]:     return forward_call(*args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/utils/generic.py", line 963, in wrapper
+[rank1]:     output = func(self, *args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+[rank1]:     outputs = func(self, *args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/models/xmod/modeling_xmod.py", line 757, in forward
+[rank1]:     encoder_outputs = self.encoder(
+[rank1]:         embedding_output,
+[rank1]:     ...<7 lines>...
+[rank1]:         **kwargs,
+[rank1]:     )
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+[rank1]:     return self._call_impl(*args, **kwargs)
+[rank1]:            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+[rank1]:     return forward_call(*args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/models/xmod/modeling_xmod.py", line 562, in forward
+[rank1]:     hidden_states = layer_module(
+[rank1]:         hidden_states,
+[rank1]:     ...<5 lines>...
+[rank1]:         **kwargs,
+[rank1]:     )
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/modeling_layers.py", line 92, in __call__
+[rank1]:     return self._gradient_checkpointing_func(partial(super().__call__, **kwargs), *args)
+[rank1]:            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/_compile.py", line 54, in inner
+[rank1]:     return disable_fn(*args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/_dynamo/eval_frame.py", line 1263, in _fn
+[rank1]:     return fn(*args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/utils/checkpoint.py", line 512, in checkpoint
+[rank1]:     ret = function(*args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+[rank1]:     return self._call_impl(*args, **kwargs)
+[rank1]:            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+[rank1]:     return forward_call(*args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/models/xmod/modeling_xmod.py", line 531, in forward
+[rank1]:     layer_output = self.output(intermediate_output, residual, lang_ids)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+[rank1]:     return self._call_impl(*args, **kwargs)
+[rank1]:            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+[rank1]:     return forward_call(*args, **kwargs)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/models/xmod/modeling_xmod.py", line 439, in forward
+[rank1]:     hidden_states = self.lang_adapter(lang_ids, hidden_states)
+[rank1]:   File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/transformers/models/xmod/modeling_xmod.py", line 459, in lang_adapter
+[rank1]:     new_hidden_states[lang_mask] = adapted_lang_hidden_states
+[rank1]:     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+[rank1]: RuntimeError: Index put requires the source and destination dtypes match, got Float for the destination and BFloat16 for the source.
+W0504 20:40:54.457000 102229 torch/distributed/elastic/multiprocessing/api.py:1012] Sending process 102305 closing signal SIGTERM
+E0504 20:40:54.621000 102229 torch/distributed/elastic/multiprocessing/api.py:986] failed (exitcode: 1) local_rank: 1 (pid: 102306) of binary: /home/joelbarmettler/projects/gheim/.venv/bin/python
+Traceback (most recent call last):
+  File "/home/joelbarmettler/projects/gheim/.venv/bin/accelerate", line 10, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/accelerate/commands/accelerate_cli.py", line 50, in main
+    args.func(args)
+    ~~~~~~~~~^^^^^^
+  File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/accelerate/commands/launch.py", line 1396, in launch_command
+    multi_gpu_launcher(args)
+    ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/accelerate/commands/launch.py", line 1023, in multi_gpu_launcher
+    distrib_run.run(args)
+    ~~~~~~~~~~~~~~~^^^^^^
+  File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/distributed/run.py", line 981, in run
+    elastic_launch(
+    ~~~~~~~~~~~~~~~
+        config=config,
+        ~~~~~~~~~~~~~~
+        entrypoint=cmd,
+        ~~~~~~~~~~~~~~~
+    )(*cmd_args)
+    ~^^^^^^^^^^^
+  File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/distributed/launcher/api.py", line 170, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/distributed/launcher/api.py", line 317, in launch_agent
+    raise ChildFailedError(
+    ...<2 lines>...
+    )
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+gheim_training.train FAILED
+------------------------------------------------------------
+Failures:
+[1]:
+  time      : 2026-05-04_20:40:54
+  host      : pop-os.taild91bda.ts.net
+  rank      : 0 (local_rank: 0)
+  exitcode  : -15 (pid: 102305)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 102305
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-05-04_20:40:54
+  host      : pop-os.taild91bda.ts.net
+  rank      : 1 (local_rank: 1)
+  exitcode  : 1 (pid: 102306)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+STARTING bakeoff-swissbert (5th try, accelerate fp32 too) at 2026-05-04 20:46:25
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/437 [00:00<?, ?it/s]Loading weights:   0%|          | 0/437 [00:00<?, ?it/s]Loading weights: 100%|██████████| 437/437 [00:00<00:00, 23223.74it/s]
+[transformers] [1mXmodForTokenClassification LOAD REPORT[0m from: ZurichNLP/swissbert
+Key                       | Status     | 
+--------------------------+------------+-
+lm_head.layer_norm.bias   | UNEXPECTED | 
+lm_head.dense.bias        | UNEXPECTED | 
+lm_head.dense.weight      | UNEXPECTED | 
+lm_head.layer_norm.weight | UNEXPECTED | 
+lm_head.bias              | UNEXPECTED | 
+classifier.weight         | MISSING    | 
+classifier.bias           | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+XMOD default language set to 'de_CH'
+Loading weights: 100%|██████████| 437/437 [00:00<00:00, 16162.09it/s]
+[transformers] [1mXmodForTokenClassification LOAD REPORT[0m from: ZurichNLP/swissbert
+Key                       | Status     | 
+--------------------------+------------+-
+lm_head.bias              | UNEXPECTED | 
+lm_head.layer_norm.bias   | UNEXPECTED | 
+lm_head.layer_norm.weight | UNEXPECTED | 
+lm_head.dense.bias        | UNEXPECTED | 
+lm_head.dense.weight      | UNEXPECTED | 
+classifier.bias           | MISSING    | 
+classifier.weight         | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+XMOD default language set to 'de_CH'
+[transformers] warmup_ratio is deprecated and will be removed in v5.2. Use `warmup_steps` instead.
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /home/joelbarmettler/.netrc.
+wandb: Currently logged in as: joel-barmettler (university-of-zurich) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /home/joelbarmettler/projects/gheim/wandb/run-20260504_204631-e4jm1nbt
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run bakeoff-swissbert
+wandb: ⭐️ View project at https://wandb.ai/university-of-zurich/gheim-1
+wandb: 🚀 View run at https://wandb.ai/university-of-zurich/gheim-1/runs/e4jm1nbt
+[transformers] warmup_ratio is deprecated and will be removed in v5.2. Use `warmup_steps` instead.
+  0%|          | 0/6597 [00:00<?, ?it/s]  0%|          | 1/6597 [00:00<1:25:11,  1.29it/s]  0%|          | 2/6597 [00:01<1:03:14,  1.74it/s]  0%|          | 3/6597 [00:01<1:10:39,  1.56it/s]  0%|          | 4/6597 [00:02<1:03:53,  1.72it/s]  0%|          | 5/6597 [00:03<1:05:07,  1.69it/s]  0%|          | 6/6597 [00:03<1:02:40,  1.75it/s]  0%|          | 7/6597 [00:04<1:02:19,  1.76it/s]  0%|          | 8/6597 [00:04<1:02:34,  1.75it/s]  0%|          | 9/6597 [00:05<1:01:18,  1.79it/s]  0%|          | 10/6597 [00:05<1:00:33,  1.81it/s]  0%|          | 11/6597 [00:06<59:54,  1.83it/s]    0%|          | 12/6597 [00:07<1:05:43,  1.67it/s]  0%|          | 13/6597 [00:07<1:02:15,  1.76it/s]  0%|          | 14/6597 [00:08<1:01:58,  1.77it/s]  0%|          | 15/6597 [00:08<59:35,  1.84it/s]    0%|          | 16/6597 [00:09<1:01:18,  1.79it/s]  0%|          | 17/6597 [00:09<59:26,  1.84it/s]    0%|          | 18/6597 [00:10<56:33,  1.94it/s]  0%|          | 19/6597 [00:10<55:12,  1.99it/s]  0%|          | 20/6597 [00:11<55:42,  1.97it/s]  0%|          | 21/6597 [00:11<55:55,  1.96it/s]  0%|          | 22/6597 [00:12<59:37,  1.84it/s]  0%|          | 23/6597 [00:12<58:12,  1.88it/s]  0%|          | 24/6597 [00:13<1:00:51,  1.80it/s]  0%|          | 25/6597 [00:13<1:01:15,  1.79it/s]                                                   {'loss': '14.01', 'grad_norm': '34.32', 'learning_rate': '1.455e-06', 'epoch': '0.01137'}
+  0%|          | 25/6597 [00:13<1:01:15,  1.79it/s]  0%|          | 26/6597 [00:14<1:01:21,  1.79it/s]  0%|          | 27/6597 [00:14<59:24,  1.84it/s]    0%|          | 28/6597 [00:15<1:02:38,  1.75it/s]  0%|          | 29/6597 [00:16<1:02:11,  1.76it/s]  0%|          | 30/6597 [00:16<1:01:33,  1.78it/s]  0%|          | 31/6597 [00:17<1:02:10,  1.76it/s]  0%|          | 32/6597 [00:17<1:02:25,  1.75it/s]  1%|          | 33/6597 [00:18<1:04:20,  1.70it/s]  1%|          | 34/6597 [00:19<1:04:11,  1.70it/s]  1%|          | 35/6597 [00:19<1:03:25,  1.72it/s]  1%|          | 36/6597 [00:20<1:04:20,  1.70it/s]  1%|          | 37/6597 [00:20<1:06:41,  1.64it/s]  1%|          | 38/6597 [00:21<1:08:14,  1.60it/s]  1%|          | 39/6597 [00:22<1:02:40,  1.74it/s]  1%|          | 40/6597 [00:22<59:37,  1.83it/s]    1%|          | 41/6597 [00:23<57:59,  1.88it/s]  1%|          | 42/6597 [00:23<55:56,  1.95it/s]  1%|          | 43/6597 [00:24<1:00:38,  1.80it/s]  1%|          | 44/6597 [00:24<1:04:30,  1.69it/s]  1%|          | 45/6597 [00:25<1:04:33,  1.69it/s]  1%|          | 46/6597 [00:26<1:04:27,  1.69it/s]  1%|          | 47/6597 [00:26<59:37,  1.83it/s]    1%|          | 48/6597 [00:26<58:33,  1.86it/s]  1%|          | 49/6597 [00:27<1:00:43,  1.80it/s]  1%|          | 50/6597 [00:28<1:01:55,  1.76it/s]                                                   {'loss': '11.8', 'grad_norm': '36.06', 'learning_rate': '2.97e-06', 'epoch': '0.02274'}
+  1%|          | 50/6597 [00:28<1:01:55,  1.76it/s]  1%|          | 51/6597 [00:28<1:02:04,  1.76it/s]  1%|          | 52/6597 [00:29<1:00:10,  1.81it/s]  1%|          | 53/6597 [00:29<57:55,  1.88it/s]    1%|          | 54/6597 [00:30<56:14,  1.94it/s]  1%|          | 55/6597 [00:30<57:45,  1.89it/s]  1%|          | 56/6597 [00:31<1:00:40,  1.80it/s]  1%|          | 57/6597 [00:31<56:46,  1.92it/s]    1%|          | 58/6597 [00:32<1:00:06,  1.81it/s]  1%|          | 59/6597 [00:32<59:34,  1.83it/s]    1%|          | 60/6597 [00:33<1:04:26,  1.69it/s]  1%|          | 61/6597 [00:34<1:01:09,  1.78it/s]  1%|          | 62/6597 [00:34<1:02:03,  1.75it/s]  1%|          | 63/6597 [00:35<58:22,  1.87it/s]    1%|          | 64/6597 [00:35<59:11,  1.84it/s]  1%|          | 65/6597 [00:36<56:54,  1.91it/s]  1%|          | 66/6597 [00:36<58:30,  1.86it/s]  1%|          | 67/6597 [00:37<1:01:05,  1.78it/s]  1%|          | 68/6597 [00:38<1:02:21,  1.74it/s]  1%|          | 69/6597 [00:38<1:01:20,  1.77it/s]  1%|          | 70/6597 [00:39<1:05:57,  1.65it/s]  1%|          | 71/6597 [00:39<1:03:34,  1.71it/s]  1%|          | 72/6597 [00:40<1:03:55,  1.70it/s]  1%|          | 73/6597 [00:40<59:59,  1.81it/s]    1%|          | 74/6597 [00:41<59:28,  1.83it/s]  1%|          | 75/6597 [00:41<55:41,  1.95it/s]                                                 {'loss': '7.174', 'grad_norm': '19.58', 'learning_rate': '4.485e-06', 'epoch': '0.03411'}
+  1%|          | 75/6597 [00:41<55:41,  1.95it/s]  1%|          | 76/6597 [00:42<56:27,  1.92it/s]  1%|          | 77/6597 [00:42<55:27,  1.96it/s]  1%|          | 78/6597 [00:43<55:37,  1.95it/s]  1%|          | 79/6597 [00:43<57:43,  1.88it/s]  1%|          | 80/6597 [00:44<57:37,  1.88it/s]  1%|          | 81/6597 [00:44<54:10,  2.00it/s]  1%|          | 82/6597 [00:45<56:13,  1.93it/s]  1%|▏         | 83/6597 [00:45<55:24,  1.96it/s]  1%|▏         | 84/6597 [00:46<56:17,  1.93it/s]  1%|▏         | 85/6597 [00:47<56:36,  1.92it/s]  1%|▏         | 86/6597 [00:47<55:30,  1.95it/s]  1%|▏         | 87/6597 [00:48<1:02:26,  1.74it/s]  1%|▏         | 88/6597 [00:48<1:01:41,  1.76it/s]  1%|▏         | 89/6597 [00:49<59:48,  1.81it/s]    1%|▏         | 90/6597 [00:49<57:31,  1.89it/s]  1%|▏         | 91/6597 [00:50<55:45,  1.94it/s]  1%|▏         | 92/6597 [00:50<55:07,  1.97it/s]  1%|▏         | 93/6597 [00:51<57:24,  1.89it/s]  1%|▏         | 94/6597 [00:51<56:27,  1.92it/s]  1%|▏         | 95/6597 [00:52<56:56,  1.90it/s]  1%|▏         | 96/6597 [00:52<57:32,  1.88it/s]  1%|▏         | 97/6597 [00:53<55:44,  1.94it/s]  1%|▏         | 98/6597 [00:53<54:54,  1.97it/s]  2%|▏         | 99/6597 [00:54<57:31,  1.88it/s]  2%|▏         | 100/6597 [00:55<58:57,  1.84it/s]                                                  {'loss': '4.506', 'grad_norm': '7.327', 'learning_rate': '6e-06', 'epoch': '0.04549'}
+  2%|▏         | 100/6597 [00:55<58:57,  1.84it/s]  2%|▏         | 101/6597 [00:55<1:03:59,  1.69it/s]  2%|▏         | 102/6597 [00:56<1:02:34,  1.73it/s]  2%|▏         | 103/6597 [00:56<58:18,  1.86it/s]    2%|▏         | 104/6597 [00:57<58:33,  1.85it/s]  2%|▏         | 105/6597 [00:57<57:16,  1.89it/s]  2%|▏         | 106/6597 [00:58<54:04,  2.00it/s]  2%|▏         | 107/6597 [00:58<56:01,  1.93it/s]  2%|▏         | 108/6597 [00:59<57:49,  1.87it/s]  2%|▏         | 109/6597 [01:00<1:00:57,  1.77it/s]  2%|▏         | 110/6597 [01:00<1:00:21,  1.79it/s]  2%|▏         | 111/6597 [01:01<1:03:12,  1.71it/s]  2%|▏         | 112/6597 [01:01<59:44,  1.81it/s]    2%|▏         | 113/6597 [01:02<1:03:15,  1.71it/s]  2%|▏         | 114/6597 [01:02<1:03:32,  1.70it/s]  2%|▏         | 115/6597 [01:03<1:02:11,  1.74it/s]  2%|▏         | 116/6597 [01:04<1:05:58,  1.64it/s]  2%|▏         | 117/6597 [01:04<1:08:00,  1.59it/s]  2%|▏         | 118/6597 [01:05<1:03:04,  1.71it/s]  2%|▏         | 119/6597 [01:05<1:00:31,  1.78it/s]  2%|▏         | 120/6597 [01:06<57:46,  1.87it/s]    2%|▏         | 121/6597 [01:06<54:45,  1.97it/s]  2%|▏         | 122/6597 [01:07<54:16,  1.99it/s]  2%|▏         | 123/6597 [01:07<57:59,  1.86it/s]  2%|▏         | 124/6597 [01:08<56:07,  1.92it/s]  2%|▏         | 125/6597 [01:09<1:01:49,  1.74it/s]                                                    {'loss': '3.857', 'grad_norm': '6.037', 'learning_rate': '7.515e-06', 'epoch': '0.05686'}
+  2%|▏         | 125/6597 [01:09<1:01:49,  1.74it/s]  2%|▏         | 126/6597 [01:09<59:53,  1.80it/s]    2%|▏         | 127/6597 [01:10<56:25,  1.91it/s]  2%|▏         | 128/6597 [01:10<57:55,  1.86it/s]  2%|▏         | 129/6597 [01:11<1:07:19,  1.60it/s]  2%|▏         | 130/6597 [01:11<1:06:17,  1.63it/s]  2%|▏         | 131/6597 [01:12<1:08:46,  1.57it/s]  2%|▏         | 132/6597 [01:13<1:04:49,  1.66it/s]  2%|▏         | 133/6597 [01:13<1:00:53,  1.77it/s]  2%|▏         | 134/6597 [01:14<59:48,  1.80it/s]    2%|▏         | 135/6597 [01:14<57:52,  1.86it/s]  2%|▏         | 136/6597 [01:15<1:01:55,  1.74it/s]  2%|▏         | 137/6597 [01:15<1:03:14,  1.70it/s]  2%|▏         | 138/6597 [01:16<1:00:24,  1.78it/s]  2%|▏         | 139/6597 [01:17<1:02:51,  1.71it/s]  2%|▏         | 140/6597 [01:17<59:22,  1.81it/s]    2%|▏         | 141/6597 [01:18<58:14,  1.85it/s]  2%|▏         | 142/6597 [01:18<57:35,  1.87it/s]  2%|▏         | 143/6597 [01:19<56:40,  1.90it/s]  2%|▏         | 144/6597 [01:19<55:11,  1.95it/s]  2%|▏         | 145/6597 [01:20<55:12,  1.95it/s]  2%|▏         | 146/6597 [01:20<54:59,  1.95it/s]  2%|▏         | 147/6597 [01:21<56:22,  1.91it/s]  2%|▏         | 148/6597 [01:21<56:40,  1.90it/s]  2%|▏         | 149/6597 [01:22<57:54,  1.86it/s]  2%|▏         | 150/6597 [01:22<59:48,  1.80it/s]                                                  {'loss': '3.662', 'grad_norm': '4.336', 'learning_rate': '9.03e-06', 'epoch': '0.06823'}
+  2%|▏         | 150/6597 [01:22<59:48,  1.80it/s]  2%|▏         | 151/6597 [01:23<1:01:28,  1.75it/s]  2%|▏         | 152/6597 [01:24<1:00:57,  1.76it/s]  2%|▏         | 153/6597 [01:24<1:04:08,  1.67it/s]  2%|▏         | 154/6597 [01:25<1:02:48,  1.71it/s]  2%|▏         | 155/6597 [01:25<1:03:55,  1.68it/s]  2%|▏         | 156/6597 [01:26<58:42,  1.83it/s]    2%|▏         | 157/6597 [01:26<1:00:25,  1.78it/s]  2%|▏         | 158/6597 [01:27<58:32,  1.83it/s]    2%|▏         | 159/6597 [01:28<59:13,  1.81it/s]  2%|▏         | 160/6597 [01:28<58:11,  1.84it/s]  2%|▏         | 161/6597 [01:29<59:45,  1.79it/s]  2%|▏         | 162/6597 [01:29<1:00:15,  1.78it/s]  2%|▏         | 163/6597 [01:30<1:02:24,  1.72it/s]  2%|▏         | 164/6597 [01:30<59:08,  1.81it/s]    3%|▎         | 165/6597 [01:31<57:44,  1.86it/s]  3%|▎         | 166/6597 [01:31<58:47,  1.82it/s]  3%|▎         | 167/6597 [01:32<56:20,  1.90it/s]  3%|▎         | 168/6597 [01:32<56:56,  1.88it/s]  3%|▎         | 169/6597 [01:33<54:48,  1.95it/s]  3%|▎         | 170/6597 [01:33<56:14,  1.90it/s]  3%|▎         | 171/6597 [01:34<56:50,  1.88it/s]  3%|▎         | 172/6597 [01:35<57:35,  1.86it/s]  3%|▎         | 173/6597 [01:35<58:24,  1.83it/s]  3%|▎         | 174/6597 [01:36<58:13,  1.84it/s]  3%|▎         | 175/6597 [01:36<56:01,  1.91it/s]                                                  {'loss': '3.518', 'grad_norm': '5.228', 'learning_rate': '1.055e-05', 'epoch': '0.0796'}
+  3%|▎         | 175/6597 [01:36<56:01,  1.91it/s]  3%|▎         | 176/6597 [01:37<54:59,  1.95it/s]  3%|▎         | 177/6597 [01:37<56:20,  1.90it/s]  3%|▎         | 178/6597 [01:38<55:11,  1.94it/s]  3%|▎         | 179/6597 [01:38<53:53,  1.98it/s]  3%|▎         | 180/6597 [01:39<53:42,  1.99it/s]  3%|▎         | 181/6597 [01:39<55:50,  1.92it/s]  3%|▎         | 182/6597 [01:40<56:18,  1.90it/s]  3%|▎         | 183/6597 [01:40<55:41,  1.92it/s]  3%|▎         | 184/6597 [01:41<58:05,  1.84it/s]  3%|▎         | 185/6597 [01:41<56:55,  1.88it/s]  3%|▎         | 186/6597 [01:42<56:11,  1.90it/s]  3%|▎         | 187/6597 [01:42<55:44,  1.92it/s]  3%|▎         | 188/6597 [01:43<58:13,  1.83it/s]  3%|▎         | 189/6597 [01:43<55:18,  1.93it/s]  3%|▎         | 190/6597 [01:44<1:00:00,  1.78it/s]  3%|▎         | 191/6597 [01:45<56:24,  1.89it/s]    3%|▎         | 192/6597 [01:45<55:23,  1.93it/s]  3%|▎         | 193/6597 [01:45<53:13,  2.01it/s]  3%|▎         | 194/6597 [01:46<51:40,  2.07it/s]  3%|▎         | 195/6597 [01:46<50:07,  2.13it/s]  3%|▎         | 196/6597 [01:47<50:37,  2.11it/s]  3%|▎         | 197/6597 [01:47<54:21,  1.96it/s]  3%|▎         | 198/6597 [01:48<56:28,  1.89it/s]  3%|▎         | 199/6597 [01:49<55:39,  1.92it/s]  3%|▎         | 200/6597 [01:49<55:07,  1.93it/s]                                                  {'loss': '3.286', 'grad_norm': '4.227', 'learning_rate': '1.206e-05', 'epoch': '0.09097'}
+  3%|▎         | 200/6597 [01:49<55:07,  1.93it/s]  3%|▎         | 201/6597 [01:50<56:35,  1.88it/s]  3%|▎         | 202/6597 [01:50<54:45,  1.95it/s]  3%|▎         | 203/6597 [01:51<57:51,  1.84it/s]  3%|▎         | 204/6597 [01:51<55:56,  1.90it/s]  3%|▎         | 205/6597 [01:52<54:27,  1.96it/s]  3%|▎         | 206/6597 [01:52<55:05,  1.93it/s]  3%|▎         | 207/6597 [01:53<56:36,  1.88it/s]  3%|▎         | 208/6597 [01:53<56:25,  1.89it/s]  3%|▎         | 209/6597 [01:54<58:09,  1.83it/s]  3%|▎         | 210/6597 [01:54<55:54,  1.90it/s]  3%|▎         | 211/6597 [01:55<53:15,  2.00it/s]  3%|▎         | 212/6597 [01:55<56:02,  1.90it/s]  3%|▎         | 213/6597 [01:56<58:21,  1.82it/s]  3%|▎         | 214/6597 [01:57<59:30,  1.79it/s]  3%|▎         | 215/6597 [01:57<59:58,  1.77it/s]  3%|▎         | 216/6597 [01:58<59:18,  1.79it/s]  3%|▎         | 217/6597 [01:58<59:48,  1.78it/s]  3%|▎         | 218/6597 [01:59<1:01:31,  1.73it/s]  3%|▎         | 219/6597 [02:00<1:05:32,  1.62it/s]  3%|▎         | 220/6597 [02:00<1:01:34,  1.73it/s]  3%|▎         | 221/6597 [02:01<1:00:55,  1.74it/s]  3%|▎         | 222/6597 [02:01<58:48,  1.81it/s]    3%|▎         | 223/6597 [02:02<1:00:50,  1.75it/s]  3%|▎         | 224/6597 [02:02<57:45,  1.84it/s]    3%|▎         | 225/6597 [02:03<1:02:27,  1.70it/s]                                                    {'loss': '3.068', 'grad_norm': '4.621', 'learning_rate': '1.358e-05', 'epoch': '0.1023'}
+  3%|▎         | 225/6597 [02:03<1:02:27,  1.70it/s]  3%|▎         | 226/6597 [02:04<1:03:48,  1.66it/s]  3%|▎         | 227/6597 [02:04<1:02:39,  1.69it/s]  3%|▎         | 228/6597 [02:05<1:02:15,  1.71it/s]  3%|▎         | 229/6597 [02:05<59:24,  1.79it/s]    3%|▎         | 230/6597 [02:06<57:15,  1.85it/s]  4%|▎         | 231/6597 [02:06<57:05,  1.86it/s]  4%|▎         | 232/6597 [02:07<53:22,  1.99it/s]  4%|▎         | 233/6597 [02:07<53:43,  1.97it/s]  4%|▎         | 234/6597 [02:08<54:40,  1.94it/s]  4%|▎         | 235/6597 [02:08<53:23,  1.99it/s]  4%|▎         | 236/6597 [02:09<53:15,  1.99it/s]  4%|▎         | 237/6597 [02:09<51:32,  2.06it/s]  4%|▎         | 238/6597 [02:10<52:11,  2.03it/s]  4%|▎         | 239/6597 [02:10<55:19,  1.92it/s]  4%|▎         | 240/6597 [02:11<1:00:25,  1.75it/s]  4%|▎         | 241/6597 [02:11<57:56,  1.83it/s]    4%|▎         | 242/6597 [02:12<56:26,  1.88it/s]  4%|▎         | 243/6597 [02:12<54:35,  1.94it/s]  4%|▎         | 244/6597 [02:13<1:01:05,  1.73it/s]  4%|▎         | 245/6597 [02:14<58:20,  1.81it/s]    4%|▎         | 246/6597 [02:14<59:39,  1.77it/s]  4%|▎         | 247/6597 [02:15<59:34,  1.78it/s]  4%|▍         | 248/6597 [02:15<1:00:10,  1.76it/s]  4%|▍         | 249/6597 [02:16<59:26,  1.78it/s]    4%|▍         | 250/6597 [02:16<55:44,  1.90it/s]                                                  {'loss': '2.728', 'grad_norm': '5.653', 'learning_rate': '1.509e-05', 'epoch': '0.1137'}
+  4%|▍         | 250/6597 [02:16<55:44,  1.90it/s]  4%|▍         | 251/6597 [02:17<54:00,  1.96it/s]  4%|▍         | 252/6597 [02:17<51:59,  2.03it/s]  4%|▍         | 253/6597 [02:18<54:17,  1.95it/s]  4%|▍         | 254/6597 [02:18<55:01,  1.92it/s]  4%|▍         | 255/6597 [02:19<54:05,  1.95it/s]  4%|▍         | 256/6597 [02:19<57:04,  1.85it/s]  4%|▍         | 257/6597 [02:20<57:56,  1.82it/s]  4%|▍         | 258/6597 [02:20<54:48,  1.93it/s]  4%|▍         | 259/6597 [02:21<58:07,  1.82it/s]  4%|▍         | 260/6597 [02:22<58:34,  1.80it/s]  4%|▍         | 261/6597 [02:22<56:34,  1.87it/s]  4%|▍         | 262/6597 [02:23<55:40,  1.90it/s]  4%|▍         | 263/6597 [02:23<52:28,  2.01it/s]  4%|▍         | 264/6597 [02:24<53:06,  1.99it/s]  4%|▍         | 265/6597 [02:24<53:11,  1.98it/s]  4%|▍         | 266/6597 [02:25<51:44,  2.04it/s]  4%|▍         | 267/6597 [02:25<52:29,  2.01it/s]  4%|▍         | 268/6597 [02:26<53:27,  1.97it/s]  4%|▍         | 269/6597 [02:26<52:24,  2.01it/s]  4%|▍         | 270/6597 [02:26<50:28,  2.09it/s]  4%|▍         | 271/6597 [02:27<51:38,  2.04it/s]  4%|▍         | 272/6597 [02:28<1:01:20,  1.72it/s]  4%|▍         | 273/6597 [02:28<59:08,  1.78it/s]    4%|▍         | 274/6597 [02:29<56:05,  1.88it/s]  4%|▍         | 275/6597 [02:29<53:46,  1.96it/s]                                                  {'loss': '2.31', 'grad_norm': '4.742', 'learning_rate': '1.661e-05', 'epoch': '0.1251'}
+  4%|▍         | 275/6597 [02:29<53:46,  1.96it/s]  4%|▍         | 276/6597 [02:30<53:31,  1.97it/s]  4%|▍         | 277/6597 [02:30<51:13,  2.06it/s]  4%|▍         | 278/6597 [02:31<53:47,  1.96it/s]  4%|▍         | 279/6597 [02:31<55:36,  1.89it/s]  4%|▍         | 280/6597 [02:32<1:00:04,  1.75it/s]  4%|▍         | 281/6597 [02:32<58:05,  1.81it/s]    4%|▍         | 282/6597 [02:33<58:47,  1.79it/s]  4%|▍         | 283/6597 [02:34<57:45,  1.82it/s]  4%|▍         | 284/6597 [02:34<56:35,  1.86it/s]  4%|▍         | 285/6597 [02:35<57:08,  1.84it/s]  4%|▍         | 286/6597 [02:35<55:57,  1.88it/s]  4%|▍         | 287/6597 [02:36<54:59,  1.91it/s]  4%|▍         | 288/6597 [02:36<54:50,  1.92it/s]  4%|▍         | 289/6597 [02:37<52:07,  2.02it/s]  4%|▍         | 290/6597 [02:37<53:23,  1.97it/s]  4%|▍         | 291/6597 [02:38<53:00,  1.98it/s]  4%|▍         | 292/6597 [02:38<52:44,  1.99it/s]  4%|▍         | 293/6597 [02:39<55:14,  1.90it/s]  4%|▍         | 294/6597 [02:39<53:08,  1.98it/s]  4%|▍         | 295/6597 [02:40<1:02:16,  1.69it/s]  4%|▍         | 296/6597 [02:41<1:03:22,  1.66it/s]  5%|▍         | 297/6597 [02:41<1:02:10,  1.69it/s]  5%|▍         | 298/6597 [02:42<1:01:50,  1.70it/s]  5%|▍         | 299/6597 [02:42<1:02:49,  1.67it/s]  5%|▍         | 300/6597 [02:43<1:00:08,  1.74it/s]                                                    {'loss': '1.914', 'grad_norm': '4.426', 'learning_rate': '1.812e-05', 'epoch': '0.1365'}
+  5%|▍         | 300/6597 [02:43<1:00:08,  1.74it/s]  5%|▍         | 301/6597 [02:43<57:34,  1.82it/s]    5%|▍         | 302/6597 [02:44<55:09,  1.90it/s]  5%|▍         | 303/6597 [02:44<56:19,  1.86it/s]  5%|▍         | 304/6597 [02:45<55:23,  1.89it/s]  5%|▍         | 305/6597 [02:45<53:04,  1.98it/s]  5%|▍         | 306/6597 [02:46<51:16,  2.05it/s]  5%|▍         | 307/6597 [02:46<52:58,  1.98it/s]  5%|▍         | 308/6597 [02:47<56:57,  1.84it/s]  5%|▍         | 309/6597 [02:47<54:49,  1.91it/s]  5%|▍         | 310/6597 [02:48<56:04,  1.87it/s]  5%|▍         | 311/6597 [02:49<58:08,  1.80it/s]  5%|▍         | 312/6597 [02:49<1:03:29,  1.65it/s]  5%|▍         | 313/6597 [02:50<1:01:07,  1.71it/s]  5%|▍         | 314/6597 [02:50<59:02,  1.77it/s]    5%|▍         | 315/6597 [02:51<59:20,  1.76it/s]  5%|▍         | 316/6597 [02:51<57:44,  1.81it/s]  5%|▍         | 317/6597 [02:52<58:35,  1.79it/s]  5%|▍         | 318/6597 [02:53<59:53,  1.75it/s]  5%|▍         | 319/6597 [02:53<57:55,  1.81it/s]  5%|▍         | 320/6597 [02:54<54:49,  1.91it/s]  5%|▍         | 321/6597 [02:54<51:44,  2.02it/s]  5%|▍         | 322/6597 [02:55<50:49,  2.06it/s]  5%|▍         | 323/6597 [02:55<50:34,  2.07it/s]  5%|▍         | 324/6597 [02:56<51:18,  2.04it/s]  5%|▍         | 325/6597 [02:56<50:06,  2.09it/s]                                                  {'loss': '1.593', 'grad_norm': '3.731', 'learning_rate': '1.964e-05', 'epoch': '0.1478'}
+  5%|▍         | 325/6597 [02:56<50:06,  2.09it/s]  5%|▍         | 326/6597 [02:56<49:32,  2.11it/s]  5%|▍         | 327/6597 [02:57<49:14,  2.12it/s]  5%|▍         | 328/6597 [02:58<54:55,  1.90it/s]  5%|▍         | 329/6597 [02:58<52:25,  1.99it/s]  5%|▌         | 330/6597 [02:59<54:05,  1.93it/s]  5%|▌         | 331/6597 [02:59<53:14,  1.96it/s]  5%|▌         | 332/6597 [02:59<51:41,  2.02it/s]  5%|▌         | 333/6597 [03:00<50:37,  2.06it/s]  5%|▌         | 334/6597 [03:00<51:34,  2.02it/s]  5%|▌         | 335/6597 [03:01<50:47,  2.06it/s]  5%|▌         | 336/6597 [03:01<52:29,  1.99it/s]  5%|▌         | 337/6597 [03:02<54:19,  1.92it/s]  5%|▌         | 338/6597 [03:03<53:40,  1.94it/s]  5%|▌         | 339/6597 [03:03<57:34,  1.81it/s]  5%|▌         | 340/6597 [03:04<55:26,  1.88it/s]  5%|▌         | 341/6597 [03:04<53:05,  1.96it/s]  5%|▌         | 342/6597 [03:05<53:30,  1.95it/s]  5%|▌         | 343/6597 [03:05<55:40,  1.87it/s]  5%|▌         | 344/6597 [03:06<57:04,  1.83it/s]  5%|▌         | 345/6597 [03:06<1:01:12,  1.70it/s]  5%|▌         | 346/6597 [03:07<1:04:30,  1.62it/s]  5%|▌         | 347/6597 [03:08<59:57,  1.74it/s]    5%|▌         | 348/6597 [03:08<59:37,  1.75it/s]  5%|▌         | 349/6597 [03:09<54:14,  1.92it/s]  5%|▌         | 350/6597 [03:09<54:22,  1.92it/s]                                                  {'loss': '1.329', 'grad_norm': '4.336', 'learning_rate': '2e-05', 'epoch': '0.1592'}
+  5%|▌         | 350/6597 [03:09<54:22,  1.92it/s]  5%|▌         | 351/6597 [03:10<53:24,  1.95it/s]  5%|▌         | 352/6597 [03:10<54:26,  1.91it/s]  5%|▌         | 353/6597 [03:11<57:52,  1.80it/s]  5%|▌         | 354/6597 [03:11<55:36,  1.87it/s]  5%|▌         | 355/6597 [03:12<53:14,  1.95it/s]  5%|▌         | 356/6597 [03:12<53:45,  1.94it/s]  5%|▌         | 357/6597 [03:13<54:34,  1.91it/s]  5%|▌         | 358/6597 [03:13<55:51,  1.86it/s]  5%|▌         | 359/6597 [03:14<54:47,  1.90it/s]  5%|▌         | 360/6597 [03:14<55:22,  1.88it/s]  5%|▌         | 361/6597 [03:15<55:06,  1.89it/s]  5%|▌         | 362/6597 [03:16<55:48,  1.86it/s]  6%|▌         | 363/6597 [03:16<53:19,  1.95it/s]  6%|▌         | 364/6597 [03:16<51:49,  2.00it/s]  6%|▌         | 365/6597 [03:17<53:16,  1.95it/s]  6%|▌         | 366/6597 [03:17<52:32,  1.98it/s]  6%|▌         | 367/6597 [03:18<54:15,  1.91it/s]  6%|▌         | 368/6597 [03:19<52:38,  1.97it/s]  6%|▌         | 369/6597 [03:19<54:18,  1.91it/s]  6%|▌         | 370/6597 [03:20<57:17,  1.81it/s]  6%|▌         | 371/6597 [03:20<54:19,  1.91it/s]  6%|▌         | 372/6597 [03:21<54:53,  1.89it/s]  6%|▌         | 373/6597 [03:21<58:15,  1.78it/s]  6%|▌         | 374/6597 [03:22<57:56,  1.79it/s]  6%|▌         | 375/6597 [03:22<54:52,  1.89it/s]                                                  {'loss': '1.161', 'grad_norm': '5.195', 'learning_rate': '2e-05', 'epoch': '0.1706'}
+  6%|▌         | 375/6597 [03:22<54:52,  1.89it/s]  6%|▌         | 376/6597 [03:23<54:21,  1.91it/s]  6%|▌         | 377/6597 [03:24<59:38,  1.74it/s]  6%|▌         | 378/6597 [03:24<55:49,  1.86it/s]  6%|▌         | 379/6597 [03:25<54:31,  1.90it/s]  6%|▌         | 380/6597 [03:25<55:05,  1.88it/s]  6%|▌         | 381/6597 [03:26<53:30,  1.94it/s]  6%|▌         | 382/6597 [03:26<53:51,  1.92it/s]  6%|▌         | 383/6597 [03:27<58:53,  1.76it/s]  6%|▌         | 384/6597 [03:27<58:06,  1.78it/s]  6%|▌         | 385/6597 [03:28<58:30,  1.77it/s]  6%|▌         | 386/6597 [03:28<56:36,  1.83it/s]  6%|▌         | 387/6597 [03:29<57:12,  1.81it/s]  6%|▌         | 388/6597 [03:29<55:29,  1.86it/s]  6%|▌         | 389/6597 [03:30<1:00:47,  1.70it/s]  6%|▌         | 390/6597 [03:31<1:01:04,  1.69it/s]  6%|▌         | 391/6597 [03:31<1:00:49,  1.70it/s]  6%|▌         | 392/6597 [03:32<57:20,  1.80it/s]    6%|▌         | 393/6597 [03:32<58:27,  1.77it/s]  6%|▌         | 394/6597 [03:33<58:16,  1.77it/s]  6%|▌         | 395/6597 [03:34<1:03:09,  1.64it/s]  6%|▌         | 396/6597 [03:34<1:01:35,  1.68it/s]  6%|▌         | 397/6597 [03:35<1:01:09,  1.69it/s]  6%|▌         | 398/6597 [03:35<58:26,  1.77it/s]    6%|▌         | 399/6597 [03:36<1:00:30,  1.71it/s]  6%|▌         | 400/6597 [03:36<57:58,  1.78it/s]                                                    {'loss': '0.9822', 'grad_norm': '3.037', 'learning_rate': '1.999e-05', 'epoch': '0.1819'}
+  6%|▌         | 400/6597 [03:36<57:58,  1.78it/s]  6%|▌         | 401/6597 [03:37<55:27,  1.86it/s]  6%|▌         | 402/6597 [03:37<55:34,  1.86it/s]  6%|▌         | 403/6597 [03:38<58:47,  1.76it/s]  6%|▌         | 404/6597 [03:39<56:50,  1.82it/s]  6%|▌         | 405/6597 [03:39<54:04,  1.91it/s]  6%|▌         | 406/6597 [03:40<56:24,  1.83it/s]  6%|▌         | 407/6597 [03:40<56:14,  1.83it/s]  6%|▌         | 408/6597 [03:41<54:51,  1.88it/s]  6%|▌         | 409/6597 [03:41<59:04,  1.75it/s]  6%|▌         | 410/6597 [03:42<57:31,  1.79it/s]  6%|▌         | 411/6597 [03:42<56:22,  1.83it/s]  6%|▌         | 412/6597 [03:43<54:56,  1.88it/s]  6%|▋         | 413/6597 [03:43<54:26,  1.89it/s]  6%|▋         | 414/6597 [03:44<56:16,  1.83it/s]  6%|▋         | 415/6597 [03:44<53:36,  1.92it/s]  6%|▋         | 416/6597 [03:45<55:12,  1.87it/s]  6%|▋         | 417/6597 [03:46<56:31,  1.82it/s]  6%|▋         | 418/6597 [03:46<58:20,  1.77it/s]  6%|▋         | 419/6597 [03:47<59:15,  1.74it/s]  6%|▋         | 420/6597 [03:48<1:02:56,  1.64it/s]  6%|▋         | 421/6597 [03:48<58:25,  1.76it/s]    6%|▋         | 422/6597 [03:49<58:11,  1.77it/s]  6%|▋         | 423/6597 [03:49<59:00,  1.74it/s]  6%|▋         | 424/6597 [03:50<59:46,  1.72it/s]  6%|▋         | 425/6597 [03:50<57:28,  1.79it/s]                                                  {'loss': '0.8692', 'grad_norm': '2.572', 'learning_rate': '1.999e-05', 'epoch': '0.1933'}
+  6%|▋         | 425/6597 [03:50<57:28,  1.79it/s]  6%|▋         | 426/6597 [03:51<55:27,  1.85it/s]  6%|▋         | 427/6597 [03:51<58:16,  1.76it/s]  6%|▋         | 428/6597 [03:52<57:39,  1.78it/s]  7%|▋         | 429/6597 [03:52<53:11,  1.93it/s]  7%|▋         | 430/6597 [03:53<55:38,  1.85it/s]  7%|▋         | 431/6597 [03:53<55:43,  1.84it/s]  7%|▋         | 432/6597 [03:54<58:21,  1.76it/s]  7%|▋         | 433/6597 [03:55<58:15,  1.76it/s]  7%|▋         | 434/6597 [03:55<58:18,  1.76it/s]  7%|▋         | 435/6597 [03:56<57:29,  1.79it/s]  7%|▋         | 436/6597 [03:56<1:00:03,  1.71it/s]  7%|▋         | 437/6597 [03:57<59:24,  1.73it/s]    7%|▋         | 438/6597 [03:57<55:39,  1.84it/s]  7%|▋         | 439/6597 [03:58<52:46,  1.95it/s]  7%|▋         | 440/6597 [03:58<53:19,  1.92it/s]  7%|▋         | 441/6597 [03:59<50:39,  2.03it/s]  7%|▋         | 442/6597 [03:59<53:08,  1.93it/s]  7%|▋         | 443/6597 [04:00<52:05,  1.97it/s]  7%|▋         | 444/6597 [04:00<53:16,  1.93it/s]  7%|▋         | 445/6597 [04:01<52:02,  1.97it/s]  7%|▋         | 446/6597 [04:02<54:42,  1.87it/s]  7%|▋         | 447/6597 [04:02<53:23,  1.92it/s]  7%|▋         | 448/6597 [04:03<54:57,  1.86it/s]  7%|▋         | 449/6597 [04:03<53:03,  1.93it/s]  7%|▋         | 450/6597 [04:04<54:40,  1.87it/s]                                                  {'loss': '0.7144', 'grad_norm': '2.437', 'learning_rate': '1.998e-05', 'epoch': '0.2047'}
+  7%|▋         | 450/6597 [04:04<54:40,  1.87it/s]  7%|▋         | 451/6597 [04:04<54:36,  1.88it/s]  7%|▋         | 452/6597 [04:05<54:45,  1.87it/s]  7%|▋         | 453/6597 [04:05<54:25,  1.88it/s]  7%|▋         | 454/6597 [04:06<51:47,  1.98it/s]  7%|▋         | 455/6597 [04:06<51:34,  1.98it/s]  7%|▋         | 456/6597 [04:07<50:02,  2.05it/s]  7%|▋         | 457/6597 [04:07<54:49,  1.87it/s]  7%|▋         | 458/6597 [04:08<56:13,  1.82it/s]  7%|▋         | 459/6597 [04:09<1:01:10,  1.67it/s]  7%|▋         | 460/6597 [04:09<57:20,  1.78it/s]    7%|▋         | 461/6597 [04:10<54:21,  1.88it/s]  7%|▋         | 462/6597 [04:10<53:25,  1.91it/s]  7%|▋         | 463/6597 [04:11<51:31,  1.98it/s]  7%|▋         | 464/6597 [04:11<55:08,  1.85it/s]  7%|▋         | 465/6597 [04:12<58:21,  1.75it/s]  7%|▋         | 466/6597 [04:12<53:53,  1.90it/s]  7%|▋         | 467/6597 [04:13<56:55,  1.79it/s]  7%|▋         | 468/6597 [04:13<58:10,  1.76it/s]  7%|▋         | 469/6597 [04:14<56:10,  1.82it/s]  7%|▋         | 470/6597 [04:14<56:09,  1.82it/s]  7%|▋         | 471/6597 [04:15<52:55,  1.93it/s]  7%|▋         | 472/6597 [04:15<52:49,  1.93it/s]  7%|▋         | 473/6597 [04:16<50:13,  2.03it/s]  7%|▋         | 474/6597 [04:16<53:26,  1.91it/s]  7%|▋         | 475/6597 [04:17<58:58,  1.73it/s]                                                  {'loss': '0.6396', 'grad_norm': '2.7', 'learning_rate': '1.997e-05', 'epoch': '0.2161'}
+  7%|▋         | 475/6597 [04:17<58:58,  1.73it/s]  7%|▋         | 476/6597 [04:18<55:18,  1.84it/s]  7%|▋         | 477/6597 [04:18<53:44,  1.90it/s]  7%|▋         | 478/6597 [04:19<55:09,  1.85it/s]  7%|▋         | 479/6597 [04:19<51:34,  1.98it/s]  7%|▋         | 480/6597 [04:20<51:02,  2.00it/s]  7%|▋         | 481/6597 [04:20<48:53,  2.08it/s]  7%|▋         | 482/6597 [04:20<47:19,  2.15it/s]  7%|▋         | 483/6597 [04:21<50:41,  2.01it/s]  7%|▋         | 484/6597 [04:22<52:49,  1.93it/s]  7%|▋         | 485/6597 [04:22<51:11,  1.99it/s]  7%|▋         | 486/6597 [04:23<52:05,  1.96it/s]  7%|▋         | 487/6597 [04:23<1:00:08,  1.69it/s]  7%|▋         | 488/6597 [04:24<56:17,  1.81it/s]    7%|▋         | 489/6597 [04:24<54:03,  1.88it/s]  7%|▋         | 490/6597 [04:25<1:00:09,  1.69it/s]  7%|▋         | 491/6597 [04:26<1:01:50,  1.65it/s]  7%|▋         | 492/6597 [04:26<58:46,  1.73it/s]    7%|▋         | 493/6597 [04:27<56:53,  1.79it/s]  7%|▋         | 494/6597 [04:27<54:28,  1.87it/s]  8%|▊         | 495/6597 [04:28<58:22,  1.74it/s]  8%|▊         | 496/6597 [04:28<56:49,  1.79it/s]  8%|▊         | 497/6597 [04:29<1:09:34,  1.46it/s]  8%|▊         | 498/6597 [04:30<1:08:49,  1.48it/s]  8%|▊         | 499/6597 [04:31<1:03:32,  1.60it/s]  8%|▊         | 500/6597 [04:31<1:01:10,  1.66it/s]                                                    {'loss': '0.5651', 'grad_norm': '2.338', 'learning_rate': '1.996e-05', 'epoch': '0.2274'}
+  8%|▊         | 500/6597 [04:31<1:01:10,  1.66it/s]
+  0%|          | 0/116 [00:00<?, ?it/s][A
+  2%|▏         | 2/116 [00:00<00:06, 16.79it/s][A
+  3%|▎         | 4/116 [00:00<00:10, 10.51it/s][A
+  5%|▌         | 6/116 [00:00<00:12,  8.82it/s][A
+  6%|▌         | 7/116 [00:00<00:12,  8.68it/s][A
+  7%|▋         | 8/116 [00:00<00:13,  7.92it/s][A
+  8%|▊         | 9/116 [00:01<00:13,  8.05it/s][A
+  9%|▊         | 10/116 [00:01<00:12,  8.50it/s][A
+  9%|▉         | 11/116 [00:01<00:12,  8.22it/s][A
+ 10%|█         | 12/116 [00:01<00:13,  7.72it/s][A
+ 11%|█         | 13/116 [00:01<00:13,  7.81it/s][A
+ 12%|█▏        | 14/116 [00:01<00:14,  7.12it/s][A
+ 13%|█▎        | 15/116 [00:01<00:13,  7.54it/s][A
+ 14%|█▍        | 16/116 [00:01<00:12,  7.78it/s][A
+ 15%|█▍        | 17/116 [00:02<00:15,  6.45it/s][A
+ 16%|█▌        | 18/116 [00:02<00:14,  6.54it/s][A
+ 16%|█▋        | 19/116 [00:02<00:13,  7.12it/s][A
+ 17%|█▋        | 20/116 [00:02<00:14,  6.62it/s][A
+ 18%|█▊        | 21/116 [00:02<00:14,  6.46it/s][A
+ 19%|█▉        | 22/116 [00:02<00:14,  6.35it/s][A
+ 20%|█▉        | 23/116 [00:03<00:14,  6.46it/s][A
+ 21%|██        | 24/116 [00:03<00:13,  6.62it/s][A
+ 22%|██▏       | 25/116 [00:03<00:12,  7.06it/s][A
+ 22%|██▏       | 26/116 [00:03<00:12,  7.35it/s][A
+ 23%|██▎       | 27/116 [00:03<00:12,  7.07it/s][A
+ 24%|██▍       | 28/116 [00:03<00:12,  7.27it/s][A
+ 25%|██▌       | 29/116 [00:03<00:11,  7.33it/s][A
+ 26%|██▌       | 30/116 [00:03<00:11,  7.48it/s][A
+ 27%|██▋       | 31/116 [00:04<00:11,  7.37it/s][A
+ 28%|██▊       | 32/116 [00:04<00:11,  7.13it/s][A
+ 28%|██▊       | 33/116 [00:04<00:11,  7.01it/s][A
+ 29%|██▉       | 34/116 [00:04<00:11,  7.30it/s][A
+ 30%|███       | 35/116 [00:04<00:11,  7.19it/s][A
+ 31%|███       | 36/116 [00:04<00:10,  7.63it/s][A
+ 32%|███▏      | 37/116 [00:04<00:11,  6.89it/s][A
+ 33%|███▎      | 38/116 [00:05<00:10,  7.58it/s][A
+ 34%|███▎      | 39/116 [00:05<00:09,  7.76it/s][A
+ 34%|███▍      | 40/116 [00:05<00:09,  8.20it/s][A
+ 35%|███▌      | 41/116 [00:05<00:09,  8.23it/s][A
+ 36%|███▌      | 42/116 [00:05<00:08,  8.56it/s][A
+ 37%|███▋      | 43/116 [00:05<00:08,  8.52it/s][A
+ 38%|███▊      | 44/116 [00:05<00:09,  7.76it/s][A
+ 39%|███▉      | 45/116 [00:05<00:09,  7.54it/s][A
+ 40%|███▉      | 46/116 [00:06<00:09,  7.37it/s][A
+ 41%|████      | 47/116 [00:06<00:09,  7.35it/s][A
+ 41%|████▏     | 48/116 [00:06<00:08,  7.85it/s][A
+ 42%|████▏     | 49/116 [00:06<00:10,  6.46it/s][A
+ 43%|████▎     | 50/116 [00:06<00:10,  6.14it/s][A
+ 44%|████▍     | 51/116 [00:06<00:09,  6.55it/s][A
+ 45%|████▍     | 52/116 [00:07<00:09,  6.68it/s][A
+ 46%|████▌     | 53/116 [00:07<00:09,  6.96it/s][A
+ 47%|████▋     | 54/116 [00:07<00:09,  6.58it/s][A
+ 47%|████▋     | 55/116 [00:07<00:08,  6.90it/s][A
+ 48%|████▊     | 56/116 [00:07<00:08,  7.38it/s][A
+ 49%|████▉     | 57/116 [00:07<00:08,  6.78it/s][A
+ 50%|█████     | 58/116 [00:07<00:08,  6.71it/s][A
+ 51%|█████     | 59/116 [00:08<00:08,  7.04it/s][A
+ 52%|█████▏    | 60/116 [00:08<00:08,  6.70it/s][A
+ 53%|█████▎    | 61/116 [00:08<00:07,  7.03it/s][A
+ 53%|█████▎    | 62/116 [00:08<00:07,  6.94it/s][A
+ 54%|█████▍    | 63/116 [00:08<00:07,  7.11it/s][A
+ 55%|█████▌    | 64/116 [00:08<00:07,  6.74it/s][A
+ 56%|█████▌    | 65/116 [00:08<00:07,  7.06it/s][A
+ 57%|█████▋    | 66/116 [00:09<00:07,  6.50it/s][A
+ 58%|█████▊    | 67/116 [00:09<00:07,  6.94it/s][A
+ 59%|█████▊    | 68/116 [00:09<00:06,  7.24it/s][A
+ 59%|█████▉    | 69/116 [00:09<00:06,  7.01it/s][A
+ 61%|██████    | 71/116 [00:09<00:05,  7.87it/s][A
+ 62%|██████▏   | 72/116 [00:09<00:05,  7.87it/s][A
+ 63%|██████▎   | 73/116 [00:09<00:05,  7.32it/s][A
+ 64%|██████▍   | 74/116 [00:10<00:05,  7.51it/s][A
+ 65%|██████▍   | 75/116 [00:10<00:05,  7.94it/s][A
+ 66%|██████▌   | 76/116 [00:10<00:04,  8.03it/s][A
+ 66%|██████▋   | 77/116 [00:10<00:04,  7.95it/s][A
+ 67%|██████▋   | 78/116 [00:10<00:04,  7.71it/s][A
+ 68%|██████▊   | 79/116 [00:10<00:05,  7.26it/s][A
+ 69%|██████▉   | 80/116 [00:10<00:04,  7.72it/s][A
+ 70%|██████▉   | 81/116 [00:10<00:04,  7.96it/s][A
+ 71%|███████   | 82/116 [00:11<00:05,  6.54it/s][A
+ 72%|███████▏  | 83/116 [00:11<00:04,  6.73it/s][A
+ 72%|███████▏  | 84/116 [00:11<00:04,  6.96it/s][A
+ 73%|███████▎  | 85/116 [00:11<00:04,  6.82it/s][A
+ 74%|███████▍  | 86/116 [00:11<00:05,  5.52it/s][A
+ 75%|███████▌  | 87/116 [00:12<00:05,  5.48it/s][A
+ 76%|███████▌  | 88/116 [00:12<00:04,  6.05it/s][A
+ 77%|███████▋  | 89/116 [00:12<00:04,  6.39it/s][A
+ 78%|███████▊  | 90/116 [00:12<00:04,  5.73it/s][A
+ 78%|███████▊  | 91/116 [00:12<00:04,  6.04it/s][A
+ 79%|███████▉  | 92/116 [00:12<00:04,  5.56it/s][A
+ 80%|████████  | 93/116 [00:13<00:03,  5.89it/s][A
+ 81%|████████  | 94/116 [00:13<00:03,  6.41it/s][A
+ 82%|████████▏ | 95/116 [00:13<00:02,  7.13it/s][A
+ 83%|████████▎ | 96/116 [00:13<00:02,  7.30it/s][A
+ 84%|████████▎ | 97/116 [00:13<00:03,  6.20it/s][A
+ 84%|████████▍ | 98/116 [00:13<00:02,  6.37it/s][A
+ 85%|████████▌ | 99/116 [00:13<00:02,  6.63it/s][A
+ 86%|████████▌ | 100/116 [00:14<00:02,  6.42it/s][A
+ 87%|████████▋ | 101/116 [00:14<00:02,  6.47it/s][A
+ 88%|████████▊ | 102/116 [00:14<00:02,  6.42it/s][A
+ 89%|████████▉ | 103/116 [00:14<00:01,  6.77it/s][A
+ 90%|████████▉ | 104/116 [00:14<00:01,  7.40it/s][A
+ 91%|█████████ | 105/116 [00:14<00:01,  7.67it/s][A
+ 91%|█████████▏| 106/116 [00:14<00:01,  7.11it/s][A
+ 92%|█████████▏| 107/116 [00:15<00:01,  5.93it/s][A
+ 93%|█████████▎| 108/116 [00:15<00:01,  5.54it/s][A
+ 94%|█████████▍| 109/116 [00:15<00:01,  5.80it/s][A
+ 95%|█████████▍| 110/116 [00:15<00:01,  5.21it/s][A
+ 96%|█████████▌| 111/116 [00:15<00:00,  5.75it/s][A
+ 97%|█████████▋| 112/116 [00:16<00:00,  5.79it/s][A
+ 97%|█████████▋| 113/116 [00:16<00:00,  6.03it/s][A
+ 98%|█████████▊| 114/116 [00:16<00:00,  5.50it/s][A
+ 99%|█████████▉| 115/116 [00:16<00:00,  6.23it/s][A
+100%|██████████| 116/116 [00:16<00:00,  6.79it/s][A                                                    
+                                                 [A{'eval_loss': '0.2434', 'eval_overall_f1': '0.8703', 'eval_overall_precision': '0.8323', 'eval_overall_recall': '0.9119', 'eval_f1/account_number': '0.9715', 'eval_f1/private_address': '0.848', 'eval_f1/private_date': '0.905', 'eval_f1/private_email': '0.9701', 'eval_f1/private_person': '0.8072', 'eval_f1/private_phone': '0.914', 'eval_f1/private_url': '0.8626', 'eval_f1/secret': '0.9356', 'eval_runtime': '30.14', 'eval_samples_per_second': '491.3', 'eval_steps_per_second': '3.848', 'epoch': '0.2274'}
+  8%|▊         | 500/6597 [05:01<1:01:10,  1.66it/s]
+100%|██████████| 116/116 [00:29<00:00,  6.79it/s][A
+                                                 [A
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s][A
+Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.84it/s][AWriting model shards: 100%|██████████| 1/1 [00:00<00:00,  1.83it/s]
+/home/joelbarmettler/projects/gheim/.venv/lib/python3.13/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+  8%|▊         | 501/6597 [05:03<16:53:52,  9.98s/it]  8%|▊         | 502/6597 [05:03<12:05:37,  7.14s/it]  8%|▊         | 503/6597 [05:04<8:44:56,  5.17s/it]   8%|▊         | 504/6597 [05:05<6:27:04,  3.81s/it]  8%|▊         | 505/6597 [05:05<4:49:27,  2.85s/it]  8%|▊         | 506/6597 [05:06<3:38:39,  2.15s/it]  8%|▊         | 507/6597 [05:06<2:48:22,  1.66s/it]  8%|▊         | 508/6597 [05:07<2:14:58,  1.33s/it]  8%|▊         | 509/6597 [05:07<1:49:12,  1.08s/it]  8%|▊         | 510/6597 [05:08<1:31:26,  1.11it/s]  8%|▊         | 511/6597 [05:08<1:19:01,  1.28it/s]  8%|▊         | 512/6597 [05:09<1:12:37,  1.40it/s]  8%|▊         | 513/6597 [05:09<1:05:45,  1.54it/s]  8%|▊         | 514/6597 [05:10<1:03:39,  1.59it/s]  8%|▊         | 515/6597 [05:11<1:04:58,  1.56it/s]  8%|▊         | 516/6597 [05:11<1:02:03,  1.63it/s]  8%|▊         | 517/6597 [05:12<57:22,  1.77it/s]    8%|▊         | 518/6597 [05:12<56:28,  1.79it/s]  8%|▊         | 519/6597 [05:13<54:30,  1.86it/s]  8%|▊         | 520/6597 [05:13<52:38,  1.92it/s]  8%|▊         | 521/6597 [05:14<52:51,  1.92it/s]  8%|▊         | 522/6597 [05:14<51:53,  1.95it/s]  8%|▊         | 523/6597 [05:15<52:50,  1.92it/s]  8%|▊         | 524/6597 [05:15<51:05,  1.98it/s]  8%|▊         | 525/6597 [05:16<52:03,  1.94it/s]                                                  {'loss': '0.5228', 'grad_norm': '2.213', 'learning_rate': '1.995e-05', 'epoch': '0.2388'}
+  8%|▊         | 525/6597 [05:16<52:03,  1.94it/s]  8%|▊         | 526/6597 [05:16<53:44,  1.88it/s]  8%|▊         | 527/6597 [05:17<53:31,  1.89it/s]  8%|▊         | 528/6597 [05:17<52:57,  1.91it/s]  8%|▊         | 529/6597 [05:18<51:34,  1.96it/s]  8%|▊         | 530/6597 [05:18<49:52,  2.03it/s]  8%|▊         | 531/6597 [05:19<57:01,  1.77it/s]  8%|▊         | 532/6597 [05:19<53:27,  1.89it/s]  8%|▊         | 533/6597 [05:20<54:50,  1.84it/s]  8%|▊         | 534/6597 [05:21<54:01,  1.87it/s]  8%|▊         | 535/6597 [05:21<54:06,  1.87it/s]  8%|▊         | 536/6597 [05:22<51:38,  1.96it/s]  8%|▊         | 537/6597 [05:22<52:23,  1.93it/s]  8%|▊         | 538/6597 [05:23<55:50,  1.81it/s]  8%|▊         | 539/6597 [05:23<55:10,  1.83it/s]  8%|▊         | 540/6597 [05:24<56:22,  1.79it/s]  8%|▊         | 541/6597 [05:24<56:29,  1.79it/s]  8%|▊         | 542/6597 [05:25<54:23,  1.86it/s]  8%|▊         | 543/6597 [05:26<1:01:00,  1.65it/s]  8%|▊         | 544/6597 [05:26<1:01:11,  1.65it/s]  8%|▊         | 545/6597 [05:27<56:14,  1.79it/s]    8%|▊         | 546/6597 [05:27<53:25,  1.89it/s]  8%|▊         | 547/6597 [05:28<53:32,  1.88it/s]  8%|▊         | 548/6597 [05:28<53:05,  1.90it/s]

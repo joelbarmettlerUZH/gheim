@@ -26,11 +26,16 @@ learning_rate: 2.0e-5
 lr_scheduler_type: cosine
 warmup_ratio: 0.05
 num_train_epochs: 3
-per_device_train_batch_size: 64
+per_device_train_batch_size: 32
 per_device_eval_batch_size: 64
-gradient_accumulation_steps: 1
+gradient_accumulation_steps: 2  # effective batch 64 maintained
 gradient_checkpointing: true
-bf16: true
+# bf16 OFF for swissbert: XMOD's lang adapter weights stay in fp32 while
+# the residual stream runs bf16, causing "Index put requires the source
+# and destination dtypes match" at modeling_xmod.py:459 during the adapter
+# scatter. fp32 + smaller per-device batch + grad-accum=2 keeps memory
+# in budget; the 270M model is small enough that fp32 fits comfortably.
+bf16: false
 
 logging_steps: 25
 eval_strategy: steps
