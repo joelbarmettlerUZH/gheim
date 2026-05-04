@@ -1,0 +1,39 @@
+[project]
+name = "gheim-training"
+version = "0.0.1"
+description = "Swiss-market fine-tuning pipeline for the gheim PII detector."
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=2.2",
+    "transformers>=4.45",
+    "accelerate>=0.34",
+    "datasets>=3.0",
+    "seqeval>=1.2.2",
+    "faker>=30.0",
+    "schwifty>=2024.1",
+    "python-stdnum>=1.20",
+    "huggingface-hub>=0.24",
+    "pyyaml>=6.0",
+    "numpy>=1.26",
+    "wandb>=0.18",
+    "pillow>=12.2.0",
+    "torchvision>=0.26.0",
+    "soundfile>=0.13.1",
+    "librosa>=0.11.0",
+    "lingua-language-detector>=2.0",
+]
+
+[project.optional-dependencies]
+apertus = [
+    "vllm>=0.6.0",
+]
+eval = [
+    "presidio-analyzer>=2.2",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gheim_training"]
