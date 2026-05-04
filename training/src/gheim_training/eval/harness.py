@@ -116,14 +116,28 @@ def evaluate(detector: Detector, cases: list[dict]) -> dict[str, Any]:
 
     Per-(language, category) buckets, rolled up to per-language, per-entity,
     and overall. Both strict and overlap F1 are reported.
+
+    If any case carries a ``presence`` field (``"pii_dense"`` or
+    ``"control"``, set by the test_v1 surfacer), an additional
+    ``by_presence`` section reports false-positive counts on the control
+    subset specifically — every prediction on a control chunk is by
+    definition a false positive (controls have no gold spans), so the
+    raw FP count is the cleanest measure of the detector's noise floor.
     """
     strict_counts: dict[tuple[str, str], list[int]] = defaultdict(lambda: [0, 0, 0])
     overlap_counts: dict[tuple[str, str], list[int]] = defaultdict(lambda: [0, 0, 0])
+    # Per-presence FP and chunk count: lets us report "FPs per control chunk"
+    # which is the bake-off's noise-floor metric.
+    presence_counts: dict[str, list[int]] = defaultdict(lambda: [0, 0])  # [fp, n_chunks]
 
     for item in cases:
         gold = _to_set(item["spans"])
         pred = _to_set(detector.detect(item["text"]))
         lang = item.get("language") or "unknown"
+        presence = item.get("presence")
+        if isinstance(presence, str):
+            presence_counts[presence][0] += len(pred - gold)
+            presence_counts[presence][1] += 1
         for cat in CATEGORIES:
             gold_c = {s for s in gold if s[2] == cat}
             pred_c = {s for s in pred if s[2] == cat}
@@ -142,11 +156,21 @@ def evaluate(detector: Detector, cases: list[dict]) -> dict[str, Any]:
             overlap_counts[(lang, cat)][1] += o_fp
             overlap_counts[(lang, cat)][2] += o_fn
 
-    return {
+    report: dict[str, Any] = {
         "strict": _build_report(strict_counts),
         "overlap": _build_report(overlap_counts),
         "n_cases": len(cases),
     }
+    if presence_counts:
+        report["by_presence"] = {
+            presence: {
+                "fp": fp,
+                "n_chunks": n,
+                "fp_per_chunk": fp / n if n else None,
+            }
+            for presence, (fp, n) in presence_counts.items()
+        }
+    return report
 
 
 def _build_report(counts: dict[tuple[str, str], list[int]]) -> dict[str, Any]:
@@ -186,6 +210,12 @@ def _print(report: dict[str, Any]) -> None:
         print("  By entity:")
         for ent, s in sorted(sub["by_entity"].items()):
             print(f"    {ent:<18} F1={_fmt_f1(s['f1'])}  (TP={s['tp']} FP={s['fp']} FN={s['fn']})")
+    if "by_presence" in report:
+        print("\n=== By presence (false-positive rate on PII-free controls) ===")
+        for presence, s in sorted(report["by_presence"].items()):
+            fpc = s.get("fp_per_chunk")
+            fpc_s = "n/a" if fpc is None else f"{fpc:.3f}"
+            print(f"  {presence:<10} n={s['n_chunks']:>4}  FP={s['fp']:>4}  FP/chunk={fpc_s}")
 
 
 def main() -> None:

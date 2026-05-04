@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from collections import Counter, defaultdict
 from collections.abc import Iterator
 from dataclasses import asdict, dataclass
@@ -41,6 +42,12 @@ from typing import Annotated
 
 from ..data.label_space import CATEGORIES
 from ..data.schema import Span
+
+# Strict filename pattern for labeler outputs: batch_NNN_labeler{A|B|C|D}.jsonl.
+# Loaders raise on any deviation rather than silently skipping — a typo'd
+# filename would otherwise cause a chunk to be missing one labeler's vote
+# without any signal in the report.
+_LABELER_FILENAME_RE = re.compile(r"^batch_(\d{3})_labeler([A-D])\.jsonl$")
 
 
 @dataclass(frozen=True, slots=True)
@@ -90,12 +97,16 @@ def _load_per_labeler(
     responded: dict[str, set[str]] = defaultdict(set)
     bad_label_counter: Counter[str] = Counter()
 
-    for path in sorted(labels_dir.glob("batch_*_labeler[A-D].jsonl")):
-        # Filename convention: batch_NNN_labelerX.jsonl
-        labeler = path.stem.rsplit("_labeler", 1)[-1]
-        if labeler not in ("A", "B", "C", "D"):
-            print(f"  WARN: skipping {path.name} — labeler letter not A/B/C/D")
+    # Strict pattern match — catches typo'd filenames that the prior
+    # rsplit-based parsing would silently mis-attribute.
+    candidate_files = sorted(labels_dir.glob("batch_*.jsonl"))
+    skipped: list[str] = []
+    for path in candidate_files:
+        m = _LABELER_FILENAME_RE.match(path.name)
+        if m is None:
+            skipped.append(path.name)
             continue
+        labeler = m.group(2)
         for rec in _read_jsonl(path):
             chunk_id = rec.get("chunk_id")
             spans = rec.get("spans")
@@ -120,6 +131,10 @@ def _load_per_labeler(
                     continue
                 by_chunk[chunk_id][labeler].append(Claim(label=lab, value=val.strip()))
 
+    if skipped:
+        print(f"  WARN: {len(skipped)} files in {labels_dir} did not match "
+              f"batch_NNN_labeler[A-D].jsonl convention and were skipped: "
+              f"{skipped[:5]}{'...' if len(skipped) > 5 else ''}")
     if bad_label_counter:
         print("  Bad labels (not in CATEGORIES, dropped):")
         for lab, n in bad_label_counter.most_common():
@@ -127,22 +142,47 @@ def _load_per_labeler(
     return by_chunk, responded
 
 
-def _locate(text: str, value: str) -> tuple[int, int] | None:
-    """First-occurrence locate of ``value`` in ``text``. Trims surrounding
-    whitespace; returns None if not found or whitespace-only."""
+def _locate(
+    text: str, value: str,
+) -> tuple[tuple[int, int] | None, int]:
+    """Locate ``value`` in ``text``. Returns ``((start, end), n_occurrences)``.
+
+    First-occurrence semantics for the offsets (matching the labeler's
+    likely intent in a left-to-right read), but also returns the count of
+    distinct occurrences so callers can detect ambiguity. Trims surrounding
+    whitespace; returns ``(None, 0)`` for empty/not-found/whitespace-only.
+
+    Why ambiguity matters: a labeler claim "Anna Müller" against a chunk
+    that mentions her twice ("Anna Müller wrote… Anna Müller said") gets
+    silently bound to the first occurrence. For test_v1 the gold span is
+    still correct (both occurrences are equally valid), but a finetuned
+    model that catches both will be penalised against the gold, and a
+    model that catches only the second will appear to miss the gold.
+    Callers can use the count to log/skip ambiguous chunks if they care.
+    """
     if not value:
-        return None
+        return None, 0
     idx = text.find(value)
     if idx < 0:
-        return None
+        return None, 0
+    # Count all non-overlapping occurrences for ambiguity reporting.
+    n = 0
+    j = 0
+    step = max(1, len(value))
+    while True:
+        k = text.find(value, j)
+        if k < 0:
+            break
+        n += 1
+        j = k + step
     end = idx + len(value)
     while idx < end and text[idx].isspace():
         idx += 1
     while end > idx and text[end - 1].isspace():
         end -= 1
     if end <= idx:
-        return None
-    return idx, end
+        return None, n
+    return (idx, end), n
 
 
 def _resolve_overlaps(spans: list[Span]) -> list[Span]:
@@ -183,7 +223,7 @@ def _aggregate_chunk(
     for claim, labelers in claim_to_labelers.items():
         n = len(labelers)
         if n >= threshold:
-            located = _locate(chunk_text, claim.value)
+            located, _n_occ = _locate(chunk_text, claim.value)
             if located is None:
                 continue  # not in text → drop (verbatim violation)
             start, end = located
@@ -224,15 +264,25 @@ def aggregate(
         accepted, disputed = _aggregate_chunk(
             pool_rec["text"], by_labeler, threshold,
         )
+        # Count accepted spans where the verbatim value occurred multiple
+        # times in the chunk — gold offset is bound to first-occurrence,
+        # which may not match the labeler's intent. Worth flagging.
+        n_ambiguous = 0
+        for sp in accepted:
+            _, n_occ = _locate(pool_rec["text"], pool_rec["text"][sp.start:sp.end])
+            if n_occ > 1:
+                n_ambiguous += 1
         # Emit consensus record (preserves all pool fields + adds spans)
         consensus.append({
             **pool_rec,
             "spans": [asdict(sp) for sp in accepted],
             "n_labelers_responded": n_responded,
             "n_disputed": len(disputed),
+            "n_ambiguous_offsets": n_ambiguous,
         })
         stats["accepted_spans"] += len(accepted)
         stats["disputed_claims"] += len(disputed)
+        stats["ambiguous_first_occurrence_spans"] += n_ambiguous
         for claim, labelers in disputed:
             disagreements.append(DisagreementRecord(
                 chunk_id=chunk_id,

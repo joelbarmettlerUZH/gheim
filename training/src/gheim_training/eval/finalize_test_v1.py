@@ -54,21 +54,34 @@ def _read_jsonl(path: Path) -> Iterator[dict]:
             yield json.loads(line)
 
 
-def _locate(text: str, value: str) -> tuple[int, int] | None:
-    """First-occurrence locate of ``value`` in ``text``, with whitespace trim."""
+def _locate(text: str, value: str) -> tuple[tuple[int, int] | None, int]:
+    """First-occurrence locate of ``value`` in ``text``, with whitespace trim.
+
+    Returns ``((start, end), n_occurrences)`` so callers can detect and
+    report the ambiguity of multi-occurrence values. See the same helper
+    in ``aggregate_labels.py`` for the rationale."""
     if not value:
-        return None
+        return None, 0
     idx = text.find(value)
     if idx < 0:
-        return None
+        return None, 0
+    n = 0
+    j = 0
+    step = max(1, len(value))
+    while True:
+        k = text.find(value, j)
+        if k < 0:
+            break
+        n += 1
+        j = k + step
     end = idx + len(value)
     while idx < end and text[idx].isspace():
         idx += 1
     while end > idx and text[end - 1].isspace():
         end -= 1
     if end <= idx:
-        return None
-    return idx, end
+        return None, n
+    return (idx, end), n
 
 
 def _resolve_overlaps(spans: list[Span]) -> list[Span]:
@@ -149,10 +162,12 @@ def main() -> None:
             if label not in CATEGORIES:
                 counts["dropped_bad_label"] += 1
                 continue
-            located = _locate(text, value)
+            located, n_occ = _locate(text, value)
             if located is None:
                 counts["dropped_unlocatable"] += 1
                 continue
+            if n_occ > 1:
+                counts["accepted_ambiguous_first_occurrence"] += 1
             spans.append(Span(start=located[0], end=located[1], label=label))
             n_added_resolutions += 1
 
@@ -173,12 +188,19 @@ def main() -> None:
         for sp in spans:
             by_lang_label[(c["language"], sp.label)] += 1
 
-    # Write
+    # Atomic write: stage to a sibling .tmp file, fsync, then rename. This
+    # way a crash mid-write can't leave a half-written test_v1.jsonl that
+    # still trips the "REFUSING TO OVERWRITE" check on rerun.
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    with args.out.open("w", encoding="utf-8") as f:
+    tmp_path = args.out.with_suffix(args.out.suffix + ".tmp")
+    with tmp_path.open("w", encoding="utf-8") as f:
         for r in out_records:
             f.write(json.dumps(r, ensure_ascii=False))
             f.write("\n")
+        f.flush()
+        import os
+        os.fsync(f.fileno())
+    tmp_path.replace(args.out)
 
     # Lock + backup
     args.out.chmod(stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)  # 444

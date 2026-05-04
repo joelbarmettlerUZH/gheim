@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-04T11:46:38",
+  "generated_at": "2026-05-04T12:47:09",
   "eval_sets": {
     "audit_gold": "data/audit_gold.jsonl",
     "address_gold_v1": "data/address_gold_v1.jsonl",
@@ -1714,7 +1714,19 @@
             "fn": 550
           }
         },
-        "n_cases": 800
+        "n_cases": 800,
+        "by_presence": {
+          "pii_dense": {
+            "fp": 221,
+            "n_chunks": 600,
+            "fp_per_chunk": 0.36833333333333335
+          },
+          "control": {
+            "fp": 88,
+            "n_chunks": 200,
+            "fp_per_chunk": 0.44
+          }
+        }
       }
     },
     "swissner_plus_regex": {
@@ -3177,7 +3189,19 @@
             "fn": 191
           }
         },
-        "n_cases": 800
+        "n_cases": 800,
+        "by_presence": {
+          "pii_dense": {
+            "fp": 1298,
+            "n_chunks": 600,
+            "fp_per_chunk": 2.1633333333333336
+          },
+          "control": {
+            "fp": 534,
+            "n_chunks": 200,
+            "fp_per_chunk": 2.67
+          }
+        }
       }
     }
   }
