@@ -25,6 +25,7 @@ from .harness import _fmt_f1, _load_eval_jsonl, evaluate
 EVAL_SETS: dict[str, Path] = {
     "audit_gold": Path("data/audit_gold.jsonl"),
     "address_gold_v1": Path("data/address_gold_v1.jsonl"),
+    "test_v1": Path("data/test_v1.jsonl"),
 }
 
 
