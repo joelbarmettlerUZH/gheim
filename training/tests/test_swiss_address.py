@@ -8,14 +8,6 @@ from __future__ import annotations
 
 import random
 import re
-import sys
-from pathlib import Path
-
-import pytest
-
-ROOT = Path(__file__).resolve().parent.parent / "src"
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
 from gheim_training.data.synthetic import swiss_address, swiss_geo
 
@@ -70,9 +62,9 @@ def test_per_language_address_dispatch() -> None:
     # Sample 100 of each; the city should come from a canton we tagged with
     # that language (allowing GR overrides for it/rm).
     expected_cantons = {
-        "de": {c for c, l in swiss_geo.CANTON_LANG.items() if l == "de"},
-        "fr": {c for c, l in swiss_geo.CANTON_LANG.items() if l == "fr"},
-        "it": {c for c, l in swiss_geo.CANTON_LANG.items() if l == "it"} | {"GR"},
+        "de": {c for c, lang in swiss_geo.CANTON_LANG.items() if lang == "de"},
+        "fr": {c for c, lang in swiss_geo.CANTON_LANG.items() if lang == "fr"},
+        "it": {c for c, lang in swiss_geo.CANTON_LANG.items() if lang == "it"} | {"GR"},
         "rm": {"GR"},
     }
     by_city = {p.city: p for p in swiss_geo.all_places()}

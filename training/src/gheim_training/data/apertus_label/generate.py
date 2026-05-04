@@ -17,7 +17,7 @@ from pathlib import Path
 from ..schema import Example, write_jsonl
 from .label import ApertusLabeler
 from .prefilter import filter_chunks
-from .stream import Chunk, stream_chunks
+from .stream import Subset, stream_chunks
 from .verify import verify_and_combine
 
 
@@ -56,7 +56,7 @@ def run(
     out_path: Path,
     max_chunks: int,
     batch_size: int,
-    subsets: tuple[str, ...] = ("entscheidsuche", "curia_vista"),
+    subsets: tuple[Subset, ...] = ("entscheidsuche", "curia_vista"),
     min_structured_hits: int = 1,
     max_chunk_chars: int = 1500,
     local_parquet_dir: Path | None = None,

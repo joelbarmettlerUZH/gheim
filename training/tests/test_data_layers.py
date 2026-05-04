@@ -5,15 +5,9 @@ checkout — only the layers you've actually generated get checked.
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pytest
-
-ROOT = Path(__file__).resolve().parent.parent / "src"
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from gheim_training.data.label_space import CATEGORIES
 from gheim_training.data.schema import read_jsonl
 

@@ -102,6 +102,4 @@ def is_possible_sentinel_prefix(
     if m.end() != len(buffer):
         return False
     # If it ends with ">" it's already complete — not a prefix.
-    if buffer.endswith(">"):
-        return False
-    return True
+    return not buffer.endswith(">")

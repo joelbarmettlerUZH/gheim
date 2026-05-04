@@ -10,9 +10,11 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
 
 DEFAULT_MODEL = "swiss-ai/Apertus-8B-Instruct-2509"
+
+VllmDtype = Literal["auto", "half", "float16", "bfloat16", "float", "float32"]
 
 
 @dataclass
@@ -21,7 +23,7 @@ class ApertusClient:
     tensor_parallel_size: int = 1
     gpu_memory_utilization: float = 0.85
     max_model_len: int = 4096
-    dtype: str = "bfloat16"
+    dtype: VllmDtype = "bfloat16"
     _llm: Any = None
     _tok: Any = None
 

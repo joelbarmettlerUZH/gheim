@@ -17,8 +17,9 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import cast
 
-from ..schema import Example, Span
+from ..schema import Example, Language, Span
 from .prefilter import StructuredHit, find_structured
 
 
@@ -46,9 +47,7 @@ def _person_ok(value: str) -> bool:
         return False
     if all(c.isdigit() or not c.isalnum() for c in s):
         return False
-    if s.casefold() in _PERSON_BLOCKLIST:
-        return False
-    return True
+    return s.casefold() not in _PERSON_BLOCKLIST
 
 
 # Month names in DE/FR/IT/RM/EN that signal a real calendar date (M3).
@@ -100,12 +99,9 @@ def _date_ok(value: str) -> bool:
         return True
     # Month-name path: tokenize on spaces and dots to catch "12. März 1985"
     tokens = [t.strip(".,;: ") for t in re.split(r"[\s./]+", s) if t]
-    for t in tokens:
-        if t.casefold() in _MONTH_NAMES:
-            # Require at least one numeric companion (day or year) for sanity
-            if any(t2.isdigit() for t2 in tokens):
-                return True
-    return False
+    # Require at least one numeric companion (day or year) for sanity.
+    has_number = any(t2.isdigit() for t2 in tokens)
+    return has_number and any(t.casefold() in _MONTH_NAMES for t in tokens)
 
 
 # M5: trim citation-prefixed date claims down to the date portion.
@@ -224,7 +220,7 @@ def verify_and_combine(
     ex = Example(
         text=chunk_text,
         spans=spans,
-        language=language,  # type: ignore[arg-type]
+        language=cast(Language, language),
         source="apertus",  # Layer 5 lives under the same enum slot as Layer 3
         template_id=f"layer5_{subset}",
         meta={"doc_id": doc_id},

@@ -2,18 +2,25 @@
 
 Given any object exposing ``detect(text) -> list[Span]`` (compatible with
 ``gheim.detectors.base.Span`` or our ``data.schema.Span``), runs it against
-the handcrafted eval JSONLs (and optionally other eval splits) and prints a
-per-cut F1 matrix.
+a JSONL eval file and prints/returns a per-cut F1 matrix.
+
+Each JSONL line: ``{"text": str, "language": str, "spans": [{"start", "end",
+"label"}, ...]}``. ``language`` is optional — falls back to ``"unknown"``.
+
+Both strict (exact-tuple) and overlap (any-overlap, same-label) F1 are
+reported. Overlap F1 is the production-meaningful number for redaction;
+strict F1 measures boundary precision.
 
 Usage:
     uv run python -m gheim_training.eval.harness \\
-        --detector finetuned --model-path ./checkpoints/gheim-1-v1
+        --detector zero_shot \\
+        --model-id openai/privacy-filter \\
+        --eval-jsonl data/test_v1.jsonl
     uv run python -m gheim_training.eval.harness \\
-        --detector zero_shot --model-id openai/privacy-filter
-    uv run python -m gheim_training.eval.harness \\
-        --detector swissbert_ner
-    uv run python -m gheim_training.eval.harness \\
-        --detector presidio_ch
+        --detector finetuned \\
+        --model-path ./checkpoints/bakeoff-priv \\
+        --eval-jsonl data/test_v1.jsonl \\
+        --out eval/bakeoff_priv_test_v1.json
 """
 from __future__ import annotations
 
@@ -21,42 +28,37 @@ import argparse
 import json
 from collections import defaultdict
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 from ..data.label_space import CATEGORIES
 from ..data.schema import Span
 
-EVAL_DIR = Path(__file__).resolve().parent.parent.parent.parent / "eval" / "handcrafted"
-
 
 class Detector(Protocol):
-    def detect(self, text: str) -> list: ...
+    def detect(self, text: str) -> list[Any]: ...
 
 
-def _load_handcrafted() -> dict[str, list[dict]]:
-    out: dict[str, list[dict]] = {}
-    for p in sorted(EVAL_DIR.glob("*.jsonl")):
-        lang = p.stem
-        cases: list[dict] = []
-        for line in p.read_text(encoding="utf-8").splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            cases.append(json.loads(line))
-        out[lang] = cases
-    return out
+def _load_eval_jsonl(path: Path) -> list[dict]:
+    """Load ``{"text", "language"?, "spans": [...]}`` records from a JSONL file."""
+    cases: list[dict] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        cases.append(json.loads(line))
+    return cases
 
 
-def _to_set(spans) -> set[tuple[int, int, str]]:
-    s: set[tuple[int, int, str]] = set()
+def _to_set(spans: list[Any]) -> set[tuple[int, int, str]]:
+    """Coerce a list of Span dataclasses or dicts to {(start, end, label)} tuples."""
+    out: set[tuple[int, int, str]] = set()
     for sp in spans:
-        # Accept either dataclass-shaped or dict-shaped spans, and either our
-        # internal categories or the gheim detector labels (same names).
+        # Accept either dataclass-shaped or dict-shaped spans.
         start = sp.start if hasattr(sp, "start") else sp["start"]
         end = sp.end if hasattr(sp, "end") else sp["end"]
         label = sp.label if hasattr(sp, "label") else sp["label"]
-        s.add((int(start), int(end), str(label)))
-    return s
+        out.add((int(start), int(end), str(label)))
+    return out
 
 
 def _f1(tp: int, fp: int, fn: int) -> float | None:
@@ -72,26 +74,79 @@ def _f1(tp: int, fp: int, fn: int) -> float | None:
     return 2 * p * r / (p + r)
 
 
-def evaluate(detector: Detector) -> dict[str, dict[str, float]]:
-    cases = _load_handcrafted()
+def _cell(tp: int, fp: int, fn: int) -> dict[str, Any]:
+    """Build one cell of the report dict (F1 + raw counts)."""
+    return {"f1": _f1(tp, fp, fn), "tp": tp, "fp": fp, "fn": fn}
 
-    # Per (lang, entity) → tp/fp/fn
-    counts: dict[tuple[str, str], list[int]] = defaultdict(lambda: [0, 0, 0])
-    for lang, items in cases.items():
-        for item in items:
-            gold = _to_set(item["spans"])
-            pred = _to_set(detector.detect(item["text"]))
-            for cat in CATEGORIES:
-                gold_c = {s for s in gold if s[2] == cat}
-                pred_c = {s for s in pred if s[2] == cat}
-                tp = len(gold_c & pred_c)
-                fp = len(pred_c - gold_c)
-                fn = len(gold_c - pred_c)
-                counts[(lang, cat)][0] += tp
-                counts[(lang, cat)][1] += fp
-                counts[(lang, cat)][2] += fn
 
-    # Roll up: per language, per entity, overall.
+def _overlap_match(g: tuple[int, int, str], p: tuple[int, int, str]) -> bool:
+    """True iff g and p share a label and any character span overlap."""
+    return g[2] == p[2] and g[0] < p[1] and p[0] < g[1]
+
+
+def _count_overlap(
+    gold: set[tuple[int, int, str]],
+    pred: set[tuple[int, int, str]],
+) -> tuple[int, int, int]:
+    """Lenient (overlap) matching: a gold span counts as TP if any predicted
+    span with the same label overlaps it. Each predicted span can match at
+    most one gold span (and vice versa) to avoid double-counting."""
+    matched_g: set[tuple[int, int, str]] = set()
+    matched_p: set[tuple[int, int, str]] = set()
+    for g in gold:
+        for p in pred:
+            if p in matched_p:
+                continue
+            if _overlap_match(g, p):
+                matched_g.add(g)
+                matched_p.add(p)
+                break
+    tp = len(matched_g)
+    fp = len(pred - matched_p)
+    fn = len(gold - matched_g)
+    return tp, fp, fn
+
+
+def evaluate(detector: Detector, cases: list[dict]) -> dict[str, Any]:
+    """Run detector against eval cases and return a structured report.
+
+    Per-(language, category) buckets, rolled up to per-language, per-entity,
+    and overall. Both strict and overlap F1 are reported.
+    """
+    strict_counts: dict[tuple[str, str], list[int]] = defaultdict(lambda: [0, 0, 0])
+    overlap_counts: dict[tuple[str, str], list[int]] = defaultdict(lambda: [0, 0, 0])
+
+    for item in cases:
+        gold = _to_set(item["spans"])
+        pred = _to_set(detector.detect(item["text"]))
+        lang = item.get("language") or "unknown"
+        for cat in CATEGORIES:
+            gold_c = {s for s in gold if s[2] == cat}
+            pred_c = {s for s in pred if s[2] == cat}
+
+            # Strict matching: exact (start, end, label) tuple equality.
+            s_tp = len(gold_c & pred_c)
+            s_fp = len(pred_c - gold_c)
+            s_fn = len(gold_c - pred_c)
+            strict_counts[(lang, cat)][0] += s_tp
+            strict_counts[(lang, cat)][1] += s_fp
+            strict_counts[(lang, cat)][2] += s_fn
+
+            # Overlap matching: any character overlap, same label.
+            o_tp, o_fp, o_fn = _count_overlap(gold_c, pred_c)
+            overlap_counts[(lang, cat)][0] += o_tp
+            overlap_counts[(lang, cat)][1] += o_fp
+            overlap_counts[(lang, cat)][2] += o_fn
+
+    return {
+        "strict": _build_report(strict_counts),
+        "overlap": _build_report(overlap_counts),
+        "n_cases": len(cases),
+    }
+
+
+def _build_report(counts: dict[tuple[str, str], list[int]]) -> dict[str, Any]:
+    """Roll up per-(lang, cat) counts to per-lang, per-entity, and overall."""
     by_lang: dict[str, list[int]] = defaultdict(lambda: [0, 0, 0])
     by_ent: dict[str, list[int]] = defaultdict(lambda: [0, 0, 0])
     overall = [0, 0, 0]
@@ -100,64 +155,66 @@ def evaluate(detector: Detector) -> dict[str, dict[str, float]]:
             by_lang[lang][i] += v
             by_ent[cat][i] += v
             overall[i] += v
-
-    report: dict[str, dict[str, float]] = {
-        "by_language": {k: {"f1": _f1(*v), "tp": v[0], "fp": v[1], "fn": v[2]} for k, v in by_lang.items()},
-        "by_entity": {k: {"f1": _f1(*v), "tp": v[0], "fp": v[1], "fn": v[2]} for k, v in by_ent.items()},
+    return {
+        "by_language": {k: _cell(*v) for k, v in by_lang.items()},
+        "by_entity": {k: _cell(*v) for k, v in by_ent.items()},
         "by_lang_entity": {
-            f"{lang}/{cat}": {"f1": _f1(*v), "tp": v[0], "fp": v[1], "fn": v[2]}
-            for (lang, cat), v in counts.items()
+            f"{lang}/{cat}": _cell(*v) for (lang, cat), v in counts.items()
         },
-        "overall": {"f1": _f1(*overall), "tp": overall[0], "fp": overall[1], "fn": overall[2]},
+        "overall": _cell(*overall),
     }
-    return report
 
 
 def _fmt_f1(v: float | None) -> str:
     return "  n/a" if v is None else f"{v:.3f}"
 
 
-def _print(report: dict) -> None:
-    print("\n=== Overall ===")
-    o = report["overall"]
-    print(f"  F1={_fmt_f1(o['f1'])}  TP={o['tp']}  FP={o['fp']}  FN={o['fn']}")
-
-    print("\n=== By language ===")
-    for lang, s in sorted(report["by_language"].items()):
-        print(f"  {lang:<8} F1={_fmt_f1(s['f1'])}  (TP={s['tp']} FP={s['fp']} FN={s['fn']})")
-
-    print("\n=== By entity ===")
-    for ent, s in sorted(report["by_entity"].items()):
-        print(f"  {ent:<18} F1={_fmt_f1(s['f1'])}  (TP={s['tp']} FP={s['fp']} FN={s['fn']})")
+def _print(report: dict[str, Any]) -> None:
+    n = report.get("n_cases", "?")
+    for mode in ("strict", "overlap"):
+        sub = report[mode]
+        print(f"\n=== {mode.upper()} (n={n}) ===")
+        o = sub["overall"]
+        print(f"  Overall F1={_fmt_f1(o['f1'])}  TP={o['tp']}  FP={o['fp']}  FN={o['fn']}")
+        print("  By language:")
+        for lang, s in sorted(sub["by_language"].items()):
+            print(f"    {lang:<8} F1={_fmt_f1(s['f1'])}  (TP={s['tp']} FP={s['fp']} FN={s['fn']})")
+        print("  By entity:")
+        for ent, s in sorted(sub["by_entity"].items()):
+            print(f"    {ent:<18} F1={_fmt_f1(s['f1'])}  (TP={s['tp']} FP={s['fp']} FN={s['fn']})")
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--detector", required=True,
-                    choices=("finetuned", "zero_shot", "presidio_ch", "swissbert_ner"))
-    ap.add_argument("--model-path", default=None)
-    ap.add_argument("--model-id", default="openai/privacy-filter")
-    ap.add_argument("--out", type=Path, default=None)
+                    choices=("finetuned", "zero_shot", "swissbert_ner"))
+    ap.add_argument("--eval-jsonl", type=Path, required=True,
+                    help="JSONL with {text, language?, spans: [...]}.")
+    ap.add_argument("--model-path", default=None,
+                    help="Local checkpoint path (used by --detector finetuned).")
+    ap.add_argument("--model-id", default="openai/privacy-filter",
+                    help="Hub model id (used by --detector zero_shot).")
+    ap.add_argument("--out", type=Path, default=None,
+                    help="Optional JSON report output path.")
     args = ap.parse_args()
 
     if args.detector == "finetuned":
         from .baselines.zero_shot import HFDetector
-        det = HFDetector(args.model_path or args.model_id)
+        det: Detector = HFDetector(args.model_path or args.model_id)
     elif args.detector == "zero_shot":
         from .baselines.zero_shot import HFDetector
         det = HFDetector(args.model_id)
-    elif args.detector == "presidio_ch":
-        from .baselines.presidio_ch import PresidioCHDetector
-        det = PresidioCHDetector()
     elif args.detector == "swissbert_ner":
         from .baselines.swissbert_ner import SwissBertNERDetector
         det = SwissBertNERDetector()
     else:
         raise ValueError(args.detector)
 
-    report = evaluate(det)
+    cases = _load_eval_jsonl(args.eval_jsonl)
+    report = evaluate(det, cases)
     _print(report)
     if args.out:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps(report, indent=2), encoding="utf-8")
         print(f"\nreport → {args.out}")
 

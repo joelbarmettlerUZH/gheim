@@ -32,7 +32,7 @@ def _stratified_split(
 
     train: list[Example] = []
     val: list[Example] = []
-    for key, items in bucketed.items():
+    for items in bucketed.values():
         rng.shuffle(items)
         n_val = max(1, int(round(len(items) * val_frac))) if items else 0
         val.extend(items[:n_val])

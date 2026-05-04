@@ -92,6 +92,8 @@ def main() -> None:
 
     base_model = cfg["base_model"]
     tokenizer = AutoTokenizer.from_pretrained(base_model, use_fast=True, trust_remote_code=True)
+    if tokenizer is None:
+        raise RuntimeError(f"AutoTokenizer.from_pretrained({base_model!r}) returned None")
     if not tokenizer.is_fast:
         raise RuntimeError(
             f"{base_model} did not provide a fast tokenizer; offset mapping is required."
@@ -109,7 +111,12 @@ def main() -> None:
     if cfg.get("gradient_checkpointing"):
         model.gradient_checkpointing_enable()
 
+    from datasets import DatasetDict
     raw_dd = load_from_disk(str(cfg["dataset_dir"]))
+    if not isinstance(raw_dd, DatasetDict):
+        raise RuntimeError(
+            f"{cfg['dataset_dir']} loaded as {type(raw_dd).__name__}, expected DatasetDict"
+        )
     max_len = int(cfg.get("max_seq_length", 1024))
 
     def _encode_batch(records: dict[str, list]) -> dict[str, list]:
@@ -155,7 +162,11 @@ def main() -> None:
                 config=cfg,
             )
 
-    ta_kwargs = dict(
+    # ta_kwargs is built from a YAML cfg; values are heterogeneous and
+    # TrainingArguments has narrowly-typed parameters per field. The runtime
+    # validation below catches type errors; ty's static checking can't track
+    # the field-by-field types from a dict-of-Any spread, so we use Any.
+    ta_kwargs: dict[str, Any] = dict(
         output_dir=cfg["output_dir"],
         learning_rate=float(cfg["learning_rate"]),
         lr_scheduler_type=cfg["lr_scheduler_type"],

@@ -19,8 +19,9 @@ from __future__ import annotations
 import argparse
 from collections.abc import Iterable
 from pathlib import Path
+from typing import cast
 
-from .schema import Example, Span, write_jsonl
+from .schema import Example, Language, Span, write_jsonl
 
 # Maps AI4Privacy label → gheim category, or None to drop.
 # Source: ai4privacy/pii-masking-300k label list (v1.0). When in doubt, drop.
@@ -150,7 +151,7 @@ def _spans_from_record(record: dict, *, language: str) -> Example | None:
     ex = Example(
         text=text,
         spans=deduped,
-        language=language,  # type: ignore[arg-type]
+        language=cast(Language, language),
         source="ai4privacy",
     )
     try:
@@ -169,7 +170,7 @@ def load(
     from datasets import load_dataset
     ds = load_dataset(dataset_name, split=split)
     out: list[Example] = []
-    counts: dict[str, int] = {l: 0 for l in languages}
+    counts: dict[str, int] = dict.fromkeys(languages, 0)
     for rec in ds:
         loc = rec.get("language") or rec.get("locale")
         if loc not in languages:

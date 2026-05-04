@@ -5,20 +5,13 @@ combine-with-regex. The actual Apertus call is mocked.
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pytest
-
-ROOT = Path(__file__).resolve().parent.parent / "src"
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from gheim_training.data.apertus_label import label, prefilter, verify
+from gheim_training.data.apertus_label import prefilter
 from gheim_training.data.apertus_label.label import _parse_claims
 from gheim_training.data.apertus_label.stream import _chunk_text, _classify
 from gheim_training.data.apertus_label.verify import ApertusClaim, verify_and_combine
-
 
 # --- chunking ---
 
@@ -167,6 +160,7 @@ def test_verify_returns_none_on_empty_input() -> None:
 def test_audit_gate_passes_on_synthetic_perfect_match(tmp_path: Path) -> None:
     """If Apertus output exactly matches the gold, all gate criteria pass."""
     import json
+
     from gheim_training.data.apertus_label.audit import audit, check_gate
 
     gold = [
@@ -271,6 +265,7 @@ def test_m3_drops_apertus_journal_ref_date_claims() -> None:
 def test_audit_gate_fails_when_recall_too_low(tmp_path: Path) -> None:
     """Apertus missing all person spans → gate fails on private_person recall."""
     import json
+
     from gheim_training.data.apertus_label.audit import audit, check_gate
 
     gold = [{"text": f"Person Anna Müller {i}.", "spans": [

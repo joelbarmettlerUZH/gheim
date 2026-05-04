@@ -12,7 +12,7 @@ Apertus, English anchor) so behaviour is consistent.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Annotated, Any
+from typing import Any
 
 from .label_space import LABEL2ID, OUTSIDE
 from .schema import Example, Span

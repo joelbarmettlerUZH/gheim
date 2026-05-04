@@ -26,7 +26,7 @@ _RM_MARKERS = {
     "ils", "ina", "ino", "tar", "dapi", "duai", "vegnan", "vegn",
     "che", "schi", "stuess", "nun", "nunch", "dapertut", "uschia",
     # Verbs / particles
-    "vegnir", "vegnan", "vegnan", "tschertgar", "exitser",
+    "vegnir", "tschertgar", "exitser",
     # Idiom-distinctive
     "rumantsch", "romansh", "grischun", "vallader", "sursilvan",
     "surmiran", "sutsilvan", "puter", "rumantscha",

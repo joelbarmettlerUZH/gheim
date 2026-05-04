@@ -24,8 +24,8 @@ from .client import DEFAULT_MODEL, ApertusClient
 
 
 def _sample_languages(langs: list[str], n: int, weights: dict[str, float] | None) -> list[str]:
-    w = weights or {l: 1.0 for l in langs}
-    probs = [w.get(l, 1.0) for l in langs]
+    w = weights or dict.fromkeys(langs, 1.0)
+    probs = [w.get(lang, 1.0) for lang in langs]
     total = sum(probs)
     probs = [p / total for p in probs]
     return random.choices(langs, weights=probs, k=n)
@@ -55,7 +55,7 @@ def run(
         batch_langs = plan[batch_start:batch_start + batch_size]
         # v2 few-shot path: build_messages returns (messages, request) — the
         # full multi-turn chat with 3 in-context demos.
-        messages_and_reqs = [P.build_messages(l) for l in batch_langs]
+        messages_and_reqs = [P.build_messages(lang) for lang in batch_langs]
         messages = [m for m, _ in messages_and_reqs]
         requests = [r for _, r in messages_and_reqs]
         outputs = client.chat_messages(

@@ -20,7 +20,7 @@ import re
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, cast
 
 # Subset → id-prefix substring(s) that identify it. Conservative: we look for
 # any of the listed substrings inside the record's id or metadata.file_path.
@@ -55,7 +55,7 @@ def _classify(rec: dict) -> Subset | None:
     haystack = rec_id + " " + fp
     for subset, markers in SUBSET_MARKERS.items():
         if any(m in haystack for m in markers):
-            return subset  # type: ignore[return-value]
+            return cast(Subset, subset)
     return None
 
 
@@ -145,7 +145,7 @@ def _stream_local_parquet(
         for batch in pf.iter_batches(batch_size=1000, columns=["text", "id"]):
             ids = batch.column("id").to_pylist()
             texts = batch.column("text").to_pylist()
-            for rid, text in zip(ids, texts):
+            for rid, text in zip(ids, texts, strict=True):
                 if skipped < skip_first_n_records:
                     skipped += 1
                     continue

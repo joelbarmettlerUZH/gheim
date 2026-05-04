@@ -62,6 +62,7 @@ def name_rm() -> str:
 # language street pools. See swiss_address.py and swiss_geo.py.
 from . import swiss_address as _swiss_address  # noqa: E402
 
+
 def address_de() -> str:
     return _swiss_address.address_de()
 
@@ -156,7 +157,7 @@ def vat_che(suffix: str | None = None) -> str:
     """
     body = "".join(random.choices(string.digits, k=8))
     weights = (5, 4, 3, 2, 7, 6, 5, 4)
-    s = sum(int(d) * w for d, w in zip(body, weights))
+    s = sum(int(d) * w for d, w in zip(body, weights, strict=True))
     check = 11 - (s % 11)
     if check == 11:
         check = 0
@@ -259,5 +260,6 @@ def secret_token() -> str:
     if kind == "aws":
         return "AKIA" + "".join(random.choices(string.ascii_uppercase + string.digits, k=16))
     # JWT
-    seg = lambda n: "".join(random.choices(string.ascii_letters + string.digits + "_-", k=n))
+    def seg(n: int) -> str:
+        return "".join(random.choices(string.ascii_letters + string.digits + "_-", k=n))
     return f"{seg(32)}.{seg(64)}.{seg(43)}"

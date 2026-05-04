@@ -1,5 +1,4 @@
 """HTTP-level tests using a fake registry — no model load required."""
-import os
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -33,15 +32,18 @@ def client(monkeypatch):
     monkeypatch.setenv("GHEIM_ALLOWED_MODELS", "openai/privacy-filter,custom/test")
     # Reload registry module so the env vars take effect.
     import importlib
+
     import gheim_server.registry as reg_mod
     importlib.reload(reg_mod)
     import gheim_server.main as main_mod
     importlib.reload(main_mod)
 
     fake = _FakePipeline()
-    with patch.object(main_mod.registry, "get", return_value=fake):
-        with TestClient(main_mod.app) as c:
-            yield c
+    with (
+        patch.object(main_mod.registry, "get", return_value=fake),
+        TestClient(main_mod.app) as c,
+    ):
+        yield c
 
 
 def test_health(client):
@@ -92,25 +94,28 @@ def test_auth_required_when_keys_configured(monkeypatch):
     monkeypatch.setenv("GHEIM_SKIP_WARMUP", "1")
     monkeypatch.setenv("GHEIM_ALLOWED_MODELS", "openai/privacy-filter")
     import importlib
+
     import gheim_server.main as main_mod
     importlib.reload(main_mod)
     fake = _FakePipeline()
-    with patch.object(main_mod.registry, "get", return_value=fake):
-        with TestClient(main_mod.app) as c:
-            # No auth header
-            r = c.post("/v1/detect", json={"text": "Joel"})
-            assert r.status_code == 401
-            # Wrong key
-            r = c.post(
-                "/v1/detect",
-                json={"text": "Joel"},
-                headers={"Authorization": "Bearer wrong"},
-            )
-            assert r.status_code == 401
-            # Right key
-            r = c.post(
-                "/v1/detect",
-                json={"text": "Joel"},
-                headers={"Authorization": "Bearer secret-key-1"},
-            )
-            assert r.status_code == 200
+    with (
+        patch.object(main_mod.registry, "get", return_value=fake),
+        TestClient(main_mod.app) as c,
+    ):
+        # No auth header
+        r = c.post("/v1/detect", json={"text": "Joel"})
+        assert r.status_code == 401
+        # Wrong key
+        r = c.post(
+            "/v1/detect",
+            json={"text": "Joel"},
+            headers={"Authorization": "Bearer wrong"},
+        )
+        assert r.status_code == 401
+        # Right key
+        r = c.post(
+            "/v1/detect",
+            json={"text": "Joel"},
+            headers={"Authorization": "Bearer secret-key-1"},
+        )
+        assert r.status_code == 200

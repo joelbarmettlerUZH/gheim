@@ -5,10 +5,8 @@ from __future__ import annotations
 import json
 
 import pytest
-
 from gheim import Session, Span, anonymize_text, deanonymize_text
 from gheim.core.stream import MAX_SENTINEL_LEN, StreamDeanonymizer
-
 
 # ---------- B.1 multibyte unicode in stream ----------
 

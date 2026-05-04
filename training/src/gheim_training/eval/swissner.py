@@ -41,27 +41,30 @@ def load(dataset_name: str = "ZurichNLP/swissner", split: str = "test") -> list[
             cursor += len(tok)
             tok_end = cursor
             cursor += 1  # the joining space (last iter overshoots; harmless)
+            # cur_start/cur_end are always set together with cur_cat, but ty
+            # cannot prove the parallel narrowing — repeat the explicit check
+            # at each flush site.
             if tag == "O":
-                if cur_cat:
+                if cur_cat is not None and cur_start is not None and cur_end is not None:
                     spans.append(Span(start=cur_start, end=cur_end, label=cur_cat))
                 cur_cat = cur_start = cur_end = None
                 continue
             prefix, _, ent = tag.partition("-")
             cat = LABEL_MAP.get(ent)
             if cat is None:
-                if cur_cat:
+                if cur_cat is not None and cur_start is not None and cur_end is not None:
                     spans.append(Span(start=cur_start, end=cur_end, label=cur_cat))
                 cur_cat = cur_start = cur_end = None
                 continue
             if prefix == "B" or cur_cat != cat:
-                if cur_cat:
+                if cur_cat is not None and cur_start is not None and cur_end is not None:
                     spans.append(Span(start=cur_start, end=cur_end, label=cur_cat))
                 cur_cat = cat
                 cur_start = tok_start
                 cur_end = tok_end
             else:  # I-, same cat
                 cur_end = tok_end
-        if cur_cat:
+        if cur_cat is not None and cur_start is not None and cur_end is not None:
             spans.append(Span(start=cur_start, end=cur_end, label=cur_cat))
         text = text.rstrip()  # remove the trailing extra space cursor adds
         if not spans:

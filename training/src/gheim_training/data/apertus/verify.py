@@ -6,7 +6,9 @@ the example. Lossy by design — better to discard than mislabel.
 """
 from __future__ import annotations
 
-from ..schema import Example, Span
+from typing import cast
+
+from ..schema import Example, Language, Span
 
 
 class SlotVerificationError(ValueError):
@@ -65,7 +67,7 @@ def build_example(
     ex = Example(
         text=text,
         spans=spans,
-        language=language,  # type: ignore[arg-type]
+        language=cast(Language, language),
         source="apertus",
         template_id=template_id,
     )

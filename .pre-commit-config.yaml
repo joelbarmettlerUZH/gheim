@@ -1,0 +1,36 @@
+# Pre-commit hooks for gheim. Install once with:
+#   uvx pre-commit install
+#
+# Hooks run on every `git commit` against staged files only. To run against
+# the whole repo (e.g. before a PR): `uvx pre-commit run --all-files`.
+#
+# Note: ruff and ty are pinned via uvx — versions float with the latest
+# release. Pin in pyproject.toml dev-deps if reproducibility matters.
+
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff (lint)
+        entry: uvx ruff check
+        language: system
+        types_or: [python, pyi]
+        require_serial: false
+        pass_filenames: true
+
+      - id: ty
+        name: ty (typecheck)
+        # ty is slower and has many library-noise diagnostics on packages
+        # that aren't training/. Scope to the training package only.
+        entry: bash -c 'uvx ty check training/src/gheim_training/'
+        language: system
+        files: ^training/src/gheim_training/.*\.py$
+        pass_filenames: false
+
+      - id: pytest-smoke
+        name: pytest (smoke only)
+        # Run only the fast smoke tests on commit; full data-layer tests on PR.
+        entry: bash -c 'uv run pytest training/tests/ --ignore=training/tests/test_data_layers.py packages/gheim-py/tests/ server/tests/'
+        language: system
+        files: \.py$
+        pass_filenames: false

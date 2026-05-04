@@ -6,14 +6,6 @@ alignment, AI4Privacy record parsing, and slot-bag verification.
 """
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
-# Allow `python -m pytest training/tests/` without an editable install.
-ROOT = Path(__file__).resolve().parent.parent / "src"
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from gheim_training.data import bioes
 from gheim_training.data.ai4privacy import _spans_from_record
 from gheim_training.data.apertus import verify

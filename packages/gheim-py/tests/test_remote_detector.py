@@ -6,7 +6,6 @@ from typing import Any
 
 import httpx
 import pytest
-
 from gheim import RemoteDetector
 
 

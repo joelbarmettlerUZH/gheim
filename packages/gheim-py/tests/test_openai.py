@@ -6,13 +6,12 @@ wrapper subclasses, then drive everything through the proxy.
 """
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from typing import Any
 
-import pytest
-
 import gheim.openai as gheim_openai_mod
+import pytest
 from gheim import Session, Span
 from gheim.detectors.base import Detector
 
@@ -55,7 +54,7 @@ class FakeChunk:
     model: str = "gpt-4o"
     # Stand-in for pydantic's model_copy so the wrapper's tail-cloning path works.
 
-    def model_copy(self, *, deep: bool = False) -> "FakeChunk":
+    def model_copy(self, *, deep: bool = False) -> FakeChunk:
         return FakeChunk(
             id=self.id,
             model=self.model,

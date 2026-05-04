@@ -9,8 +9,9 @@ from __future__ import annotations
 import argparse
 import random
 from pathlib import Path
+from typing import cast
 
-from ..schema import Example, write_jsonl
+from ..schema import Example, Language, write_jsonl
 from . import faker_ch as F
 from . import templates_de, templates_fr, templates_it
 from .template import render
@@ -38,7 +39,7 @@ def generate(n: int, lang_weights: dict[str, float] | None = None) -> list[Examp
         ex = Example(
             text=text,
             spans=spans,
-            language=lang,  # type: ignore[arg-type]
+            language=cast(Language, lang),
             source="synthetic",
             template_id=tpl_id,
         )
