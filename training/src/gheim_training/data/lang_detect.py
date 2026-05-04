@@ -51,8 +51,24 @@ _RM_MARKERS = {
 }
 
 # Lingua confidence above which we trust its language verdict over the
-# RM-marker heuristic. Empirically, lingua at >0.80 on a known language
-# is rarely wrong; at lower confidence, the markers are useful tie-breakers.
+# RM-marker heuristic.
+#
+# Why 0.80 specifically:
+# - Lingua's documented operating range is "≥0.7 high confidence"; ≥0.80
+#   gives us margin against borderline calls (lingua's own README §accuracy).
+# - Empirically calibrated on the test_v1 build (Day 3 surfacer): with the
+#   threshold at 0.80, all 200 sampled IT chunks containing a marker word
+#   like "che" correctly routed to it_ch, and all 50 sampled FR chunks
+#   containing "ils" correctly routed to fr_ch — see the FP analysis
+#   recorded in data/test_v1_README.md.
+# - Real Romansh chunks rarely score >0.80 on lingua's IT/FR/DE classes
+#   because lingua doesn't ship a Romansh model — the unfamiliar language
+#   produces a flat distribution. 0.80 lets RM markers still win when
+#   lingua is genuinely uncertain.
+#
+# If raised: more RM marker false positives leak through (FR/IT mistakenly
+# tagged as RM). If lowered: real Romansh chunks get mis-classified as
+# the closest known language (usually IT).
 _LINGUA_OVERRIDE_CONF = 0.80
 
 _RM_MARKER_RE = re.compile(
@@ -101,8 +117,17 @@ def detect(text: str, subset: str | None = None) -> Language:
     Never raises on short or empty text — falls through to ``_subset_default``.
     """
     top = _lingua_top(text)
-    # Lingua-first when it's very confident: prevents RM-marker false positives
-    # on French/Italian text that incidentally contains RM-shaped words.
+    # Lingua-first when it's very confident on DE/FR/IT — prevents RM-marker
+    # false positives on French/Italian text that incidentally contains
+    # RM-shaped words (e.g. "che" in IT, "ils" in FR).
+    #
+    # IMPORTANT: We deliberately exclude EN from the override. Lingua doesn't
+    # ship a Romansh model, so unfamiliar Romansh content often gets locked
+    # to EN at very high confidence (it's the broadest training set, so
+    # unknown text gravitates there). Treating high-confidence EN as
+    # authoritative would route real RM content to EN. Instead, the
+    # marker-count check below acts as the RM gate, and EN is reached only
+    # via the final fallback (no markers, no DE/FR/IT signal).
     if top is not None and top[1] >= _LINGUA_OVERRIDE_CONF:
         code, _ = top
         if code == "de":
@@ -111,8 +136,7 @@ def detect(text: str, subset: str | None = None) -> Language:
             return "fr_ch"
         if code == "it":
             return "it_ch"
-        if code == "en":
-            return "en"
+        # code == "en": fall through to marker check + final fallback.
 
     n_rm = _count_rm_markers(text)
     if n_rm >= 3:

@@ -43,7 +43,7 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 from ..data.apertus_label.prefilter import passes
-from ..data.apertus_label.stream import Chunk, _chunk_text, stream_chunks
+from ..data.apertus_label.stream import Chunk, Subset, chunk_sentences, stream_chunks
 from ..data.lang_detect import detect as detect_lang
 from ..data.schema import Language
 
@@ -71,7 +71,7 @@ class PoolRecord:
         "stratifies only on de_ch / fr_ch / it_ch / rm.",
     ]
     subset: Annotated[
-        str,
+        Subset,
         "Source corpus tag (entscheidsuche / curia_vista / fineweb / romansh). "
         "Recorded so the final test set can be cut by source in eval reports.",
     ]
@@ -129,7 +129,7 @@ def _iter_romansh_candidates(
     """Stream chunks from Romansh-specific JSONL.gz files (e.g. rm_wikipedia).
 
     The romansh corpus uses a different schema than the parquet shards
-    (text, id, language="roh", idiom, …). We re-use ``_chunk_text`` for
+    (text, id, language="roh", idiom, …). We re-use ``chunk_sentences`` for
     sentence-bound chunking and tag each chunk with subset="romansh" so
     downstream code treats them like the existing romansh subset.
     """
@@ -146,7 +146,7 @@ def _iter_romansh_candidates(
                 text = d.get("text") or ""
                 if not text:
                     continue
-                for chunk_text in _chunk_text(text):
+                for chunk_text in chunk_sentences(text):
                     chunk = Chunk(text=chunk_text, doc_id=doc_id, subset="romansh")
                     # subset="romansh" forces the RM detection branch in
                     # detect() — protects against lingua mis-classifying

@@ -59,15 +59,22 @@ def _classify(rec: dict) -> Subset | None:
     return None
 
 
-def _chunk_text(
+def chunk_sentences(
     text: str,
     *,
     target_min: int = 400,
     target_max: int = 800,
     hard_min: int = 200,
 ) -> Iterator[str]:
-    """Greedy: accumulate sentences until we cross target_min, emit at first
-    chance to stay under target_max. Drops trailing fragments below hard_min.
+    """Greedy sentence-bound chunker, public re-usable utility.
+
+    Accumulates sentences (split on ``.!?`` followed by whitespace, or on
+    paragraph breaks) until we cross ``target_min``, emits at the first
+    chance to stay under ``target_max``. Drops trailing fragments below
+    ``hard_min``.
+
+    Used by ``stream_chunks`` for the apertus parquet shards and by the
+    test_v1 surfacer for romansh JSONL.gz files.
     """
     sentences = _SENTENCE_BOUNDARY.split(text)
     buf = ""
@@ -120,7 +127,7 @@ def stream_chunks(
         if not text:
             continue
         doc_id = rec.get("id") or f"unknown_{i}"
-        for chunk in _chunk_text(text):
+        for chunk in chunk_sentences(text):
             yield Chunk(text=chunk, doc_id=doc_id, subset=subset)
             n_emitted += 1
             if max_chunks and n_emitted >= max_chunks:
@@ -156,7 +163,7 @@ def _stream_local_parquet(
                 if not text:
                     continue
                 doc_id = rid or "unknown"
-                for chunk in _chunk_text(text):
+                for chunk in chunk_sentences(text):
                     yield Chunk(text=chunk, doc_id=doc_id, subset=subset)
                     n_emitted += 1
                     if max_chunks and n_emitted >= max_chunks:

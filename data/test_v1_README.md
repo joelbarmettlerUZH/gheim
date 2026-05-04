@@ -47,8 +47,8 @@ get "find all PII"; controls get "verify there is no PII" (FP measurement).
 | de_ch | 150 | 50 | 200 |
 | fr_ch | 150 | 50 | 200 |
 | it_ch | 150 | 50 | 200 |
-| rm    |  17 | 50 |  67 |
-| **total** | 467 | 200 | **667** |
+| rm    | 150 | 50 | 200 |
+| **total** | 600 | 200 | **800** |
 
 ## Known limitations
 
@@ -56,12 +56,10 @@ get "find all PII"; controls get "verify there is no PII" (FP measurement).
    test_v1. The legal-text trend line continues to be `audit_gold.jsonl`
    (Entscheidsuche + Curia Vista). Model card must report both.
 
-2. **RM is thin (67 chunks, only 17 PII-dense).** rm.wikipedia is
-   PII-poor at the prefilter level (mostly historical/encyclopedic
-   content; few IBANs / AHVs / phones). Per-language RM F1 will have
-   wide CIs (≈ ±0.15). Acceptable for the bake-off — RM was already
-   "below target" in the Phase 6 forecast — but documented as a
-   limitation in the model card.
+2. **RM coverage is healthy now (200 chunks, 150 PII-dense)** but
+   rm.wikipedia still over-represents historical / encyclopedic content
+   relative to the rest of the test set. Per-language RM CI is ≈ ±0.07
+   for n=200 — comparable to the other languages.
 
 3. **EN intentionally excluded.** gheim's primary deployment is Swiss;
    English regression is measured separately on a `layer4_en` validation
@@ -72,20 +70,27 @@ get "find all PII"; controls get "verify there is no PII" (FP measurement).
 
 ## Lang-detect bug found and fixed during build
 
-The lingua wrapper in `data/lang_detect.py` had two false-positive
-patterns that surfaced during the test_v1 build:
+The lingua wrapper in `data/lang_detect.py` had three false-positive
+patterns that surfaced during the test_v1 build, all locked in by
+regression tests in `training/tests/test_lang_detect.py`:
 
 - `"che"` was in the RM marker set, but it's the most common word in
   Italian. ~94% of the initial RM bucket was Italian text.
 - After dropping `"che"`, `"ils"` (3rd-person FR pronoun) drove all
   remaining RM samples to be French.
+- After adding a lingua-first override, real Romansh content was
+  misclassified as English: lingua doesn't ship a Romansh model so it
+  defaults unfamiliar text to EN at very high confidence.
 
-Fixed in two passes (commit ab1cdef on Day 3):
+Fixed in three passes:
 
 1. Dropped ambiguous tokens (`che`, `schi`, `nun`, `ils`, `ina`, `ino`,
    `tar`, `dapi`, `duai`) from `_RM_MARKERS`.
 2. Added a lingua-confidence override: when lingua is ≥0.80 confident
-   on DE/FR/IT/EN, trust it over the RM marker count.
+   on DE/FR/IT, trust it over the RM marker count.
+3. Excluded EN from the override — for EN, fall through to the marker
+   count + final fallback. This way real Romansh content with low marker
+   density still gets routed correctly via the romansh subset hint.
 
 ## Pipeline
 

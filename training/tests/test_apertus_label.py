@@ -10,21 +10,21 @@ from pathlib import Path
 import pytest
 from gheim_training.data.apertus_label import prefilter
 from gheim_training.data.apertus_label.label import _parse_claims
-from gheim_training.data.apertus_label.stream import _chunk_text, _classify
+from gheim_training.data.apertus_label.stream import _classify, chunk_sentences
 from gheim_training.data.apertus_label.verify import ApertusClaim, verify_and_combine
 
 # --- chunking ---
 
-def test_chunk_text_respects_target_window() -> None:
+def test_chunk_sentences_respects_target_window() -> None:
     text = ". ".join(f"Sentence number {i} with some filler words here" for i in range(60)) + "."
-    chunks = list(_chunk_text(text, target_min=200, target_max=500, hard_min=50))
+    chunks = list(chunk_sentences(text, target_min=200, target_max=500, hard_min=50))
     assert chunks
     for c in chunks[:-1]:
         assert 200 <= len(c) <= 600  # last chunk may be smaller
 
 
-def test_chunk_text_drops_tiny_trailing() -> None:
-    chunks = list(_chunk_text("short text.", target_min=400, target_max=800, hard_min=200))
+def test_chunk_sentences_drops_tiny_trailing() -> None:
+    chunks = list(chunk_sentences("short text.", target_min=400, target_max=800, hard_min=200))
     assert chunks == []
 
 
