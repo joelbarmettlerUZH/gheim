@@ -19,6 +19,8 @@ from __future__ import annotations
 import re
 from functools import lru_cache
 
+from .schema import Language
+
 # Romansh-distinctive tokens (case-insensitive). These appear frequently in
 # Romansh text but not in standard DE/FR/IT. Picked for high specificity.
 _RM_MARKERS = {
@@ -67,14 +69,16 @@ def _count_rm_markers(text: str) -> int:
     return len(_RM_MARKER_RE.findall(text))
 
 
-def detect(text: str, subset: str | None = None) -> str:
-    """Return one of: de_ch, fr_ch, it_ch, rm, gsw, en.
+def detect(text: str, subset: str | None = None) -> Language:
+    """Return the detected language as one of the 6 gheim Language codes.
 
     Decision tree:
-      1. If text has ≥3 RM markers → rm
-      2. Else if subset == 'romansh' and lingua isn't very confident → rm
+      1. If text has ≥3 RM markers → ``rm``
+      2. Else if subset == ``romansh`` and lingua isn't very confident → ``rm``
       3. Else use lingua's top guess (de→de_ch, fr→fr_ch, it→it_ch, en→en)
       4. Fallback to subset-implied default
+
+    Never raises on short or empty text — falls through to ``_subset_default``.
     """
     n_rm = _count_rm_markers(text)
     if n_rm >= 3:
@@ -99,7 +103,7 @@ def detect(text: str, subset: str | None = None) -> str:
         # Tiny text, no signal. Fall back to subset-implied default.
         return _subset_default(subset)
 
-    code, conf = top
+    code, _ = top
     if code == "de":
         return "de_ch"
     if code == "fr":
@@ -111,9 +115,9 @@ def detect(text: str, subset: str | None = None) -> str:
     return _subset_default(subset)
 
 
-def _subset_default(subset: str | None) -> str:
+def _subset_default(subset: str | None) -> Language:
     if subset == "romansh":
         return "rm"
-    if subset in ("entscheidsuche", "curia_vista"):
-        return "de_ch"  # majority CH legal lang
-    return "de_ch"  # safe default
+    # Default for entscheidsuche / curia_vista / unknown is de_ch (majority
+    # CH legal language).
+    return "de_ch"

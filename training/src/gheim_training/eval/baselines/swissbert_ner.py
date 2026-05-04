@@ -21,15 +21,21 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Annotated, Any, Literal
 
 from ...data.lang_detect import detect as detect_lang
-from ...data.schema import Span
+from ...data.schema import Language, Span
+
+# XMOD adapter codes shipped by SwissBERT. The set is closed; type tightens
+# the codomain of `_GHEIM_TO_XMOD` so downstream lookups can't accidentally
+# return something that isn't a valid adapter.
+XmodAdapter = Literal["de_CH", "fr_CH", "it_CH", "rm_CH"]
 
 # Map gheim's Language values → SwissBERT XMOD adapter codes. XMOD only
 # ships adapters for the 4 official Swiss languages; GSW transfers from
 # de_CH (closest morphology), EN falls back to de_CH (no English adapter).
-_GHEIM_TO_XMOD: dict[str, str] = {
+# The dict is total over Language so detect() never returns a key miss.
+_GHEIM_TO_XMOD: dict[Language, XmodAdapter] = {
     "de_ch": "de_CH",
     "fr_ch": "fr_CH",
     "it_ch": "it_CH",
@@ -39,7 +45,7 @@ _GHEIM_TO_XMOD: dict[str, str] = {
 }
 
 # Regex-extractable PII (categories not covered by SwissBERT-NER).
-_REGEXES: list[tuple[str, re.Pattern]] = [
+_REGEXES: list[tuple[str, re.Pattern[str]]] = [
     ("private_email", re.compile(r"\b[\w._%+-]+@[\w.-]+\.[A-Za-z]{2,}\b")),
     ("private_url", re.compile(r"https?://[^\s)>]+")),
     ("private_phone", re.compile(
@@ -59,7 +65,13 @@ _REGEXES: list[tuple[str, re.Pattern]] = [
 
 @dataclass
 class SwissBertNERDetector:
-    model_id: str = "ZurichNLP/swissbert-ner"
+    model_id: Annotated[
+        str,
+        "HuggingFace id of the SwissBERT-NER checkpoint. Default is the "
+        "community NER head; subclasses may swap in a different head.",
+    ] = "ZurichNLP/swissbert-ner"
+    # transformers.Pipeline doesn't have a clean public type annotation we
+    # can reuse here. _load() guarantees non-None before .detect() runs.
     _pipe: Any = field(default=None, init=False, repr=False)
 
     def _load(self) -> None:
@@ -80,15 +92,16 @@ class SwissBertNERDetector:
 
     def detect(self, text: str) -> list[Span]:
         self._load()
-        # XMOD requires a language adapter selected before each forward.
-        # Detect via lingua and fall back to de_CH (the largest training
-        # language) for unknowns / very short text.
-        try:
-            lang = detect_lang(text)
-        except Exception:
-            lang = "de_ch"
-        adapter = _GHEIM_TO_XMOD.get(lang or "de_ch", "de_CH")
+        # _pipe is non-None after _load(); HF pipelines wrap a model with
+        # set_default_language for XMOD. Asserts narrow ty's view (which
+        # treats _pipe as Any) and document the precondition.
+        assert self._pipe is not None
+        # Lingua wrapper never raises (returns _subset_default for short text);
+        # the dict is total over Language so the lookup never KeyErrors.
+        lang = detect_lang(text)
+        adapter = _GHEIM_TO_XMOD[lang]
         self._pipe.model.set_default_language(adapter)
+
         spans: list[Span] = []
         for r in self._pipe(text):
             ent = (r.get("entity_group") or r.get("entity") or "").upper()

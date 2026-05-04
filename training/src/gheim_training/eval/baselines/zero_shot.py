@@ -7,15 +7,26 @@ identical inference code, only the model id differs.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Annotated, Any
 
 from ...data.schema import Span
 
 
 @dataclass
 class HFDetector:
-    model_id_or_path: str
-    aggregation_strategy: str = "simple"
+    model_id_or_path: Annotated[
+        str,
+        "Either a HuggingFace Hub model id (e.g. 'openai/privacy-filter') or "
+        "a local checkpoint path. Loaded lazily on first detect() call.",
+    ]
+    aggregation_strategy: Annotated[
+        str,
+        "Token-classification aggregation: 'simple' merges adjacent tokens "
+        "with the same predicted label; 'first' / 'average' / 'max' control "
+        "subword tie-breaking. 'simple' matches gheim's production wrapper.",
+    ] = "simple"
+    # transformers.Pipeline has no clean public type; _load() guarantees
+    # non-None before .detect() runs.
     _pipe: Any = None
 
     def _load(self) -> None:
@@ -38,6 +49,7 @@ class HFDetector:
         if not text:
             return []
         self._load()
+        assert self._pipe is not None
         raw: list[Span] = []
         for r in self._pipe(text):
             label = str(r.get("entity_group") or r.get("entity"))

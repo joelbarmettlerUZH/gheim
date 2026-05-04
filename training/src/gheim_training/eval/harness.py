@@ -35,7 +35,11 @@ from ..data.schema import Span
 
 
 class Detector(Protocol):
-    def detect(self, text: str) -> list[Any]: ...
+    """Anything with a ``detect(text) -> list[Span]`` method. Both ``Span``
+    dataclasses and dict-shaped spans are tolerated downstream by ``_to_set``,
+    but the protocol is stricter so type-checkers catch detectors that
+    accidentally return raw HF pipeline output."""
+    def detect(self, text: str) -> list[Span]: ...
 
 
 def _load_eval_jsonl(path: Path) -> list[dict]:
@@ -187,7 +191,8 @@ def _print(report: dict[str, Any]) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--detector", required=True,
-                    choices=("finetuned", "zero_shot", "swissbert_ner"))
+                    choices=("finetuned", "zero_shot", "swissbert_ner"),
+                    help="Which detector to evaluate.")
     ap.add_argument("--eval-jsonl", type=Path, required=True,
                     help="JSONL with {text, language?, spans: [...]}.")
     ap.add_argument("--model-path", default=None,
