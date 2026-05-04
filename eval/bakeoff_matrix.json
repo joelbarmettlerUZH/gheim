@@ -1,0 +1,7782 @@
+{
+  "generated_at": "2026-05-04T22:06:08",
+  "eval_sets": {
+    "test_v1": "data/test_v1.jsonl",
+    "audit_gold": "data/audit_gold.jsonl",
+    "address_gold_v1": "data/address_gold_v1.jsonl"
+  },
+  "detectors": [
+    "zero_shot_privacy_filter",
+    "swissner_plus_regex",
+    "bakeoff_priv",
+    "bakeoff_xlmr",
+    "bakeoff_swissbert"
+  ],
+  "summary": {
+    "zero_shot_privacy_filter": {
+      "test_v1": {
+        "n_cases": 800,
+        "strict_overall_f1": 0.34273318872017355,
+        "overlap_overall_f1": 0.4150397686189443,
+        "by_entity_overlap": {
+          "account_number": 0.0,
+          "private_address": 0.07142857142857142,
+          "private_date": 0.6192170818505338,
+          "private_email": 0.0,
+          "private_person": 0.38848920863309355,
+          "private_phone": 0.7692307692307692,
+          "private_url": 0.2285714285714286,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.4863387978142076,
+          "fr_ch": 0.5105105105105106,
+          "it_ch": 0.46710526315789475,
+          "rm": 0.2210526315789474
+        },
+        "by_presence": {
+          "pii_dense": {
+            "fp": 221,
+            "n_chunks": 600,
+            "fp_per_chunk": 0.36833333333333335
+          },
+          "control": {
+            "fp": 88,
+            "n_chunks": 200,
+            "fp_per_chunk": 0.44
+          }
+        }
+      },
+      "audit_gold": {
+        "n_cases": 200,
+        "strict_overall_f1": 0.3190428713858425,
+        "overlap_overall_f1": 0.3948155533399801,
+        "by_entity_overlap": {
+          "account_number": 0.0,
+          "private_address": 0.039215686274509796,
+          "private_date": 0.6695095948827292,
+          "private_email": null,
+          "private_person": 0.31496062992125984,
+          "private_phone": 0.0,
+          "private_url": 0.0,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.3948155533399801
+        },
+        "by_presence": null
+      },
+      "address_gold_v1": {
+        "n_cases": 112,
+        "strict_overall_f1": 0.1019830028328612,
+        "overlap_overall_f1": 0.3569405099150142,
+        "by_entity_overlap": {
+          "account_number": 0.0,
+          "private_address": 0.5510204081632653,
+          "private_date": 0.0,
+          "private_email": 0.0,
+          "private_person": 0.1818181818181818,
+          "private_phone": 0.125,
+          "private_url": null,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.4761904761904762,
+          "fr_ch": 0.2524271844660194,
+          "it_ch": 0.34285714285714286,
+          "rm": 0.3684210526315789,
+          "en": 0.0
+        },
+        "by_presence": null
+      }
+    },
+    "swissner_plus_regex": {
+      "test_v1": {
+        "n_cases": 800,
+        "strict_overall_f1": 0.30808240887480187,
+        "overlap_overall_f1": 0.40950871632329633,
+        "by_entity_overlap": {
+          "account_number": null,
+          "private_address": 0.007272727272727273,
+          "private_date": 0.5360824742268041,
+          "private_email": null,
+          "private_person": 0.7470664928292047,
+          "private_phone": 0.6,
+          "private_url": 0.6190476190476191,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.4451219512195122,
+          "fr_ch": 0.42948717948717946,
+          "it_ch": 0.36899224806201547,
+          "rm": 0.4016260162601626
+        },
+        "by_presence": {
+          "pii_dense": {
+            "fp": 1298,
+            "n_chunks": 600,
+            "fp_per_chunk": 2.1633333333333336
+          },
+          "control": {
+            "fp": 534,
+            "n_chunks": 200,
+            "fp_per_chunk": 2.67
+          }
+        }
+      },
+      "audit_gold": {
+        "n_cases": 200,
+        "strict_overall_f1": 0.3474065138721351,
+        "overlap_overall_f1": 0.496984318455971,
+        "by_entity_overlap": {
+          "account_number": 0.0,
+          "private_address": 0.030303030303030307,
+          "private_date": 0.56,
+          "private_email": null,
+          "private_person": 0.6382978723404255,
+          "private_phone": 0.0,
+          "private_url": 0.0,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.496984318455971
+        },
+        "by_presence": null
+      },
+      "address_gold_v1": {
+        "n_cases": 112,
+        "strict_overall_f1": 0.022328548644338114,
+        "overlap_overall_f1": 0.25199362041467305,
+        "by_entity_overlap": {
+          "account_number": 0.0,
+          "private_address": 0.37435897435897436,
+          "private_date": 0.0,
+          "private_email": 0.0,
+          "private_person": 0.04878048780487805,
+          "private_phone": 0.33333333333333337,
+          "private_url": null,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.348993288590604,
+          "fr_ch": 0.20242914979757087,
+          "it_ch": 0.23225806451612901,
+          "rm": 0.3076923076923077,
+          "en": 0.0
+        },
+        "by_presence": null
+      }
+    },
+    "bakeoff_priv": {
+      "test_v1": {
+        "n_cases": 800,
+        "strict_overall_f1": 0.4751001717229536,
+        "overlap_overall_f1": 0.6193474527761877,
+        "by_entity_overlap": {
+          "account_number": null,
+          "private_address": 0.33333333333333337,
+          "private_date": 0.7763975155279503,
+          "private_email": 0.0,
+          "private_person": 0.5859778597785977,
+          "private_phone": 0.6666666666666666,
+          "private_url": 0.6190476190476191,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.6850574712643678,
+          "fr_ch": 0.6183574879227053,
+          "it_ch": 0.5915492957746478,
+          "rm": 0.5856353591160222
+        },
+        "by_presence": {
+          "pii_dense": {
+            "fp": 436,
+            "n_chunks": 600,
+            "fp_per_chunk": 0.7266666666666667
+          },
+          "control": {
+            "fp": 59,
+            "n_chunks": 200,
+            "fp_per_chunk": 0.295
+          }
+        }
+      },
+      "audit_gold": {
+        "n_cases": 200,
+        "strict_overall_f1": 0.7241379310344828,
+        "overlap_overall_f1": 0.812807881773399,
+        "by_entity_overlap": {
+          "account_number": null,
+          "private_address": 0.13333333333333336,
+          "private_date": 0.9311926605504586,
+          "private_email": null,
+          "private_person": 0.7390029325513197,
+          "private_phone": 0.0,
+          "private_url": 0.0,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.812807881773399
+        },
+        "by_presence": null
+      },
+      "address_gold_v1": {
+        "n_cases": 112,
+        "strict_overall_f1": 0.1643059490084986,
+        "overlap_overall_f1": 0.40226628895184136,
+        "by_entity_overlap": {
+          "account_number": null,
+          "private_address": 0.6666666666666666,
+          "private_date": 0.0,
+          "private_email": 0.0,
+          "private_person": 0.1951219512195122,
+          "private_phone": 0.14285714285714288,
+          "private_url": null,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.5531914893617023,
+          "fr_ch": 0.2975206611570248,
+          "it_ch": 0.4,
+          "rm": 0.39999999999999997,
+          "en": 0.0
+        },
+        "by_presence": null
+      }
+    },
+    "bakeoff_xlmr": {
+      "test_v1": {
+        "n_cases": 800,
+        "strict_overall_f1": 0.7767653758542142,
+        "overlap_overall_f1": 0.8166287015945329,
+        "by_entity_overlap": {
+          "account_number": null,
+          "private_address": 0.6153846153846154,
+          "private_date": 0.7619047619047618,
+          "private_email": null,
+          "private_person": 0.8389955686853766,
+          "private_phone": 0.7272727272727272,
+          "private_url": 0.6190476190476191,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.851764705882353,
+          "fr_ch": 0.8421052631578947,
+          "it_ch": 0.7747747747747747,
+          "rm": 0.8006279434850864
+        },
+        "by_presence": {
+          "pii_dense": {
+            "fp": 213,
+            "n_chunks": 600,
+            "fp_per_chunk": 0.355
+          },
+          "control": {
+            "fp": 24,
+            "n_chunks": 200,
+            "fp_per_chunk": 0.12
+          }
+        }
+      },
+      "audit_gold": {
+        "n_cases": 200,
+        "strict_overall_f1": 0.7932285368802903,
+        "overlap_overall_f1": 0.8440145102781137,
+        "by_entity_overlap": {
+          "account_number": 0.0,
+          "private_address": 0.6666666666666666,
+          "private_date": 0.9583333333333333,
+          "private_email": null,
+          "private_person": 0.7608695652173914,
+          "private_phone": 0.0,
+          "private_url": 0.0,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.8440145102781137
+        },
+        "by_presence": null
+      },
+      "address_gold_v1": {
+        "n_cases": 112,
+        "strict_overall_f1": 0.3315508021390374,
+        "overlap_overall_f1": 0.4278074866310161,
+        "by_entity_overlap": {
+          "account_number": 0.0,
+          "private_address": 0.8452380952380953,
+          "private_date": 0.0,
+          "private_email": 0.0,
+          "private_person": 0.14159292035398233,
+          "private_phone": 0.1111111111111111,
+          "private_url": null,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.6590909090909091,
+          "fr_ch": 0.33333333333333337,
+          "it_ch": 0.37894736842105264,
+          "rm": 0.45454545454545453,
+          "en": 0.0
+        },
+        "by_presence": null
+      }
+    },
+    "bakeoff_swissbert": {
+      "test_v1": {
+        "n_cases": 800,
+        "strict_overall_f1": 0.7350521119034559,
+        "overlap_overall_f1": 0.7701590784421284,
+        "by_entity_overlap": {
+          "account_number": null,
+          "private_address": 0.6666666666666666,
+          "private_date": 0.7386363636363635,
+          "private_email": null,
+          "private_person": 0.7840342124019958,
+          "private_phone": 0.7272727272727272,
+          "private_url": 0.6190476190476191,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.81981981981982,
+          "fr_ch": 0.773067331670823,
+          "it_ch": 0.7470588235294118,
+          "rm": 0.7460815047021945
+        },
+        "by_presence": {
+          "pii_dense": {
+            "fp": 272,
+            "n_chunks": 600,
+            "fp_per_chunk": 0.4533333333333333
+          },
+          "control": {
+            "fp": 44,
+            "n_chunks": 200,
+            "fp_per_chunk": 0.22
+          }
+        }
+      },
+      "audit_gold": {
+        "n_cases": 200,
+        "strict_overall_f1": 0.8300970873786409,
+        "overlap_overall_f1": 0.8616504854368933,
+        "by_entity_overlap": {
+          "account_number": 0.0,
+          "private_address": 0.3333333333333333,
+          "private_date": 0.9634703196347031,
+          "private_email": null,
+          "private_person": 0.7966573816155988,
+          "private_phone": 0.0,
+          "private_url": 0.0,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.8616504854368933
+        },
+        "by_presence": null
+      },
+      "address_gold_v1": {
+        "n_cases": 112,
+        "strict_overall_f1": 0.28961748633879786,
+        "overlap_overall_f1": 0.39890710382513656,
+        "by_entity_overlap": {
+          "account_number": null,
+          "private_address": 0.834355828220859,
+          "private_date": 0.0,
+          "private_email": 0.0,
+          "private_person": 0.06896551724137931,
+          "private_phone": 0.13333333333333333,
+          "private_url": null,
+          "secret": null
+        },
+        "by_language_overlap": {
+          "de_ch": 0.5106382978723405,
+          "fr_ch": 0.35114503816793896,
+          "it_ch": 0.38636363636363635,
+          "rm": 0.41860465116279066,
+          "en": 0.0
+        },
+        "by_presence": null
+      }
+    }
+  },
+  "full": {
+    "zero_shot_privacy_filter": {
+      "test_v1": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.4098360655737705,
+              "tp": 75,
+              "fp": 81,
+              "fn": 135
+            },
+            "fr_ch": {
+              "f1": 0.41441441441441446,
+              "tp": 69,
+              "fp": 88,
+              "fn": 107
+            },
+            "it_ch": {
+              "f1": 0.40131578947368424,
+              "tp": 61,
+              "fp": 92,
+              "fn": 90
+            },
+            "rm": {
+              "f1": 0.16842105263157894,
+              "tp": 32,
+              "fp": 48,
+              "fn": 268
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 21,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.07142857142857142,
+              "tp": 2,
+              "fp": 49,
+              "fn": 3
+            },
+            "private_date": {
+              "f1": 0.5124555160142349,
+              "tp": 72,
+              "fp": 69,
+              "fn": 68
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 4,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.3206577595066804,
+              "tp": 156,
+              "fp": 160,
+              "fn": 501
+            },
+            "private_phone": {
+              "f1": 0.7692307692307692,
+              "tp": 5,
+              "fp": 2,
+              "fn": 1
+            },
+            "private_url": {
+              "f1": 0.1142857142857143,
+              "tp": 2,
+              "fp": 4,
+              "fn": 27
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 16,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 9,
+              "fn": 2
+            },
+            "de_ch/private_date": {
+              "f1": 0.6153846153846154,
+              "tp": 24,
+              "fp": 16,
+              "fn": 14
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.40816326530612246,
+              "tp": 50,
+              "fp": 37,
+              "fn": 108
+            },
+            "de_ch/private_phone": {
+              "f1": 0.6666666666666666,
+              "tp": 1,
+              "fp": 0,
+              "fn": 1
+            },
+            "de_ch/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 10
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.1904761904761905,
+              "tp": 2,
+              "fp": 16,
+              "fn": 1
+            },
+            "fr_ch/private_date": {
+              "f1": 0.48837209302325585,
+              "tp": 21,
+              "fp": 20,
+              "fn": 24
+            },
+            "fr_ch/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.43216080402010054,
+              "tp": 43,
+              "fp": 43,
+              "fn": 70
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.7499999999999999,
+              "tp": 3,
+              "fp": 2,
+              "fn": 0
+            },
+            "fr_ch/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 12
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 18,
+              "fn": 0
+            },
+            "it_ch/private_date": {
+              "f1": 0.574468085106383,
+              "tp": 27,
+              "fp": 25,
+              "fn": 15
+            },
+            "it_ch/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.34254143646408836,
+              "tp": 31,
+              "fp": 46,
+              "fn": 73
+            },
+            "it_ch/private_phone": {
+              "f1": 1.0,
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 0,
+              "fn": 2
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 6,
+              "fn": 0
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 8,
+              "fn": 15
+            },
+            "rm/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.1839080459770115,
+              "tp": 32,
+              "fp": 34,
+              "fn": 250
+            },
+            "rm/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 3
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.34273318872017355,
+            "tp": 237,
+            "fp": 309,
+            "fn": 600
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.4863387978142076,
+              "tp": 89,
+              "fp": 67,
+              "fn": 121
+            },
+            "fr_ch": {
+              "f1": 0.5105105105105106,
+              "tp": 85,
+              "fp": 72,
+              "fn": 91
+            },
+            "it_ch": {
+              "f1": 0.46710526315789475,
+              "tp": 71,
+              "fp": 82,
+              "fn": 80
+            },
+            "rm": {
+              "f1": 0.2210526315789474,
+              "tp": 42,
+              "fp": 38,
+              "fn": 258
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 21,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.07142857142857142,
+              "tp": 2,
+              "fp": 49,
+              "fn": 3
+            },
+            "private_date": {
+              "f1": 0.6192170818505338,
+              "tp": 87,
+              "fp": 54,
+              "fn": 53
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 4,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.38848920863309355,
+              "tp": 189,
+              "fp": 127,
+              "fn": 468
+            },
+            "private_phone": {
+              "f1": 0.7692307692307692,
+              "tp": 5,
+              "fp": 2,
+              "fn": 1
+            },
+            "private_url": {
+              "f1": 0.2285714285714286,
+              "tp": 4,
+              "fp": 2,
+              "fn": 25
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 16,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 9,
+              "fn": 2
+            },
+            "de_ch/private_date": {
+              "f1": 0.717948717948718,
+              "tp": 28,
+              "fp": 12,
+              "fn": 10
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.4816326530612245,
+              "tp": 59,
+              "fp": 28,
+              "fn": 99
+            },
+            "de_ch/private_phone": {
+              "f1": 0.6666666666666666,
+              "tp": 1,
+              "fp": 0,
+              "fn": 1
+            },
+            "de_ch/private_url": {
+              "f1": 0.15384615384615383,
+              "tp": 1,
+              "fp": 2,
+              "fn": 9
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.1904761904761905,
+              "tp": 2,
+              "fp": 16,
+              "fn": 1
+            },
+            "fr_ch/private_date": {
+              "f1": 0.6046511627906976,
+              "tp": 26,
+              "fp": 15,
+              "fn": 19
+            },
+            "fr_ch/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.5326633165829145,
+              "tp": 53,
+              "fp": 33,
+              "fn": 60
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.7499999999999999,
+              "tp": 3,
+              "fp": 2,
+              "fn": 0
+            },
+            "fr_ch/private_url": {
+              "f1": 0.15384615384615385,
+              "tp": 1,
+              "fp": 0,
+              "fn": 11
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 18,
+              "fn": 0
+            },
+            "it_ch/private_date": {
+              "f1": 0.6808510638297872,
+              "tp": 32,
+              "fp": 20,
+              "fn": 10
+            },
+            "it_ch/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.3977900552486187,
+              "tp": 36,
+              "fp": 41,
+              "fn": 68
+            },
+            "it_ch/private_phone": {
+              "f1": 1.0,
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 0,
+              "fn": 2
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 6,
+              "fn": 0
+            },
+            "rm/private_date": {
+              "f1": 0.08695652173913045,
+              "tp": 1,
+              "fp": 7,
+              "fn": 14
+            },
+            "rm/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.23563218390804594,
+              "tp": 41,
+              "fp": 25,
+              "fn": 241
+            },
+            "rm/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 3
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.4150397686189443,
+            "tp": 287,
+            "fp": 259,
+            "fn": 550
+          }
+        },
+        "n_cases": 800,
+        "by_presence": {
+          "pii_dense": {
+            "fp": 221,
+            "n_chunks": 600,
+            "fp_per_chunk": 0.36833333333333335
+          },
+          "control": {
+            "fp": 88,
+            "n_chunks": 200,
+            "fp_per_chunk": 0.44
+          }
+        }
+      },
+      "audit_gold": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.3190428713858425,
+              "tp": 160,
+              "fp": 436,
+              "fn": 247
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 223,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 49,
+              "fn": 2
+            },
+            "private_date": {
+              "f1": 0.5671641791044776,
+              "tp": 133,
+              "fp": 121,
+              "fn": 82
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.2125984251968504,
+              "tp": 27,
+              "fp": 37,
+              "fn": 163
+            },
+            "private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 4,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 223,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 49,
+              "fn": 2
+            },
+            "de_ch/private_date": {
+              "f1": 0.5671641791044776,
+              "tp": 133,
+              "fp": 121,
+              "fn": 82
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.2125984251968504,
+              "tp": 27,
+              "fp": 37,
+              "fn": 163
+            },
+            "de_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 4,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.3190428713858425,
+            "tp": 160,
+            "fp": 436,
+            "fn": 247
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.3948155533399801,
+              "tp": 198,
+              "fp": 398,
+              "fn": 209
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 223,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.039215686274509796,
+              "tp": 1,
+              "fp": 48,
+              "fn": 1
+            },
+            "private_date": {
+              "f1": 0.6695095948827292,
+              "tp": 157,
+              "fp": 97,
+              "fn": 58
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.31496062992125984,
+              "tp": 40,
+              "fp": 24,
+              "fn": 150
+            },
+            "private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 4,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 223,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.039215686274509796,
+              "tp": 1,
+              "fp": 48,
+              "fn": 1
+            },
+            "de_ch/private_date": {
+              "f1": 0.6695095948827292,
+              "tp": 157,
+              "fp": 97,
+              "fn": 58
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.31496062992125984,
+              "tp": 40,
+              "fp": 24,
+              "fn": 150
+            },
+            "de_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 4,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.3948155533399801,
+            "tp": 198,
+            "fp": 398,
+            "fn": 209
+          }
+        },
+        "n_cases": 200
+      },
+      "address_gold_v1": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.11428571428571428,
+              "tp": 6,
+              "fp": 70,
+              "fn": 23
+            },
+            "fr_ch": {
+              "f1": 0.05825242718446603,
+              "tp": 3,
+              "fp": 75,
+              "fn": 22
+            },
+            "it_ch": {
+              "f1": 0.09523809523809523,
+              "tp": 5,
+              "fp": 79,
+              "fn": 16
+            },
+            "rm": {
+              "f1": 0.21052631578947364,
+              "tp": 4,
+              "fp": 24,
+              "fn": 6
+            },
+            "en": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.1326530612244898,
+              "tp": 13,
+              "fp": 108,
+              "fn": 62
+            },
+            "private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 49,
+              "fn": 0
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.0909090909090909,
+              "tp": 4,
+              "fp": 75,
+              "fn": 5
+            },
+            "private_phone": {
+              "f1": 0.125,
+              "tp": 1,
+              "fp": 14,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.0923076923076923,
+              "tp": 3,
+              "fp": 39,
+              "fn": 20
+            },
+            "de_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 10,
+              "fn": 0
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.16000000000000003,
+              "tp": 2,
+              "fp": 18,
+              "fn": 3
+            },
+            "de_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.07692307692307693,
+              "tp": 2,
+              "fp": 27,
+              "fn": 21
+            },
+            "fr_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 14,
+              "fn": 0
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.058823529411764705,
+              "tp": 1,
+              "fp": 31,
+              "fn": 1
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "fr_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.12903225806451613,
+              "tp": 4,
+              "fp": 39,
+              "fn": 15
+            },
+            "it_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.09523809523809525,
+              "tp": 1,
+              "fp": 18,
+              "fn": 1
+            },
+            "it_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 5,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.47058823529411764,
+              "tp": 4,
+              "fp": 3,
+              "fn": 6
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 8,
+              "fn": 0
+            },
+            "rm/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 6,
+              "fn": 0
+            },
+            "rm/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 5,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_address": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_date": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "en/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.1019830028328612,
+            "tp": 18,
+            "fp": 250,
+            "fn": 67
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.4761904761904762,
+              "tp": 25,
+              "fp": 51,
+              "fn": 4
+            },
+            "fr_ch": {
+              "f1": 0.2524271844660194,
+              "tp": 13,
+              "fp": 65,
+              "fn": 12
+            },
+            "it_ch": {
+              "f1": 0.34285714285714286,
+              "tp": 18,
+              "fp": 66,
+              "fn": 3
+            },
+            "rm": {
+              "f1": 0.3684210526315789,
+              "tp": 7,
+              "fp": 21,
+              "fn": 3
+            },
+            "en": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.5510204081632653,
+              "tp": 54,
+              "fp": 67,
+              "fn": 21
+            },
+            "private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 49,
+              "fn": 0
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.1818181818181818,
+              "tp": 8,
+              "fp": 71,
+              "fn": 1
+            },
+            "private_phone": {
+              "f1": 0.125,
+              "tp": 1,
+              "fp": 14,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.6153846153846153,
+              "tp": 20,
+              "fp": 22,
+              "fn": 3
+            },
+            "de_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 10,
+              "fn": 0
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.32000000000000006,
+              "tp": 4,
+              "fp": 16,
+              "fn": 1
+            },
+            "de_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.4230769230769231,
+              "tp": 11,
+              "fp": 18,
+              "fn": 12
+            },
+            "fr_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 14,
+              "fn": 0
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.11764705882352941,
+              "tp": 2,
+              "fp": 30,
+              "fn": 0
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "fr_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.5161290322580645,
+              "tp": 16,
+              "fp": 27,
+              "fn": 3
+            },
+            "it_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.1904761904761905,
+              "tp": 2,
+              "fp": 17,
+              "fn": 0
+            },
+            "it_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 5,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.8235294117647058,
+              "tp": 7,
+              "fp": 0,
+              "fn": 3
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 8,
+              "fn": 0
+            },
+            "rm/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 6,
+              "fn": 0
+            },
+            "rm/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 5,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_address": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_date": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "en/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.3569405099150142,
+            "tp": 63,
+            "fp": 205,
+            "fn": 22
+          }
+        },
+        "n_cases": 112
+      }
+    },
+    "swissner_plus_regex": {
+      "test_v1": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.32621951219512196,
+              "tp": 107,
+              "fp": 339,
+              "fn": 103
+            },
+            "fr_ch": {
+              "f1": 0.34615384615384615,
+              "tp": 108,
+              "fp": 340,
+              "fn": 68
+            },
+            "it_ch": {
+              "f1": 0.30077519379844964,
+              "tp": 97,
+              "fp": 397,
+              "fn": 54
+            },
+            "rm": {
+              "f1": 0.28292682926829266,
+              "tp": 174,
+              "fp": 756,
+              "fn": 126
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1370,
+              "fn": 5
+            },
+            "private_date": {
+              "f1": 0.5360824742268041,
+              "tp": 52,
+              "fp": 2,
+              "fn": 88
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.5449804432855281,
+              "tp": 418,
+              "fp": 459,
+              "fn": 239
+            },
+            "private_phone": {
+              "f1": 0.6,
+              "tp": 3,
+              "fp": 1,
+              "fn": 3
+            },
+            "private_url": {
+              "f1": 0.6190476190476191,
+              "tp": 13,
+              "fp": 0,
+              "fn": 16
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 251,
+              "fn": 2
+            },
+            "de_ch/private_date": {
+              "f1": 0.5098039215686275,
+              "tp": 13,
+              "fp": 0,
+              "fn": 25
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.5240963855421686,
+              "tp": 87,
+              "fp": 87,
+              "fn": 71
+            },
+            "de_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 1,
+              "fn": 1
+            },
+            "de_ch/private_url": {
+              "f1": 0.7499999999999999,
+              "tp": 6,
+              "fp": 0,
+              "fn": 4
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 248,
+              "fn": 3
+            },
+            "fr_ch/private_date": {
+              "f1": 0.6268656716417911,
+              "tp": 21,
+              "fp": 1,
+              "fn": 24
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.5684210526315789,
+              "tp": 81,
+              "fp": 91,
+              "fn": 32
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 0,
+              "fn": 2
+            },
+            "fr_ch/private_url": {
+              "f1": 0.5882352941176471,
+              "tp": 5,
+              "fp": 0,
+              "fn": 7
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 301,
+              "fn": 0
+            },
+            "it_ch/private_date": {
+              "f1": 0.5901639344262295,
+              "tp": 18,
+              "fp": 1,
+              "fn": 24
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.5527272727272727,
+              "tp": 76,
+              "fp": 95,
+              "fn": 28
+            },
+            "it_ch/private_phone": {
+              "f1": 1.0,
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 0,
+              "fn": 2
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 570,
+              "fn": 0
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 15
+            },
+            "rm/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.5420560747663552,
+              "tp": 174,
+              "fp": 186,
+              "fn": 108
+            },
+            "rm/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 3
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.30808240887480187,
+            "tp": 486,
+            "fp": 1832,
+            "fn": 351
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.4451219512195122,
+              "tp": 146,
+              "fp": 300,
+              "fn": 64
+            },
+            "fr_ch": {
+              "f1": 0.42948717948717946,
+              "tp": 134,
+              "fp": 314,
+              "fn": 42
+            },
+            "it_ch": {
+              "f1": 0.36899224806201547,
+              "tp": 119,
+              "fp": 375,
+              "fn": 32
+            },
+            "rm": {
+              "f1": 0.4016260162601626,
+              "tp": 247,
+              "fp": 683,
+              "fn": 53
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.007272727272727273,
+              "tp": 5,
+              "fp": 1365,
+              "fn": 0
+            },
+            "private_date": {
+              "f1": 0.5360824742268041,
+              "tp": 52,
+              "fp": 2,
+              "fn": 88
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.7470664928292047,
+              "tp": 573,
+              "fp": 304,
+              "fn": 84
+            },
+            "private_phone": {
+              "f1": 0.6,
+              "tp": 3,
+              "fp": 1,
+              "fn": 3
+            },
+            "private_url": {
+              "f1": 0.6190476190476191,
+              "tp": 13,
+              "fp": 0,
+              "fn": 16
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.015810276679841896,
+              "tp": 2,
+              "fp": 249,
+              "fn": 0
+            },
+            "de_ch/private_date": {
+              "f1": 0.5098039215686275,
+              "tp": 13,
+              "fp": 0,
+              "fn": 25
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.746987951807229,
+              "tp": 124,
+              "fp": 50,
+              "fn": 34
+            },
+            "de_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 1,
+              "fn": 1
+            },
+            "de_ch/private_url": {
+              "f1": 0.7499999999999999,
+              "tp": 6,
+              "fp": 0,
+              "fn": 4
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.023904382470119518,
+              "tp": 3,
+              "fp": 245,
+              "fn": 0
+            },
+            "fr_ch/private_date": {
+              "f1": 0.6268656716417911,
+              "tp": 21,
+              "fp": 1,
+              "fn": 24
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.7298245614035088,
+              "tp": 104,
+              "fp": 68,
+              "fn": 9
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 0,
+              "fn": 2
+            },
+            "fr_ch/private_url": {
+              "f1": 0.5882352941176471,
+              "tp": 5,
+              "fp": 0,
+              "fn": 7
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 301,
+              "fn": 0
+            },
+            "it_ch/private_date": {
+              "f1": 0.5901639344262295,
+              "tp": 18,
+              "fp": 1,
+              "fn": 24
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.7127272727272727,
+              "tp": 98,
+              "fp": 73,
+              "fn": 6
+            },
+            "it_ch/private_phone": {
+              "f1": 1.0,
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 0,
+              "fn": 2
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 570,
+              "fn": 0
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 15
+            },
+            "rm/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.7694704049844237,
+              "tp": 247,
+              "fp": 113,
+              "fn": 35
+            },
+            "rm/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 3
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.40950871632329633,
+            "tp": 646,
+            "fp": 1672,
+            "fn": 191
+          }
+        },
+        "n_cases": 800,
+        "by_presence": {
+          "pii_dense": {
+            "fp": 1298,
+            "n_chunks": 600,
+            "fp_per_chunk": 2.1633333333333336
+          },
+          "control": {
+            "fp": 534,
+            "n_chunks": 200,
+            "fp_per_chunk": 2.67
+          }
+        }
+      },
+      "audit_gold": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.3474065138721351,
+              "tp": 144,
+              "fp": 278,
+              "fn": 263
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.015151515151515154,
+              "tp": 1,
+              "fp": 129,
+              "fn": 1
+            },
+            "private_date": {
+              "f1": 0.56,
+              "tp": 84,
+              "fp": 1,
+              "fn": 131
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.3138297872340426,
+              "tp": 59,
+              "fp": 127,
+              "fn": 131
+            },
+            "private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.015151515151515154,
+              "tp": 1,
+              "fp": 129,
+              "fn": 1
+            },
+            "de_ch/private_date": {
+              "f1": 0.56,
+              "tp": 84,
+              "fp": 1,
+              "fn": 131
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.3138297872340426,
+              "tp": 59,
+              "fp": 127,
+              "fn": 131
+            },
+            "de_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.3474065138721351,
+            "tp": 144,
+            "fp": 278,
+            "fn": 263
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.496984318455971,
+              "tp": 206,
+              "fp": 216,
+              "fn": 201
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.030303030303030307,
+              "tp": 2,
+              "fp": 128,
+              "fn": 0
+            },
+            "private_date": {
+              "f1": 0.56,
+              "tp": 84,
+              "fp": 1,
+              "fn": 131
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.6382978723404255,
+              "tp": 120,
+              "fp": 66,
+              "fn": 70
+            },
+            "private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.030303030303030307,
+              "tp": 2,
+              "fp": 128,
+              "fn": 0
+            },
+            "de_ch/private_date": {
+              "f1": 0.56,
+              "tp": 84,
+              "fp": 1,
+              "fn": 131
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.6382978723404255,
+              "tp": 120,
+              "fp": 66,
+              "fn": 70
+            },
+            "de_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.496984318455971,
+            "tp": 206,
+            "fp": 216,
+            "fn": 201
+          }
+        },
+        "n_cases": 200
+      },
+      "address_gold_v1": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.040268456375838924,
+              "tp": 3,
+              "fp": 117,
+              "fn": 26
+            },
+            "fr_ch": {
+              "f1": 0.024291497975708506,
+              "tp": 3,
+              "fp": 219,
+              "fn": 22
+            },
+            "it_ch": {
+              "f1": 0.012903225806451613,
+              "tp": 1,
+              "fp": 133,
+              "fn": 20
+            },
+            "rm": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 55,
+              "fn": 10
+            },
+            "en": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 11,
+              "fn": 0
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.005128205128205127,
+              "tp": 1,
+              "fp": 314,
+              "fn": 74
+            },
+            "private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 23,
+              "fn": 0
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.04878048780487805,
+              "tp": 5,
+              "fp": 191,
+              "fn": 4
+            },
+            "private_phone": {
+              "f1": 0.33333333333333337,
+              "tp": 1,
+              "fp": 4,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 97,
+              "fn": 23
+            },
+            "de_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.16000000000000003,
+              "tp": 2,
+              "fp": 18,
+              "fn": 3
+            },
+            "de_ch/private_phone": {
+              "f1": 1.0,
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.016666666666666666,
+              "tp": 1,
+              "fp": 96,
+              "fn": 22
+            },
+            "fr_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 8,
+              "fn": 0
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.03389830508474576,
+              "tp": 2,
+              "fp": 114,
+              "fn": 0
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "fr_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 78,
+              "fn": 19
+            },
+            "it_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 9,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.04347826086956522,
+              "tp": 1,
+              "fp": 43,
+              "fn": 1
+            },
+            "it_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 41,
+              "fn": 10
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 4,
+              "fn": 0
+            },
+            "rm/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 8,
+              "fn": 0
+            },
+            "rm/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "en/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "en/private_date": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 8,
+              "fn": 0
+            },
+            "en/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.022328548644338114,
+            "tp": 7,
+            "fp": 535,
+            "fn": 78
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.348993288590604,
+              "tp": 26,
+              "fp": 94,
+              "fn": 3
+            },
+            "fr_ch": {
+              "f1": 0.20242914979757087,
+              "tp": 25,
+              "fp": 197,
+              "fn": 0
+            },
+            "it_ch": {
+              "f1": 0.23225806451612901,
+              "tp": 18,
+              "fp": 116,
+              "fn": 3
+            },
+            "rm": {
+              "f1": 0.3076923076923077,
+              "tp": 10,
+              "fp": 45,
+              "fn": 0
+            },
+            "en": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 11,
+              "fn": 0
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.37435897435897436,
+              "tp": 73,
+              "fp": 242,
+              "fn": 2
+            },
+            "private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 23,
+              "fn": 0
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.04878048780487805,
+              "tp": 5,
+              "fp": 191,
+              "fn": 4
+            },
+            "private_phone": {
+              "f1": 0.33333333333333337,
+              "tp": 1,
+              "fp": 4,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.3833333333333333,
+              "tp": 23,
+              "fp": 74,
+              "fn": 0
+            },
+            "de_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.16000000000000003,
+              "tp": 2,
+              "fp": 18,
+              "fn": 3
+            },
+            "de_ch/private_phone": {
+              "f1": 1.0,
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.3833333333333333,
+              "tp": 23,
+              "fp": 74,
+              "fn": 0
+            },
+            "fr_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 8,
+              "fn": 0
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.03389830508474576,
+              "tp": 2,
+              "fp": 114,
+              "fn": 0
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "fr_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.3505154639175258,
+              "tp": 17,
+              "fp": 61,
+              "fn": 2
+            },
+            "it_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 9,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.04347826086956522,
+              "tp": 1,
+              "fp": 43,
+              "fn": 1
+            },
+            "it_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.39215686274509803,
+              "tp": 10,
+              "fp": 31,
+              "fn": 0
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 4,
+              "fn": 0
+            },
+            "rm/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 8,
+              "fn": 0
+            },
+            "rm/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "en/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "en/private_date": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 8,
+              "fn": 0
+            },
+            "en/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.25199362041467305,
+            "tp": 79,
+            "fp": 463,
+            "fn": 6
+          }
+        },
+        "n_cases": 112
+      }
+    },
+    "bakeoff_priv": {
+      "test_v1": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.5379310344827587,
+              "tp": 117,
+              "fp": 108,
+              "fn": 93
+            },
+            "fr_ch": {
+              "f1": 0.5169082125603865,
+              "tp": 107,
+              "fp": 131,
+              "fn": 69
+            },
+            "it_ch": {
+              "f1": 0.49014084507042255,
+              "tp": 87,
+              "fp": 117,
+              "fn": 64
+            },
+            "rm": {
+              "f1": 0.38305709023941065,
+              "tp": 104,
+              "fp": 139,
+              "fn": 196
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 13,
+              "fn": 5
+            },
+            "private_date": {
+              "f1": 0.6832298136645962,
+              "tp": 110,
+              "fp": 72,
+              "fn": 30
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.42804428044280446,
+              "tp": 290,
+              "fp": 408,
+              "fn": 367
+            },
+            "private_phone": {
+              "f1": 0.6666666666666666,
+              "tp": 3,
+              "fp": 0,
+              "fn": 3
+            },
+            "private_url": {
+              "f1": 0.5714285714285715,
+              "tp": 12,
+              "fp": 1,
+              "fn": 17
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 2
+            },
+            "de_ch/private_date": {
+              "f1": 0.7500000000000001,
+              "tp": 33,
+              "fp": 17,
+              "fn": 5
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.4723926380368098,
+              "tp": 77,
+              "fp": 91,
+              "fn": 81
+            },
+            "de_ch/private_phone": {
+              "f1": 0.6666666666666666,
+              "tp": 1,
+              "fp": 0,
+              "fn": 1
+            },
+            "de_ch/private_url": {
+              "f1": 0.7499999999999999,
+              "tp": 6,
+              "fp": 0,
+              "fn": 4
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 11,
+              "fn": 3
+            },
+            "fr_ch/private_date": {
+              "f1": 0.7647058823529413,
+              "tp": 39,
+              "fp": 18,
+              "fn": 6
+            },
+            "fr_ch/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.45652173913043476,
+              "tp": 63,
+              "fp": 100,
+              "fn": 50
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 0,
+              "fn": 2
+            },
+            "fr_ch/private_url": {
+              "f1": 0.47058823529411764,
+              "tp": 4,
+              "fp": 1,
+              "fn": 8
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "it_ch/private_date": {
+              "f1": 0.7551020408163266,
+              "tp": 37,
+              "fp": 19,
+              "fn": 5
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.3790322580645161,
+              "tp": 47,
+              "fp": 97,
+              "fn": 57
+            },
+            "it_ch/private_phone": {
+              "f1": 1.0,
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 0,
+              "fn": 2
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "rm/private_date": {
+              "f1": 0.058823529411764705,
+              "tp": 1,
+              "fp": 18,
+              "fn": 14
+            },
+            "rm/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.40792079207920795,
+              "tp": 103,
+              "fp": 120,
+              "fn": 179
+            },
+            "rm/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 3
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.4751001717229536,
+            "tp": 415,
+            "fp": 495,
+            "fn": 422
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.6850574712643678,
+              "tp": 149,
+              "fp": 76,
+              "fn": 61
+            },
+            "fr_ch": {
+              "f1": 0.6183574879227053,
+              "tp": 128,
+              "fp": 110,
+              "fn": 48
+            },
+            "it_ch": {
+              "f1": 0.5915492957746478,
+              "tp": 105,
+              "fp": 99,
+              "fn": 46
+            },
+            "rm": {
+              "f1": 0.5856353591160222,
+              "tp": 159,
+              "fp": 84,
+              "fn": 141
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.33333333333333337,
+              "tp": 3,
+              "fp": 10,
+              "fn": 2
+            },
+            "private_date": {
+              "f1": 0.7763975155279503,
+              "tp": 125,
+              "fp": 57,
+              "fn": 15
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.5859778597785977,
+              "tp": 397,
+              "fp": 301,
+              "fn": 260
+            },
+            "private_phone": {
+              "f1": 0.6666666666666666,
+              "tp": 3,
+              "fp": 0,
+              "fn": 3
+            },
+            "private_url": {
+              "f1": 0.6190476190476191,
+              "tp": 13,
+              "fp": 0,
+              "fn": 16
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 2
+            },
+            "de_ch/private_date": {
+              "f1": 0.8181818181818181,
+              "tp": 36,
+              "fp": 14,
+              "fn": 2
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.6503067484662577,
+              "tp": 106,
+              "fp": 62,
+              "fn": 52
+            },
+            "de_ch/private_phone": {
+              "f1": 0.6666666666666666,
+              "tp": 1,
+              "fp": 0,
+              "fn": 1
+            },
+            "de_ch/private_url": {
+              "f1": 0.7499999999999999,
+              "tp": 6,
+              "fp": 0,
+              "fn": 4
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.42857142857142855,
+              "tp": 3,
+              "fp": 8,
+              "fn": 0
+            },
+            "fr_ch/private_date": {
+              "f1": 0.803921568627451,
+              "tp": 41,
+              "fp": 16,
+              "fn": 4
+            },
+            "fr_ch/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.5652173913043478,
+              "tp": 78,
+              "fp": 85,
+              "fn": 35
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 0,
+              "fn": 2
+            },
+            "fr_ch/private_url": {
+              "f1": 0.5882352941176471,
+              "tp": 5,
+              "fp": 0,
+              "fn": 7
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "it_ch/private_date": {
+              "f1": 0.8163265306122449,
+              "tp": 40,
+              "fp": 16,
+              "fn": 2
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.5000000000000001,
+              "tp": 62,
+              "fp": 82,
+              "fn": 42
+            },
+            "it_ch/private_phone": {
+              "f1": 1.0,
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 0,
+              "fn": 2
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "rm/private_date": {
+              "f1": 0.47058823529411764,
+              "tp": 8,
+              "fp": 11,
+              "fn": 7
+            },
+            "rm/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.5980198019801981,
+              "tp": 151,
+              "fp": 72,
+              "fn": 131
+            },
+            "rm/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 3
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.6193474527761877,
+            "tp": 541,
+            "fp": 369,
+            "fn": 296
+          }
+        },
+        "n_cases": 800,
+        "by_presence": {
+          "pii_dense": {
+            "fp": 436,
+            "n_chunks": 600,
+            "fp_per_chunk": 0.7266666666666667
+          },
+          "control": {
+            "fp": 59,
+            "n_chunks": 200,
+            "fp_per_chunk": 0.295
+          }
+        }
+      },
+      "audit_gold": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.7241379310344828,
+              "tp": 294,
+              "fp": 111,
+              "fn": 113
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.13333333333333336,
+              "tp": 1,
+              "fp": 12,
+              "fn": 1
+            },
+            "private_date": {
+              "f1": 0.9128440366972477,
+              "tp": 199,
+              "fp": 22,
+              "fn": 16
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.5513196480938417,
+              "tp": 94,
+              "fp": 57,
+              "fn": 96
+            },
+            "private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 18,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.13333333333333336,
+              "tp": 1,
+              "fp": 12,
+              "fn": 1
+            },
+            "de_ch/private_date": {
+              "f1": 0.9128440366972477,
+              "tp": 199,
+              "fp": 22,
+              "fn": 16
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.5513196480938417,
+              "tp": 94,
+              "fp": 57,
+              "fn": 96
+            },
+            "de_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 18,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.7241379310344828,
+            "tp": 294,
+            "fp": 111,
+            "fn": 113
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.812807881773399,
+              "tp": 330,
+              "fp": 75,
+              "fn": 77
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.13333333333333336,
+              "tp": 1,
+              "fp": 12,
+              "fn": 1
+            },
+            "private_date": {
+              "f1": 0.9311926605504586,
+              "tp": 203,
+              "fp": 18,
+              "fn": 12
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.7390029325513197,
+              "tp": 126,
+              "fp": 25,
+              "fn": 64
+            },
+            "private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 18,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.13333333333333336,
+              "tp": 1,
+              "fp": 12,
+              "fn": 1
+            },
+            "de_ch/private_date": {
+              "f1": 0.9311926605504586,
+              "tp": 203,
+              "fp": 18,
+              "fn": 12
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.7390029325513197,
+              "tp": 126,
+              "fp": 25,
+              "fn": 64
+            },
+            "de_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 18,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.812807881773399,
+            "tp": 330,
+            "fp": 75,
+            "fn": 77
+          }
+        },
+        "n_cases": 200
+      },
+      "address_gold_v1": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.25531914893617025,
+              "tp": 12,
+              "fp": 53,
+              "fn": 17
+            },
+            "fr_ch": {
+              "f1": 0.06611570247933884,
+              "tp": 4,
+              "fp": 92,
+              "fn": 21
+            },
+            "it_ch": {
+              "f1": 0.2,
+              "tp": 9,
+              "fp": 60,
+              "fn": 12
+            },
+            "rm": {
+              "f1": 0.17777777777777776,
+              "tp": 4,
+              "fp": 31,
+              "fn": 6
+            },
+            "en": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.25806451612903225,
+              "tp": 24,
+              "fp": 87,
+              "fn": 51
+            },
+            "private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 69,
+              "fn": 0
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.0975609756097561,
+              "tp": 4,
+              "fp": 69,
+              "fn": 5
+            },
+            "private_phone": {
+              "f1": 0.14285714285714288,
+              "tp": 1,
+              "fp": 12,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.2950819672131147,
+              "tp": 9,
+              "fp": 29,
+              "fn": 14
+            },
+            "de_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 9,
+              "fn": 0
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.2,
+              "tp": 2,
+              "fp": 13,
+              "fn": 3
+            },
+            "de_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.10909090909090909,
+              "tp": 3,
+              "fp": 29,
+              "fn": 20
+            },
+            "fr_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 25,
+              "fn": 0
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.05,
+              "tp": 1,
+              "fp": 37,
+              "fn": 1
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "fr_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.34782608695652173,
+              "tp": 8,
+              "fp": 19,
+              "fn": 11
+            },
+            "it_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 23,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.11764705882352941,
+              "tp": 1,
+              "fp": 14,
+              "fn": 1
+            },
+            "it_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 4,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.3333333333333333,
+              "tp": 4,
+              "fp": 10,
+              "fn": 6
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 11,
+              "fn": 0
+            },
+            "rm/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "rm/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 5,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_address": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "en/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "en/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.1643059490084986,
+            "tp": 29,
+            "fp": 239,
+            "fn": 56
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.5531914893617023,
+              "tp": 26,
+              "fp": 39,
+              "fn": 3
+            },
+            "fr_ch": {
+              "f1": 0.2975206611570248,
+              "tp": 18,
+              "fp": 78,
+              "fn": 7
+            },
+            "it_ch": {
+              "f1": 0.4,
+              "tp": 18,
+              "fp": 51,
+              "fn": 3
+            },
+            "rm": {
+              "f1": 0.39999999999999997,
+              "tp": 9,
+              "fp": 26,
+              "fn": 1
+            },
+            "en": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.6666666666666666,
+              "tp": 62,
+              "fp": 49,
+              "fn": 13
+            },
+            "private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 69,
+              "fn": 0
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.1951219512195122,
+              "tp": 8,
+              "fp": 65,
+              "fn": 1
+            },
+            "private_phone": {
+              "f1": 0.14285714285714288,
+              "tp": 1,
+              "fp": 12,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.6885245901639344,
+              "tp": 21,
+              "fp": 17,
+              "fn": 2
+            },
+            "de_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 9,
+              "fn": 0
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.4,
+              "tp": 4,
+              "fp": 11,
+              "fn": 1
+            },
+            "de_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.5818181818181818,
+              "tp": 16,
+              "fp": 16,
+              "fn": 7
+            },
+            "fr_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 25,
+              "fn": 0
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.1,
+              "tp": 2,
+              "fp": 36,
+              "fn": 0
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "fr_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.6956521739130435,
+              "tp": 16,
+              "fp": 11,
+              "fn": 3
+            },
+            "it_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 23,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.23529411764705882,
+              "tp": 2,
+              "fp": 13,
+              "fn": 0
+            },
+            "it_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 4,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.75,
+              "tp": 9,
+              "fp": 5,
+              "fn": 1
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 11,
+              "fn": 0
+            },
+            "rm/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "rm/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 5,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_address": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "en/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "en/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.40226628895184136,
+            "tp": 71,
+            "fp": 197,
+            "fn": 14
+          }
+        },
+        "n_cases": 112
+      }
+    },
+    "bakeoff_xlmr": {
+      "test_v1": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.8094117647058824,
+              "tp": 172,
+              "fp": 43,
+              "fn": 38
+            },
+            "fr_ch": {
+              "f1": 0.7867036011080332,
+              "tp": 142,
+              "fp": 43,
+              "fn": 34
+            },
+            "it_ch": {
+              "f1": 0.7267267267267268,
+              "tp": 121,
+              "fp": 61,
+              "fn": 30
+            },
+            "rm": {
+              "f1": 0.7755102040816326,
+              "tp": 247,
+              "fp": 90,
+              "fn": 53
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.6153846153846154,
+              "tp": 4,
+              "fp": 4,
+              "fn": 1
+            },
+            "private_date": {
+              "f1": 0.6726190476190476,
+              "tp": 113,
+              "fp": 83,
+              "fn": 27
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.810930576070901,
+              "tp": 549,
+              "fp": 148,
+              "fn": 108
+            },
+            "private_phone": {
+              "f1": 0.5454545454545454,
+              "tp": 3,
+              "fp": 2,
+              "fn": 3
+            },
+            "private_url": {
+              "f1": 0.6190476190476191,
+              "tp": 13,
+              "fp": 0,
+              "fn": 16
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 1,
+              "fn": 1
+            },
+            "de_ch/private_date": {
+              "f1": 0.7727272727272727,
+              "tp": 34,
+              "fp": 16,
+              "fn": 4
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.8333333333333334,
+              "tp": 130,
+              "fp": 24,
+              "fn": 28
+            },
+            "de_ch/private_phone": {
+              "f1": 0.4,
+              "tp": 1,
+              "fp": 2,
+              "fn": 1
+            },
+            "de_ch/private_url": {
+              "f1": 0.7499999999999999,
+              "tp": 6,
+              "fp": 0,
+              "fn": 4
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.7499999999999999,
+              "tp": 3,
+              "fp": 2,
+              "fn": 0
+            },
+            "fr_ch/private_date": {
+              "f1": 0.6868686868686867,
+              "tp": 34,
+              "fp": 20,
+              "fn": 11
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.849785407725322,
+              "tp": 99,
+              "fp": 21,
+              "fn": 14
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 0,
+              "fn": 2
+            },
+            "fr_ch/private_url": {
+              "f1": 0.5882352941176471,
+              "tp": 5,
+              "fp": 0,
+              "fn": 7
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "it_ch/private_date": {
+              "f1": 0.7524752475247525,
+              "tp": 38,
+              "fp": 21,
+              "fn": 4
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.7174887892376681,
+              "tp": 80,
+              "fp": 39,
+              "fn": 24
+            },
+            "it_ch/private_phone": {
+              "f1": 1.0,
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 0,
+              "fn": 2
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_date": {
+              "f1": 0.29166666666666663,
+              "tp": 7,
+              "fp": 26,
+              "fn": 8
+            },
+            "rm/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.8191126279863481,
+              "tp": 240,
+              "fp": 64,
+              "fn": 42
+            },
+            "rm/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 3
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.7767653758542142,
+            "tp": 682,
+            "fp": 237,
+            "fn": 155
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.851764705882353,
+              "tp": 181,
+              "fp": 34,
+              "fn": 29
+            },
+            "fr_ch": {
+              "f1": 0.8421052631578947,
+              "tp": 152,
+              "fp": 33,
+              "fn": 24
+            },
+            "it_ch": {
+              "f1": 0.7747747747747747,
+              "tp": 129,
+              "fp": 53,
+              "fn": 22
+            },
+            "rm": {
+              "f1": 0.8006279434850864,
+              "tp": 255,
+              "fp": 82,
+              "fn": 45
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.6153846153846154,
+              "tp": 4,
+              "fp": 4,
+              "fn": 1
+            },
+            "private_date": {
+              "f1": 0.7619047619047618,
+              "tp": 128,
+              "fp": 68,
+              "fn": 12
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.8389955686853766,
+              "tp": 568,
+              "fp": 129,
+              "fn": 89
+            },
+            "private_phone": {
+              "f1": 0.7272727272727272,
+              "tp": 4,
+              "fp": 1,
+              "fn": 2
+            },
+            "private_url": {
+              "f1": 0.6190476190476191,
+              "tp": 13,
+              "fp": 0,
+              "fn": 16
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 1,
+              "fn": 1
+            },
+            "de_ch/private_date": {
+              "f1": 0.8409090909090909,
+              "tp": 37,
+              "fp": 13,
+              "fn": 1
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.8653846153846154,
+              "tp": 135,
+              "fp": 19,
+              "fn": 23
+            },
+            "de_ch/private_phone": {
+              "f1": 0.8,
+              "tp": 2,
+              "fp": 1,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.7499999999999999,
+              "tp": 6,
+              "fp": 0,
+              "fn": 4
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.7499999999999999,
+              "tp": 3,
+              "fp": 2,
+              "fn": 0
+            },
+            "fr_ch/private_date": {
+              "f1": 0.8282828282828282,
+              "tp": 41,
+              "fp": 13,
+              "fn": 4
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.8755364806866952,
+              "tp": 102,
+              "fp": 18,
+              "fn": 11
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 0,
+              "fn": 2
+            },
+            "fr_ch/private_url": {
+              "f1": 0.5882352941176471,
+              "tp": 5,
+              "fp": 0,
+              "fn": 7
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "it_ch/private_date": {
+              "f1": 0.8316831683168318,
+              "tp": 42,
+              "fp": 17,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.7533632286995517,
+              "tp": 84,
+              "fp": 35,
+              "fn": 20
+            },
+            "it_ch/private_phone": {
+              "f1": 1.0,
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 0,
+              "fn": 2
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_date": {
+              "f1": 0.3333333333333333,
+              "tp": 8,
+              "fp": 25,
+              "fn": 7
+            },
+            "rm/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.8430034129692833,
+              "tp": 247,
+              "fp": 57,
+              "fn": 35
+            },
+            "rm/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 3
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.8166287015945329,
+            "tp": 717,
+            "fp": 202,
+            "fn": 120
+          }
+        },
+        "n_cases": 800,
+        "by_presence": {
+          "pii_dense": {
+            "fp": 213,
+            "n_chunks": 600,
+            "fp_per_chunk": 0.355
+          },
+          "control": {
+            "fp": 24,
+            "n_chunks": 200,
+            "fp_per_chunk": 0.12
+          }
+        }
+      },
+      "audit_gold": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.7932285368802903,
+              "tp": 328,
+              "fp": 92,
+              "fn": 79
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_date": {
+              "f1": 0.8842592592592592,
+              "tp": 191,
+              "fp": 26,
+              "fn": 24
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.7336956521739131,
+              "tp": 135,
+              "fp": 43,
+              "fn": 55
+            },
+            "private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_date": {
+              "f1": 0.8842592592592592,
+              "tp": 191,
+              "fp": 26,
+              "fn": 24
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.7336956521739131,
+              "tp": 135,
+              "fp": 43,
+              "fn": 55
+            },
+            "de_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.7932285368802903,
+            "tp": 328,
+            "fp": 92,
+            "fn": 79
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.8440145102781137,
+              "tp": 349,
+              "fp": 71,
+              "fn": 58
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_date": {
+              "f1": 0.9583333333333333,
+              "tp": 207,
+              "fp": 10,
+              "fn": 8
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.7608695652173914,
+              "tp": 140,
+              "fp": 38,
+              "fn": 50
+            },
+            "private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_date": {
+              "f1": 0.9583333333333333,
+              "tp": 207,
+              "fp": 10,
+              "fn": 8
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.7608695652173914,
+              "tp": 140,
+              "fp": 38,
+              "fn": 50
+            },
+            "de_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.8440145102781137,
+            "tp": 349,
+            "fp": 71,
+            "fn": 58
+          }
+        },
+        "n_cases": 200
+      },
+      "address_gold_v1": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.45454545454545453,
+              "tp": 20,
+              "fp": 39,
+              "fn": 9
+            },
+            "fr_ch": {
+              "f1": 0.2608695652173913,
+              "tp": 18,
+              "fp": 95,
+              "fn": 7
+            },
+            "it_ch": {
+              "f1": 0.31578947368421056,
+              "tp": 15,
+              "fp": 59,
+              "fn": 6
+            },
+            "rm": {
+              "f1": 0.40909090909090906,
+              "tp": 9,
+              "fp": 25,
+              "fn": 1
+            },
+            "en": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 9,
+              "fn": 0
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.6666666666666667,
+              "tp": 56,
+              "fp": 37,
+              "fn": 19
+            },
+            "private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 72,
+              "fn": 0
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.08849557522123894,
+              "tp": 5,
+              "fp": 99,
+              "fn": 4
+            },
+            "private_phone": {
+              "f1": 0.1111111111111111,
+              "tp": 1,
+              "fp": 16,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.6415094339622641,
+              "tp": 17,
+              "fp": 13,
+              "fn": 6
+            },
+            "de_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 10,
+              "fn": 0
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.19047619047619047,
+              "tp": 2,
+              "fp": 14,
+              "fn": 3
+            },
+            "de_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.6037735849056605,
+              "tp": 16,
+              "fp": 14,
+              "fn": 7
+            },
+            "fr_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 26,
+              "fn": 0
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.07017543859649122,
+              "tp": 2,
+              "fp": 53,
+              "fn": 0
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "fr_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.6829268292682926,
+              "tp": 14,
+              "fp": 8,
+              "fn": 5
+            },
+            "it_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 24,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.07407407407407407,
+              "tp": 1,
+              "fp": 24,
+              "fn": 1
+            },
+            "it_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.8571428571428572,
+              "tp": 9,
+              "fp": 2,
+              "fn": 1
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 10,
+              "fn": 0
+            },
+            "rm/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 6,
+              "fn": 0
+            },
+            "rm/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 5,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "en/private_address": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "en/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "en/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 4,
+              "fn": 0
+            },
+            "en/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.3315508021390374,
+            "tp": 62,
+            "fp": 227,
+            "fn": 23
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.6590909090909091,
+              "tp": 29,
+              "fp": 30,
+              "fn": 0
+            },
+            "fr_ch": {
+              "f1": 0.33333333333333337,
+              "tp": 23,
+              "fp": 90,
+              "fn": 2
+            },
+            "it_ch": {
+              "f1": 0.37894736842105264,
+              "tp": 18,
+              "fp": 56,
+              "fn": 3
+            },
+            "rm": {
+              "f1": 0.45454545454545453,
+              "tp": 10,
+              "fp": 24,
+              "fn": 0
+            },
+            "en": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 9,
+              "fn": 0
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.8452380952380953,
+              "tp": 71,
+              "fp": 22,
+              "fn": 4
+            },
+            "private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 72,
+              "fn": 0
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.14159292035398233,
+              "tp": 8,
+              "fp": 96,
+              "fn": 1
+            },
+            "private_phone": {
+              "f1": 0.1111111111111111,
+              "tp": 1,
+              "fp": 16,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.8679245283018869,
+              "tp": 23,
+              "fp": 7,
+              "fn": 0
+            },
+            "de_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 10,
+              "fn": 0
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.47619047619047616,
+              "tp": 5,
+              "fp": 11,
+              "fn": 0
+            },
+            "de_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.7924528301886793,
+              "tp": 21,
+              "fp": 9,
+              "fn": 2
+            },
+            "fr_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 26,
+              "fn": 0
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.07017543859649122,
+              "tp": 2,
+              "fp": 53,
+              "fn": 0
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "fr_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.8292682926829269,
+              "tp": 17,
+              "fp": 5,
+              "fn": 2
+            },
+            "it_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 24,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.07407407407407407,
+              "tp": 1,
+              "fp": 24,
+              "fn": 1
+            },
+            "it_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.9523809523809523,
+              "tp": 10,
+              "fp": 1,
+              "fn": 0
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 10,
+              "fn": 0
+            },
+            "rm/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 6,
+              "fn": 0
+            },
+            "rm/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 5,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "en/private_address": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "en/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "en/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 4,
+              "fn": 0
+            },
+            "en/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.4278074866310161,
+            "tp": 80,
+            "fp": 209,
+            "fn": 5
+          }
+        },
+        "n_cases": 112
+      }
+    },
+    "bakeoff_swissbert": {
+      "test_v1": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.7792792792792793,
+              "tp": 173,
+              "fp": 61,
+              "fn": 37
+            },
+            "fr_ch": {
+              "f1": 0.7281795511221945,
+              "tp": 146,
+              "fp": 79,
+              "fn": 30
+            },
+            "it_ch": {
+              "f1": 0.7235294117647059,
+              "tp": 123,
+              "fp": 66,
+              "fn": 28
+            },
+            "rm": {
+              "f1": 0.7147335423197492,
+              "tp": 228,
+              "fp": 110,
+              "fn": 72
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.26666666666666666,
+              "tp": 2,
+              "fp": 8,
+              "fn": 3
+            },
+            "private_date": {
+              "f1": 0.7272727272727272,
+              "tp": 128,
+              "fp": 84,
+              "fn": 12
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.7455452601568068,
+              "tp": 523,
+              "fp": 223,
+              "fn": 134
+            },
+            "private_phone": {
+              "f1": 0.7272727272727272,
+              "tp": 4,
+              "fp": 1,
+              "fn": 2
+            },
+            "private_url": {
+              "f1": 0.6190476190476191,
+              "tp": 13,
+              "fp": 0,
+              "fn": 16
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.4,
+              "tp": 1,
+              "fp": 2,
+              "fn": 1
+            },
+            "de_ch/private_date": {
+              "f1": 0.8409090909090909,
+              "tp": 37,
+              "fp": 13,
+              "fn": 1
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.7696969696969697,
+              "tp": 127,
+              "fp": 45,
+              "fn": 31
+            },
+            "de_ch/private_phone": {
+              "f1": 0.8,
+              "tp": 2,
+              "fp": 1,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.7499999999999999,
+              "tp": 6,
+              "fp": 0,
+              "fn": 4
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.2222222222222222,
+              "tp": 1,
+              "fp": 5,
+              "fn": 2
+            },
+            "fr_ch/private_date": {
+              "f1": 0.8,
+              "tp": 42,
+              "fp": 18,
+              "fn": 3
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.7293233082706766,
+              "tp": 97,
+              "fp": 56,
+              "fn": 16
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 0,
+              "fn": 2
+            },
+            "fr_ch/private_url": {
+              "f1": 0.5882352941176471,
+              "tp": 5,
+              "fp": 0,
+              "fn": 7
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "it_ch/private_date": {
+              "f1": 0.8571428571428571,
+              "tp": 42,
+              "fp": 14,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.6695278969957081,
+              "tp": 78,
+              "fp": 51,
+              "fn": 26
+            },
+            "it_ch/private_phone": {
+              "f1": 1.0,
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 0,
+              "fn": 2
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_date": {
+              "f1": 0.22950819672131148,
+              "tp": 7,
+              "fp": 39,
+              "fn": 8
+            },
+            "rm/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.7700348432055749,
+              "tp": 221,
+              "fp": 71,
+              "fn": 61
+            },
+            "rm/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 3
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.7350521119034559,
+            "tp": 670,
+            "fp": 316,
+            "fn": 167
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.81981981981982,
+              "tp": 182,
+              "fp": 52,
+              "fn": 28
+            },
+            "fr_ch": {
+              "f1": 0.773067331670823,
+              "tp": 155,
+              "fp": 70,
+              "fn": 21
+            },
+            "it_ch": {
+              "f1": 0.7470588235294118,
+              "tp": 127,
+              "fp": 62,
+              "fn": 24
+            },
+            "rm": {
+              "f1": 0.7460815047021945,
+              "tp": 238,
+              "fp": 100,
+              "fn": 62
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.6666666666666666,
+              "tp": 5,
+              "fp": 5,
+              "fn": 0
+            },
+            "private_date": {
+              "f1": 0.7386363636363635,
+              "tp": 130,
+              "fp": 82,
+              "fn": 10
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.7840342124019958,
+              "tp": 550,
+              "fp": 196,
+              "fn": 107
+            },
+            "private_phone": {
+              "f1": 0.7272727272727272,
+              "tp": 4,
+              "fp": 1,
+              "fn": 2
+            },
+            "private_url": {
+              "f1": 0.6190476190476191,
+              "tp": 13,
+              "fp": 0,
+              "fn": 16
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.8,
+              "tp": 2,
+              "fp": 1,
+              "fn": 0
+            },
+            "de_ch/private_date": {
+              "f1": 0.8636363636363636,
+              "tp": 38,
+              "fp": 12,
+              "fn": 0
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.812121212121212,
+              "tp": 134,
+              "fp": 38,
+              "fn": 24
+            },
+            "de_ch/private_phone": {
+              "f1": 0.8,
+              "tp": 2,
+              "fp": 1,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.7499999999999999,
+              "tp": 6,
+              "fp": 0,
+              "fn": 4
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.6666666666666666,
+              "tp": 3,
+              "fp": 3,
+              "fn": 0
+            },
+            "fr_ch/private_date": {
+              "f1": 0.8190476190476191,
+              "tp": 43,
+              "fp": 17,
+              "fn": 2
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.7744360902255639,
+              "tp": 103,
+              "fp": 50,
+              "fn": 10
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 0,
+              "fn": 2
+            },
+            "fr_ch/private_url": {
+              "f1": 0.5882352941176471,
+              "tp": 5,
+              "fp": 0,
+              "fn": 7
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "it_ch/private_date": {
+              "f1": 0.8571428571428571,
+              "tp": 42,
+              "fp": 14,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.703862660944206,
+              "tp": 82,
+              "fp": 47,
+              "fn": 22
+            },
+            "it_ch/private_phone": {
+              "f1": 1.0,
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": 0.6666666666666666,
+              "tp": 2,
+              "fp": 0,
+              "fn": 2
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_date": {
+              "f1": 0.22950819672131148,
+              "tp": 7,
+              "fp": 39,
+              "fn": 8
+            },
+            "rm/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.8048780487804879,
+              "tp": 231,
+              "fp": 61,
+              "fn": 51
+            },
+            "rm/private_phone": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 0,
+              "fn": 3
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.7701590784421284,
+            "tp": 702,
+            "fp": 284,
+            "fn": 135
+          }
+        },
+        "n_cases": 800,
+        "by_presence": {
+          "pii_dense": {
+            "fp": 272,
+            "n_chunks": 600,
+            "fp_per_chunk": 0.4533333333333333
+          },
+          "control": {
+            "fp": 44,
+            "n_chunks": 200,
+            "fp_per_chunk": 0.22
+          }
+        }
+      },
+      "audit_gold": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.8300970873786409,
+              "tp": 342,
+              "fp": 75,
+              "fn": 65
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.3333333333333333,
+              "tp": 1,
+              "fp": 3,
+              "fn": 1
+            },
+            "private_date": {
+              "f1": 0.9360730593607306,
+              "tp": 205,
+              "fp": 18,
+              "fn": 10
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.7576601671309192,
+              "tp": 136,
+              "fp": 33,
+              "fn": 54
+            },
+            "private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.3333333333333333,
+              "tp": 1,
+              "fp": 3,
+              "fn": 1
+            },
+            "de_ch/private_date": {
+              "f1": 0.9360730593607306,
+              "tp": 205,
+              "fp": 18,
+              "fn": 10
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.7576601671309192,
+              "tp": 136,
+              "fp": 33,
+              "fn": 54
+            },
+            "de_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.8300970873786409,
+            "tp": 342,
+            "fp": 75,
+            "fn": 65
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.8616504854368933,
+              "tp": 355,
+              "fp": 62,
+              "fn": 52
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.3333333333333333,
+              "tp": 1,
+              "fp": 3,
+              "fn": 1
+            },
+            "private_date": {
+              "f1": 0.9634703196347031,
+              "tp": 211,
+              "fp": 12,
+              "fn": 4
+            },
+            "private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.7966573816155988,
+              "tp": 143,
+              "fp": 26,
+              "fn": 47
+            },
+            "private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.3333333333333333,
+              "tp": 1,
+              "fp": 3,
+              "fn": 1
+            },
+            "de_ch/private_date": {
+              "f1": 0.9634703196347031,
+              "tp": 211,
+              "fp": 12,
+              "fn": 4
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.7966573816155988,
+              "tp": 143,
+              "fp": 26,
+              "fn": 47
+            },
+            "de_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 17,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.8616504854368933,
+            "tp": 355,
+            "fp": 62,
+            "fn": 52
+          }
+        },
+        "n_cases": 200
+      },
+      "address_gold_v1": {
+        "strict": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.40425531914893614,
+              "tp": 19,
+              "fp": 46,
+              "fn": 10
+            },
+            "fr_ch": {
+              "f1": 0.22900763358778625,
+              "tp": 15,
+              "fp": 91,
+              "fn": 10
+            },
+            "it_ch": {
+              "f1": 0.25,
+              "tp": 11,
+              "fp": 56,
+              "fn": 10
+            },
+            "rm": {
+              "f1": 0.372093023255814,
+              "tp": 8,
+              "fp": 25,
+              "fn": 2
+            },
+            "en": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 10,
+              "fn": 0
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.5889570552147239,
+              "tp": 48,
+              "fp": 40,
+              "fn": 27
+            },
+            "private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 70,
+              "fn": 0
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.06896551724137931,
+              "tp": 4,
+              "fp": 103,
+              "fn": 5
+            },
+            "private_phone": {
+              "f1": 0.13333333333333333,
+              "tp": 1,
+              "fp": 13,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.6415094339622641,
+              "tp": 17,
+              "fp": 13,
+              "fn": 6
+            },
+            "de_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 10,
+              "fn": 0
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.07407407407407407,
+              "tp": 1,
+              "fp": 21,
+              "fn": 4
+            },
+            "de_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.5098039215686274,
+              "tp": 13,
+              "fp": 15,
+              "fn": 10
+            },
+            "fr_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 28,
+              "fn": 0
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.07999999999999999,
+              "tp": 2,
+              "fp": 46,
+              "fn": 0
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "fr_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.5128205128205129,
+              "tp": 10,
+              "fp": 10,
+              "fn": 9
+            },
+            "it_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 21,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.08,
+              "tp": 1,
+              "fp": 22,
+              "fn": 1
+            },
+            "it_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.8000000000000002,
+              "tp": 8,
+              "fp": 2,
+              "fn": 2
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 9,
+              "fn": 0
+            },
+            "rm/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 7,
+              "fn": 0
+            },
+            "rm/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 5,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_address": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "en/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 7,
+              "fn": 0
+            },
+            "en/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "en/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.28961748633879786,
+            "tp": 53,
+            "fp": 228,
+            "fn": 32
+          }
+        },
+        "overlap": {
+          "by_language": {
+            "de_ch": {
+              "f1": 0.5106382978723405,
+              "tp": 24,
+              "fp": 41,
+              "fn": 5
+            },
+            "fr_ch": {
+              "f1": 0.35114503816793896,
+              "tp": 23,
+              "fp": 83,
+              "fn": 2
+            },
+            "it_ch": {
+              "f1": 0.38636363636363635,
+              "tp": 17,
+              "fp": 50,
+              "fn": 4
+            },
+            "rm": {
+              "f1": 0.41860465116279066,
+              "tp": 9,
+              "fp": 24,
+              "fn": 1
+            },
+            "en": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 10,
+              "fn": 0
+            }
+          },
+          "by_entity": {
+            "account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "private_address": {
+              "f1": 0.834355828220859,
+              "tp": 68,
+              "fp": 20,
+              "fn": 7
+            },
+            "private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 70,
+              "fn": 0
+            },
+            "private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "private_person": {
+              "f1": 0.06896551724137931,
+              "tp": 4,
+              "fp": 103,
+              "fn": 5
+            },
+            "private_phone": {
+              "f1": 0.13333333333333333,
+              "tp": 1,
+              "fp": 13,
+              "fn": 0
+            },
+            "private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "by_lang_entity": {
+            "de_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_address": {
+              "f1": 0.8301886792452831,
+              "tp": 22,
+              "fp": 8,
+              "fn": 1
+            },
+            "de_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 10,
+              "fn": 0
+            },
+            "de_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/private_person": {
+              "f1": 0.07407407407407407,
+              "tp": 1,
+              "fp": 21,
+              "fn": 4
+            },
+            "de_ch/private_phone": {
+              "f1": 0.5,
+              "tp": 1,
+              "fp": 2,
+              "fn": 0
+            },
+            "de_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "de_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_address": {
+              "f1": 0.8235294117647057,
+              "tp": 21,
+              "fp": 7,
+              "fn": 2
+            },
+            "fr_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 28,
+              "fn": 0
+            },
+            "fr_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/private_person": {
+              "f1": 0.07999999999999999,
+              "tp": 2,
+              "fp": 46,
+              "fn": 0
+            },
+            "fr_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "fr_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "fr_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_address": {
+              "f1": 0.8205128205128205,
+              "tp": 16,
+              "fp": 4,
+              "fn": 3
+            },
+            "it_ch/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 21,
+              "fn": 0
+            },
+            "it_ch/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/private_person": {
+              "f1": 0.08,
+              "tp": 1,
+              "fp": 22,
+              "fn": 1
+            },
+            "it_ch/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 3,
+              "fn": 0
+            },
+            "it_ch/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "it_ch/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/private_address": {
+              "f1": 0.9,
+              "tp": 9,
+              "fp": 1,
+              "fn": 1
+            },
+            "rm/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 9,
+              "fn": 0
+            },
+            "rm/private_email": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "rm/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 7,
+              "fn": 0
+            },
+            "rm/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 5,
+              "fn": 0
+            },
+            "rm/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "rm/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/account_number": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_address": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_date": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 2,
+              "fn": 0
+            },
+            "en/private_email": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/private_person": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 7,
+              "fn": 0
+            },
+            "en/private_phone": {
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 0
+            },
+            "en/private_url": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            },
+            "en/secret": {
+              "f1": null,
+              "tp": 0,
+              "fp": 0,
+              "fn": 0
+            }
+          },
+          "overall": {
+            "f1": 0.39890710382513656,
+            "tp": 73,
+            "fp": 208,
+            "fn": 12
+          }
+        },
+        "n_cases": 112
+      }
+    }
+  },
+  "leader": "bakeoff_xlmr",
+  "leader_overlap_f1_test_v1": 0.8166287015945329,
+  "best_baseline_overlap_f1_test_v1": 0.4150397686189443
+}
