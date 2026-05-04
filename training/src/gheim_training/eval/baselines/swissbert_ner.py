@@ -1,15 +1,21 @@
 """SwissBERT-NER + regex hybrid. The bar to beat per the brief.
 
-SwissBERT was pre-trained on Swiss text in DE/FR/IT/RM. The community
-``ZurichNLP/swissbert-ner`` head outputs PERSON/LOC/ORG, so we map:
+SwissBERT was pre-trained on Swiss text in DE/FR/IT/RM via the XMOD
+architecture: one shared body + four language-specific adapter sets.
+The community ``ZurichNLP/swissbert-ner`` head outputs PERSON/LOC/ORG, so
+we map:
   - PERSON → private_person
   - LOC    → private_address  (LOC includes addresses + place names)
   - ORG    → dropped (no gheim category for orgs)
 
+XMOD requires a default language before each forward — we use lingua to
+detect per chunk (DE/FR/IT primarily, RM via gheim's heuristic) and fall
+back to ``de_CH`` for unknowns. Without the per-call language set, the
+model raises "Input language unknown" at inference.
+
 For categories SwissBERT-NER doesn't cover (email, phone, IBAN, AHV, VAT, URL,
-date, secret) we layer on the same regex recognizers used in the Presidio
-baseline. This is the "real" comparison: a non-trivial multilingual NER plus
-deterministic structured-PII detection.
+date, secret) we layer on regex recognizers. This is the "real" comparison:
+a non-trivial multilingual NER plus deterministic structured-PII detection.
 """
 from __future__ import annotations
 
@@ -17,7 +23,20 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+from ...data.lang_detect import detect as detect_lang
 from ...data.schema import Span
+
+# Map gheim's Language values → SwissBERT XMOD adapter codes. XMOD only
+# ships adapters for the 4 official Swiss languages; GSW transfers from
+# de_CH (closest morphology), EN falls back to de_CH (no English adapter).
+_GHEIM_TO_XMOD: dict[str, str] = {
+    "de_ch": "de_CH",
+    "fr_ch": "fr_CH",
+    "it_ch": "it_CH",
+    "rm": "rm_CH",
+    "gsw": "de_CH",
+    "en": "de_CH",
+}
 
 # Regex-extractable PII (categories not covered by SwissBERT-NER).
 _REGEXES: list[tuple[str, re.Pattern]] = [
@@ -61,6 +80,15 @@ class SwissBertNERDetector:
 
     def detect(self, text: str) -> list[Span]:
         self._load()
+        # XMOD requires a language adapter selected before each forward.
+        # Detect via lingua and fall back to de_CH (the largest training
+        # language) for unknowns / very short text.
+        try:
+            lang = detect_lang(text)
+        except Exception:
+            lang = "de_ch"
+        adapter = _GHEIM_TO_XMOD.get(lang or "de_ch", "de_CH")
+        self._pipe.model.set_default_language(adapter)
         spans: list[Span] = []
         for r in self._pipe(text):
             ent = (r.get("entity_group") or r.get("entity") or "").upper()
