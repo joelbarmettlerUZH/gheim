@@ -73,13 +73,37 @@ def _build_compute_metrics():
     return compute
 
 
+def _parse_override(spec: str) -> tuple[str, Any]:
+    """Parse a "key=value" override into (key, typed_value).
+
+    Values are interpreted as YAML so booleans, ints, floats, and lists work
+    naturally (e.g. ``--override learning_rate=5e-6`` parses 5e-6 as float;
+    ``--override freeze_embeddings=true`` parses to bool). Used by the
+    wandb sweep wrapper to inject per-variant hyperparams without needing
+    one YAML config per variant.
+    """
+    if "=" not in spec:
+        raise ValueError(f"override must be 'key=value', got {spec!r}")
+    key, value = spec.split("=", 1)
+    return key, yaml.safe_load(value)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", type=Path, required=True)
+    ap.add_argument(
+        "--override", action="append", default=[],
+        help="Override a YAML cfg field, e.g. --override learning_rate=5e-6. "
+             "Repeatable. Parsed as YAML so types are preserved.",
+    )
     args = ap.parse_args()
 
     with args.config.open("r", encoding="utf-8") as f:
         cfg: dict[str, Any] = yaml.safe_load(f)
+    for spec in args.override:
+        k, v = _parse_override(spec)
+        cfg[k] = v
+        print(f"override: {k} = {v!r}", flush=True)
 
     from datasets import load_from_disk
     from transformers import (
@@ -113,6 +137,18 @@ def main() -> None:
     )
     if cfg.get("gradient_checkpointing"):
         model.gradient_checkpointing_enable()
+
+    # Optional: freeze embedding layer (sweep variant). Reduces trainable
+    # parameter count, speeds training, and acts as a regulariser by
+    # forcing the model to use the pretrained embedding semantics as-is.
+    if cfg.get("freeze_embeddings"):
+        n_frozen = 0
+        for name, param in model.named_parameters():
+            if "embedding" in name.lower() or "embed_tokens" in name.lower():
+                param.requires_grad = False
+                n_frozen += param.numel()
+        print(f"freeze_embeddings=true: froze {n_frozen:,} embedding params",
+              flush=True)
 
     # XMOD support (SwissBERT and similar): the model has language-specific
     # adapter sets and refuses to forward without a default language being

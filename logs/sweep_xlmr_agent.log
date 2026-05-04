@@ -1,0 +1,32 @@
+wandb: Starting wandb agent 🕵️
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /home/joelbarmettler/.netrc.
+2026-05-04 22:17:02,710 - wandb.wandb_agent - INFO - Running runs: []
+2026-05-04 22:17:04,353 - wandb.wandb_agent - INFO - Agent received command: run
+2026-05-04 22:17:04,353 - wandb.wandb_agent - INFO - Agent starting run with config:
+	variant: baseline
+2026-05-04 22:17:04,353 - wandb.wandb_agent - INFO - About to run command: /usr/bin/env uv run python training/src/gheim_training/scripts/sweep_xlmr_runner.py
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /home/joelbarmettler/.netrc.
+wandb: Currently logged in as: joel-barmettler (university-of-zurich) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run iwryzm84
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /home/joelbarmettler/projects/gheim/wandb/run-20260504_221704-iwryzm84
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run stoic-sweep-1
+wandb: ⭐️ View project at https://wandb.ai/university-of-zurich/gheim-1
+wandb: 🧹 View sweep at https://wandb.ai/university-of-zurich/gheim-1/sweeps/06esgwzy
+wandb: 🚀 View run at https://wandb.ai/university-of-zurich/gheim-1/runs/iwryzm84
+wandb: updating run metadata; uploading summary
+wandb: uploading summary
+wandb: uploading summary; uploading wandb-summary.json; uploading config.yaml; uploading wandb-metadata.json; uploading requirements.txt
+wandb: uploading summary
+2026-05-04 22:17:09,359 - wandb.wandb_agent - INFO - Running runs: ['iwryzm84']
+wandb: uploading data
+wandb: 🚀 View run stoic-sweep-1 at: https://wandb.ai/university-of-zurich/gheim-1/runs/iwryzm84
+wandb: ⭐️ View project at: https://wandb.ai/university-of-zurich/gheim-1
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260504_221704-iwryzm84/logs
+sweep variant='baseline': launching uv run accelerate launch --config_file /home/joelbarmettler/projects/gheim/training/configs/accelerate_ddp.yaml -m gheim_training.train --config /home/joelbarmettler/projects/gheim/training/configs/bakeoff_xlmr.yaml --override output_dir=./checkpoints/sweep_xlmr_baseline --override wandb_run_name=sweep-xlmr-baseline
+override: output_dir = './checkpoints/sweep_xlmr_baseline'
+override: wandb_run_name = 'sweep-xlmr-baseline'
+override: output_dir = './checkpoints/sweep_xlmr_baseline'
+override: wandb_run_name = 'sweep-xlmr-baseline'
