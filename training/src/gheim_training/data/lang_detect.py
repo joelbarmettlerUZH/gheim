@@ -23,21 +23,37 @@ from .schema import Language
 
 # Romansh-distinctive tokens (case-insensitive). These appear frequently in
 # Romansh text but not in standard DE/FR/IT. Picked for high specificity.
+#
+# CAREFUL: each language collision below was an empirical false positive on
+# FineWeb-Swiss test_v1 surfacing. Removed:
+#   - "che"   → most common IT word; drove ~94% of RM FPs
+#   - "schi"  → DE colloquial ski-related
+#   - "nun"   → EN/DE colloquial
+#   - "ils"   → 3rd-person FR pronoun
+#   - "ina","ino","tar","dapi","duai" → too short / too ambiguous, false-fire
+# The remaining markers are 5+ chars or clearly RM-shaped.
+#
+# Also: this heuristic alone is not enough. ``detect()`` cross-checks with
+# lingua confidence and overrides the marker count when lingua is highly
+# confident about FR/IT/DE — see the implementation.
 _RM_MARKERS = {
-    # Articles, pronouns, prepositions distinct from DE/FR/IT
-    "ils", "ina", "ino", "tar", "dapi", "duai", "vegnan", "vegn",
-    "che", "schi", "stuess", "nun", "nunch", "dapertut", "uschia",
-    # Verbs / particles
-    "vegnir", "tschertgar", "exitser",
-    # Idiom-distinctive
+    # Verbs / particles distinct from DE/FR/IT
+    "vegnan", "vegn", "vegnir", "stuess", "nunch", "dapertut", "uschia",
+    "tschertgar", "exitser",
+    # Identity / place names — high specificity
     "rumantsch", "romansh", "grischun", "vallader", "sursilvan",
     "surmiran", "sutsilvan", "puter", "rumantscha",
-    # Place / common nouns characteristic
+    # Common nouns characteristic
     "chantun", "chantuns", "cumun", "cumuns", "biarut", "veia", "plazza",
     "plaz", "stradun", "magister", "scolar", "scoula",
-    # Dialect-distinctive grammar fragments
+    # Multi-word fragments — high specificity, low collision risk
     "ed in", "ed ina", "ed il", "tar la", "tar il", "tar ils",
 }
+
+# Lingua confidence above which we trust its language verdict over the
+# RM-marker heuristic. Empirically, lingua at >0.80 on a known language
+# is rarely wrong; at lower confidence, the markers are useful tie-breakers.
+_LINGUA_OVERRIDE_CONF = 0.80
 
 _RM_MARKER_RE = re.compile(
     r"\b(?:" + "|".join(re.escape(w) for w in _RM_MARKERS) + r")\b",
@@ -73,18 +89,34 @@ def detect(text: str, subset: str | None = None) -> Language:
     """Return the detected language as one of the 6 gheim Language codes.
 
     Decision tree:
-      1. If text has ≥3 RM markers → ``rm``
-      2. Else if subset == ``romansh`` and lingua isn't very confident → ``rm``
-      3. Else use lingua's top guess (de→de_ch, fr→fr_ch, it→it_ch, en→en)
-      4. Fallback to subset-implied default
+      1. Use lingua's top guess if it's highly confident (>0.80) — it has
+         proper trained models for DE/FR/IT/EN, more reliable than a
+         keyword heuristic.
+      2. Else if text has ≥3 RM markers → ``rm`` (lingua doesn't ship a
+         Romansh model, so the heuristic is the only RM signal we have).
+      3. Else if subset == ``romansh`` and lingua isn't very confident → ``rm``
+      4. Else use lingua's top guess (de→de_ch, fr→fr_ch, it→it_ch, en→en)
+      5. Fallback to subset-implied default
 
     Never raises on short or empty text — falls through to ``_subset_default``.
     """
+    top = _lingua_top(text)
+    # Lingua-first when it's very confident: prevents RM-marker false positives
+    # on French/Italian text that incidentally contains RM-shaped words.
+    if top is not None and top[1] >= _LINGUA_OVERRIDE_CONF:
+        code, _ = top
+        if code == "de":
+            return "de_ch"
+        if code == "fr":
+            return "fr_ch"
+        if code == "it":
+            return "it_ch"
+        if code == "en":
+            return "en"
+
     n_rm = _count_rm_markers(text)
     if n_rm >= 3:
         return "rm"
-
-    top = _lingua_top(text)
     # Strong RM signal: subset says romansh, no strong non-RM detection
     if subset == "romansh":
         if top is None or top[1] < 0.85:
