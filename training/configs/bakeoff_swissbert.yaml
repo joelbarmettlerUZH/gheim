@@ -8,6 +8,15 @@ hub_model_id: joelbarmettler/gheim-1-swissbert-bakeoff
 # randomly initialised here. (The original CLAUDE.md plan said
 # "swissbert-large" but that repo doesn't exist — `swissbert` is the
 # public 270M model.)
+#
+# XMOD requires a language adapter selected before forward. HF Trainer
+# feeds mixed-language batches without telling the model which adapter
+# to use, so we pin a single default for the whole run. de_CH chosen
+# because it's the largest single-language slice in our training mix
+# (~30% of train). Other-language adapters remain frozen at their
+# pretrained values — this is a known limitation of running an XMOD
+# model through a non-XMOD-aware Trainer. Documented for the bake-off.
+xmod_default_language: de_CH
 dataset_dir: ./data/built_bakeoff
 
 eval_split: validation

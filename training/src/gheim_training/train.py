@@ -101,15 +101,31 @@ def main() -> None:
 
     # Label space matches the base model exactly (see label_space.py), so the
     # pretrained classifier head weights are reused — no ignore_mismatched_sizes.
+    # Bases with a different head shape (xlm-roberta, swissbert) get a
+    # randomly-initialised head, which is the intended Phase 3 design.
     model = AutoModelForTokenClassification.from_pretrained(
         base_model,
         num_labels=NUM_LABELS,
         id2label=ID2LABEL,
         label2id=LABEL2ID,
         trust_remote_code=True,
+        ignore_mismatched_sizes=True,
     )
     if cfg.get("gradient_checkpointing"):
         model.gradient_checkpointing_enable()
+
+    # XMOD support (SwissBERT and similar): the model has language-specific
+    # adapter sets and refuses to forward without a default language being
+    # set. Honest limitation: HF Trainer feeds mixed-language batches without
+    # the model knowing which adapter to use, so we pin a single default for
+    # the whole run. This means the chosen adapter gets ALL the gradient
+    # updates; other-language adapters stay frozen at their pretrained values.
+    # Effectively makes swissbert a single-language fine-tune. Documented as
+    # a known limitation for the bake-off.
+    xmod_default = cfg.get("xmod_default_language")
+    if xmod_default is not None and hasattr(model, "set_default_language"):
+        model.set_default_language(xmod_default)
+        print(f"XMOD default language set to {xmod_default!r}", flush=True)
 
     from datasets import DatasetDict
     raw_dd = load_from_disk(str(cfg["dataset_dir"]))
