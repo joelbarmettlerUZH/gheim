@@ -41,6 +41,16 @@ DETECTORS: dict[str, Callable[[], Any]] = {
     "bakeoff_priv": lambda: HFDetector("checkpoints/bakeoff-priv"),
     "bakeoff_xlmr": lambda: HFDetector("checkpoints/bakeoff-xlmr"),
     "bakeoff_swissbert": lambda: HFDetector("checkpoints/bakeoff-swissbert"),
+    # Day 10-12 sweep checkpoints. Each varies ONE hyperparam from
+    # bakeoff_xlmr; we re-eval all of them on the same test sets so the
+    # production leader is chosen by held-out F1, not by validation F1
+    # (which is what early stopping selects on).
+    "sweep_xlmr_baseline": lambda: HFDetector("checkpoints/sweep_xlmr_baseline"),
+    "sweep_xlmr_lr5e6": lambda: HFDetector("checkpoints/sweep_xlmr_lr5e6"),
+    "sweep_xlmr_lr5e5": lambda: HFDetector("checkpoints/sweep_xlmr_lr5e5"),
+    "sweep_xlmr_batch256": lambda: HFDetector("checkpoints/sweep_xlmr_batch256"),
+    "sweep_xlmr_epoch5": lambda: HFDetector("checkpoints/sweep_xlmr_epoch5"),
+    "sweep_xlmr_freeze": lambda: HFDetector("checkpoints/sweep_xlmr_freeze"),
 }
 
 
