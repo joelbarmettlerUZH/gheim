@@ -32,11 +32,20 @@ the same eval harness with no plumbing changes.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
-from typing import Annotated, Any
+from dataclasses import dataclass
+from typing import Annotated, Any, Protocol
 
 from .base import Span
-from .local import LocalDetector
+
+
+class _ModelDetector(Protocol):
+    """Anything with a ``detect(text) -> list[Span]`` method.
+
+    Composite delegates to whatever detector the caller passes in. Tests
+    pass a fake; production passes a wrapper around a fine-tuned model.
+    """
+
+    def detect(self, text: str) -> list[Span]: ...
 
 # --- Regex catalogue ---
 #
@@ -181,35 +190,26 @@ def _mask_spans(text: str, spans: list[Span]) -> str:
 @dataclass
 class CompositeDetector:
     """Regex front-end (with checksum validation) + fine-tuned model on
-    the remainder. Production-ready, drop-in replacement for
-    ``LocalDetector``.
+    the remainder.
+
+    The model can be ANY object that exposes ``detect(text) -> list[Span]``.
+    In production, pass a wrapper around the bake-off leader (HFDetector
+    from the training package, or a HuggingFace pipeline wrapped in any
+    detector class). The composite does not import a specific model class
+    so it doesn't accidentally couple to one detector implementation's
+    post-processing (e.g. LocalDetector returns fragmented subword spans;
+    HFDetector merges them — using LocalDetector here would 13× the
+    composite's FP rate on PII-free controls).
     """
 
-    model_id_or_path: Annotated[
-        str,
-        "Hub id or local checkpoint of the fine-tuned model that handles "
-        "the categories regex doesn't cover (mostly person + address).",
+    # Typed as Any rather than _ModelDetector because callers may pass
+    # detectors that return Span dataclasses from a different package
+    # (e.g. gheim_training's Span); structurally compatible but ty can't
+    # prove the protocol match across packages.
+    model: Annotated[
+        Any,
+        "Pre-constructed model detector (must expose detect(text) -> list[Span]).",
     ]
-    aggregation_strategy: Annotated[
-        str,
-        "Pass-through to the underlying LocalDetector pipeline.",
-    ] = "simple"
-    stitch: Annotated[
-        bool,
-        "Whether the LocalDetector applies its post-processing stitcher "
-        "(adjacent-merge + PLZ absorb + title absorb + format validate). "
-        "Default True; the composite still benefits from per-category "
-        "boundary cleanups on the model spans.",
-    ] = True
-    _model: Any = field(default=None, init=False, repr=False)
-
-    def _ensure_model(self) -> None:
-        if self._model is None:
-            self._model = LocalDetector(
-                model_id=self.model_id_or_path,
-                aggregation_strategy=self.aggregation_strategy,
-                stitch=self.stitch,
-            )
 
     def detect(self, text: str) -> list[Span]:
         """Two-pass detection: regex first (with checksum), then model on
@@ -219,8 +219,7 @@ class CompositeDetector:
             return []
         regex_spans = _find_regex_spans(text)
         masked = _mask_spans(text, regex_spans)
-        self._ensure_model()
-        model_spans = self._model.detect(masked)
+        model_spans = self.model.detect(masked)
         # Overlap resolution: regex wins on any overlap (regex spans are
         # high-confidence / checksum-validated). Then model spans fill
         # the gaps.

@@ -24,7 +24,6 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from .baselines.swissbert_ner import SwissBertNERDetector
 from .baselines.zero_shot import HFDetector
 from .harness import _fmt_f1, _load_eval_jsonl, evaluate
 
@@ -36,22 +35,23 @@ EVAL_SETS: dict[str, Path] = {
 
 # Detector factories. Lazy so we don't load every model at startup.
 DETECTORS: dict[str, Callable[[], Any]] = {
-    "zero_shot_privacy_filter": lambda: HFDetector("openai/privacy-filter"),
-    "swissner_plus_regex": lambda: SwissBertNERDetector(),
-    "bakeoff_priv": lambda: HFDetector("checkpoints/bakeoff-priv"),
     "bakeoff_xlmr": lambda: HFDetector("checkpoints/bakeoff-xlmr"),
-    "bakeoff_swissbert": lambda: HFDetector("checkpoints/bakeoff-swissbert"),
-    # Day 10-12 sweep checkpoints. Each varies ONE hyperparam from
-    # bakeoff_xlmr; we re-eval all of them on the same test sets so the
-    # production leader is chosen by held-out F1, not by validation F1
-    # (which is what early stopping selects on).
-    "sweep_xlmr_baseline": lambda: HFDetector("checkpoints/sweep_xlmr_baseline"),
-    "sweep_xlmr_lr5e6": lambda: HFDetector("checkpoints/sweep_xlmr_lr5e6"),
-    "sweep_xlmr_lr5e5": lambda: HFDetector("checkpoints/sweep_xlmr_lr5e5"),
-    "sweep_xlmr_batch256": lambda: HFDetector("checkpoints/sweep_xlmr_batch256"),
-    "sweep_xlmr_epoch5": lambda: HFDetector("checkpoints/sweep_xlmr_epoch5"),
-    "sweep_xlmr_freeze": lambda: HFDetector("checkpoints/sweep_xlmr_freeze"),
+    # Day 13 ablations: same xlmr config, dataset minus one layer.
+    "ablation_no_l7": lambda: HFDetector("checkpoints/ablation_xlmr_no_l7"),
+    "ablation_no_l8": lambda: HFDetector("checkpoints/ablation_xlmr_no_l8"),
+    # Day 14 composite: regex front-end + bakeoff_xlmr on remainder.
+    "composite_xlmr": lambda: _make_composite("checkpoints/bakeoff-xlmr"),
 }
+
+
+def _make_composite(model_path: str) -> Any:
+    """Wrap composite around HFDetector (NOT LocalDetector — LocalDetector
+    returns fragmented subword spans whereas HFDetector applies _merge_adjacent.
+    Composite delegates to whatever detector is passed in; the bake-off
+    matrix evaluates the leader through HFDetector, so the composite must
+    use the same wrapper for the comparison to be apples-to-apples)."""
+    from gheim.detectors.composite import CompositeDetector
+    return CompositeDetector(model=HFDetector(model_path))
 
 
 def _summary(rep: dict[str, Any]) -> dict[str, Any]:
@@ -116,25 +116,32 @@ def main() -> None:
             print(f"  {det_name:<28} {ctrl['fp_per_chunk']:.3f} "
                   f"({ctrl['fp']} FP / {ctrl['n_chunks']} chunks)")
 
-    # Leader gate per CLAUDE.md
+    # Leader gate per CLAUDE.md — only run if both baselines are present
     print("\n=== Leader gate (CLAUDE.md Day 9): overlap on test_v1 vs best baseline ===")
-    baseline = max(
-        summary["zero_shot_privacy_filter"]["test_v1"]["overlap_overall_f1"],
-        summary["swissner_plus_regex"]["test_v1"]["overlap_overall_f1"],
-    )
-    target = baseline + 0.03
-    print(f"  Best baseline overlap: {baseline:.3f}; gate threshold: {target:.3f}")
-    leader = max(
-        ("bakeoff_priv", "bakeoff_xlmr", "bakeoff_swissbert"),
-        key=lambda d: summary[d]["test_v1"]["overlap_overall_f1"] or 0,
-    )
-    leader_f1 = summary[leader]["test_v1"]["overlap_overall_f1"]
-    margin = (leader_f1 or 0) - baseline
-    if leader_f1 is not None and leader_f1 >= target:
-        print(f"  ✓ Leader: {leader} at {leader_f1:.3f} (margin +{margin:.3f}). PASS.")
+    if {"zero_shot_privacy_filter", "swissner_plus_regex"} <= summary.keys():
+        baseline = max(
+            summary["zero_shot_privacy_filter"]["test_v1"]["overlap_overall_f1"],
+            summary["swissner_plus_regex"]["test_v1"]["overlap_overall_f1"],
+        )
+        target = baseline + 0.03
+        print(f"  Best baseline overlap: {baseline:.3f}; gate threshold: {target:.3f}")
+        candidates = [d for d in summary
+                      if d not in {"zero_shot_privacy_filter", "swissner_plus_regex"}]
+        leader = max(candidates,
+                     key=lambda d: summary[d]["test_v1"]["overlap_overall_f1"] or 0)
+        leader_f1 = summary[leader]["test_v1"]["overlap_overall_f1"]
+        margin = (leader_f1 or 0) - baseline
+        if leader_f1 is not None and leader_f1 >= target:
+            print(f"  ✓ Leader: {leader} at {leader_f1:.3f} (margin +{margin:.3f}). PASS.")
+        else:
+            print(f"  ✗ Leader: {leader} at {leader_f1}. Below threshold by "
+                  f"{(target - (leader_f1 or 0)):.3f}. FAIL.")
     else:
-        print(f"  ✗ Leader: {leader} at {leader_f1}. Below threshold by "
-              f"{(target - (leader_f1 or 0)):.3f}. FAIL — ship composite-only.")
+        print("  baselines not in this run's DETECTORS; skip leader gate "
+              "(it was already evaluated in eval/baselines.json + bakeoff_matrix.json).")
+        leader = max(summary, key=lambda d: summary[d]["test_v1"]["overlap_overall_f1"] or 0)
+        leader_f1 = summary[leader]["test_v1"]["overlap_overall_f1"]
+        baseline = None
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     payload = {

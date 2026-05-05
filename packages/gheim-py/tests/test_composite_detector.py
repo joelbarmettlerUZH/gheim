@@ -7,8 +7,6 @@ the composite logic in isolation, not transformer inference.
 """
 from __future__ import annotations
 
-from unittest.mock import patch
-
 from gheim.detectors.base import Span
 from gheim.detectors.composite import (
     CompositeDetector,
@@ -163,10 +161,8 @@ def test_composite_combines_regex_and_model_spans() -> None:
     text = "Anna Müller's IBAN is CH9300762011623852957 and her email is anna@example.ch."
     fake_person = Span(label="private_person", start=0, end=11,
                        text="Anna Müller", score=0.99)
-    det = CompositeDetector(model_id_or_path="fake")
-    with patch.object(det, "_ensure_model"):
-        det._model = _FakeModel(spans=[fake_person])
-        out = det.detect(text)
+    det = CompositeDetector(model=_FakeModel(spans=[fake_person]))
+    out = det.detect(text)
     labels = sorted(s.label for s in out)
     assert "private_person" in labels
     assert "private_email" in labels
@@ -180,10 +176,8 @@ def test_composite_regex_wins_on_overlap() -> None:
     # Model claims the email range is a person — composite must drop it.
     fake_overlap = Span(label="private_person", start=9, end=24,
                         text="info@example.ch", score=0.9)
-    det = CompositeDetector(model_id_or_path="fake")
-    with patch.object(det, "_ensure_model"):
-        det._model = _FakeModel(spans=[fake_overlap])
-        out = det.detect(text)
+    det = CompositeDetector(model=_FakeModel(spans=[fake_overlap]))
+    out = det.detect(text)
     # Only the email span should remain; the model's person-on-email is dropped.
     assert all(s.label != "private_person" for s in out)
     assert any(s.label == "private_email" for s in out)
@@ -194,11 +188,9 @@ def test_composite_passes_masked_text_to_model() -> None:
     original — confirms the masking step actually executes before model
     inference."""
     text = "Email: info@example.ch is the only PII here."
-    det = CompositeDetector(model_id_or_path="fake")
     fake = _FakeModel(spans=[])
-    with patch.object(det, "_ensure_model"):
-        det._model = fake
-        det.detect(text)
+    det = CompositeDetector(model=fake)
+    det.detect(text)
     assert fake.last_text is not None
     # The "info@example.ch" range should be whitespace in what the model saw
     assert "info@example.ch" not in fake.last_text
@@ -211,25 +203,21 @@ def test_composite_invalid_iban_falls_through_to_model() -> None:
     then gets to label it (and might call it account_number anyway, which
     would be fine — the composite should NOT pretend the regex saw it)."""
     text = "Bad IBAN CH9900762011623852957 mentioned."
-    det = CompositeDetector(model_id_or_path="fake")
     fake = _FakeModel(spans=[])  # model decides nothing
-    with patch.object(det, "_ensure_model"):
-        det._model = fake
-        det.detect(text)
+    det = CompositeDetector(model=fake)
+    det.detect(text)
     # The model should have seen the unmasked IBAN string (no regex hit)
     assert "CH9900762011623852957" in (fake.last_text or "")
 
 
 def test_composite_empty_text_returns_empty() -> None:
-    det = CompositeDetector(model_id_or_path="fake")
+    det = CompositeDetector(model=_FakeModel(spans=[]))
     assert det.detect("") == []
 
 
 def test_composite_pure_text_no_pii() -> None:
     text = "Das Bundesgericht hat die Beschwerde abgewiesen."
-    det = CompositeDetector(model_id_or_path="fake")
     fake = _FakeModel(spans=[])
-    with patch.object(det, "_ensure_model"):
-        det._model = fake
-        out = det.detect(text)
+    det = CompositeDetector(model=fake)
+    out = det.detect(text)
     assert out == []
