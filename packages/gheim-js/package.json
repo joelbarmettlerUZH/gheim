@@ -37,7 +37,7 @@
     "build:cjs": "bun build ./src/index.ts ./src/openai.ts --outdir ./dist/cjs --target node --format cjs --entry-naming '[dir]/[name].cjs' --external openai --external @huggingface/transformers",
     "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
     "test": "bun test",
-    "test:live": "GHEIM_RUN_LIVE=1 bun test tests/live.test.ts",
+    "test:live": "GHEIM_RUN_LIVE=1 bun test tests/live.test.ts tests/live-swiss.test.ts",
     "lint": "tsc --noEmit"
   },
   "devDependencies": {
