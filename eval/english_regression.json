@@ -1,0 +1,712 @@
+{
+  "generated_at": "2026-05-05T11:05:13",
+  "n_chunks": 1000,
+  "source": "data/layer4_en.jsonl",
+  "results": {
+    "base_priv_filter": {
+      "strict": {
+        "by_language": {
+          "en": {
+            "f1": 0.5088267930999697,
+            "tp": 2522,
+            "fp": 4040,
+            "fn": 829
+          }
+        },
+        "by_entity": {
+          "account_number": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 1309,
+            "fn": 0
+          },
+          "private_address": {
+            "f1": 0.4842175957018132,
+            "tp": 721,
+            "fp": 1052,
+            "fn": 484
+          },
+          "private_date": {
+            "f1": 0.6423982869379016,
+            "tp": 300,
+            "fp": 320,
+            "fn": 14
+          },
+          "private_email": {
+            "f1": 0.9596510359869139,
+            "tp": 440,
+            "fp": 30,
+            "fn": 7
+          },
+          "private_person": {
+            "f1": 0.7089876378215837,
+            "tp": 1061,
+            "fp": 547,
+            "fn": 324
+          },
+          "private_phone": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 298,
+            "fn": 0
+          },
+          "private_url": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 273,
+            "fn": 0
+          },
+          "secret": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 211,
+            "fn": 0
+          }
+        },
+        "by_lang_entity": {
+          "en/account_number": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 1309,
+            "fn": 0
+          },
+          "en/private_address": {
+            "f1": 0.4842175957018132,
+            "tp": 721,
+            "fp": 1052,
+            "fn": 484
+          },
+          "en/private_date": {
+            "f1": 0.6423982869379016,
+            "tp": 300,
+            "fp": 320,
+            "fn": 14
+          },
+          "en/private_email": {
+            "f1": 0.9596510359869139,
+            "tp": 440,
+            "fp": 30,
+            "fn": 7
+          },
+          "en/private_person": {
+            "f1": 0.7089876378215837,
+            "tp": 1061,
+            "fp": 547,
+            "fn": 324
+          },
+          "en/private_phone": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 298,
+            "fn": 0
+          },
+          "en/private_url": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 273,
+            "fn": 0
+          },
+          "en/secret": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 211,
+            "fn": 0
+          }
+        },
+        "overall": {
+          "f1": 0.5088267930999697,
+          "tp": 2522,
+          "fp": 4040,
+          "fn": 829
+        }
+      },
+      "overlap": {
+        "by_language": {
+          "en": {
+            "f1": 0.5515989105215373,
+            "tp": 2734,
+            "fp": 3828,
+            "fn": 617
+          }
+        },
+        "by_entity": {
+          "account_number": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 1309,
+            "fn": 0
+          },
+          "private_address": {
+            "f1": 0.5124244459368704,
+            "tp": 763,
+            "fp": 1010,
+            "fn": 442
+          },
+          "private_date": {
+            "f1": 0.6552462526766595,
+            "tp": 306,
+            "fp": 314,
+            "fn": 8
+          },
+          "private_email": {
+            "f1": 0.9749182115594329,
+            "tp": 447,
+            "fp": 23,
+            "fn": 0
+          },
+          "private_person": {
+            "f1": 0.8138990978950885,
+            "tp": 1218,
+            "fp": 390,
+            "fn": 167
+          },
+          "private_phone": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 298,
+            "fn": 0
+          },
+          "private_url": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 273,
+            "fn": 0
+          },
+          "secret": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 211,
+            "fn": 0
+          }
+        },
+        "by_lang_entity": {
+          "en/account_number": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 1309,
+            "fn": 0
+          },
+          "en/private_address": {
+            "f1": 0.5124244459368704,
+            "tp": 763,
+            "fp": 1010,
+            "fn": 442
+          },
+          "en/private_date": {
+            "f1": 0.6552462526766595,
+            "tp": 306,
+            "fp": 314,
+            "fn": 8
+          },
+          "en/private_email": {
+            "f1": 0.9749182115594329,
+            "tp": 447,
+            "fp": 23,
+            "fn": 0
+          },
+          "en/private_person": {
+            "f1": 0.8138990978950885,
+            "tp": 1218,
+            "fp": 390,
+            "fn": 167
+          },
+          "en/private_phone": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 298,
+            "fn": 0
+          },
+          "en/private_url": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 273,
+            "fn": 0
+          },
+          "en/secret": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 211,
+            "fn": 0
+          }
+        },
+        "overall": {
+          "f1": 0.5515989105215373,
+          "tp": 2734,
+          "fp": 3828,
+          "fn": 617
+        }
+      },
+      "n_cases": 1000
+    },
+    "bakeoff_xlmr": {
+      "strict": {
+        "by_language": {
+          "en": {
+            "f1": 0.9115419569827325,
+            "tp": 3009,
+            "fp": 242,
+            "fn": 342
+          }
+        },
+        "by_entity": {
+          "account_number": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "private_address": {
+            "f1": 0.9118869492934332,
+            "tp": 1097,
+            "fp": 104,
+            "fn": 108
+          },
+          "private_date": {
+            "f1": 0.925,
+            "tp": 296,
+            "fp": 30,
+            "fn": 18
+          },
+          "private_email": {
+            "f1": 1.0,
+            "tp": 447,
+            "fp": 0,
+            "fn": 0
+          },
+          "private_person": {
+            "f1": 0.8782870022539444,
+            "tp": 1169,
+            "fp": 108,
+            "fn": 216
+          },
+          "private_phone": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "private_url": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "secret": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          }
+        },
+        "by_lang_entity": {
+          "en/account_number": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "en/private_address": {
+            "f1": 0.9118869492934332,
+            "tp": 1097,
+            "fp": 104,
+            "fn": 108
+          },
+          "en/private_date": {
+            "f1": 0.925,
+            "tp": 296,
+            "fp": 30,
+            "fn": 18
+          },
+          "en/private_email": {
+            "f1": 1.0,
+            "tp": 447,
+            "fp": 0,
+            "fn": 0
+          },
+          "en/private_person": {
+            "f1": 0.8782870022539444,
+            "tp": 1169,
+            "fp": 108,
+            "fn": 216
+          },
+          "en/private_phone": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "en/private_url": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "en/secret": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          }
+        },
+        "overall": {
+          "f1": 0.9115419569827325,
+          "tp": 3009,
+          "fp": 242,
+          "fn": 342
+        }
+      },
+      "overlap": {
+        "by_language": {
+          "en": {
+            "f1": 0.9703120266585883,
+            "tp": 3203,
+            "fp": 48,
+            "fn": 148
+          }
+        },
+        "by_entity": {
+          "account_number": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "private_address": {
+            "f1": 0.9833748960931006,
+            "tp": 1183,
+            "fp": 18,
+            "fn": 22
+          },
+          "private_date": {
+            "f1": 0.975,
+            "tp": 312,
+            "fp": 14,
+            "fn": 2
+          },
+          "private_email": {
+            "f1": 1.0,
+            "tp": 447,
+            "fp": 0,
+            "fn": 0
+          },
+          "private_person": {
+            "f1": 0.9474079639368895,
+            "tp": 1261,
+            "fp": 16,
+            "fn": 124
+          },
+          "private_phone": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "private_url": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "secret": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          }
+        },
+        "by_lang_entity": {
+          "en/account_number": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "en/private_address": {
+            "f1": 0.9833748960931006,
+            "tp": 1183,
+            "fp": 18,
+            "fn": 22
+          },
+          "en/private_date": {
+            "f1": 0.975,
+            "tp": 312,
+            "fp": 14,
+            "fn": 2
+          },
+          "en/private_email": {
+            "f1": 1.0,
+            "tp": 447,
+            "fp": 0,
+            "fn": 0
+          },
+          "en/private_person": {
+            "f1": 0.9474079639368895,
+            "tp": 1261,
+            "fp": 16,
+            "fn": 124
+          },
+          "en/private_phone": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "en/private_url": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "en/secret": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          }
+        },
+        "overall": {
+          "f1": 0.9703120266585883,
+          "tp": 3203,
+          "fp": 48,
+          "fn": 148
+        }
+      },
+      "n_cases": 1000
+    },
+    "composite_xlmr": {
+      "strict": {
+        "by_language": {
+          "en": {
+            "f1": 0.8772032046613256,
+            "tp": 3011,
+            "fp": 503,
+            "fn": 340
+          }
+        },
+        "by_entity": {
+          "account_number": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "private_address": {
+            "f1": 0.9126455906821964,
+            "tp": 1097,
+            "fp": 102,
+            "fn": 108
+          },
+          "private_date": {
+            "f1": 0.7756160830090791,
+            "tp": 299,
+            "fp": 158,
+            "fn": 15
+          },
+          "private_email": {
+            "f1": 0.9834254143646408,
+            "tp": 445,
+            "fp": 13,
+            "fn": 2
+          },
+          "private_person": {
+            "f1": 0.8518383691299599,
+            "tp": 1170,
+            "fp": 192,
+            "fn": 215
+          },
+          "private_phone": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 38,
+            "fn": 0
+          },
+          "private_url": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "secret": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          }
+        },
+        "by_lang_entity": {
+          "en/account_number": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "en/private_address": {
+            "f1": 0.9126455906821964,
+            "tp": 1097,
+            "fp": 102,
+            "fn": 108
+          },
+          "en/private_date": {
+            "f1": 0.7756160830090791,
+            "tp": 299,
+            "fp": 158,
+            "fn": 15
+          },
+          "en/private_email": {
+            "f1": 0.9834254143646408,
+            "tp": 445,
+            "fp": 13,
+            "fn": 2
+          },
+          "en/private_person": {
+            "f1": 0.8518383691299599,
+            "tp": 1170,
+            "fp": 192,
+            "fn": 215
+          },
+          "en/private_phone": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 38,
+            "fn": 0
+          },
+          "en/private_url": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "en/secret": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          }
+        },
+        "overall": {
+          "f1": 0.8772032046613256,
+          "tp": 3011,
+          "fp": 503,
+          "fn": 340
+        }
+      },
+      "overlap": {
+        "by_language": {
+          "en": {
+            "f1": 0.9331391114348143,
+            "tp": 3203,
+            "fp": 311,
+            "fn": 148
+          }
+        },
+        "by_entity": {
+          "account_number": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "private_address": {
+            "f1": 0.9841930116472545,
+            "tp": 1183,
+            "fp": 16,
+            "fn": 22
+          },
+          "private_date": {
+            "f1": 0.8093385214007782,
+            "tp": 312,
+            "fp": 145,
+            "fn": 2
+          },
+          "private_email": {
+            "f1": 0.9878453038674032,
+            "tp": 447,
+            "fp": 11,
+            "fn": 0
+          },
+          "private_person": {
+            "f1": 0.9180924645067347,
+            "tp": 1261,
+            "fp": 101,
+            "fn": 124
+          },
+          "private_phone": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 38,
+            "fn": 0
+          },
+          "private_url": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "secret": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          }
+        },
+        "by_lang_entity": {
+          "en/account_number": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "en/private_address": {
+            "f1": 0.9841930116472545,
+            "tp": 1183,
+            "fp": 16,
+            "fn": 22
+          },
+          "en/private_date": {
+            "f1": 0.8093385214007782,
+            "tp": 312,
+            "fp": 145,
+            "fn": 2
+          },
+          "en/private_email": {
+            "f1": 0.9878453038674032,
+            "tp": 447,
+            "fp": 11,
+            "fn": 0
+          },
+          "en/private_person": {
+            "f1": 0.9180924645067347,
+            "tp": 1261,
+            "fp": 101,
+            "fn": 124
+          },
+          "en/private_phone": {
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 38,
+            "fn": 0
+          },
+          "en/private_url": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          },
+          "en/secret": {
+            "f1": null,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+          }
+        },
+        "overall": {
+          "f1": 0.9331391114348143,
+          "tp": 3203,
+          "fp": 311,
+          "fn": 148
+        }
+      },
+      "n_cases": 1000
+    }
+  }
+}

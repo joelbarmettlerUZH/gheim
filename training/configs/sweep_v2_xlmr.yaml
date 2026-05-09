@@ -1,0 +1,27 @@
+# P12 wandb sweep — xlm-roberta-large (550M) — v2 bake-off Stage 1.
+#
+# Grid: 5 LR × 3 LLRD = 15 runs. Each run capped at 500 optimizer steps
+# (~12 min on 2× RTX 4090 DDP).
+#
+# Total wall time: ~15 × 12min = ~3h.
+
+program: training/src/gheim_training/scripts/sweep_v2_runner.py
+method: grid
+project: gheim-1
+entity: university-of-zurich
+metric:
+  name: eval/overall_f1
+  goal: maximize
+parameters:
+  model:
+    value: xlmr
+  learning_rate:
+    values: [5e-6, 1e-5, 2e-5, 3e-5, 5e-5]
+  llrd:
+    values: [1.0, 0.95, 0.9]
+command:
+  - ${env}
+  - uv
+  - run
+  - python
+  - ${program}

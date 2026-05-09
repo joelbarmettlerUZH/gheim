@@ -1,0 +1,1643 @@
+{
+  "generated_at": "2026-05-06T09:22:18",
+  "n_chunks": 100,
+  "elapsed_seconds": 57.843605518341064,
+  "throughput_chunks_per_sec": 1.7287995639948823,
+  "per_category_counts": {
+    "private_person": 68,
+    "private_date": 53,
+    "private_url": 4
+  },
+  "per_subset_category": {
+    "entscheidsuche/private_person": 38,
+    "entscheidsuche/private_date": 12,
+    "curia_vista/private_date": 2,
+    "fineweb/private_date": 11,
+    "fineweb/private_person": 30,
+    "romansh/private_date": 28,
+    "romansh/private_url": 4
+  },
+  "per_language_category": {
+    "de_ch/private_person": 53,
+    "it_ch/private_person": 6,
+    "de_ch/private_date": 34,
+    "fr_ch/private_person": 9,
+    "fr_ch/private_date": 8,
+    "it_ch/private_date": 11,
+    "fr_ch/private_url": 3,
+    "it_ch/private_url": 1
+  },
+  "n_likely_with_pii": 48,
+  "n_likely_total": 80,
+  "n_negative_with_pii": 9,
+  "n_negative_total": 20,
+  "examples": [
+    {
+      "text": "2.1.2 Die Annahme eines anspruchsvollen Verfahrens setzt voraus, dass besondere Sach- oder Rechtskenntnis erforderlich ist (vgl. BGE 108 III 68 E. 2 S. 69; BGE 120 III 97 E. 2 S. 99 f.). Es handelt sich um qualitative, nicht quantitative Kriterien (vgl. Marginalie zu Art. 47 GebV SchKG : \"anspruchsvolle\" Verfahren, procédures \"complexes\", procedure \"complesse\"; vgl. BGE 108 III 68 E. 2 S. 69; SCHOBER, in: Kommentar SchKG Gebührenverordnung, 2008, N.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/0",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 396,
+          "end": 403,
+          "label": "private_person",
+          "surface": "SCHOBER"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Il Tribunale federale ha respinto il ricorso nella misura della sua ammissibilità. (riassunto) BGE 138 III 449 S. 451 Erwägungen Dai considerandi: 4. 4.2.1 L' art. 517 cpv. 3 CC prevede che l'esecutore testamentario ha diritto ad un equo compenso per le sue prestazioni. Giusta la dottrina sviluppata in merito a tale norma, le modalità del compenso fissate dal de cuius nel testamento non sono vincolanti: se il compenso stabilito dal testatore non risulta equo, esso può essere rimesso in discussione dall'esecutore testamentario oppure dagli eredi dinanzi al giudice civile (KARRER/VOGT/LEU, in Basler Kommentar, Zivilgesetzbuch, vol.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/1",
+      "language": "it_ch",
+      "spans": [
+        {
+          "start": 578,
+          "end": 584,
+          "label": "private_person",
+          "surface": "KARRER"
+        },
+        {
+          "start": 585,
+          "end": 589,
+          "label": "private_person",
+          "surface": "VOGT"
+        },
+        {
+          "start": 590,
+          "end": 593,
+          "label": "private_person",
+          "surface": "LEU"
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "Il Tribunale federale ha respinto il ricorso nella misura della sua ammissibilità. (riassunto) BGE 138 III 449 S. 451 Erwägungen Dai considerandi: 4. 4.2.1 L' art. 517 cpv. 3 CC prevede che l'esecutore testamentario ha diritto ad un equo compenso per le sue prestazioni. Giusta la dottrina sviluppata in merito a tale norma, le modalità del compenso fissate dal de cuius nel testamento non sono vincolanti: se il compenso stabilito dal testatore non risulta equo, esso può essere rimesso in discussione dall'esecutore testamentario oppure dagli eredi dinanzi al giudice civile (KARRER/VOGT/LEU, in Basler Kommentar, Zivilgesetzbuch, vol.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/2",
+      "language": "it_ch",
+      "spans": [
+        {
+          "start": 578,
+          "end": 584,
+          "label": "private_person",
+          "surface": "KARRER"
+        },
+        {
+          "start": 585,
+          "end": 589,
+          "label": "private_person",
+          "surface": "VOGT"
+        },
+        {
+          "start": 590,
+          "end": 593,
+          "label": "private_person",
+          "surface": "LEU"
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "2 LTF ( ATF 134 III 524 consid. 1.4 [pour l'ancienne teneur de l'art. 265 a al. 1 in fine LP]; CHEVALIER, Die Beschwerde in Zivilsachen an das Bundesgericht, 2009, n° 217; REETZ/THEILER, in Kommentar zur Schweizerischen Zivilprozessordnung, 2010, n° 6 ad art. 309 CPC ; pour le recours à l'encontre du jugement de faillite de change [ art. 189 LP ], cf. arrêt 5A_268/2010 du 30 avril 2010 consid. 1.2, in Pra 2011 n° 10).",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/3",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 95,
+          "end": 104,
+          "label": "private_person",
+          "surface": "CHEVALIER"
+        },
+        {
+          "start": 172,
+          "end": 177,
+          "label": "private_person",
+          "surface": "REETZ"
+        },
+        {
+          "start": 178,
+          "end": 185,
+          "label": "private_person",
+          "surface": "THEILER"
+        },
+        {
+          "start": 375,
+          "end": 388,
+          "label": "private_date",
+          "surface": "30 avril 2010"
+        }
+      ],
+      "n_regex_hits": 3
+    },
+    {
+      "text": "121 OR, der dem Bürgen in derartigen Konstellationen eine aufschiebende Einrede gegen die Durchsetzung der Bürgschaftsschuld gewährt (AEPLI, Zürcher Kommentar, 3. Aufl. 1991, N. 45 zu Art. 121 OR ; KILLIAS, in: Handkommentar zum Schweizer Privatrecht, 2007, N. 7 zu Art. 121 OR ; MÜLLER, Der Schutz des Bürgen im schweizerischen Privatrecht, 2010, S. 171 f.; OSER/SCHÖNENBERGER, Zürcher Kommentar, 2.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/4",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 134,
+          "end": 139,
+          "label": "private_person",
+          "surface": "AEPLI"
+        },
+        {
+          "start": 198,
+          "end": 205,
+          "label": "private_person",
+          "surface": "KILLIAS"
+        },
+        {
+          "start": 280,
+          "end": 286,
+          "label": "private_person",
+          "surface": "MÜLLER"
+        },
+        {
+          "start": 359,
+          "end": 363,
+          "label": "private_person",
+          "surface": "OSER"
+        },
+        {
+          "start": 364,
+          "end": 377,
+          "label": "private_person",
+          "surface": "SCHÖNENBERGER"
+        }
+      ],
+      "n_regex_hits": 5
+    },
+    {
+      "text": "Ainsi, l'action peut être menée non seulement par le titulaire d'un design antérieur, mais par toute personne qui, en raison du design enregistré, pourrait être entravée dans sa liberté économique (cf. PETER HEINRICH, DesG/HMA, Kommentar, 2002, n o 33.79 ad art. 33 LDes ). Le demandeur peut notamment faire valoir, le cas échéant, que ce design n'est pas nouveau ou pas original; il lui incombe de prouver le défaut de nouveauté ou d'originalité.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/5",
+      "language": "fr_ch",
+      "spans": [
+        {
+          "start": 202,
+          "end": 216,
+          "label": "private_person",
+          "surface": "PETER HEINRICH"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "90 LTF (cf. MARK SCHWEIZER, Vorsorgliche Beweisabnahme nach schweizerischer Zivilprozessordnung und Patentgesetz, ZZZ 2010 p. 28). En revanche, la décision BGE 138 III 46 S. 47 admettant une requête de preuve à futur et ordonnant l'administration de la preuve ne termine pas nécessairement la procédure; celle-ci se poursuit jusqu'à ce que la preuve soit administrée (SCHWEIZER, op. cit., p. 30). Dans le cas d'une expertise hors procès, le juge devra peut-être, avant que la procédure ne prenne fin, nommer un autre expert, comme dans la présente espèce, ou transmettre à l'expert d'éventuelles questions complémentaires des parties, ou encore se prononcer sur une demande de révocation de l'expert (cf.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/6",
+      "language": "fr_ch",
+      "spans": [
+        {
+          "start": 12,
+          "end": 26,
+          "label": "private_person",
+          "surface": "MARK SCHWEIZER"
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "75 Abs. 1 und Abs. 2 lit. b BGG; Art. 6 Abs. 1 ZPO [SR 272]). 1.1 Art. 6 Abs. 1 ZPO Was eine handelsrechtliche Streitigkeit in diesem Sinn ist, bestimmt allein das Bundesrecht. Eine Streitigkeit gilt als handelsrechtlich, wenn die geschäftliche Tätigkeit mindestens einer Partei betroffen ist - womit die charakteristische Leistung im Rahmen der geschäftlichen Tätigkeit der Partei gemeint ist (ALEXANDER BRUNNER, in: Schweizerische Zivilprozessordnung ZPO, Kommentar, Brunner und andere [Hrsg.], 2011, N.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/7",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 395,
+          "end": 412,
+          "label": "private_person",
+          "surface": "ALEXANDER BRUNNER"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "145 Abs. 4 ZPO ). 3.1.1 Der Rechtsöffnungsentscheid wird vom Begriff der Betreibungshandlung gemäss Art. 56 SchKG erfasst ( BGE 115 III 91 E. 3a S. 93; BGE 121 III 88 E. 6c/aa S. 91; u.a. HOHL, Procédure civile, Bd. II, 2. Aufl. 2010, S. 186 Rz. 1010; STAEHELIN, in: Basler Kommentar, Bundesgesetz über Schuldbetreibung und Konkurs, Bd. I, 2. Aufl. 2010, N. 60 zu Art. 84 SchKG ). Dies hat das Bundesgericht im Urteil 5A_120/2012 vom 21.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/8",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 188,
+          "end": 192,
+          "label": "private_person",
+          "surface": "HOHL"
+        },
+        {
+          "start": 252,
+          "end": 261,
+          "label": "private_person",
+          "surface": "STAEHELIN"
+        },
+        {
+          "start": 434,
+          "end": 437,
+          "label": "private_date",
+          "surface": "21."
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "jedes Erblassers im Zeitpunkt des Vertragsabschlusses richtet, ist in der Lehre - soweit sie sich dazu äussert - anerkannt (vgl. GERARDO BROGGINI, Aspetti del nuovo diritto internazionale privato svizzero. Diritto matrimoniale e diritto successorio, in: Repertorio di giurisprudenza patria [Rep] 121/1988 S. 191 ff., 212; HEINI, in: Zürcher Kommentar, 2004, N. 3 und N. 9; DUTOIT, Droit international privé suisse, 4.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/9",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 129,
+          "end": 145,
+          "label": "private_person",
+          "surface": "GERARDO BROGGINI"
+        },
+        {
+          "start": 322,
+          "end": 327,
+          "label": "private_person",
+          "surface": "HEINI"
+        },
+        {
+          "start": 373,
+          "end": 379,
+          "label": "private_person",
+          "surface": "DUTOIT"
+        }
+      ],
+      "n_regex_hits": 3
+    },
+    {
+      "text": "92 ff. der Beschwerde geschieht. 3. Umstritten ist zunächst die Auslegung von Art. 578 ZGB, den die Beschwerdeführerin auch auf den Erbverzichtsvertrag angewandt wissen möchte. 3.1 Im Zusammenhang mit dieser Norm verneinte das Obergericht die Passivlegitimation der Beschwerdegegner 2 und 3. Die Beschwerdeführerin kritisiert dies. Die in der Literatur kontrovers diskutierte Frage (Passivlegitimation des ausschlagenden Erben: TUOR/PICENONI, Berner Kommentar, 2.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/10",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 428,
+          "end": 432,
+          "label": "private_person",
+          "surface": "TUOR"
+        },
+        {
+          "start": 433,
+          "end": 441,
+          "label": "private_person",
+          "surface": "PICENONI"
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "SA en vue de lui proposer de s'associer à un projet de surélévation des immeubles. Celui-ci a décliné la proposition, en précisant qu'il était toutefois vendeur de sa parcelle, ce qui avait suscité l'intérêt des copropriétaires, sans toutefois qu'une transaction ne se concrétise par la suite. A.b Le 6 juillet 2007, le Département genevois des constructions, des technologies et de l'information (ci-après: DCTI) a autorisé A.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/11",
+      "language": "fr_ch",
+      "spans": [
+        {
+          "start": 301,
+          "end": 315,
+          "label": "private_date",
+          "surface": "6 juillet 2007"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Die Rechtsstellung des Erwerbers vor der Eintragung des Eigentumsübergangs in das Hauptbuch wiederum wird verstärkt, sobald die Eintragungsanmeldung in das Tagebuch eingeschrieben ist. Er besitzt eine dingliche Anwartschaft auf das Eigentum, die aber trotzdem nicht der Entstehung des dinglichen Rechts gleichkommt (vgl. DESCHENAUX, Das Grundbuch, in: Sachenrecht, SPR Bd. V/3, 1. Teilbd., 1988, § 15/B/I/3b S.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/12",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 321,
+          "end": 331,
+          "label": "private_person",
+          "surface": "DESCHENAUX"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Die Übersetzung muss von einem amtlichen oder beeidigten Übersetzer oder von einem diplomatischen oder konsularischen Vertreter beglaubigt sein (Art. IV Abs. 2 NYÜ). Die authentischen (Art. XVI NYÜ) Fassungen des NYÜ in französischer und englischer Sprache lauten insoweit \"aura à produire une traduction\" und \"shall produce a translation\". 4.2 Im angefochtenen Entscheid hat das Kantonsgericht mit Blick auf das Erfordernis der Übersetzung nach Art.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/13",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "4.2). 4.1 Mit \"Einleiten der Betreibung\" im Sinn von Art. 279 Abs. 1 SchKG ist gemeint, dass der Gläubiger spätestens 10 Tage ab Erhalt der Arresturkunde das Betreibungsbegehren stellen muss (AMONN/WALTHER, Grundriss des Schuldbetreibungs- und Konkursrechts, 8. Aufl. 2008, § 51 Rz. 52). Damit hat er die ihm obliegende Handlung vollbracht, und im Übrigen lässt sich der Zahlungsbefehl oftmals erst erhebliche Zeit später zustellen.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/14",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 192,
+          "end": 197,
+          "label": "private_person",
+          "surface": "AMONN"
+        },
+        {
+          "start": 198,
+          "end": 205,
+          "label": "private_person",
+          "surface": "WALTHER"
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "55 Abs. 1 lit. b OG ; allgemein: MESSMER/IMBODEN, Die Eidgenössischen Rechtsmittel in Zivilsachen, 1992, S. 152/153 bei/in Anm. 15 mit Hinweisen). Anträge, die das Rechtsmittelverfahren betreffen, müssen notwendigerweise im Rechtsmittelverfahren gestellt werden können, auch wenn sie neu sind (vgl. GULDENER, Schweizerisches Zivilprozessrecht, 3. Aufl. 1979, S. 489 in Anm. 45). 1.2 An der bisherigen Praxis ist nach Inkrafttreten des Bundesgesetzes über das Bundesgericht (Bundesgerichtsgesetz, BGG; SR 173.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/15",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 33,
+          "end": 40,
+          "label": "private_person",
+          "surface": "MESSMER"
+        },
+        {
+          "start": 41,
+          "end": 48,
+          "label": "private_person",
+          "surface": "IMBODEN"
+        },
+        {
+          "start": 299,
+          "end": 307,
+          "label": "private_person",
+          "surface": "GULDENER"
+        }
+      ],
+      "n_regex_hits": 3
+    },
+    {
+      "text": "L'enfant qui conteste la reconnaissance agit contre l'auteur de celle-ci, alors que ce dernier agit contre l'enfant. Ainsi, alors même que, en dépit du fait qu'elle est étrangère au rapport de droit en cause, elle peut, par la loi, agir en son propre nom comme partie (FABIENNE HOHL, Procédure civile, vol. I, 2001, n os 440 et 441; cf. ATF 116 II 253 consid. 3 p. 257; cf. arrêt 5A_641/2011 du 23 février 2011 consid.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/16",
+      "language": "fr_ch",
+      "spans": [
+        {
+          "start": 269,
+          "end": 282,
+          "label": "private_person",
+          "surface": "FABIENNE HOHL"
+        },
+        {
+          "start": 395,
+          "end": 410,
+          "label": "private_date",
+          "surface": "23 février 2011"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "a CPC ). La requête est en l'occurrence rejetée. Avec la doctrine, il faut admettre qu'il s'agit d'une décision finale au sens de l' art. 90 LTF, susceptible d'un recours en matière civile pour autant que les autres conditions de recevabilité soient réalisées (cf. notamment PHILIPPE SCHWEIZER, in CPC, Code de procédure civile commenté, 2011, n os 19 s. ad art. 396 CPC et n° 6 ad art. 332 CPC ; KRAMER/FRIEDMANN, in Schweizerische Zivilprozessordnung [ZPO], 2011, n° 8 ad art.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/17",
+      "language": "fr_ch",
+      "spans": [
+        {
+          "start": 275,
+          "end": 293,
+          "label": "private_person",
+          "surface": "PHILIPPE SCHWEIZER"
+        },
+        {
+          "start": 397,
+          "end": 403,
+          "label": "private_person",
+          "surface": "KRAMER"
+        },
+        {
+          "start": 404,
+          "end": 413,
+          "label": "private_person",
+          "surface": "FRIEDMANN"
+        }
+      ],
+      "n_regex_hits": 3
+    },
+    {
+      "text": "2b). Le point de départ et le calcul du délai sont soumis aux règles applicables au délai de répudiation (arrêt 5P.155/2001 du 24 juillet 2001 consid. 2b/aa; STEINAUER, Le droit des successions, 2006, n. 1014a; BGE 138 III 545 S. 547 WISSMANN, in Basler Kommentar, Zivilgesetzbuch, vol. I, 4 e éd. 2011, n° 9 ad art. 580 CC ; ENGLER, in Erbrecht, Praxiskommentar, Abt/Weibel [éd.], 2007, n° 10 ad art.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/18",
+      "language": "fr_ch",
+      "spans": [
+        {
+          "start": 127,
+          "end": 142,
+          "label": "private_date",
+          "surface": "24 juillet 2001"
+        },
+        {
+          "start": 158,
+          "end": 167,
+          "label": "private_person",
+          "surface": "STEINAUER"
+        },
+        {
+          "start": 234,
+          "end": 242,
+          "label": "private_person",
+          "surface": "WISSMANN"
+        },
+        {
+          "start": 326,
+          "end": 332,
+          "label": "private_person",
+          "surface": "ENGLER"
+        }
+      ],
+      "n_regex_hits": 3
+    },
+    {
+      "text": "Urteilskopf 138 III 548 80. Auszug aus dem Urteil der II. sozialrechtlichen Abteilung i.S. Erbengemeinschaft des W. gegen Ausgleichskasse Schwyz (Beschwerde in öffentlich-rechtlichen Angelegenheiten) 9C_928/2011 vom 9. Juli 2012 Regeste Art. 11 Abs. 1 lit. g ELG und Art. 17 Abs. 5 ELV ; Art. 4 ff. des Bundesgesetzes vom 4. Oktober 1991 über das bäuerliche Bodenrecht (BGBB); Verzichtsvermögen. Ob der Verkauf einer Liegenschaft (bestehend u.a.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/19",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 216,
+          "end": 228,
+          "label": "private_date",
+          "surface": "9. Juli 2012"
+        },
+        {
+          "start": 322,
+          "end": 337,
+          "label": "private_date",
+          "surface": "4. Oktober 1991"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Urteilskopf 138 III 443 65. Auszug aus dem Urteil der II. zivilrechtlichen Abteilung i.S. X. gegen Konkursamt Berner Jura-Seeland (Beschwerde in Zivilsachen) 5A_741/2011 vom 13. Juni 2012 Regeste Art. 47 GebV SchKG ; Entgelt der Konkursverwaltung für anspruchsvolle Verfahren. Voraussetzungen zur Annahme eines anspruchsvollen Konkursverfahrens (E. 2). Sachverhalt ab Seite 443 BGE 138 III 443 S. 443 A.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/0",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 174,
+          "end": 187,
+          "label": "private_date",
+          "surface": "13. Juni 2012"
+        }
+      ],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "Urteilskopf 138 III 449 66. Estratto della sentenza della II Corte di diritto civile nella causa A. contro B. (ricorso in materia civile) 5D_76/2011 del 31 maggio 2012 Regeste Art. 517 Abs. 3 ZGB, Art. 394 ff. OR ; Vergütung des Willensvollstreckers. Frage der Bestimmungen, die auf eine Vereinbarung zwischen Erben und Willensvollstrecker über dessen Vergütung anwendbar sind (E. 4.2). Sachverhalt ab Seite 449 BGE 138 III 449 S.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/1",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 153,
+          "end": 167,
+          "label": "private_date",
+          "surface": "31 maggio 2012"
+        }
+      ],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "Urteilskopf 138 III 449 66. Estratto della sentenza della II Corte di diritto civile nella causa A. contro B. (ricorso in materia civile) 5D_76/2011 del 31 maggio 2012 Regeste Art. 517 Abs. 3 ZGB, Art. 394 ff. OR ; Vergütung des Willensvollstreckers. Frage der Bestimmungen, die auf eine Vereinbarung zwischen Erben und Willensvollstrecker über dessen Vergütung anwendbar sind (E. 4.2). Sachverhalt ab Seite 449 BGE 138 III 449 S.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/2",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 153,
+          "end": 167,
+          "label": "private_date",
+          "surface": "31 maggio 2012"
+        }
+      ],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "Urteilskopf 138 III 44 6. Extrait de l'arrêt de la IIe Cour de droit civil dans la cause A. contre B. SA (recours constitutionnel subsidiaire) 5D_153/2011 du 21 novembre 2011 Regeste Art. 75 (und 114) BGG und Art. 265a Abs. 1 SchKG ; Einrede fehlenden neuen Vermögens. Zulässigkeit der Beschwerde an das Bundesgericht gegen den im summarischen Verfahren ergangenen Entscheid über das Vorliegen neuen Vermögens (E.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/3",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 158,
+          "end": 174,
+          "label": "private_date",
+          "surface": "21 novembre 2011"
+        }
+      ],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "Urteilskopf 138 III 453 67. Auszug aus dem Urteil der I. zivilrechtlichen Abteilung i.S. A. gegen Bank X. (Beschwerde in Zivilsachen) 4A_678/2011 vom 2. Mai 2012 Regeste Art. 121, Art. 492 Abs. 4, Art. 493 Abs. 2 und Art. 502 Abs. 2 OR ; Einreden des Bürgen, wenn der Hauptschuldner gegenüber dem Gläubiger auf die Verrechnung verzichtet hat. Art. 502 Abs. 2 OR, gemäss dem ein Verzicht des Hauptschuldners auf ihm zustehende Einreden dem Bürgen gegenüber nicht gilt, ist auf das Leistungsverweigerungsrecht des Bürgen gemäss Art.",
+      "subset": "entscheidsuche",
+      "doc_id": "/entscheidsuche_html/filtered/documents_0046.jsonl.gz/4",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 150,
+          "end": 161,
+          "label": "private_date",
+          "surface": "2. Mai 2012"
+        }
+      ],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Il Consiglio federale è invitato a proporre una modifica della legge federale sull’assicurazione malattie (LAMal) che introduca un’autorizzazione valida su tutto il territorio svizzero a fornire prestazioni di telemedicina a carico dell’assicurazione obbligatoria delle cure medico-sanitarie (AOMS).</p><h2>FederalCouncilResponseText<h2><p>Il 19&nbsp;giugno 2020 il Parlamento ha adottato la modifica della legge federale sull’assicurazione malattie (LAMal; RS&nbsp;832.10) concernente l’autorizzazione dei fornitori di prestazioni a esercitare a carico dell’assicurazione obbligatoria delle cure medico-sanitarie (AOMS).",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256090",
+      "language": "it_ch",
+      "spans": [
+        {
+          "start": 367,
+          "end": 386,
+          "label": "private_date",
+          "surface": "19&nbsp;giugno 2020"
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Il Consiglio federale è incaricato di adeguare la legislazione in modo che:</p><p>- le persone che esercitano un’attività lucrativa almeno all’80&nbsp;per cento o le coppie che complessivamente lavorano almeno al 150&nbsp;per cento siano finanziariamente favorite per quanto riguarda la riduzione dei premi dell’assicurazione obbligatoria delle cure medico-sanitarie (AOMS) rispetto alle persone o alle coppie che scelgono liberamente un grado d’occupazione inferiore;</p><p>- la legge preveda per le coppie con figli una deroga in funzione dell’età dei figli a carico;</p><p>- il grado d’occupazione individuale ragionevolmente accettabile sia considerato in modo appropriato a seconda della situazione individuale specifica (incapacità al lavoro, età ecc.).</p><h2>FederalCouncilResponseText<h2><p>Ai sensi della legge federale sull’assicurazione malattie (LAMal; RS&nbsp;832.10), i Cantoni sono tenuti a ridurre i premi degli assicurati di condizione economica modesta.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256095",
+      "language": "it_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Il Consiglio federale è invitato a proporre una modifica della legge federale sull’assicurazione malattie (LAMal) che renda l’assunzione dei costi delle \"medicine\" complementari una prestazione opzionale dell’assicurazione obbligatoria delle cure medico-sanitarie (AOMS).</p><h2>FederalCouncilResponseText<h2><p>L’obbligo di assicurazione stabilito dal legislatore nella legge federale sull’assicurazione malattie (LAMal; RS 832.10) mira a rafforzare la solidarietà tra tutte le persone domiciliate in Svizzera nell’ambito dell’assicurazione sociale malattie e di conseguenza a garantire a tutti un accesso paritario a un’assistenza medica di qualità.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256100",
+      "language": "it_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Bezüglich der Erzeugung von zusätzlicher Biomasse werden im Ressourcenprojekt «Agro4esterie» moderne Agroforstsysteme auf Landwirtschaftsbetrieben angelegt und ihre Umwelteffekte werden geprüft – insbesondere auch die Kohlenstoffbindung. Dank der wissenschaftlichen Begleitung lassen sich aus diesen Projekten wichtige Erkenntnisse gewinnen. Bei Erfolg können die erprobten Massnahmen bei der Weiterentwicklung der Agrarpolitik in geeigneter Weise berücksichtigt werden.&nbsp;</p><p>Auf EU-Ebene finden Diskussionen im Rahmen des Programms für Umwelt- und Klimamassnahmen (LIFE) und der Gemeinsamen Europäischen Agrarpolitik (GAP) statt.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256102",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "En ce qui concerne la production de biomasse supplémentaire, le projet d’utilisation durable des ressources «&nbsp;Agro4esterie&nbsp;» met en place des systèmes agroforestiers modernes dans des exploitations agricoles et évalue leur impact environnemental, dont notamment la séquestration du carbone. Grâce au suivi scientifique, ces projets permettent d’obtenir des informations importantes. En cas de succès, les mesures testées pourront être prises en compte de manière appropriée lors du développement de la politique agricole.</p><p>À l’échelon de l’UE, des discussions sont menées dans le cadre du programme de mesures environnementales et climatiques (LIFE) et de la politique agricole commune européenne (PAC).",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256103",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "En ce qui concerne la production de biomasse supplémentaire, le projet d’utilisation durable des ressources «&nbsp;Agro4esterie&nbsp;» met en place des systèmes agroforestiers modernes dans des exploitations agricoles et évalue leur impact environnemental, dont notamment la séquestration du carbone. Grâce au suivi scientifique, ces projets permettent d’obtenir des informations importantes. En cas de succès, les mesures testées pourront être prises en compte de manière appropriée lors du développement de la politique agricole.</p><p>À l’échelon de l’UE, des discussions sont menées dans le cadre du programme de mesures environnementales et climatiques (LIFE) et de la politique agricole commune européenne (PAC).",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256104",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "In caso di successo, le misure testate potranno essere prese opportunamente in considerazione nel quadro dell'ulteriore sviluppo della politica agricola.&nbsp;</p><p>A livello dell’Unione europea, le discussioni si svolgono nell'ambito del Programma per l'ambiente e l'azione per il clima (LIFE) e della Politica agricola comune (PAC). Sul piano dei contenuti, le misure discusse sono simili a quelle già promosse in Svizzera.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256105",
+      "language": "it_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Bezüglich der Erzeugung von zusätzlicher Biomasse werden im Ressourcenprojekt «Agro4esterie» moderne Agroforstsysteme auf Landwirtschaftsbetrieben angelegt und ihre Umwelteffekte werden geprüft – insbesondere auch die Kohlenstoffbindung. Dank der wissenschaftlichen Begleitung lassen sich aus diesen Projekten wichtige Erkenntnisse gewinnen. Bei Erfolg können die erprobten Massnahmen bei der Weiterentwicklung der Agrarpolitik in geeigneter Weise berücksichtigt werden.&nbsp;</p><p>Auf EU-Ebene finden Diskussionen im Rahmen des Programms für Umwelt- und Klimamassnahmen (LIFE) und der Gemeinsamen Europäischen Agrarpolitik (GAP) statt.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256106",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Ist ein Erwerb eines militärischen Transportflugzeugs, wie beispielweise die CASA 295, eine sinnvolle Anschaffung der Schweizer Armee für souveräne Hilfseinsätze und zur Rettung aus Katastrophengebieten?</p><h2>FederalCouncilResponseText<h2><p>Aufgrund der volatiler gewordenen globalen Sicherheitslage ist der Bundesrat der Ansicht, dass die Schweiz über ausreichende Transportkapazitäten verfügen muss, einschliesslich derjenigen Kapazitäten, die von militärischen Mehrzwecktransportflugzeugen erbracht werden.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256107",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>L'Armée suisse a-t-elle intérêt à acheter un avion de transport militaire tel que le CASA 295 pour effectuer souverainement des opérations d'assistance et des opérations de sauvetage en zone sinistrée ?</p><h2>FederalCouncilResponseText<h2><p>En raison de la volatilité accrue de la situation sécuritaire mondiale, le Conseil fédéral est d’avis que la Suisse doit disposer de suffisamment de capacités de transport, incluant celles fournies par des avions de transport militaires polyvalents.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256108",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>L'Armée suisse a-t-elle intérêt à acheter un avion de transport militaire tel que le CASA 295 pour effectuer souverainement des opérations d'assistance et des opérations de sauvetage en zone sinistrée ?</p><h2>FederalCouncilResponseText<h2><p>En raison de la volatilité accrue de la situation sécuritaire mondiale, le Conseil fédéral est d’avis que la Suisse doit disposer de suffisamment de capacités de transport, incluant celles fournies par des avions de transport militaires polyvalents.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256109",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>L'acquisto di un velivolo da trasporto militare, come ad esempio il CASA 295, è un acquisto sensato per l'Esercito svizzero per gli impieghi sovrani di aiuto e per il salvataggio dalle zone sinistrate?</p><h2>FederalCouncilResponseText<h2><p>A seguito della crescente instabilità della situazione globale in materia di sicurezza, il Consiglio federale ritiene che la Svizzera debba disporre di sufficienti capacità di trasporto, comprese quelle garantite da velivoli da trasporto militari multiuso.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256110",
+      "language": "it_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Ist ein Erwerb eines militärischen Transportflugzeugs, wie beispielweise die CASA 295, eine sinnvolle Anschaffung der Schweizer Armee für souveräne Hilfseinsätze und zur Rettung aus Katastrophengebieten?</p><h2>FederalCouncilResponseText<h2><p>Aufgrund der volatiler gewordenen globalen Sicherheitslage ist der Bundesrat der Ansicht, dass die Schweiz über ausreichende Transportkapazitäten verfügen muss, einschliesslich derjenigen Kapazitäten, die von militärischen Mehrzwecktransportflugzeugen erbracht werden.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256111",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Der Bundesrat wird gebeten folgende Fragen zu beantworten:</p><p>- Welche Akteure innerhalb der Bundesverwaltung antizipieren, welche Rohstoffe, Technologien und Infrastrukturen für die Versorgungssicherheit der nächsten 5 bis 20 Jahre relevant sein werden?</p><p>- Wie werden die Interdependenzen zwischen den unterschiedlichen Bereichen und Verwaltungseinheiten, wie etwa im BWL, SECO, NDB, GS-VBS, BK, UVEK, etc.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256112",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Je prie le Conseil fédéral de répondre aux questions suivantes :</p><p>- Quels acteurs au sein de l'administration fédérale prévoient quelles seront les matières premières, les technologies et les infrastructures nécessaires pour garantir la sécurité de l'approvisionnement dans les 5 à 20 prochaines années ?</p><p>- Comment les interdépendances sont-elles organisées et coordonnées entre les différents secteurs et unités administratives, par exemple à l'OFAE, au SECO, au SRC, au SG-DDPS, à la ChF ou au DETEC ?</p><p>- Le développement et la transformation de l'Office fédéral de l'approvisionnement économique du pays (OFAE) donneront-ils plus de poids à cette projection ?</p><p>- Comment le Conseil fédéral entend-il garantir que la prévoyance et la prévention bénéficient d'une démarche suffisamment interdisciplinaire et collaborative lors de la prochaine amélioration de la gestion de crise ?</p><p>- La liste des dépendances actuelles, notamment au pétrole et au gaz, sera complétée dans un avenir proche par de nouvelles matières premières, comme les terres rares, et de nouveaux matériaux industriels.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256113",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Je prie le Conseil fédéral de répondre aux questions suivantes :</p><p>- Quels acteurs au sein de l'administration fédérale prévoient quelles seront les matières premières, les technologies et les infrastructures nécessaires pour garantir la sécurité de l'approvisionnement dans les 5 à 20 prochaines années ?</p><p>- Comment les interdépendances sont-elles organisées et coordonnées entre les différents secteurs et unités administratives, par exemple à l'OFAE, au SECO, au SRC, au SG-DDPS, à la ChF ou au DETEC ?</p><p>- Le développement et la transformation de l'Office fédéral de l'approvisionnement économique du pays (OFAE) donneront-ils plus de poids à cette projection ?</p><p>- Comment le Conseil fédéral entend-il garantir que la prévoyance et la prévention bénéficient d'une démarche suffisamment interdisciplinaire et collaborative lors de la prochaine amélioration de la gestion de crise ?</p><p>- La liste des dépendances actuelles, notamment au pétrole et au gaz, sera complétée dans un avenir proche par de nouvelles matières premières, comme les terres rares, et de nouveaux matériaux industriels.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256114",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Il Consiglio federale è invitato a rispondere alle seguenti domande.</p><p>- A quali attori dell'Amministrazione federale spetta il compito di prevedere quali materie prime, tecnologie e infrastrutture saranno rilevanti per la sicurezza dell'approvvigionamento nei prossimi 5-20 anni?</p><p>- Come vengono organizzate e coordinate le interdipendenze tra settori e unità amministrative, come UFAE, SECO, SIC, SG-DDPS, CaF, DATEC, ecc.?</p><p>- L'ampliamento e il rinnovamento dell'UFAE consentiranno di dare maggior peso a questa previsione?</p><p>- In che modo il Consiglio federale può garantire che una migliore gestione delle crisi contribuisca a tener conto delle fasi di previsione e prevenzione in modo sufficientemente interdisciplinare e collaborativo?</p><p>- Quali conseguenze trae il Consiglio federale dal fatto che le attuali dipendenze - ad esempio da petrolio e gas - si estenderanno nel prossimo futuro ad altre materie prime, come le terre rare e nuovi metalli industriali?</p><p>- In questo contesto, quale strategia si applica all'acqua, risorsa che in futuro potrebbe diventare un tema sempre più scottante e discusso?</p><p>- Nelle sue strategie in materia di digitalizzazione e sostenibilità, il Consiglio federale tiene conto del fatto che questi sviluppi subordinano l'approvvigionamento della popolazione e dell'economia alla disponibilità di materie prime e tecnologie?",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256115",
+      "language": "it_ch",
+      "spans": [],
+      "n_regex_hits": 3
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Der Bundesrat wird gebeten folgende Fragen zu beantworten:</p><p>- Welche Akteure innerhalb der Bundesverwaltung antizipieren, welche Rohstoffe, Technologien und Infrastrukturen für die Versorgungssicherheit der nächsten 5 bis 20 Jahre relevant sein werden?</p><p>- Wie werden die Interdependenzen zwischen den unterschiedlichen Bereichen und Verwaltungseinheiten, wie etwa im BWL, SECO, NDB, GS-VBS, BK, UVEK, etc.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256116",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Gegenwärtig werden auf unsere Wiesen Windkraftanlagen gestellt und unsere Hofdächer mit Photovoltaikanlagen geschmückt. Hat man dabei die Gefahr elektromagnetischer Störungen und anderer Kriechströme für die Nutztiere untersucht? Ich frage den Bundesrat nach Studien und ergriffenen Massnahmen, um den Tierhalterinnen und Tierhaltern zu versichern, dass die Anlagen zuverlässig sind.</p><h2>FederalCouncilResponseText<h2><p>Photovoltaik- und Windenergieanlagen müssen im Betrieb die Vorschriften und Grenzwerte der Verordnung über den Schutz vor nichtionisierender Strahlung (NISV, SR 814.710) einhalten.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256117",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>À l'heure où l'on plante des installations éoliennes dans nos prairies et photovoltaïques sur les toits de nos fermes, a-t-on pris la mesure des dangers, pour l'élevage, des perturbations électromagnétiques ou autres courants vagabonds ? J'interpelle le Conseil fédéral pour connaître études et mesures prises afin de rassurer les éleveurs quant à la fiabilité de ces installations.</p><h2>FederalCouncilResponseText<h2><p>Les installations photovoltaïques et éoliennes en exploitation doivent respecter les prescriptions et les valeurs limites fixées par l'ordonnance sur la protection contre le rayonnement non ionisant (ORNI, RS 814.710).",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256118",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Ne consegue che questo requisito si applica anche ai medici che forniscono prestazioni di telemedicina. È dunque determinante il luogo in cui i fornitori di prestazioni esercitano la propria attività ed erogano prestazioni. Per quanto riguarda il ricorso alle prestazioni, il principio enunciato all’articolo&nbsp;41 capoverso&nbsp;1 LAMal consente agli assicurati di scegliere liberamente tra i fornitori di prestazioni autorizzati e idonei alla cura della loro malattia.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256090",
+      "language": "it_ch",
+      "spans": [],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Der Bundesrat wird beauftragt, eine Änderung des Bundesgesetzes über die Krankenversicherung (KVG) vorzulegen, mit der eine Zulassung für die Erbringung von telemedizinischen Leistungen zulasten der obligatorischen Krankenpflegeversicherung (OKP) eingeführt wird, die in der ganzen Schweiz gilt.</p><h2>FederalCouncilResponseText<h2><p>Am 19. Juni 2020 hat das Parlament die Änderung des Bundesgesetzes über die Krankenversicherung (KVG; SR 832.10) betreffend die Zulassung von Leistungserbringern zur Tätigkeit zulasten der obligatorischen Krankenpflegeversicherung (OKP) verabschiedet.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256091",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 363,
+          "end": 376,
+          "label": "private_date",
+          "surface": "19. Juni 2020"
+        }
+      ],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Der Bundesrat wird beauftragt, die Gesetzgebung so anzupassen, dass:</p><p>- Einzelpersonen mit einem Beschäftigungsgrad von mindestens 80 Prozent und Paare mit einem Beschäftigungsgrad von insgesamt mindestens 150 Prozent bei der Verbilligung der Prämien für die obligatorische Krankenversicherung gegenüber Personen und Paaren finanziell begünstigt werden, die freiwillig einen tieferen Beschäftigungsgrad wählen;</p><p>- das Gesetz für Paare mit Kindern eine Ausnahme vorsieht, die sich nach dem Alter der Kinder richtet, für die sie verantwortlich sind;</p><p>- der jeweils zumutbare Beschäftigungsgrad angemessen berücksichtigt wird, je nach Situation der betroffenen Person (Arbeitsunfähigkeit, Alter usw.).</p><h2>FederalCouncilResponseText<h2><p>Das Bundesgesetz über die Krankenversicherung (KVG; SR 832.10) verpflichtet die Kantone, die Prämien der Versicherten in bescheidenen wirtschaftlichen Verhältnissen zu verbilligen.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256092",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Le Conseil fédéral est chargé d'adapter la législation de manière à ce que :</p><p>- les personnes seules qui exercent une activité rémunérée à 80 % au moins ou les personnes en couple qui travaillent ensemble à 1,0 % au moins soient privilégiées d'un point de vue financier dans le domaine des réductions de primes d'assurance maladie obligatoire par rapport aux personnes ou aux couples qui optent librement pour un taux d'occupation inférieur ;</p><p>- la loi doit prévoir une exception pour les couples avec des enfants, en fonction de l'âge des enfants dont la prise en charge incombe aux parents ;</p><p>- le taux d'occupation individuel acceptable doit être pris en compte de manière appropriée, selon la situation individuelle des personnes (incapacité de travail, âge, etc.).</p><h2>FederalCouncilResponseText<h2><p>La loi fédérale sur l’assurance-maladie (LAMal&nbsp;; RS&nbsp;<i>832.10</i>) oblige les cantons à réduire les primes des personnes assurées de condition économique modeste.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256093",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "<h2>SubmittedText<h2><p>Le Conseil fédéral est chargé d'adapter la législation de manière à ce que :</p><p>- les personnes seules qui exercent une activité rémunérée à 80 % au moins ou les personnes en couple qui travaillent ensemble à 1,0 % au moins soient privilégiées d'un point de vue financier dans le domaine des réductions de primes d'assurance maladie obligatoire par rapport aux personnes ou aux couples qui optent librement pour un taux d'occupation inférieur ;</p><p>- la loi doit prévoir une exception pour les couples avec des enfants, en fonction de l'âge des enfants dont la prise en charge incombe aux parents ;</p><p>- le taux d'occupation individuel acceptable doit être pris en compte de manière appropriée, selon la situation individuelle des personnes (incapacité de travail, âge, etc.).</p><h2>FederalCouncilResponseText<h2><p>La loi fédérale sur l’assurance-maladie (LAMal&nbsp;; RS&nbsp;<i>832.10</i>) oblige les cantons à réduire les primes des personnes assurées de condition économique modeste.",
+      "subset": "curia_vista",
+      "doc_id": "/curiavista/filtered/00000_business.jsonl.gz/256094",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "Taiwan bleibt führender LED-Hersteller nach Umsatz\n05.Januar 2012 | Thema: LED\n| Schlagwörter:\nLED,\nLed Wachstumslampen\n| Vorheriger LED-Beitrag: « Fraunhofer und LEiDs schaffen Cloud-ähnliche Decke aus LEDs | Nächster LED-Beitrag: SEMI erwartet 2012 geringere MOCVD Verkäufe »\nTaiwan war 2011 das führende LED produzierende Land auf der Welt. Champignonzüchter spart mit LED Wachstumslampen über 50% Energiekosten.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/0",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 51,
+          "end": 65,
+          "label": "private_date",
+          "surface": "05.Januar 2012"
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "30.6.2012, 07:10 Uhr\nDie First Lady mag keine Paläste30.6.2012, 07:10 Uhr\nSie mag die Bezeichnung First Lady nicht und möchte nicht in Palästen wohnen. Die Frau des neuen ägyptischen Präsidenten setzt auf Bescheidenheit statt Glamour. Von Astrid Frefel¶\nSchon vor der ersten Runde der ägyptischen Präsidentschaftswahlen hatten lokale Medien einen Blick auf die Ehefrauen einiger Spitzenkandidaten geworfen.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/1",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 0,
+          "end": 9,
+          "label": "private_date",
+          "surface": "30.6.2012"
+        },
+        {
+          "start": 239,
+          "end": 252,
+          "label": "private_person",
+          "surface": "Astrid Frefel"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Der Festplatten Manager 12 Professional von Paragon kopiert und partitioniert Festplatten, überträgt Betriebssysteme auf modernere Hardware und optimiert die Dateisysteme FAT und NTFS. Die Bedienoberfläche des Programmpakets ist zwar übersichtlich, aber nicht sehr elegant. Für die meisten Aufgaben empfiehlt sich ohnehin der „Express-Launcher“ der Tool-Suite, der wesentlich schneller zum Ziel führt als die standardmässig aktivierte „Erweiterte Oberfläche“.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/3",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "In St. Gallen verwenden wir einen grossen Teil unserer Aufmerksamkeit der Optimierung der Adherence genau während dieser initialen Therapiephase. Die Patienten werden geschult in Adherence, bevor sie effektiv beginnen, regelmässig HIV-Medikamente einzunehmen. Geübt wird mit Vitamintabletten, welche exakt zur gleichen Zeit eingenommen werden, wie die geplanten HIV-Medikamente. Methoden zur Messung der Adherence\nFür die Adherenceschulung vor der HIV-Therapie verwenden wir das so genannte MEMS-System (Medication Event Monitoring System).",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/9",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Glossar\nOBLIGATION\nEine Obligation ist eine Anleihe und dient dem Emittenten (Staat, Unternehmung) als langfristige Fremdfinanzierung. Die Anleihe wird in Stücke zerlegt und verbrieft. Der Käufer einer Obligation (Obligationär) hat Anspruch auf Rückzahlung des ausgeliehenen Betrags und auf eine vereinbarte Verzinsung. OMEGA\nsiehe Leverage\nON-STOP-AUFTRAG\nIst das Gegenstück zu Stop Loss. Hier wird der Kaufauftrag erst dann als Bestens-Auftrag aufgegeben, sobald ein bestimmtes Kursniveau überschritten wird.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/10",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 3
+    },
+    {
+      "text": "Die Ergebnisse waren Besorgnis erregend: Bei den 10 Personen, die das Radiello getragen hatten, betrug der Durchschnitt 9 μg/m3, mit Werten bis gegen 12 μg/m3 für einen Velokurier sowie einer durchschnittlichen Belastung von 8 μg/m3 für einen Büroangestellten. In der Schweiz liefert das Nationale Beobachtungsnetz für Luftfremdstoffe (NABEL) keine Daten zur Benzolkonzentration in der Luft. Der VCS hat deshalb mit Unterstützung der Krebsliga beschlossen, mehrere Personen mit einem Gerät auszustatten, um genauere Hinweise auf die Werte zu erhalten, denen wir uns im Alltag aussetzen.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/11",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Vipassana-Meditation in der Tradition von Sayagyi U Ba Khin\nDie Tradition von Sayagyi\nU Ba Khin ist eine weltweit verbreitete Tradition des Theravada-Buddhismus,\nderen Schwerpunkt auf der praktischen Übung der Lehre Buddhas (Buddha-Dhamma)\ndurch Vipassana-Meditation liegt. Weltweit gibt\nes sechs Meditationszentren in der Tradition von Sayagyi U Ba Khin: das\nIMC-Yangon in Myanmar, das IMC-England,\ndas IMC-Österreich, das IMC-USA,\ndas IMC-Ostaustralien und das IMC-Westaustrialien.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/17",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 42,
+          "end": 59,
+          "label": "private_person",
+          "surface": "Sayagyi U Ba Khin"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Im Körper erfolgt die Sauerstoffabgabe aus dem Blut an die verschiedenen Organe, die Aufnahme von Kohlendioxid aus den Organen an das Blut sowie der Austausch anderer Stoffe. Das \"verbrauchte\" Blut wird in den Venen gesammelt und zum Herzen transportiert. Über die beiden Hohlvenen gelangt es in den rechten Vorhof. Dort beginnt der Lungenkreislauf. Abbildung: Herz von vorne (ventral)\nAbbildung: Herz von hinten (dorsal)\nVeröffentlicht von Administrator am Montag, den 08.09.2003 um 18:03 Druckversion\nBeitrag:\n[Die Lunge] - Der Lungen- und Körperkreislauf | 0 Kommentar(e)\nFür den Inhalt der Kommentare sind die Verfasser verantwortlich.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/18",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 470,
+          "end": 480,
+          "label": "private_date",
+          "surface": "08.09.2003"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Antwort des Bundesrates\nvom\n01.07.2009\n1. In der Schweiz leben gemäss Schätzungen des Bundesamtes für Statistik rund 110 000 demenzkranke Menschen. Es wird angenommen, dass etwa zwei Fünftel der Demenzkranken mit Laienpflege und Spitex, zwei Fünftel in einer nichtspezialisierten Pflegeabteilung/Pflegeheim und ein Fünftel in einer spezialisierten Pflegeabteilung eines Pflegeheims oder einer gerontopsychiatrischen Einrichtung betreut werden.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/22",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 28,
+          "end": 38,
+          "label": "private_date",
+          "surface": "01.07.2009"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": ">\nmolodezhnaja Hauptseite\n> filme R\n> RED RIVER\nWestern. USA\nAlternativer Titel -\nRegie\nHoward Hawks\nDrehbuch Borden Chase, Charles Schnee\nProduktion Howard Hawks\nKamera Russell Harlan\nMusik Dimitri Tiomkin\nSchnitt Christian Nyby\nDarsteller John Wayne, Montgomery Clift, Joanne Dru, Walter Brennan,\nColleen Gray, Harry Carey Sr., John Ireland, Noah Beery Jr., Harry Carey Jr., Paul Fix\nLänge 127 Min.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/28",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 88,
+          "end": 100,
+          "label": "private_person",
+          "surface": "Howard Hawks"
+        },
+        {
+          "start": 110,
+          "end": 122,
+          "label": "private_person",
+          "surface": "Borden Chase"
+        },
+        {
+          "start": 124,
+          "end": 138,
+          "label": "private_person",
+          "surface": "Charles Schnee"
+        },
+        {
+          "start": 170,
+          "end": 184,
+          "label": "private_person",
+          "surface": "Russell Harlan"
+        },
+        {
+          "start": 191,
+          "end": 206,
+          "label": "private_person",
+          "surface": "Dimitri Tiomkin"
+        },
+        {
+          "start": 215,
+          "end": 229,
+          "label": "private_person",
+          "surface": "Christian Nyby"
+        },
+        {
+          "start": 241,
+          "end": 251,
+          "label": "private_person",
+          "surface": "John Wayne"
+        },
+        {
+          "start": 253,
+          "end": 269,
+          "label": "private_person",
+          "surface": "Montgomery Clift"
+        },
+        {
+          "start": 271,
+          "end": 281,
+          "label": "private_person",
+          "surface": "Joanne Dru"
+        },
+        {
+          "start": 283,
+          "end": 297,
+          "label": "private_person",
+          "surface": "Walter Brennan"
+        },
+        {
+          "start": 299,
+          "end": 311,
+          "label": "private_person",
+          "surface": "Colleen Gray"
+        },
+        {
+          "start": 313,
+          "end": 328,
+          "label": "private_person",
+          "surface": "Harry Carey Sr."
+        },
+        {
+          "start": 330,
+          "end": 342,
+          "label": "private_person",
+          "surface": "John Ireland"
+        },
+        {
+          "start": 344,
+          "end": 358,
+          "label": "private_person",
+          "surface": "Noah Beery Jr."
+        },
+        {
+          "start": 360,
+          "end": 375,
+          "label": "private_person",
+          "surface": "Harry Carey Jr."
+        },
+        {
+          "start": 377,
+          "end": 385,
+          "label": "private_person",
+          "surface": "Paul Fix"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Entscheidend ist nicht, ob der Betroffene alles vorgekehrt hat, um den Irrtum zu vermeiden. Arglist scheidet lediglich dann aus, wenn das Opfer die grundlegendsten Vorsichtsmassnahmen nicht beachtet hat. Entsprechend entfällt der strafrechtliche Schutz nicht bei jeder Fahrlässigkeit des Opfers, sondern nur bei Leichtfertigkeit (URSULA CASSANI, Der Begriff der arglistigen Täuschung als kriminalpolitische Herausforderung, ZStR 117/1999 S.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/30",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 330,
+          "end": 344,
+          "label": "private_person",
+          "surface": "URSULA CASSANI"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Beginn Inhaltsbereich\nBeginn Navigator\nEnde Navigator\n(26.10.2011) Rund drei Viertel der Schweizerinnen und Schweizer meinen, dass die beruflichen Erfahrungen für die Karriere wichtiger sind als die ursprüngliche Ausbildung. Diese Ansicht teilen 72%, während 26% gegenteiliger Auffassung sind, wie die jüngste Umfrage \"Global Workforce Index\" von Kelly Services ergab. Ausserdem halten es 98% der Befragten für nützlich, neben der Arbeit eine Weiterbildung zu absolvieren, um die eigenen Kompetenzen zu vertiefen.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/32",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 55,
+          "end": 65,
+          "label": "private_date",
+          "surface": "26.10.2011"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Al Gore - Biografie,\nBiographie, Familie, Buch\n[17.10.2000: siehe die englische Biographie zu Al\nGore]\nArtikel\nvom 15. August 2000\nAl Gores Vater war auf einer Farm in Tennessee geboren worden\nund arbeitete als Lehrer, ehe er eine Karriere im Staatsdienst einschlug. Zuerst\ndiente er als Smith County Superintendent of Schools, danach als Tennessees Secretary of\nLabor, später als amerikanischer Senator.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/39",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 0,
+          "end": 7,
+          "label": "private_person",
+          "surface": "Al Gore"
+        },
+        {
+          "start": 48,
+          "end": 58,
+          "label": "private_date",
+          "surface": "17.10.2000"
+        },
+        {
+          "start": 115,
+          "end": 130,
+          "label": "private_date",
+          "surface": "15. August 2000"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Departement für Umwelt, Verkehr, Energie und Kommunikation (UVEK) für weitere 50 Jahre erhalten hat. Der Entwurf für das Reglement muss bis Ende Jahr vorliegen. Eine der Grundlagen bildet der Staatsvertrag zwischen der Schweiz und Deutschland über den Flugverkehr nach Zürich. Das neue Betriebsreglement soll gleichzeitig mit dem Staatsvertrag, über dessen Ratifikation das Parlament noch heuer zu entscheiden hat, im Jahr 2005 in Kraft treten.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/41",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Das Unternehmensrecht wird modernisiert\nBundesrat verabschiedet Botschaft zur Revision des Aktien- und Rechnungslegungsrechts\nMedienmitteilungen, EJPD, 21.12.2007\nBern. Der Bundesrat will mit einer Revision des Aktien- und Rechnungslegungsrechts das Unternehmensrecht modernisieren und den wirtschaftlichen Bedürfnissen anpassen. Er hat am Freitag die Botschaft und den Gesetzesentwurf verabschiedet.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/42",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 152,
+          "end": 162,
+          "label": "private_date",
+          "surface": "21.12.2007"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Best Paper Award Stafford Beer Medal\nElgar Fleisch, Frédéric Thiesse and Jasser Al-Kassab ausgezeichnet mit der Stafford Beer Medaille\nim Jahr 2009 sind Professor Elgar Fleisch (ITEM-HSG), Professor Frédéric Thiesse (Universität Würzburg, vormals ITEM-HSG) mit dem renommierten \"Stafford Beer Medal\"-Preis für die beste Arbeit im European Journal of Information Systems (EJIS), hat ausgezeichnet worden, und Dr.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/45",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 37,
+          "end": 50,
+          "label": "private_person",
+          "surface": "Elgar Fleisch"
+        },
+        {
+          "start": 52,
+          "end": 68,
+          "label": "private_person",
+          "surface": "Frédéric Thiesse"
+        },
+        {
+          "start": 73,
+          "end": 89,
+          "label": "private_person",
+          "surface": "Jasser Al-Kassab"
+        }
+      ],
+      "n_regex_hits": 3
+    },
+    {
+      "text": "| Table du contenu Recherche en plein texte JAAC 65.112\n(Entscheid der Eidgenössischen Steuerrekurskommission vom 19. Februar 2001 i.S. O. AG [SRK 1999-130])\nRésumé Français\nRegeste Deutsch\nRegesto Italiano\nFaits\nFait A. Fait B\nFait C\nFait D\nFait E\nConsidérants\nConsidérant 2.b.aa\nConsidérant bb\nConsidérant cc\nConsidérant dd\nConsidérant 3.a\nConsidérant b\nConsidérant 4\nImpôt anticipé. Droit de jouissance.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/49",
+      "language": "fr_ch",
+      "spans": [
+        {
+          "start": 114,
+          "end": 130,
+          "label": "private_date",
+          "surface": "19. Februar 2001"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Hi\nFür eine IDPA (interdisziplinäre Arbeit) suchen wir schweizerische Game-Development-Communities, um sie zu befragen. Da wir bei der Suche nach solchen weniger erfolgreich waren als gewünscht wären wir sehr froh, wenn ihr uns Hinweise geben könntet. Kennt ihr GameDev Communities in der Schweiz? Bitte postet die Links, die ihr kennt\nVielen Dank im Voraus\nLimbo",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/51",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 358,
+          "end": 363,
+          "label": "private_person",
+          "surface": "Limbo"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Übrigens hat auch Venezuela entschlossen 12 Tor-M1 Systeme zu bestellen, was den USA ebenfalls nicht passt. Hier ein Tor-M1 im Test:\nUpdate vom 10.02.07\nHeute morgen 10:30 hat Präsident Putin in seiner Rede zu Russlands Rolle in der Weltpolitik ein Machtwort gesprochen und ist mit den USA, der NATO und der OSCE stark ins Gericht gegangen. Die Zeit gibt eine gute Zusammenfassung des Inhalts seiner Rede – die Rede selber ist zur Zeit leider nicht online.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/54",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 144,
+          "end": 152,
+          "label": "private_date",
+          "surface": "10.02.07"
+        },
+        {
+          "start": 186,
+          "end": 191,
+          "label": "private_person",
+          "surface": "Putin"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Beide Sorten wurden von James Busby\n(1802-1871) Anfang der 1830er–Jahre nach Australien gebracht. Dort, in\nKalifornien und in Italien sind weitere Bestände vorhanden. Uns bekannte Synonyme sind:\nAUBUN; COUNESO; DAMAS NOIR; CONNOGES; CAULA; GROSSE\nROGETTAZ; MOUSTARDIER; PETIT RIBIER; PETIT ROUVIER; RIBIER; RIBIERE; RIVIER;\nRIVIERE; ROUVIER DE PRIV\nHinweis: Wir haben die Beiträge nach bestem Wissen\nerstellt.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/58",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 24,
+          "end": 35,
+          "label": "private_person",
+          "surface": "James Busby"
+        }
+      ],
+      "n_regex_hits": 15
+    },
+    {
+      "text": "Naglaa Ali Mahmoud, die Gattin von Mohammed Morsi, brach gleich mit einem Tabu und verriet ihr Geburtsjahr – 1962. Aber sonst vertritt die neue First Lady ein islamisch-konservatives Rollenverständnis. «Der Islam hat uns gelehrt, dass die Herrscher der Völker ihre Diener sind, wie die Frau. Sie sollte ihrem Mann dienen und helfen, so wie er dem Land dient. Neu geschaffene Titel wie Ägyptens First Lady lehnen wir ab», sagte sie damals.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/1",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 0,
+          "end": 18,
+          "label": "private_person",
+          "surface": "Naglaa Ali Mahmoud"
+        },
+        {
+          "start": 35,
+          "end": 49,
+          "label": "private_person",
+          "surface": "Mohammed Morsi"
+        }
+      ],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "I. Sachverhalt\nA. Am 15. April 2009 berichtete Valentin Kressler in der «Basler Zeitung» (Titel: «Sein bisher brisantester Fall»), die Wahl des Oberwiler Anwalts Werner Rufi (44) als Rechtsvertreter des Grossen Rats in einem Rechtsstreit mit dem Grünen Bündnis um die Kommissionswahlen sorge «für Gesprächsstoff». Die Zeitung zitiert einen «bekannten Anwalt und bürgerlichen Politiker»: «‹Ich war überrascht von der Wahl.› (...) ‹Herr Rufi ist nicht die erwartete Kapazität.› Der Anwalt hätte sich einen bekannteren und vor allem allgemein anerkannteren Rechtsvertreter gewünscht.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/2",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 21,
+          "end": 35,
+          "label": "private_date",
+          "surface": "15. April 2009"
+        },
+        {
+          "start": 47,
+          "end": 64,
+          "label": "private_person",
+          "surface": "Valentin Kressler"
+        },
+        {
+          "start": 162,
+          "end": 173,
+          "label": "private_person",
+          "surface": "Werner Rufi"
+        }
+      ],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "Sämtliche Tools des Festplattenmanagers finden sich hier übersichtlich nach deren Anwendungsgebieten geordnet. Die Partitionierungs-Engine von Festplatten Manager 12 eignet sich für alle modernen Festplattentechnologien – Solid State Drives (SSDs), Virtual Hard Drives (VHDs), GPT-Festplatten, Advanced-Format-Laufwerke (AFDs) mit vier KByte grossen Sektoren, Platten mit einer Emulation von 512-Byte-Blöcken innerhalb eines physikalischen 4K-Blocks (512e) und Brückentechnologien wie Hybrid-Festplatten.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/3",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "Die Kommission hat zwei parlamentarischen Initiativen Folge gegeben, die den Risikoausgleich zwischen den Krankenversicherern weiter verfeinern wollen: mit 18 zu 7 Stimmen unterstützte sie die Initiative der SP-Fraktion (11.473 n) und mit 18 zu 6 Stimmen bei 1 Enthaltung die Initiative der Fraktion der FDP/Liberalen (12.446 n). Beide verlangen, der Risikoausgleich müsse um geeignete Indikatoren ergänzt werden, welche die Morbidität der Versicherten abbilden.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/4",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "Was ist ein Podcast? Was ist Podcasting: Podcasting ermöglicht Internet-Nutzern, sich TV- und Radiosendungen zeitversetzt auf dem Computer oder iPod/MP3-Player anzuhören. Die Dateien werden in einen so genannten RSS Feed integriert, ein standardisiertes XML Format, welches es verschiedenen Softwareprogrammen ermöglicht, Sie immer auf dem aktuellen Stand der verfügbaren Podcasts zu halten. Was sind die Anforderungen:\nDie Basisanforderung ist ein Computer (Mac oder PC), eine Internetverbindung und Podcasting Software, welche das Downloaden der gewünschten Dateien auf den Computer übernimmt.",
+      "subset": "fineweb",
+      "doc_id": "/fineweb-2-swissfilter-quality_10-filterrobots/filtered/03136.jsonl.gz/5",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "This text was translated from DE into Rumantsch Grischun. fedlex-data-admin-ch-eli-cc-1998-2055_2055_2055-20230227-de0.107  AS 1998 2055; BBl 1994 V 1ÜbersetzungÜbereinkommenüber die Rechte des KindesAbgeschlossen in New York am 20. November 1989 Von der Bundesversammlung genehmigt am 13. Dezember 1996 Ratifikationsurkunde durch die Schweiz hinterlegt am 24. Februar 1997 In Kraft getreten für die Schweiz am 26.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/0",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 229,
+          "end": 246,
+          "label": "private_date",
+          "surface": "20. November 1989"
+        },
+        {
+          "start": 286,
+          "end": 303,
+          "label": "private_date",
+          "surface": "13. Dezember 1996"
+        },
+        {
+          "start": 357,
+          "end": 373,
+          "label": "private_date",
+          "surface": "24. Februar 1997"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Les réserves, déclarations et objections ne sont pas publiées au RO, à l’exception des réserves et déclarations de la Suisse. Les textes en français et en anglais peuvent être consultés à l’adresse du site Internet des Nations Unies: http://treaties.un.org/ > Enregistrement et Publication > Recueil des Traités des Nations Unies, ou obtenus auprès de la Direction du droit international public (DDIP), Section des traités internationaux, 3003 Berne.a Jusqu’au 30 juin 1997, la Convention était applicable à Hong Kong sur la base d’une déclaration d’extension territoriale du Royaume-Uni.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/1",
+      "language": "fr_ch",
+      "spans": [
+        {
+          "start": 234,
+          "end": 257,
+          "label": "private_url",
+          "surface": "http://treaties.un.org/"
+        },
+        {
+          "start": 461,
+          "end": 473,
+          "label": "private_date",
+          "surface": "30 juin 1997"
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "Il testo, in francese e inglese, può essere consultato sul sito Internet dell’Organizzazione delle Nazioni Unite: http://treaties.un.org/oppure ottenuto presso la Direzione del diritto internazionale pubblico (DDIP), Sezione Trattati internazionali, 3003 Berna. Sino al 30 giu. 1997 la Conv. era applicabile a Hong Kong sulla base di una dichiarazione d’estensione territoriale del Regno Unito. A partire dal 1° lug.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/2",
+      "language": "it_ch",
+      "spans": [
+        {
+          "start": 114,
+          "end": 137,
+          "label": "private_url",
+          "surface": "http://treaties.un.org/"
+        },
+        {
+          "start": 270,
+          "end": 282,
+          "label": "private_date",
+          "surface": "30 giu. 1997"
+        },
+        {
+          "start": 409,
+          "end": 416,
+          "label": "private_date",
+          "surface": "1° lug."
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "This text was translated from DE into Rumantsch Grischun. fedlex-data-admin-ch-eli-cc-2002-360-20060912-de-docx-60.441.1  AS 2002 2630; BBl 1998 1293ÜbersetzungRahmenübereinkommenzum Schutz nationaler MinderheitenAbgeschlossen in Strassburg am 1. Februar 1995Von der Bundesversammlung genehmigt am 21. September 1998Schweizerische Ratifikationsurkunde hinterlegt am 21. Oktober 1998In Kraft getreten für die Schweiz am 1.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/3",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 244,
+          "end": 259,
+          "label": "private_date",
+          "surface": "1. Februar 1995"
+        },
+        {
+          "start": 298,
+          "end": 316,
+          "label": "private_date",
+          "surface": "21. September 1998"
+        },
+        {
+          "start": 366,
+          "end": 382,
+          "label": "private_date",
+          "surface": "21. Oktober 1998"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Les textes en français et en anglais pourront être consultés à l’adresse du site Internet du Conseil de l’Europe: http://conventions.coe.int ou obtenus à la Direction du droit international public (DDIP), Section des traités internationaux, 3003 Berne.a Pour le Royaume en Europe.Réserves et déclarationsSuisseLa Suisse déclare que constituent en Suisse des minorités nationales au sens de la présente Convention-cadre les groupes de personnes qui sont numériquement inférieurs au restant de la population du pays ou d’un canton, sont de nationalité suisse, entretiennent des liens anciens, solides et durables avec la Suisse et sont animés de la volonté de préserver ensemble ce qui fait leur identité commune, notamment leur culture, leurs traditions, leur religion ou leur langue.La Suisse déclare que les dispositions de la Convention-cadre régissant l’usage de la langue dans les rapports entre particuliers et autorités administrative sont applicables sans préjudice des principes observés par la Confédération et les cantons dans la détermination des langues officielles.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/4",
+      "language": "fr_ch",
+      "spans": [
+        {
+          "start": 114,
+          "end": 140,
+          "label": "private_url",
+          "surface": "http://conventions.coe.int"
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "This text was translated from IT into Rumantsch Grischun. fedlex-data-admin-ch-eli-cc-2002-360-20060912-it-docx-60.441.1  RU 2002 2630; FF 1998 903TraduzioneConvenzione-quadroper la protezione delle minoranze nazionaliConclusa a Strasburgo il 1° febbraio 1995Approvata dall’Assemblea federale il 21 settembre 1998Ratificata dalla Svizzera con strumento depositato il 21 ottobre 1998Entrata in vigore per la Svizzera il 1° febbraio 1999 (Stato 31  ottobre 2006) Il testo originale francese è pubblicato sotto lo stesso numero nell’ ediz.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/5",
+      "language": "it_ch",
+      "spans": [
+        {
+          "start": 243,
+          "end": 259,
+          "label": "private_date",
+          "surface": "1° febbraio 1995"
+        },
+        {
+          "start": 296,
+          "end": 313,
+          "label": "private_date",
+          "surface": "21 settembre 1998"
+        },
+        {
+          "start": 367,
+          "end": 382,
+          "label": "private_date",
+          "surface": "21 ottobre 1998"
+        },
+        {
+          "start": 419,
+          "end": 435,
+          "label": "private_date",
+          "surface": "1° febbraio 1999"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "This text was translated from DE into Rumantsch Grischun. fedlex-data-admin-ch-eli-cc-2003-382-20130814-de-docx-20.441.2  AS 2003 2507; BBl 1997 I 1165ÜbersetzungEuropäische Charta der Regional- oder MinderheitensprachenAbgeschlossen in Strassburg am 5. November 1992Von der Bundesversammlung genehmigt am 25. September 1997 Schweizerische Ratifikationsurkunde hinterlegt am 23. Dezember 1997 In Kraft getreten für die Schweiz am 1.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/6",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 251,
+          "end": 267,
+          "label": "private_date",
+          "surface": "5. November 1992"
+        },
+        {
+          "start": 306,
+          "end": 324,
+          "label": "private_date",
+          "surface": "25. September 1997"
+        },
+        {
+          "start": 375,
+          "end": 392,
+          "label": "private_date",
+          "surface": "23. Dezember 1997"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Les textes en français et en anglais peuvent être consultés à l’adresse du site Internet du Conseil de l’Europe: http://conventions.coe.int ou obtenus à la Direction du droit international public (DDIP), Section des traités internationaux, 3003 Berne.Pour le Royaume en Europe.La Charte s’applique à la Grande-Bretagne et à l’Irlande du Nord.Réserves et déclarationsSuisseLe Conseil fédéral suisse déclare, conformément à l’art. 3, par.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/7",
+      "language": "fr_ch",
+      "spans": [
+        {
+          "start": 113,
+          "end": 139,
+          "label": "private_url",
+          "surface": "http://conventions.coe.int"
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "12 (Attività e infrastrutture culturali)Paragrafo 1 lettere a, b, c, d, e, f, g e hParagrafo 2Paragrafo 3Art. 13 (Vita economica e sociale)Paragrafo 1 lettera dParagrafo 2 lettera bArt. 14 (Scambi transfrontalieri)Lettere a e b fedlex-data-admin-ch-eli-cc-2003-382-20130814-rm-docx-20.441.2  AS 2003 2507; BBl 1997 I 1165Rumantsch è ina lingua naziunala, ma ina lingua parzialmain uffiziala da la Confederaziun, numnadamain en la correspundenza cun persunas da lingua rumantscha.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/8",
+      "language": "rm",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Auf dem Weg der Gesetzgebung kann ganz oder teilweise auf diese Abgabe verzichtet werden. Diese Bestimmung gilt bis zum Inkrafttreten des Schwerverkehrsabgabegesetzes vom 19. Dezember 1997.3. Übergangsbestimmungen zu Art. 86 (Verwendung von Abgaben für Aufgaben und Aufwendungen im Zusammenhang mit dem Strassenverkehr), Art. 87 (Eisenbahnen und weitere Verkehrsträger) und Art. 87a (Eisenbahninfrastruktur) Die Eisenbahngrossprojekte umfassen die Neue Eisenbahn-Alpentransversale (NEAT), BAHN 2000, den Anschluss der Ost- und Westschweiz an das europäische Eisenbahn-Hochleistungsnetz sowie die Verbesserung des Lärmschutzes entlang der Eisenbahnstrecken durch aktive und passive Massnahmen.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/9",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 171,
+          "end": 188,
+          "label": "private_date",
+          "surface": "19. Dezember 1997"
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "2017, en vigueur  depuis le 12 fév. 2017 (AF du 30 sept. 2016, ACF du 13 avr. 2017; RO 2017 2643; FF 2015 739 1253;  2017 3213).Art. 39 Exercice des droits politiques La Confédération règle l’exercice des droits politiques au niveau fédéral; les cantons règlent ces droits aux niveaux cantonal et communal. Les droits politiques s’exercent au lieu du domicile. La Confédération et les cantons peuvent prévoir des exceptions.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/10",
+      "language": "fr_ch",
+      "spans": [
+        {
+          "start": 28,
+          "end": 40,
+          "label": "private_date",
+          "surface": "12 fév. 2017"
+        },
+        {
+          "start": 48,
+          "end": 61,
+          "label": "private_date",
+          "surface": "30 sept. 2016"
+        },
+        {
+          "start": 70,
+          "end": 82,
+          "label": "private_date",
+          "surface": "13 avr. 2017"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Essa agevola la naturalizzazione:a. degli stranieri della terza generazione;b. dei fanciulli apolidi. Accettato nella votazione popolare del 12 feb. 2017, in vigore dal 12 feb. 2017 (DF del 30 set. 2016, DCF del 13 apr. 2017– RU 2017 2643; FF 2015 717 1201,  2017 2821).Art. 39 Esercizio dei diritti politici La Confederazione disciplina l’esercizio dei diritti politici in materia federale e i Cantoni in materia cantonale e comunale.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/11",
+      "language": "it_ch",
+      "spans": [
+        {
+          "start": 141,
+          "end": 153,
+          "label": "private_date",
+          "surface": "12 feb. 2017"
+        },
+        {
+          "start": 190,
+          "end": 202,
+          "label": "private_date",
+          "surface": "30 set. 2016"
+        },
+        {
+          "start": 212,
+          "end": 224,
+          "label": "private_date",
+          "surface": "13 apr. 2017"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "It shall enact simplified regulations on the naturalisation of:a. third generation immigrants;b. stateless children. Adopted by the popular vote on 12 Feb. 2017, in force since 12 Feb. 2017 (FedD of  30 Sept. 2016, FCD of 13 April 2017 – AS 2017 2643; BBl 2015 769 1327, 2017 3387).Art. 39 Exercise of political rights The Confederation shall regulate the exercise of political rights in federal matters, and the Cantons shall regulate their exercise at cantonal and communal matters.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/12",
+      "language": "en",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Der NDB kann ferner Auskünfte nach Artikel 15 des Bundesgesetzes vom 18. März 2016 betreffend die Überwachung des Post- und Fernmeldeverkehrs (BÜPF) einholen. SR 780.1 Fassung gemäss Art. 46 Ziff. 2 des BG vom 18. März 2016 betreffend die Überwachung des Post- und Fernmeldeverkehrs, in Kraft seit 1. März 2018 (AS 2018 117;  BBl 2013 2683).4. Abschnitt:  Genehmigungspflichtige BeschaffungsmassnahmenArt.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/13",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 69,
+          "end": 82,
+          "label": "private_date",
+          "surface": "18. März 2016"
+        },
+        {
+          "start": 298,
+          "end": 310,
+          "label": "private_date",
+          "surface": "1. März 2018"
+        }
+      ],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "RS 831.10Art. 16 Signalements pour la recherche de personnes et d’objets Le SRC peut faire rechercher des personnes et des véhicules dans le système de recherches informatisées de police visé à l’art. 15, al. 1, de la loi fédérale du 13 juin 2008 sur les systèmes d’information de police de la Confédération (LSIP) et dans la partie nationale du Système d’information Schengen visée à l’art. 16, al. 2 LSIP.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/14",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "Le misure di cui ai capoversi 3 e 4 sono limitate al periodo di tempo durante il quale sussiste un pericolo concreto. Eccezionalmente, è possibile rinunciare a una limitazione temporale o commutare una misura limitata nel tempo in una misura a tempo indeterminato se i rischi per gli interessati sono particolarmente elevati e si deve ritenere che perdureranno. RS 831.10Art. 16 Segnalazioni per la ricerca di persone e oggetti Il SIC può disporre la segnalazione, a scopo di ricerca, di persone e veicoli nel sistema di ricerca informatizzato di polizia di cui all’articolo 15 capoverso 1 della legge federale del 13 giugno 2008 sui sistemi d’informazione di polizia della Confederazione (LSIP) e nella parte nazionale del Sistema d’informazione Schengen di cui all’articolo 16 capoverso 2 LSIP.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/15",
+      "language": "it_ch",
+      "spans": [
+        {
+          "start": 615,
+          "end": 629,
+          "label": "private_date",
+          "surface": "13 giugno 2008"
+        }
+      ],
+      "n_regex_hits": 2
+    },
+    {
+      "text": "participates in terms of Article 70 paragraph 3 in international automated information systems. It may in consultation with the Federal Department of Foreign Affairs (FDFA) post employees to Swiss representations abroad in order to promote international contacts. These employees shall work directly with the responsible authorities of the host state and third countries in order to implement this Act.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/16",
+      "language": "en",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "Das Gesetz kann zum Abbau regionaler Ungleichgewichte, für die Erfüllung besonderer Funktionen durch eine Gemeinde oder Region sowie zur Förderung bestimmter Aufgaben zusätzliche Beiträge vorsehen.FinanzaufsichtArt. 97Der Grosse Rat übt die Finanzaufsicht aus. Er wird dabei durch ein unabhängiges Kontrollorgan unterstützt.VIII. Staat und KirchenLandeskirchen und KirchgemeindenArt. 98 Die evangelisch-reformierte Kirche und die römisch-katholische Kirche sind öffentlich-rechtlich anerkannt.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/17",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "97Le Grand Conseil exerce la surveillance en matière financière. Il est assisté dans cette tâche par un organe de contrôle indépendant.VIII. État et ÉglisesÉglises reconnues par l’État et paroissesArt. 98 L’Église réformée évangélique et l’Église catholique romaine sont reconnues en droit public. L’Église réformée évangélique ainsi que ses paroisses et l’Église catholique romaine ainsi que ses paroisses sont des collectivités de droit public.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/18",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "97Il Gran Consiglio esercita la vigilanza sulle finanze. In questo suo compito viene coadiuvato da un organo di controllo indipendente.VIII. Stato e ChieseChiese riconosciute dallo Stato e comuni parrocchialiArt. 98 La Chiesa evangelica-riformata e la Chiesa cattolica-romana sono corporazioni riconosciute dal diritto pubblico. La Chiesa evangelica-riformata di Stato e i loro comuni parrocchiali nonché la Chiesa cattolica di Stato sono corporazioni di diritto pubblico.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/19",
+      "language": "it_ch",
+      "spans": [],
+      "n_regex_hits": 1
+    },
+    {
+      "text": "1Im Sinne dieses Übereinkommens ist ein Kind jeder Mensch, der das achtzehnte Lebensjahr noch nicht vollendet hat, soweit die Volljährigkeit nach dem auf das Kind anzuwendenden Recht nicht früher eintritt.Art.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/0",
+      "language": "de_ch",
+      "spans": [],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "1Au sens de la présente Convention, un enfant s’entend de tout être humain âgé de moins de dix-huit ans, sauf si la majorité est atteinte plus tôt en vertu de la législation qui lui est applicable.Art. 21. Les États parties s’engagent à respecter les droits qui sont énoncés dans la présente Convention et à les garantir à tout enfant relevant de leur juridiction, sans distinction aucune, indépendamment de toute considération de race, de couleur, de sexe, de langue, de religion, d’opinion politique ou autre de l’enfant ou de ses parents ou représentants légaux, de leur origine nationale, ethnique ou sociale, de leur situation de fortune, de leur incapacité, de leur naissance ou de toute autre situation.2.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/1",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "1Ai sensi della presente Convenzione si intende per fanciullo ogni essere umano avente un’età inferiore a diciott’anni, salvo se abbia raggiunto prima la maturità in virtù della legislazione applicabile.Art. 21. Gli Stati parti si impegnano a rispettare i diritti enunciati nella presente Convenzione ed a garantirli ad ogni fanciullo che dipende dalla loro giurisdizione, senza distinzione di sorta ed a prescindere da ogni considerazione di razza, di colore, di sesso, di lingua, di religione, di opinione politica o altra del fanciullo o dei suoi genitori o rappresentanti legali, dalla loro origine nazionale, etnica o sociale, dalla loro situazione finanziaria, dalla loro incapacità, dalla loro nascita o da ogni altra circostanza.2.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/2",
+      "language": "it_ch",
+      "spans": [],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "Februar 1999 (Stand am 31. Oktober 2006) Der französische Originaltext findet sich unter der gleichen Nummer in der entsprechenden Ausgabe dieser Sammlung. AS 2002 2629Die Mitgliedstaaten des Europaratsunddie anderen Staaten, die dieses Rahmenübereinkommen unterzeichnen,in der Erwägung, dass es das Ziel des Europarats ist, eine engere Verbindung zwischen seinen Mitgliedern herbeizuführen, um die Ideale und Grundsätze, die ihr gemeinsames Erbe bilden, zu wahren und zu fördern;in der Erwägung, dass eines der Mittel zur Erreichung dieses Zieles in der Wahrung und in der Entwicklung der Menschenrechte und Grundfreiheiten besteht;in dem Wunsch, die Wiener Erklärung der Staats- und Regierungschefs der Mitgliedstaaten des Europarats vom 9.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/3",
+      "language": "de_ch",
+      "spans": [
+        {
+          "start": 0,
+          "end": 12,
+          "label": "private_date",
+          "surface": "Februar 1999"
+        },
+        {
+          "start": 23,
+          "end": 39,
+          "label": "private_date",
+          "surface": "31. Oktober 2006"
+        }
+      ],
+      "n_regex_hits": 0
+    },
+    {
+      "text": "1La protection des minorités nationales et des droits et libertés des personnes appartenant à ces minorités fait partie intégrante de la protection internationale des droits de l’homme et, comme telle, constitue un domaine de la coopération internationale.Art. 2Les dispositions de la présente Convention-cadre seront appliquées de bonne foi, dans un esprit de compréhension et de tolérance ainsi que dans le respect des principes de bon voisinage, de relations amicales et de coopération entre les Etats.Art.",
+      "subset": "romansh",
+      "doc_id": "/roh_data/filtered/swiss_laws_in_ROHinterleaved.jsonl.gz/4",
+      "language": "fr_ch",
+      "spans": [],
+      "n_regex_hits": 0
+    }
+  ]
+}

@@ -21,6 +21,10 @@ dependencies = [
     "soundfile>=0.13.1",
     "librosa>=0.11.0",
     "lingua-language-detector>=2.0",
+    # fasttext-langdetect wraps fastText's lid.176.bin (Facebook's official
+    # 176-language identifier); auto-downloads the ~131MB model on first use.
+    # Replaces our hand-tuned lingua + RM-marker heuristic.
+    "fasttext-langdetect>=1.0.5",
 ]
 
 [project.optional-dependencies]

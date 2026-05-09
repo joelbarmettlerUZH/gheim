@@ -28,6 +28,7 @@ htmlcov/
 /data/*
 /checkpoints/
 /wandb/
+/logs/
 
 # Exceptions: data provenance / audit READMEs that explain what's in /data/.
 !/data/*.md

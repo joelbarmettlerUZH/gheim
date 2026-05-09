@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +24,75 @@ import yaml
 from .data.bioes import IGNORE_INDEX, encode_example
 from .data.label_space import ID2LABEL, LABEL2ID, NUM_LABELS
 from .data.schema import Example, Span
+
+
+_LAYER_RE = re.compile(r"\.(?:layer|layers|h)\.(\d+)\.")
+_NO_DECAY = ("bias", "LayerNorm.weight", "layer_norm.weight", "ln_f.weight")
+_HEAD_KEYS = ("classifier", "cls.", "lm_head", "predictions", "pooler", "score.")
+
+
+def _build_llrd_param_groups(
+    model, base_lr: float, llrd: float, weight_decay: float,
+) -> list[dict] | None:
+    """Layer-wise LR decay grouping.
+
+    Each transformer layer N (0 = closest to embeddings) gets:
+        lr_N = base_lr * llrd ** (n_layers - 1 - N)
+
+    Embeddings get the lowest LR (lr * llrd^n_layers); the classifier
+    head keeps base_lr (no decay applied to the freshly-initialised head).
+
+    Returns a list of param_groups for AdamW, or None if no layer
+    structure is detected (caller should fall back to default optimizer).
+    """
+    max_layer = -1
+    for name, _ in model.named_parameters():
+        m = _LAYER_RE.search(name)
+        if m:
+            max_layer = max(max_layer, int(m.group(1)))
+    if max_layer < 0:
+        return None
+    n_layers = max_layer + 1
+
+    groups: list[dict] = []
+    seen: set[int] = set()
+    counts = {"embed": 0, "head": 0, "layer": 0, "other": 0}
+    for name, param in model.named_parameters():
+        if not param.requires_grad:
+            continue
+        if id(param) in seen:
+            continue
+        seen.add(id(param))
+
+        m = _LAYER_RE.search(name)
+        if m:
+            layer_idx = int(m.group(1))
+            depth_from_top = n_layers - 1 - layer_idx
+            lr = base_lr * (llrd ** depth_from_top)
+            counts["layer"] += 1
+        elif "embed" in name.lower():
+            lr = base_lr * (llrd ** n_layers)
+            counts["embed"] += 1
+        elif any(k in name for k in _HEAD_KEYS):
+            lr = base_lr
+            counts["head"] += 1
+        else:
+            lr = base_lr
+            counts["other"] += 1
+
+        wd = 0.0 if any(nd in name for nd in _NO_DECAY) else weight_decay
+        groups.append({"params": [param], "lr": lr, "weight_decay": wd})
+
+    print(
+        f"LLRD={llrd}: n_layers={n_layers}, "
+        f"lr@embed={base_lr * (llrd ** n_layers):.2e}, "
+        f"lr@layer0={base_lr * (llrd ** (n_layers - 1)):.2e}, "
+        f"lr@layer{n_layers-1}={base_lr:.2e}, "
+        f"params: embed={counts['embed']} head={counts['head']} "
+        f"layer={counts['layer']} other={counts['other']}",
+        flush=True,
+    )
+    return groups
 
 
 def _example_from_hf_record(rec: dict) -> Example:
@@ -266,7 +336,31 @@ def main() -> None:
 
     training_args = TrainingArguments(**ta_kwargs)
 
-    trainer = Trainer(
+    # Optional layer-wise LR decay: when set in cfg (e.g. llrd: 0.95),
+    # build a custom AdamW optimizer with per-layer LRs that decay from
+    # the head (full base_lr) down to the embeddings (base_lr * llrd^N).
+    llrd = cfg.get("llrd")
+    custom_optim = None
+    if llrd is not None and float(llrd) < 1.0:
+        from torch.optim import AdamW
+        param_groups = _build_llrd_param_groups(
+            model,
+            base_lr=float(cfg["learning_rate"]),
+            llrd=float(llrd),
+            weight_decay=float(training_args.weight_decay),
+        )
+        if param_groups is not None:
+            custom_optim = AdamW(
+                param_groups,
+                lr=float(cfg["learning_rate"]),
+                betas=(training_args.adam_beta1, training_args.adam_beta2),
+                eps=training_args.adam_epsilon,
+            )
+        else:
+            print(f"WARN: llrd={llrd} requested but no layer structure detected; "
+                  f"falling back to default optimizer", flush=True)
+
+    trainer_kwargs: dict[str, Any] = dict(
         model=model,
         args=training_args,
         train_dataset=encoded["train"],
@@ -275,6 +369,10 @@ def main() -> None:
         data_collator=collator,
         compute_metrics=_build_compute_metrics(),
     )
+    if custom_optim is not None:
+        trainer_kwargs["optimizers"] = (custom_optim, None)  # HF builds the scheduler
+
+    trainer = Trainer(**trainer_kwargs)
 
     # Early stopping (only if patience configured)
     if cfg.get("early_stopping_patience"):
