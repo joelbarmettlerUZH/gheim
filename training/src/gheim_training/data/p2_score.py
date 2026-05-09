@@ -150,9 +150,8 @@ def main() -> None:
 
     cell_fails = []
     for cell, score in cell_f1.items():
-        if gold_count[cell] >= GATE_CELL_MIN_GOLD:
-            if score is None or score < GATE_CELL:
-                cell_fails.append((cell, score, gold_count[cell]))
+        if gold_count[cell] >= GATE_CELL_MIN_GOLD and (score is None or score < GATE_CELL):
+            cell_fails.append((cell, score, gold_count[cell]))
     if not cell_fails:
         print(f"  All cells with ≥{GATE_CELL_MIN_GOLD} gold spans pass F1 ≥ {GATE_CELL}: PASS")
     else:

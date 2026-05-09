@@ -15,8 +15,7 @@ from __future__ import annotations
 import sys
 
 from gheim_training.data.label_space import ID2LABEL, LABEL2ID, NUM_LABELS
-from gheim_training.train import _build_llrd_param_groups, _LAYER_RE
-
+from gheim_training.train import _LAYER_RE, _build_llrd_param_groups
 
 MODELS_TO_TEST = [
     ("ZurichNLP/swissbert",         "swissbert (270M)"),
@@ -59,23 +58,23 @@ def _check(model_id: str, label: str) -> bool:
                   and not _LAYER_RE.search(n)]
     print(f"  param-name buckets: layer-matched={len(layer_names)}, "
           f"embedding={len(embed_names)}, head={len(head_names)}")
-    print(f"  sample names (first 6):")
+    print("  sample names (first 6):")
     for n in all_names[:6]:
         print(f"    {n}")
-    print(f"  sample layer-matched names:")
+    print("  sample layer-matched names:")
     for n in layer_names[:3]:
         print(f"    {n}")
-    print(f"  sample head names:")
+    print("  sample head names:")
     for n in head_names[:3]:
         print(f"    {n}")
 
     # Build LLRD groups at llrd=0.95
     print()
-    print(f"Building LLRD param groups (base_lr=2e-5, llrd=0.95, weight_decay=0.01) ...")
+    print("Building LLRD param groups (base_lr=2e-5, llrd=0.95, weight_decay=0.01) ...")
     groups = _build_llrd_param_groups(model, base_lr=2e-5, llrd=0.95, weight_decay=0.01)
 
     if groups is None:
-        print(f"  FAILED: _build_llrd_param_groups returned None — no layer structure detected.")
+        print("  FAILED: _build_llrd_param_groups returned None — no layer structure detected.")
         return False
 
     n_grouped = sum(len(g["params"]) for g in groups)
@@ -83,7 +82,7 @@ def _check(model_id: str, label: str) -> bool:
     print(f"  groups: {len(groups)} (expected ≈ #trainable params = {n_trainable})")
     print(f"  total grouped params: {n_grouped} (expected = {n_trainable})")
     if n_grouped != n_trainable:
-        print(f"  WARNING: param-group coverage mismatch")
+        print("  WARNING: param-group coverage mismatch")
         return False
 
     lrs = [g["lr"] for g in groups]
@@ -98,7 +97,7 @@ def _check(model_id: str, label: str) -> bool:
     # Sanity: max LR should equal base_lr (head)
     if abs(max(lrs) - 2e-5) > 1e-9:
         print(f"  WARNING: max LR is {max(lrs):.2e}, expected 2.0e-5 (head LR)")
-    print(f"  PASS")
+    print("  PASS")
     return True
 
 

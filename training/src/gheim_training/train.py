@@ -25,7 +25,6 @@ from .data.bioes import IGNORE_INDEX, encode_example
 from .data.label_space import ID2LABEL, LABEL2ID, NUM_LABELS
 from .data.schema import Example, Span
 
-
 _LAYER_RE = re.compile(r"\.(?:layer|layers|h)\.(\d+)\.")
 _NO_DECAY = ("bias", "LayerNorm.weight", "layer_norm.weight", "ln_f.weight")
 _HEAD_KEYS = ("classifier", "cls.", "lm_head", "predictions", "pooler", "score.")

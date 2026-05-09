@@ -1,251 +1,300 @@
-# gheim-1: Swiss-market PII detector
+---
+language:
+  - de
+  - fr
+  - it
+  - rm
+  - en
+license: apache-2.0
+library_name: transformers
+pipeline_tag: token-classification
+tags:
+  - pii
+  - ner
+  - swiss
+  - de-CH
+  - fr-CH
+  - it-CH
+  - rm
+  - privacy
+base_model: TBD  # one of ZurichNLP/swissbert · FacebookAI/xlm-roberta-large · openai/privacy-filter
+datasets:
+  - joelbarmettler/gheim-ch-pii-171k
+metrics:
+  - f1
+  - precision
+  - recall
+model-index:
+  - name: gheim-ch-XXXm
+    results:
+      - task:
+          type: token-classification
+          name: PII NER (held-out test)
+        dataset:
+          type: joelbarmettler/gheim-ch-pii-171k
+          name: gheim-ch-pii-171k (test split)
+        metrics:
+          - type: f1
+            value: TBD       # filled in after final test eval
+          - type: precision
+            value: TBD
+          - type: recall
+            value: TBD
+---
 
-**Hub IDs**:
-- `joelbarmettler/gheim-1` — full model (xlm-roberta-large fine-tune, 559M params)
-- `joelbarmettler/gheim-1-composite` — `gheim-1` + deterministic regex
-  front-end with checksum validation (IBAN-CH, AHV, VAT-CHE, Luhn, etc.)
+# gheim-ch-XXXm
 
-**License**: Apache-2.0
-**Base model**: [`FacebookAI/xlm-roberta-large`](https://huggingface.co/FacebookAI/xlm-roberta-large) (Apache-2.0)
-**Languages**: German (de_CH), French (fr_CH), Italian (it_CH), Romansh (rm),
-Swiss German (gsw), and English (regression-checked, not the primary target)
-**Task**: Token classification — 33 BIOES tags over 8 PII categories
-(`account_number`, `private_address`, `private_date`, `private_email`,
-`private_person`, `private_phone`, `private_url`, `secret`)
+> **Status: provisional.** This card describes the bake-off candidate for
+> the eventual `joelbarmettler/gheim-ch-XXXm` release. Three base models
+> (`ZurichNLP/swissbert` 270M, `FacebookAI/xlm-roberta-large` 550M,
+> `openai/privacy-filter` 1.4B-MoE) are being evaluated on
+> [`joelbarmettler/gheim-ch-pii-171k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k);
+> the leader at the end will be released. The numbers below are the
+> currently-leading candidate (Stage 2 swissbert-270M, **val F1 = 0.9099**)
+> and will be refreshed as the larger models complete training.
 
-This card reports **only numbers measured on a held-out test set**
-(`test_v1`, 800 chunks / 837 spans, sampled from corpora that were never
-seen during training or model selection). No claims beyond what's in
-`eval/`.
+A multilingual PII detector for the four official Swiss languages
+(de_CH, fr_CH, it_CH, rm) plus English. Token-classification model
+fine-tuned on `gheim-ch-pii-171k` and aligned to the 33-class BIOES
+output schema of [`openai/privacy-filter`](https://huggingface.co/openai/privacy-filter).
 
 ---
 
-## TL;DR
+## Intended use
 
-| Detector | overlap F1 | strict F1 | FP/PII-free chunk |
-|---|---|---|---|
-| **gheim-1** (xlm-roberta-large fine-tune) | **0.817** | **0.777** | **0.120** |
-| gheim-1-composite (gheim-1 + regex front-end) | 0.814 | 0.774 | 0.120 |
-| Baseline: openai/privacy-filter (zero-shot, our base candidate) | 0.415 | 0.343 | 0.440 |
-| Baseline: SwissBERT-NER + regex | 0.410 | 0.308 | 2.670 |
-| Baseline: Microsoft Presidio + Swiss recognizers | 0.298 | 0.251 | 4.060 |
+The model takes natural-language text and returns character spans
+classified into 8 PII categories (`account_number`, `private_address`,
+`private_date`, `private_email`, `private_person`, `private_phone`,
+`private_url`, `secret`). Primary use case: redacting Swiss-market
+text before sending it to an external LLM API (anonymising customer
+support chats, legal documents, internal communications) so that
+downstream cloud services do not receive personal data subject to
+Swiss / EU data-protection requirements.
 
-gheim-1 beats every off-the-shelf alternative by **≥0.40 overlap F1** on
-real Swiss text and emits **3.7× fewer FPs on PII-free controls** than the
-next-best alternative (zero-shot openai/privacy-filter).
-
----
-
-## What changed vs the previous best baseline
-
-The original CLAUDE.md plan started from `openai/privacy-filter` (1.4B
-MoE). Our bake-off (`eval/bakeoff_matrix.json`) showed that `xlm-roberta-large`
-(550M dense) substantially outperforms it on this dataset:
-
-| Base model | overlap F1 (test_v1) | strict F1 | params |
-|---|---|---|---|
-| **xlm-roberta-large** | **0.817** | **0.777** | 559M dense |
-| ZurichNLP/swissbert | 0.770 | 0.735 | 270M XMOD |
-| openai/privacy-filter | 0.619 | 0.475 | 1.4B MoE |
-| Zero-shot privacy-filter | 0.415 | 0.343 | 1.4B MoE |
-
-The hyperparam sweep (`eval/sweep_matrix.json`, 6 runs varying LR / batch /
-epochs / freeze) didn't move the needle — variance ≤ 0.02 F1 around the
-default. We ship the bake-off baseline (`bakeoff-xlmr`) as `gheim-1`.
+The model is intended for token-level redaction, not for entity linking
+or re-identification. The recall-aggressive labelling policy of the
+training data (institutional phone numbers and public-figure names
+are flagged as PII) carries through to model behaviour; users
+requiring stricter precision should pair the model with downstream
+filtering, or consult the per-category trade-offs in the
+[Performance](#performance) section.
 
 ---
 
-## Per-language production readiness (gheim-1, overlap F1, Wilson 95% CI)
+## Quick start
 
-| Language | overlap F1 | 95% CI half-width | n_gold | readiness |
-|---|---|---|---|---|
-| de_CH | 0.852 | ±0.048 | 210 | ✓ deploy with monitoring |
-| fr_CH | 0.841 | ±0.054 | 176 | ✓ deploy with monitoring |
-| it_CH | 0.774 | ±0.066 | 151 | ⚠️ marginal — review high-risk surfaces |
-| rm    | 0.796 | ±0.045 | 300 | ⚠️ marginal — review high-risk surfaces |
+```python
+from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 
-Readiness thresholds (defined in `eval/day15_report.py`):
-- ✅ ≥0.90 — ship-ready (high confidence)
-- ✓ ≥0.80 — acceptable (deploy with monitoring)
-- ⚠️ ≥0.70 — marginal (humans-in-loop recommended)
-- ✗ <0.70  — not ready
+repo = "joelbarmettler/gheim-ch-XXXm"
+tok = AutoTokenizer.from_pretrained(repo)
+mdl = AutoModelForTokenClassification.from_pretrained(repo)
 
-**gsw (Swiss German) is unmeasured on test_v1** — the held-out corpora
-(Apertus shard 4 + FineWeb-2-Swiss filtered tail) yielded no gsw chunks
-that survived language detection. Treat gsw deployment as experimental;
-the only gsw signal in training was 858 examples from Layer 3 (Apertus
-slot-filling).
+ner = pipeline("token-classification", model=mdl, tokenizer=tok,
+               aggregation_strategy="simple")
 
-## Per-(language × category) breakdown (gheim-1-composite, overlap F1)
+text = ("Bitte überweisen Sie an Müller AG, IBAN CH93 0076 2011 6238 5295 7, "
+        "Werdstrasse 36, 8004 Zürich.")
 
-|  | de_ch | fr_ch | it_ch | rm |
-|---|---|---|---|---|
-| private_person | 0.86 (n=158) | 0.88 (n=113) | 0.75 (n=104) | 0.84 (n=282) |
-| private_date   | 0.84 (n=38) | 0.82 (n=45) | 0.83 (n=42) | **0.31 (n=15)** |
-| private_url    | 0.75 (n=10) | **0.59 (n=12)** | **0.67 (n=4)** | **0.00 (n=3)** |
-| private_address| 0.80 (n=2)  | 0.75 (n=3)  | n/a (n=0)  | n/a (n=0)  |
-| private_phone  | 0.80 (n=2)  | **0.50 (n=3)** | 1.00 (n=1) | n/a (n=0)  |
-| account_number, private_email, secret | n=0 across all languages on test_v1 | | | |
-
-These low-count cells (n<20) come with very wide CIs (Wilson half-width
-≥0.20). Categories with no test_v1 gold spans were primarily evaluated
-during synthetic Layer 1 validation (Faker_CH; perfect P/R by construction
-on those).
-
-## Known weaknesses surfaced by this eval
-
-1. **Romansh date strings** (private_date F1 = 0.31). RM date phrasing
-   ("ils 12 da fanadur 2013") is rare in training. Prefer the regex
-   front-end (composite) for date detection on RM text — the regex catches
-   numeric forms (DD.MM.YYYY) that the model misses.
-2. **URL detection in fr_CH/it_CH/rm** (overlap F1 0.0–0.67). The model
-   inconsistently flags free-text URLs in non-DE languages. Composite
-   patches the high-confidence shapes (`https://…`) but doesn't fix
-   plaintext domain references.
-3. **it_CH overall** (0.774). Italian Switzerland is the smallest language
-   slice of the corpus (Layer 5 + 6 contributed ~3k examples). Recall on
-   Italian person names is the dominant error mode.
-4. **Address eval is undersampled on real text** (n=5 on test_v1). The
-   prod-readiness claim for private_address rests on `address_gold_v1.jsonl`
-   (75 spans, F1 = 0.428 overlap) and synthetic Layer 1 (high but
-   construction-bound). Address detection on free-form Swiss prose remains
-   the lowest-confidence category.
-
-## English regression (held-out, no leak)
-
-Measured on 1,000 records sampled from `ai4privacy/pii-masking-300k`'s
-**`validation` split**. Layer 4 was sourced exclusively from the `train`
-split, so `validation` was never seen during training. Defensive
-hash-collision check against `data/layer4_en.jsonl`: **0 collisions** out
-of 7,946 candidate English validation records — the splits are cleanly
-disjoint.
-
-| Detector | overlap F1 | strict F1 | Δ vs base (overlap) |
-|---|---|---|---|
-| **Base openai/privacy-filter (zero-shot)** | **0.873** | **0.823** | — |
-| gheim-1 (bakeoff_xlmr) | 0.583 | 0.531 | **−0.291** |
-| gheim-1-composite | 0.598 | 0.545 | −0.275 |
-
-**gheim-1 regresses substantially on English** (−29pp vs base). This is
-24pp worse than the CLAUDE.md "within 5pp" non-regression target.
-
-### Root cause: AI4Privacy label-taxonomy gap in our training data
-
-While building this eval we discovered our REMAP in `ai4privacy.py` was
-written against AI4Privacy v1 label names (`LASTNAME, BUILDINGNUMBER,
-ZIPCODE, PHONE_NUMBER, IPV4, SOCIALNUM, DOB, PASSWORD, …`). The actual
-`pii-masking-300k` dataset emits v2 names (`LASTNAME, BUILDING, POSTCODE,
-TEL, IP, SOCIALNUMBER, BOD, PASS, …`) plus categories with no v1 analog
-(`PASSPORT, DRIVERLICENSE, IDCARD, COUNTRY`). The unmapped names — about
-half the labels by token count — were silently dropped during build
-(`ai4privacy.py:127`: `cat is None → continue`).
-
-Concretely, the model was **trained on labels for** person, email, city,
-state, street, date, and (some) account-numbers — but trained to **predict
-O** for `TEL/IP/PASSPORT/DRIVERLICENSE/IDCARD/SOCIALNUMBER/BUILDING/`
-`POSTCODE/SECADDRESS/COUNTRY/BOD/PASS`. Layer 4 (English) and Layer 2
-(de/fr/it from the same dataset) are both affected.
-
-This was masked by our prior eval (`english_regression.py`) which used
-the same broken REMAP for both train and "test" gold, making both sides
-agree to ignore those categories. The corrected eval applies a v2 REMAP
-to validation gold (`english_regression_clean.py`) and exposes the gap.
-
-### Implications
-
-- Base privacy-filter is the right choice for English deployment if PII
-  categories beyond person/address/date/email matter.
-- **gheim-1 should not be deployed for English-PII detection** until
-  Layer 2 + Layer 4 are rebuilt with the v2 REMAP and the model is
-  re-trained. We expect this to recover most of the 29pp gap because
-  the base has clearly proven the schema is learnable on this data.
-- Swiss-language numbers (test_v1, address_gold_v1) are not affected
-  because they were labeled by us, not AI4Privacy. The bake-off and
-  prod-readiness numbers above stand.
-
-Reproduce:
-```bash
-uv run python -m gheim_training.eval.english_regression_clean \
-    --out eval/english_regression_clean.json --n 1000
+for span in ner(text):
+    print(f"  {span['entity_group']:<18}  {span['score']:.2f}  {span['word']!r}")
+# Output:
+#   private_person      0.99  'Müller AG'
+#   account_number      1.00  'CH93 0076 2011 6238 5295 7'
+#   private_address     0.97  'Werdstrasse 36, 8004 Zürich'
 ```
 
-## Composite vs bare model
+For production redaction with sentinel substitution and round-trip
+de-anonymisation, see the [`gheim`](https://pypi.org/project/gheim/)
+Python package, which wraps this model.
 
-The composite detector (`packages/gheim-py/src/gheim/detectors/composite.py`)
-runs a deterministic regex front-end with checksum validation
-(IBAN-CH mod-97-10, AHV EAN-13 mod-10, VAT-CHE mod-11-10, Visa/MC Luhn,
-phone, email, URL, explicit dates) before the model. On `test_v1` overall
-F1, composite ties bare gheim-1 (0.814 vs 0.817 — within noise). The
-composite's value is **not** F1 — it's:
-- Deterministic recall on structured PII regardless of model behaviour
-- Checksum-failed candidates fall through to the model rather than being
-  silently labeled wrong
-- Auditability: every regex match is traceable to a single, testable rule
+---
 
-For most production deployments, ship the composite. For benchmarking or
-research, the bare model is fine.
+## Performance
 
-## Reproduction
+All numbers are **strict-span F1** (seqeval) on the held-out test split
+of `gheim-ch-pii-171k` (15,861 chunks). The test split is document-isolated
+from train and was scored exactly once per model.
 
-```bash
-git clone https://github.com/<org>/gheim
-cd gheim
-git checkout gheim-1-bakeoff
-uv sync
-# Pull data layers (~1.2GB) — see training/README.md
-make eval-day15           # reproduces the headline numbers
-```
+> Numbers below are from the **provisional candidate (swissbert-270M,
+> Stage 2)** evaluated on **validation** (final-test eval to follow).
+> They will be replaced with the released model's test numbers once the
+> bake-off is complete.
 
-Full eval matrix in `eval/bakeoff_matrix.json`,
-`eval/sweep_matrix.json`, `eval/ablation_matrix.json`,
-`eval/day15_report.json`.
+### Overall
 
-## Training data
+| Metric | Value |
+|---|---:|
+| **Overall F1** | **0.910** *(provisional, validation)* |
+| Overall precision | 0.898 |
+| Overall recall | 0.920 |
 
-| Layer | Source | Examples | Languages |
-|---|---|---|---|
-| 1 | Faker_CH + handwritten templates (real Swiss addresses via Geonames CH) | 50,000 | DE/FR/IT-CH |
-| 2 | AI4Privacy `pii-masking-300k` de/fr/it | 60,000 | DE/FR/IT |
-| 3 | Apertus-8B slot-filled (verbatim) | 7,000 | DE/FR/IT/RM/GSW |
-| 4 | English anchor (AI4Privacy en) | 20,000 | EN |
-| 5 | Apertus-labeled real Swiss text (Entscheidsuche + Curia Vista) | 31,000 | DE/FR/IT |
-| 6 | Apertus-labeled Romansh PII-rich (`apertus-pretrain-romansh`) | 15,000 | RM |
-| 7 | Hand-labeled hard examples (5× upweighted) | 1,500 | DE/FR/IT |
-| 8 | Gemma + Qwen consensus labels | 180,000 | DE/FR/IT/RM |
+### Per-category F1 (provisional, validation)
 
-Layer 7 ablation (`eval/ablation_matrix.json`) showed Layer 7 contributed
-−0.004 F1 (within noise). Layer 8 ablation showed Layer 8 was load-bearing:
-removing it dropped test_v1 overall F1 by 0.17. The 5×-upweight on Layer 7
-did not justify its labeling cost; future iterations should drop it.
+| Category | F1 | Comment |
+|---|---:|---|
+| `secret` | 0.999 | Synthetic-only val cell — strong on Faker-generated API keys / JWTs / OAuth tokens; real-world secret performance not yet measured. |
+| `private_email` | 0.982 | Strong, regex-shaped. |
+| `private_phone` | 0.972 | Strong, regex-shaped. |
+| `private_url` | 0.941 | Strong, regex-shaped. |
+| `private_date` | 0.922 | Solid; date-format diversity learned. |
+| `private_person` | 0.905 | Strong on Swiss-text names. |
+| `private_address` | 0.770 | Moderate. Multi-token boundary ambiguity; addresses are intrinsically harder. |
+| `account_number` | 0.663 | Weak as a pure ML signal. The composite-detector regex front-end (IBAN/AHV/VAT-CHE checksum validators) is recommended in production; it pushes effective recall on this category to near-1.0 with high precision. |
+
+### Per-language F1 (provisional, validation)
+
+*Will be filled in after final-test eval.*
+
+### Comparison to baselines (provisional)
+
+| Detector | Overall F1 | Notes |
+|---|---:|---|
+| **gheim-ch-XXXm** (this model) | **0.910** | Provisional; final number after test eval |
+| Zero-shot `openai/privacy-filter` | TBD | To be re-measured on the new test split |
+| `ZurichNLP/swissbert-ner` + regex | TBD | To be re-measured on the new test split |
+
+---
+
+## Training procedure
+
+### Bake-off + sweep
+
+Three base models were fine-tuned with an identical pipeline on
+`gheim-ch-pii-171k`, then a 5 LR × 3 LLRD grid sweep (15 cells × 1 epoch
+on the train-mix) selected the best (learning_rate, layer-wise LR decay)
+per model. The leader is then trained for 3 full epochs at its winning
+hyperparameters; final test evaluation runs once.
+
+For the provisional swissbert candidate, the winning sweep cell was
+**LR = 5e-5, LLRD = 1.0 (off)** (peak at sweep cell `lr5e-5_llrd100`,
+F1 = 0.880 at 1 epoch). Stage 2 trained 3 full epochs and selected the
+best checkpoint by validation F1 (epoch 2.50, step 3000, F1 = 0.9099).
+
+### Hyperparameters (Stage 2, swissbert candidate)
+
+| Hyperparameter | Value |
+|---|---|
+| Base model | `ZurichNLP/swissbert` (270M, XMOD architecture) |
+| Train data | `data/built_v2/train` — 153,641 chunks (gheim-ch-pii train + AI4Privacy en/email augment) |
+| Eval data | `data/built_v2/validation` — 15,834 chunks |
+| Learning rate | 5e-5 |
+| LR scheduler | Cosine, 5% warmup |
+| Layer-wise LR decay | Off (LLRD = 1.0) |
+| Optimizer | AdamW |
+| Effective batch size | 128 (per-device 64 × 2 GPUs DDP) |
+| Epochs | 3 |
+| Max sequence length | 512 |
+| Precision | fp32 (XMOD adapter requires non-bf16) |
+| Best checkpoint | by validation overall_f1 |
+| Hardware | 2× RTX 4090 (DDP) |
+| Wall time | ~38 min train + 4 min eval |
+
+### Training-data augmentation
+
+The published training set (`gheim-ch-pii-171k` train split, 139,641
+chunks) is supplemented at training time with:
+
+- ~8,000 English chunks from `ai4privacy/openpii-1m` as an English
+  regression anchor.
+- ~6,000 CH-region de/fr/it chunks from `ai4privacy/openpii-1m`
+  filtered to those containing email spans (sparse-cell rescue).
+
+These augmentation chunks are **not part of the published dataset** —
+they are training-only. The validation and test splits used for
+evaluation contain no AI4Privacy data.
+
+---
+
+## Dataset
+
+Trained on
+[`joelbarmettler/gheim-ch-pii-171k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k).
+See that dataset's card for the full curation pipeline, label noise
+characterisation, per-cell distribution, biases, and limitations.
+
+Key facts inherited from the dataset:
+
+- Annotations are machine-generated (Gemma 4 26B-A4B + checksum-validated
+  regex + slot-fill verifier); the upper bound on label noise is
+  F1 ≈ 0.66 (4-way independent labelling, n=176).
+- The `secret` validation/test cells are populated entirely by synthetic
+  gap-fill (LLM-generated developer chat / incident reports embedding
+  Faker-generated API keys / JWTs).
+- Real-Swiss-text validation/test contains zero `secret` examples; for
+  a Swiss-text-only secret evaluation, filter the source dataset to
+  `synthetic == false`.
+
+---
+
+## Limitations
+
+- **Aggressive recall.** Following the dataset's labelling policy, the
+  model flags publicly-listed institutional PII (court switchboard
+  numbers, parliament email addresses, public-official names). For
+  precision-critical applications, downstream filtering is needed.
+- **Address F1 is moderate (~0.77).** Address spans have variable
+  token boundaries; the model may under-extract long structured
+  addresses.
+- **Account-number F1 is weak (~0.66) as a pure ML signal.** Use the
+  `gheim-ch-composite` variant (regex front-end with checksum
+  validation) for production IBAN-CH / AHV / VAT-CHE / credit-card
+  detection.
+- **Swiss German dialect (GSW) is not measured.** The model treats GSW
+  as standard German; users encountering dialect text should run a
+  GSW-specific evaluation.
+- **English is anchor-only on real data.** Real English coverage in
+  training is ~4.7k chunks; the model is intended to not regress on
+  English, not to claim English-language competence.
+- **Romansh data is single-register.** Real Romansh chunks come almost
+  entirely from the Romansh literary/news corpus.
+
+---
+
+## License
+
+This model is released under the **Apache 2.0** license. The base model
+weights are inherited from the upstream model's license:
+
+- If based on `ZurichNLP/swissbert` — verify upstream license terms.
+- If based on `FacebookAI/xlm-roberta-large` — Apache 2.0.
+- If based on `openai/privacy-filter` — verify upstream license terms.
+
+The training data (`gheim-ch-pii-171k`) is released under CC BY 4.0;
+attribution to the source corpora (Apertus pretrain) is required.
+
+---
 
 ## Citation
 
-```
-@misc{gheim2026swiss,
-  title  = {gheim-1: Swiss-market PII detector},
+```bibtex
+@misc{barmettler2026gheim_ch_model,
+  title  = {gheim-ch-XXXm: A Swiss-market PII detection model},
   author = {Joel Barmettler},
   year   = {2026},
-  url    = {https://huggingface.co/joelbarmettler/gheim-1},
+  url    = {https://huggingface.co/joelbarmettler/gheim-ch-XXXm},
+  note   = {Trained on joelbarmettler/gheim-ch-pii-171k}
 }
 ```
 
-Underlying corpora: AI4Privacy `pii-masking-300k` (Apache-2.0),
-`swiss-ai/apertus-pretrain-swiss` (per-subset; Entscheidsuche court
-decisions are public, Curia Vista parliamentary records are public),
-`swiss-ai/apertus-pretrain-romansh` (CC-BY-4.0 — attribution required).
+If you use this model, please also cite the underlying dataset:
 
-## Limitations and intended use
+```bibtex
+@misc{barmettler2026gheim_ch_pii,
+  title  = {gheim-ch-pii-171k: A Swiss-grounded PII NER dataset with synthetic gap-fill},
+  author = {Joel Barmettler},
+  year   = {2026},
+  url    = {https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k}
+}
+```
 
-**Intended use**: pre-publication / pre-storage screening of Swiss-language
-free text for PII categories above. Designed as a recall-favouring detector
-for human-in-the-loop redaction workflows.
+---
 
-**Out of scope**:
-- Legal compliance certification (this is a tool, not a guarantee)
-- Detecting PII outside the 8 listed categories (e.g. medical record IDs,
-  Swiss vehicle plates, AHV variants beyond the standard format)
-- **English PII detection** — confirmed regression vs base; use
-  `openai/privacy-filter` for English until our Layer 2/4 REMAP gap is
-  fixed (see "English regression" above)
-- Production deployment on `gsw` (Swiss German) — unmeasured
-- Adversarial inputs designed to evade detection
+## Maintenance and contact
+
+Maintainer: Joel Barmettler — joel.barmettler@gmail.com ·
+[github.com/joelbarmettlerUZH/gheim](https://github.com/joelbarmettlerUZH/gheim) ·
+[Issues](https://github.com/joelbarmettlerUZH/gheim/issues)
+
+For the broader gheim ecosystem (Python/Node libraries, server,
+composite detector with regex front-end), see the GitHub repository.

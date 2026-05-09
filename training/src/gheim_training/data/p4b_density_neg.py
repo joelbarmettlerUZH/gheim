@@ -68,9 +68,11 @@ def _is_numeric_degenerate(value: str) -> bool:
             return True
     # Numeric run with very low distinct-digit count (e.g. "21 21 21 70 70 70 21 21")
     digits = [c for c in v if c.isdigit()]
-    if len(digits) >= 8 and len(set(digits)) <= 3 and re.match(r"^[\d\s]+$", v):
-        return True
-    return False
+    return (
+        len(digits) >= 8
+        and len(set(digits)) <= 3
+        and re.match(r"^[\d\s]+$", v) is not None
+    )
 
 
 def _density_bucket(n: int) -> str:
@@ -257,12 +259,12 @@ def main() -> None:
     cap_50 = 50
     impact_30 = 0
     impact_50 = 0
-    for doc_id, total in chunks_per_doc.items():
+    for total in chunks_per_doc.values():
         if total > cap_30:
             impact_30 += (total - cap_30)
         if total > cap_50:
             impact_50 += (total - cap_50)
-    print(f"Per-doc cap impact:")
+    print("Per-doc cap impact:")
     print(f"  cap=30 → would remove {impact_30:,} chunks across {sum(1 for c in chunks_per_doc.values() if c > 30):,} docs")
     print(f"  cap=50 → would remove {impact_50:,} chunks across {sum(1 for c in chunks_per_doc.values() if c > 50):,} docs")
     print()

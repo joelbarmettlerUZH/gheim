@@ -132,7 +132,6 @@ def assign_splits(docs: dict[str, DocMeta]) -> dict[str, str]:
 
 def report_split_distribution(docs: dict[str, DocMeta], assignment: dict[str, str]) -> None:
     """Per-(lang × cat) chunk counts in each split."""
-    cell_in_split: dict[tuple[str, str, str], int] = Counter()
     pos_in_split: Counter[str] = Counter()
     neg_in_split: Counter[str] = Counter()
     lang_in_split: dict[tuple[str, str], int] = Counter()
@@ -240,13 +239,13 @@ def main() -> None:
     report_split_distribution(docs, assignment)
 
     if not args.write:
-        print(f"\n[DRY-RUN] no files written. Add --write to produce:")
+        print("\n[DRY-RUN] no files written. Add --write to produce:")
         print(f"  {OUT_TRAIN}")
         print(f"  {OUT_VAL}")
         print(f"  {OUT_TEST}")
         return
 
-    print(f"\n[WRITE] producing split files ...")
+    print("\n[WRITE] producing split files ...")
     write_splits(assignment)
 
 

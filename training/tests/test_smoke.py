@@ -2,12 +2,11 @@
 
 Validates the core data primitives: label space integrity, BIOES round-trip
 through a stub offset-tokenizer, synthetic template rendering with span
-alignment, AI4Privacy record parsing, and slot-bag verification.
+alignment, and slot-bag verification.
 """
 from __future__ import annotations
 
 from gheim_training.data import bioes
-from gheim_training.data.ai4privacy import _spans_from_record
 from gheim_training.data.apertus import verify
 from gheim_training.data.label_space import (
     CATEGORIES,
@@ -158,30 +157,6 @@ def test_template_unknown_category_rejected() -> None:
     import pytest
     with pytest.raises(ValueError):
         render("{{x:not_a_category}}", {"x": lambda: "v"})
-
-
-# --- AI4Privacy parsing ---
-
-def test_ai4privacy_remaps_known_drops_unknown() -> None:
-    text = "Hello Joel, your IBAN is CH93 and you work at Acme."
-    rec = {
-        "source_text": text,
-        "language": "German",
-        "privacy_mask": [
-            {"label": "FIRSTNAME", "start": 6, "end": 10},
-            {"label": "IBAN", "start": 25, "end": 29},
-            {"label": "JOBTITLE", "start": 46, "end": 50},  # dropped
-        ],
-    }
-    ex = _spans_from_record(rec, language="de_ch")
-    assert ex is not None
-    cats = sorted(s.label for s in ex.spans)
-    assert cats == ["account_number", "private_person"]
-
-
-def test_ai4privacy_returns_none_when_no_spans() -> None:
-    rec = {"source_text": "no PII here", "privacy_mask": []}
-    assert _spans_from_record(rec, language="de_ch") is None
 
 
 # --- Apertus slot verification ---

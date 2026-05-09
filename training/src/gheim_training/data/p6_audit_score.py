@@ -22,7 +22,7 @@ held-out portion.
 from __future__ import annotations
 
 import json
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 
 GOLD = Path("data/p6_audit_sample.jsonl")

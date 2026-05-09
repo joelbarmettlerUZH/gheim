@@ -19,8 +19,7 @@ from pathlib import Path
 _REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO / "packages" / "gheim-py" / "src"))
 
-from gheim.detectors.composite import _find_regex_spans  # type: ignore[import-not-found]
-
+from gheim.detectors.composite import _find_regex_spans  # type: ignore[import-not-found]  # noqa: E402, I001
 
 IN_PATH = Path("data/layer5v4.jsonl")
 OUT_PATH = Path("data/layer5v4_regex_aug.jsonl")

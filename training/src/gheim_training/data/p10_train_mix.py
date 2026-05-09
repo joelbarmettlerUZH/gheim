@@ -29,7 +29,6 @@ only and is NOT published.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import random
 from collections import Counter
@@ -48,7 +47,7 @@ EMAIL_RESCUE_LANGS = ("de_ch", "fr_ch", "it_ch")
 SEED = 42
 
 
-def _ai4p_to_gheim(rec: dict, idx: int) -> dict:
+def _ai4p_to_gheim(rec: dict, idx: int | str) -> dict:
     """Normalize an AI4Privacy record to the gheim-pii schema.
 
     Adds: id, subset, source_dataset, doc_id, chunk_index_in_doc, value
@@ -128,7 +127,7 @@ def main() -> None:
 
     # ---------- Pass 3: collect AI4P email-rescue candidates ----------
     print(f"Reading: {AI4P_DEFRIT}", flush=True)
-    rescue_pool: dict[str, list[dict]] = {l: [] for l in EMAIL_RESCUE_LANGS}
+    rescue_pool: dict[str, list[dict]] = {la: [] for la in EMAIL_RESCUE_LANGS}
     n_seen = 0
     with AI4P_DEFRIT.open() as f:
         for line in f:

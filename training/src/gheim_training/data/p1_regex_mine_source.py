@@ -22,18 +22,16 @@ from pathlib import Path
 
 # Reuse the streaming + chunking infrastructure
 from .gemma.run_label_streaming import (
-    _stream_swiss,
-    _stream_romansh,
     _candidate_chunks_from_record,
     _make_id,
+    _stream_romansh,
+    _stream_swiss,
 )
-from .lang_detect import detect as detect_lang
 
 # Add packages/gheim-py/src for the validated regex catalog
 _REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO / "packages" / "gheim-py" / "src"))
-from gheim.detectors.composite import _find_regex_spans  # type: ignore[import-not-found]
-
+from gheim.detectors.composite import _find_regex_spans  # type: ignore[import-not-found]  # noqa: E402, I001
 
 SEEN_PATH = Path("data/layer5v4.jsonl")
 OUT_PATH = Path("data/layer5v4_regex_new.jsonl")
@@ -72,8 +70,7 @@ def _stream_with_high_cap():
             if rec is None:
                 continue
             n_records += 1
-            for c in _candidate_chunks_from_record(rec, default_subset):
-                yield c
+            yield from _candidate_chunks_from_record(rec, default_subset)
         if n_records % 100_000 == 0:
             print(f"  ... scanned {n_records:,} source records", flush=True)
 
@@ -151,7 +148,7 @@ def main() -> None:
                       flush=True)
 
     print()
-    print(f"DONE")
+    print("DONE")
     print(f"  total chunks scanned: {n_chunks_seen:,}")
     print(f"  new (not in layer5v4): {n_chunks_new:,}")
     print(f"  with regex+checksum hit: {n_chunks_with_hit:,}")

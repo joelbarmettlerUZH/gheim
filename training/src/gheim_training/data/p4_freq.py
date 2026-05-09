@@ -139,7 +139,7 @@ def main() -> None:
     print(f"P99 chunks per doc: {p99_chunks}")
     print(f"Max chunks per doc: {max(chunks_per_doc.values()) if chunks_per_doc else 0}")
     print()
-    print(f"Top 30 docs by chunk count:")
+    print("Top 30 docs by chunk count:")
     for doc_id, c in chunks_per_doc.most_common(30):
         short = doc_id if len(doc_id) < 80 else "..." + doc_id[-77:]
         print(f"  {c:>6,}  {short}")

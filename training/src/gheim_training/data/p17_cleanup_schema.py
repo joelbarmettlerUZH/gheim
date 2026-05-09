@@ -126,7 +126,7 @@ def main() -> None:
 
     print("Schema cleanup:")
     print(f"  drop chunk-level fields: {DROP_FIELDS}")
-    print(f"  ensure every span has 'source': defaults to 'gemma' if missing")
+    print("  ensure every span has 'source': defaults to 'gemma' if missing")
     print()
 
     results = []

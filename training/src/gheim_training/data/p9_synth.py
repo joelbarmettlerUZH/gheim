@@ -28,8 +28,10 @@ import time
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
+from typing import cast
 
 from .synthetic import faker_ch
+from .synthetic.swiss_address import Lang
 from .synthetic.swiss_address import address as swiss_address
 
 OUT_PATH = Path("data/gheim_synthetic.jsonl")
@@ -87,7 +89,7 @@ def _address(lang: str) -> str:
     if lang == "en":
         # Use a Swiss-format address even for en chunks (en context can mention CH addresses)
         return swiss_address("de")
-    return swiss_address(lang.removesuffix("_ch"))
+    return swiss_address(cast(Lang, lang.removesuffix("_ch")))
 
 
 def _email(lang: str, person_hint: str | None = None) -> str:
@@ -462,10 +464,10 @@ def main() -> None:
             # Build prompts
             messages_batch = [
                 [
-                    {"role": "system", "content": SYSTEM_PROMPTS[(t, l)]},
-                    {"role": "user", "content": build_user_prompt(t, l, p)},
+                    {"role": "system", "content": SYSTEM_PROMPTS[(t, la)]},
+                    {"role": "user", "content": build_user_prompt(t, la, p)},
                 ]
-                for (t, l, p) in batch
+                for (t, la, p) in batch
             ]
 
             # Generate
@@ -478,16 +480,16 @@ def main() -> None:
             n_attempts += len(batch)
 
             # Verify each
-            for (tmpl, lang, payload), text in zip(batch, outputs):
+            for (tmpl, lang, payload), text in zip(batch, outputs, strict=True):
                 spans = extract_spans(text, payload)
                 if spans is None:
                     n_rejected += 1
                     rejects_per_bucket[(tmpl, lang)] += 1
                     # Re-add this bucket as needing one more
                     found = False
-                    for i, (t, l, n) in enumerate(buckets):
-                        if t == tmpl and l == lang:
-                            buckets[i] = (t, l, n + 1)
+                    for i, (t, la, n) in enumerate(buckets):
+                        if t == tmpl and la == lang:
+                            buckets[i] = (t, la, n + 1)
                             found = True
                             break
                     if not found:
@@ -529,10 +531,10 @@ def main() -> None:
                 # Per-bucket reject rates (to spot RM degenerating)
                 if rejects_per_bucket:
                     print("  reject rates per bucket:")
-                    for (t, l), n_rej in sorted(rejects_per_bucket.items()):
-                        n_acc = accepts_per_bucket.get((t, l), 0)
+                    for (t, la), n_rej in sorted(rejects_per_bucket.items()):
+                        n_acc = accepts_per_bucket.get((t, la), 0)
                         rr = n_rej / (n_rej + n_acc) if (n_rej + n_acc) > 0 else 0
-                        print(f"    {t:<18} {l:<6} rej={n_rej:>5,} acc={n_acc:>5,} ({100*rr:.0f}% rej)", flush=True)
+                        print(f"    {t:<18} {la:<6} rej={n_rej:>5,} acc={n_acc:>5,} ({100*rr:.0f}% rej)", flush=True)
 
             if args.max_attempts and n_attempts >= args.max_attempts:
                 print(f"Reached --max-attempts={args.max_attempts}, stopping.")
@@ -549,9 +551,9 @@ def main() -> None:
     print(f"  rejected:  {n_rejected:,}  ({100*n_rejected/max(n_attempts,1):.1f}%)")
     print()
     print("Per-bucket final counts:")
-    for (t, l), n in sorted(accepts_per_bucket.items()):
-        n_rej = rejects_per_bucket.get((t, l), 0)
-        print(f"  {t:<18} {l:<6} accepted={n:>6,}  rejected={n_rej:>6,}")
+    for (t, la), n in sorted(accepts_per_bucket.items()):
+        n_rej = rejects_per_bucket.get((t, la), 0)
+        print(f"  {t:<18} {la:<6} accepted={n:>6,}  rejected={n_rej:>6,}")
 
 
 if __name__ == "__main__":

@@ -193,7 +193,7 @@ def main() -> None:
     print(f"\n--- Phase A: per-doc cap (CAP_DOC={CAP_DOC}) ---")
     kept_a: set[str] = set()
     docs_capped = chunks_dropped_a = 0
-    for doc_id, cids in by_doc.items():
+    for cids in by_doc.values():
         if len(cids) > CAP_DOC:
             kept_a.update(rng.sample(cids, CAP_DOC))
             docs_capped += 1
@@ -209,7 +209,7 @@ def main() -> None:
     print(f"\n--- Phase B: per-value cap (CAP_VALUE={CAP_VALUE}) ---")
     kept_b: set[str] = set()
     values_capped = 0
-    for (lang, cat, value), cids in by_value.items():
+    for cids in by_value.values():
         pool = [c for c in cids if c in kept_a]
         if not pool:
             continue
@@ -222,7 +222,7 @@ def main() -> None:
     print(f"  positives kept: {len(kept_b):,}")
 
     # ---------- Phase C ----------
-    print(f"\n--- Phase C: per-cell cap ---")
+    print("\n--- Phase C: per-cell cap ---")
     cell_picks: dict[tuple[str, str], set[str]] = {}
     for cell in by_cell:
         pool = [c for c in by_cell[cell] if c in kept_b]

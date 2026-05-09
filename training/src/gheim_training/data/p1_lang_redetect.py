@@ -22,12 +22,10 @@ Output:  data/layer5v4_lang_fix.jsonl
 from __future__ import annotations
 
 import json
-import sys
 from collections import Counter
 from pathlib import Path
 
-from .lang_detect import _NLLB_TO_GHEIM, _MIN_CONFIDENCE, _model, _patch_numpy_for_fasttext
-
+from .lang_detect import _MIN_CONFIDENCE, _NLLB_TO_GHEIM, _model, _patch_numpy_for_fasttext
 
 IN_PRIMARY = Path("data/layer5v4_regex_aug.jsonl")
 IN_FALLBACK = Path("data/layer5v4.jsonl")
@@ -98,7 +96,7 @@ def main() -> None:
     for lang, c in sorted(new_lang_counts.items(), key=lambda x: -x[1]):
         print(f"  {lang:<24} {c:>10,}  ({100*c/n:>5.2f}%)")
     print()
-    print(f"Top 30 transitions (old → new, count):")
+    print("Top 30 transitions (old → new, count):")
     for (old, new), c in transitions.most_common(30):
         marker = " *" if old != new else ""
         print(f"  {old:<10} → {new:<24} {c:>10,}{marker}")
