@@ -1,17 +1,18 @@
 <div align="center">
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/joelbarmettlerUZH/gheim/main/assets/logo.png" alt="gheim" width="420">
+  <img src="https://github.com/joelbarmettlerUZH/gheim/blob/main/assets/logo.png" alt="gheim" width="420">
 </p>
 
-<p align="center"><strong>PII round-trip for LLM APIs. Anonymize before the request, de-anonymize the stream on the way back.</strong></p>
+<p align="center"><strong>PII round-trip for LLM APIs. Anonymise before the request, de-anonymise the stream on the way back.</strong></p>
 
 <p align="center">
+  <a href="https://gheim.ch"><img src="https://img.shields.io/badge/demo-gheim.ch-black" alt="gheim.ch"></a>
   <a href="https://pypi.org/project/gheim/"><img src="https://img.shields.io/pypi/v/gheim?color=blue&label=PyPI" alt="PyPI"></a>
   <a href="https://www.npmjs.com/package/gheim"><img src="https://img.shields.io/npm/v/gheim?color=blue&label=npm" alt="npm"></a>
+  <a href="https://huggingface.co/joelbarmettler/gheim-ch-560m"><img src="https://img.shields.io/badge/HF%20model-gheim--ch--560m-yellow" alt="HF model"></a>
+  <a href="https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k"><img src="https://img.shields.io/badge/HF%20dataset-gheim--ch--pii--171k-yellow" alt="HF dataset"></a>
   <a href="https://github.com/joelbarmettlerUZH/gheim/pkgs/container/gheim-server"><img src="https://img.shields.io/badge/ghcr.io-gheim--server-blue" alt="ghcr"></a>
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.11%2B-blue" alt="Python 3.11+"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-18%2B-blue" alt="Node 18+"></a>
   <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache%202.0-green" alt="Apache 2.0"></a>
   <a href="https://github.com/joelbarmettlerUZH/gheim"><img src="https://img.shields.io/github/stars/joelbarmettlerUZH/gheim?style=social" alt="GitHub stars"></a>
 </p>
@@ -20,82 +21,63 @@
 
 ---
 
-## The problem
+Swiss companies want to use GPT, Claude, and Gemini. Their lawyers do not.
+Every prompt with a customer name, a Swiss address, or an IBAN is a compliance
+problem the moment it crosses the Atlantic.
 
-Swiss companies want to use GPT-4, Claude, and Gemini. Their lawyers don't.
-Every chat message with a customer name, an address, or an account number is a
-compliance problem the moment it crosses the Atlantic.
-
-**gheim** solves it locally. Detect PII with a small on-device model, swap it
-for stable sentinels, send the redacted text to any LLM, restore originals in
-the streamed response. Your users never see a placeholder. OpenAI never sees a
-name.
+`gheim` solves it locally. A small on-device model finds the PII, swaps it for
+stable sentinels, sends the redacted text to any LLM, and restores the
+originals as the response streams back. The user sees `Joel`. OpenAI only ever
+sees `<PERSON_1>`.
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│   user writes:   "Hi, my name is Joel, my IBAN is CH93 0076 ..."     │
-│                                      │                                │
-│                                      ▼                                │
-│                    ┌─────────────────────────────────┐                │
-│                    │  gheim (local or your endpoint) │                │
-│                    │  detect → allocate sentinels    │                │
-│                    └────────────────┬────────────────┘                │
-│                                      ▼                                │
-│           "Hi, my name is <PERSON_1>, my IBAN is <ACCOUNT_1>."        │
-│                                      │                                │
-│                                      ▼                                │
-│                          ┌────────────────────────┐                   │
-│                          │  OpenAI / Claude / etc │                   │
-│                          └───────────┬────────────┘                   │
-│                                      ▼                                │
-│             stream:  "Hi ", "<PER", "SON_1>", ", I can help"          │
-│                                      │                                │
-│                                      ▼                                │
-│                    ┌─────────────────────────────────┐                │
-│                    │  gheim streaming deanonymizer   │                │
-│                    │  hold-back + substitute + emit  │                │
-│                    └────────────────┬────────────────┘                │
-│                                      ▼                                │
-│   user sees:  "Hi Joel, I can help..."  (never sees the sentinel)     │
-└──────────────────────────────────────────────────────────────────────┘
+"Hi, my name is Joel, my IBAN is CH9300762011..."
+              │
+              ▼   gheim.detect → allocate sentinels
+"Hi, my name is <PERSON_1>, my IBAN is <ACCOUNT_1>."
+              │
+              ▼   any LLM (OpenAI, Claude, Gemini, ...)
+"Hi <PERSON_1>, your IBAN <ACCOUNT_1> is valid."
+              │
+              ▼   gheim streaming deanonymizer (bounded hold-back)
+"Hi Joel, your IBAN CH9300762011... is valid."
 ```
 
----
+## What ships
 
-## Packages
-
-| what | where | ships as |
-|---|---|---|
-| Python library | [`packages/gheim-py`](packages/gheim-py) | `pip install gheim` |
-| JavaScript library | [`packages/gheim-js`](packages/gheim-js) | `npm install gheim` |
-| Detection server | [`server`](server) | `docker pull ghcr.io/joelbarmettlerUZH/gheim-server` |
-
-All three are Apache 2.0.
-
----
+| | what | where | how |
+|---|---|---|---|
+| 🌐 | Live demo | [gheim.ch](https://gheim.ch) | runs the model in your browser |
+| 🐍 | Python SDK | [`packages/gheim-py`](packages/gheim-py) · [PyPI](https://pypi.org/project/gheim/) | `uv add "gheim[openai]"` |
+| 🟦 | JS / TS SDK | [`packages/gheim-js`](packages/gheim-js) · [npm](https://www.npmjs.com/package/gheim) | `npm install gheim openai` |
+| 🐳 | Detection server | [`server`](server) | `docker pull ghcr.io/joelbarmettlerUZH/gheim-server` |
+| 🤗 | Model | [`gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) · [model card](MODEL_CARD.md) | 560M, Apache 2.0, ONNX int8 |
+| 📚 | Dataset | [`gheim-ch-pii-171k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k) · [dataset card](DATASET_CARD.md) | 171k chunks, 5 langs, CC BY 4.0 |
 
 ## Quick start
 
-### Python — drop-in OpenAI client
+### Python · drop-in OpenAI client
 
 ```bash
-uv add "gheim[openai]" "gheim[local]"
+uv add "gheim[openai]"
 ```
 
 ```python
-from gheim.openai import OpenAI   # same signature as openai.OpenAI
+from gheim.openai import OpenAI    # same constructor as openai.OpenAI
 
 client = OpenAI()
-response = client.chat.completions.create(
+r = client.chat.completions.create(
     model="gpt-4o",
-    messages=[{"role": "user", "content": "Hi, my name is Joel"}],
+    messages=[{"role": "user", "content": "Hi, my name is Joel."}],
 )
-# response.choices[0].message.content contains "Joel".
+# r.choices[0].message.content contains "Joel".
 # OpenAI only ever saw "<PERSON_1>".
 ```
 
-Streaming works the same way — `stream=True` returns an iterator whose deltas
-are restored as they arrive. Async support via `gheim.openai.AsyncOpenAI`.
+Streaming, async (`AsyncOpenAI`), tool calls, and 9 other text-carrying
+endpoints (`responses`, `embeddings`, `moderations`, `audio.*`, `images.*`)
+are wrapped automatically. See the
+[Python SDK README](packages/gheim-py/README.md) for the full surface.
 
 ### JavaScript / TypeScript
 
@@ -109,195 +91,68 @@ import { OpenAI } from "gheim/openai";
 const client = new OpenAI();
 const r = await client.chat.completions.create({
   model: "gpt-4o",
-  messages: [{ role: "user", content: "Hi, my name is Joel" }],
+  messages: [{ role: "user", content: "Hi, my name is Joel." }],
 });
-// r.choices[0].message.content contains "Joel".
 ```
 
-Ships as dual ESM + CJS with full `.d.ts` types. Works in Node 18+ and in the
-browser via `@huggingface/transformers` (WebGPU).
-
-### Framework-agnostic (any LLM)
-
-```python
-from gheim import Session, LocalDetector, anonymize_text, deanonymize_text
-
-session = Session(detector=LocalDetector())
-redacted = anonymize_text("Hi, my name is Joel", session)
-# ... call any LLM with `redacted` ...
-final = deanonymize_text(response_text, session)
-```
-
-For streaming LLMs:
-
-```python
-from gheim import deanonymize_stream
-
-for chunk in deanonymize_stream(my_chunk_iterator, session):
-    print(chunk, end="", flush=True)
-```
+Dual ESM + CJS, full `.d.ts`, Node 18+ and Bun 1.1+. Browser-side via
+`@huggingface/transformers` (WebGPU). See the
+[JS SDK README](packages/gheim-js/README.md).
 
 ### Self-host the detection server
 
 ```bash
-docker run -p 8080:8080 \
-  -e GHEIM_API_KEYS=your-key \
+docker run -p 8080:8080 -e GHEIM_API_KEYS=your-key \
   ghcr.io/joelbarmettlerUZH/gheim-server:latest
 ```
 
-Point the library at it:
-
 ```python
 from gheim import RemoteDetector
-detector = RemoteDetector(base_url="http://your-host:8080", api_key="your-key")
+det = RemoteDetector(base_url="http://your-host:8080", api_key="your-key")
 ```
 
-The server image bakes the model weights at build time. No HuggingFace download
-at runtime. `HF_HUB_OFFLINE=1` in the runtime image — works in air-gapped
-environments.
+Model weights are baked into the image, `HF_HUB_OFFLINE=1` at runtime;
+works in air-gapped environments. See the [server README](server/README.md).
 
----
+## The Swiss-tuned model
 
-## How it works
+`joelbarmettler/gheim-ch-560m` is the default detector when running locally:
+a fine-tune of `xlm-roberta-large` on 171k Swiss-domain chunks across the
+four official Swiss languages (de_CH, fr_CH, it_CH, rm) plus English.
 
-1. **Detection.** A token-classification model (default:
-   [`openai/privacy-filter`](https://huggingface.co/openai/privacy-filter), 1.5B
-   params with 50M active via MoE) labels character-offset spans of PII.
-2. **Allocation.** Each `(label, surface)` pair maps to a stable sentinel:
-   `<PERSON_1>`, `<PERSON_2>`, `<EMAIL_1>`. Repeats coalesce — same "Joel"
-   always gets the same sentinel so the LLM can refer back coherently.
-3. **Send.** The redacted text (no PII) hits the LLM endpoint.
-4. **Stream hold-back.** A character-level state machine buffers any partial
-   `<` until it either completes a known sentinel (substitute + emit) or is
-   proven incidental (emit verbatim). Bounded hold-back (64 chars), so latency
-   is ~one sentinel.
-5. **Round-trip.** Restored text reaches the user; they never see a placeholder.
+| | strict-span F1 | char F1 |
+|---|---:|---:|
+| `gheim-ch-560m` (this) | **0.916** | **0.958** |
+| `openai/privacy-filter` (1.4B MoE, zero-shot) | 0.443 | 0.610 |
+| Microsoft Presidio Analyzer | 0.434 | 0.562 |
+| `Davlan/xlm-roberta-base-ner-hrl` (PER cell) | n/a | 0.728 PER |
+| spaCy `de/fr/it_core_news_lg` (PER cell) | n/a | 0.621 PER |
 
----
+All seven contestants scored on the same 15,861-chunk held-out test split.
+Full comparison matrix and methodology in [`MODEL_CARD.md`](MODEL_CARD.md);
+raw numbers in [`eval/positioning_matrix.json`](eval/positioning_matrix.json).
 
-## Wrapped OpenAI endpoints
+The model also ships as `onnx/model_quantized.onnx` (int8, 552 MB) so the
+demo at [gheim.ch](https://gheim.ch) runs entirely in the browser via
+`@huggingface/transformers`.
 
-The drop-in `OpenAI` / `AsyncOpenAI` clients automatically protect every
-text-carrying endpoint:
+## The dataset
 
-| OpenAI endpoint | gheim treatment | notes |
-|---|---|---|
-| `chat.completions.create` | round-trip | messages + tool descriptions + speaker `name` redacted; tool-call `arguments` restored |
-| `responses.create` | round-trip | event-based streaming (`response.output_text.delta`, reasoning, audio transcript, function args) |
-| `completions.create` (legacy) | round-trip | `prompt` redacted, `choices[*].text` restored |
-| `embeddings.create` | input redacted | vectors come back unmodified — see "Embeddings caveat" below |
-| `moderations.create` | input redacted | category scores come back unmodified |
-| `audio.speech.create` (TTS) | input redacted | both `input` and `instructions` redacted |
-| `audio.transcriptions.create` | round-trip | `prompt` hint redacted; returned `text` and SSE deltas restored |
-| `audio.translations.create` | round-trip | same as transcriptions |
-| `images.generate` / `edit` | prompt redacted | image bytes pass through |
-| `models.list` / `retrieve` | passthrough | no PII |
-| `beta.assistants.*`, `beta.threads.*` | **strict-blocked** | stateful API needs cross-call session persistence — deferred. Use `responses.create` instead |
-| `batches.create` | **strict-blocked** | recursive JSONL handling deferred — pre-anonymize the input file |
-| `files.*`, `uploads.*`, `fine_tuning.*` | **strict-blocked** | document-level redaction is outside gheim's scope |
-
-**Strict mode** (default `gheim_strict=True` / `gheimStrict: true`) raises a
-clear `RuntimeError` on any blocked endpoint, pointing at `client.raw.<path>` as
-the documented escape hatch. Pass `gheim_strict=False` to downgrade to a
-one-time warning + pass-through per attribute.
-
-### Embeddings caveat
-
-When you embed redacted text, the vector represents the redacted form
-(`<PERSON_1> works at Acme`), not the original. This is by design — embeddings
-of customer PII can't be both protected and semantically faithful at once.
-
-Useful patterns:
-- Index the redacted text. Anonymize search queries through the **same session**
-  so they hit the same sentinels.
-- For long-running RAG indexes, persist `Session.to_json()` alongside the index.
-
-If embeddings of original text are non-negotiable for your workload, call
-`client.raw.embeddings.create(...)` to bypass gheim deliberately.
-
-## Detected PII categories
-
-Eight categories, BIOES-tagged at the token level, aggregated to character spans:
-
-| category | sentinel tag | examples |
-|---|---|---|
-| person | `<PERSON_n>` | Joel Barmettler, Dr. Schmidt |
-| email | `<EMAIL_n>` | joel@example.com |
-| phone | `<PHONE_n>` | +41 44 123 45 67 |
-| address | `<ADDRESS_n>` | Bahnhofstrasse 1, 8001 Zürich |
-| url | `<URL_n>` | https://internal.example.ch/user/42 |
-| date | `<DATE_n>` | 1990-01-02, March 4th |
-| account number | `<ACCOUNT_n>` | CH93 0076 2011 6238 5295 7 |
-| secret | `<SECRET_n>` | API keys, bearer tokens |
-
-Custom label spaces are supported via the underlying [`opf`](https://github.com/openai/privacy-filter)
-fine-tuning machinery. A dedicated Swiss-finetuned model (AHV, CH-IBAN, CH
-phone/address formats, DE/FR/IT-CH names) is the planned paid tier.
-
----
-
-## Speed
-
-Measured end-to-end on the `openai/privacy-filter` model, fp32 CPU, Intel Core
-Ultra 9 185H (see [`experiments/benchmark.py`](experiments/benchmark.py) to
-reproduce):
-
-| input size | tokens | detection latency | throughput |
-|---|---:|---:|---:|
-| short (one sentence) | 13 | 77 ms | 168 tok/s |
-| medium (short email) | 95 | 214 ms | 444 tok/s |
-| long (~3 paragraphs) | 760 | 796 ms | 954 tok/s |
-| huge (6k tokens) | 6,080 | 17.4 s | 349 tok/s |
-
-Peak throughput at ~760-token inputs. For multi-kilobyte documents, chunking
-into ~1 k-token windows is faster than feeding the whole document at once.
-
-Streaming deanonymization is O(n) with a bounded 64-char hold-back — no
-measurable overhead beyond the LLM's own token cadence.
-
----
-
-## Limitations
-
-- **Base model is English-centric.** The upstream
-  `openai/privacy-filter` is optimized for English, Latin scripts. Non-English
-  Swiss content (DE/FR/IT) degrades gracefully but misses region-specific
-  patterns (AHV numbers, CH-IBAN, `+41` phone layouts). A Swiss-finetuned model
-  is the right fix — we're working on it.
-- **Not a compliance guarantee.** gheim is one layer in a privacy-by-design
-  approach. Test with your local policy references before production.
-- **LLM-side mangling.** Some models occasionally rewrite sentinels
-  (e.g. `<Person_1>` or `**<PERSON_1>**`). Lowercase variants are not
-  substituted by default. Markdown wrapping is handled. Survival rates across
-  GPT-4o / Claude / Gemini are part of our evaluation plan.
-- **Detection offsets in the browser.** `@huggingface/transformers` doesn't
-  emit character offsets for aggregated entities as of v4. gheim's JS
-  `LocalDetector` reconstructs offsets via left-to-right substring search (see
-  `experiments/chrome/` and the fallback tests).
-
----
-
-## Reproducing the CPU benchmark
-
-```bash
-git clone https://github.com/joelbarmettlerUZH/gheim.git
-cd gheim
-uv sync --all-packages
-uv run python experiments/benchmark.py
-```
-
-Downloads ~3 GB on first run. Runs on CPU by default.
-
----
+`joelbarmettler/gheim-ch-pii-171k` is the training corpus released with the
+model. 171,336 chunks across de_CH / fr_CH / it_CH / rm / en, 8 PII
+categories, BIOES-tagged. Annotations are machine-generated (LLM labelling
+plus checksum-validated regex augmentation, with synthetic gap-fill for
+sparse cells); a 4-way subagent labelling on a 176-chunk sample yielded
+F1 ≈ 0.66 against majority vote, an upper bound on label noise. See
+[`DATASET_CARD.md`](DATASET_CARD.md) for the curation pipeline, per-cell
+distribution, and reuse instructions.
 
 ## License
 
-Apache 2.0. See [LICENSE](LICENSE).
-
-The default model weights (`openai/privacy-filter`) are also Apache 2.0. The
-future Swiss-finetuned model will ship under a separate commercial license.
-
----
+Apache 2.0; see [LICENSE](LICENSE). The published model weights and the
+training dataset are licensed Apache 2.0 and CC BY 4.0 respectively;
+attribution to the upstream `swiss-ai/apertus-pretrain-*` corpora is
+required when reusing the dataset.
 
 ## Citation
 

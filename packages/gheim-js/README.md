@@ -1,7 +1,7 @@
 <div align="center">
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/joelbarmettlerUZH/gheim/main/assets/logo.png" alt="gheim" width="360">
+  <img src="https://github.com/joelbarmettlerUZH/gheim/blob/main/assets/logo.png" alt="gheim" width="360">
 </p>
 
 <p align="center"><strong>gheim (JavaScript / TypeScript). PII round-trip for LLM APIs.</strong></p>
@@ -182,6 +182,7 @@ considered best-effort.
 For Node servers, installing `onnxruntime-node` alongside
 `@huggingface/transformers` enables the native ONNX backend, which is
 typically 5-10× faster than the default WebAssembly backend.
+
 ## Artifacts
 
 Ships as dual ESM and CJS with full `.d.ts` typings:
