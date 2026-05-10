@@ -25,6 +25,8 @@ dependencies = [
     # 176-language identifier); auto-downloads the ~131MB model on first use.
     # Replaces our hand-tuned lingua + RM-marker heuristic.
     "fasttext-langdetect>=1.0.5",
+    "optimum[exporters,onnxruntime-gpu]>=1.21",
+    "onnxconverter-common>=1.16.0",
 ]
 
 [project.optional-dependencies]
