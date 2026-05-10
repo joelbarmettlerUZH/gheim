@@ -78,7 +78,7 @@ downstream use.
 
 The PII NER landscape includes several public datasets with overlapping
 but distinct goals. The table below describes each dataset's design
-without ranking — the right choice depends on the user's task. All
+without ranking. The right choice depends on the user's task. All
 metrics are taken from each dataset's published documentation as of
 mid-2026.
 
@@ -148,15 +148,15 @@ Italian/Romansh `account_number`/`private_email`). 146,436 chunks come from
 real Swiss court rulings (`entscheidsuche`), federal parliament records
 (`curia_vista`), the Swiss-filtered slice of FineWeb-2, and the Romansh
 corpus. The remaining 24,900 chunks are LLM-generated (Gemma 4 26B-A4B)
-multilingual prose — Slack messages, CRM records, incident reports — that
+multilingual prose (Slack messages, CRM records, incident reports) that
 embed pre-generated PII values verbatim and then verify the embedding by
 exact substring match.
 
 Synthetic chunks are placed primarily in the train split (22,500 of
 24,900); the remaining 2,400 are split between validation and test
 (1,200 each) to provide measurable coverage in cells where real-Swiss
-text was too sparse for evaluation — notably `secret` × all five
-languages, and English × {email, address, account_number, phone}.
+text was too sparse for evaluation, in particular `secret` across all
+five languages and English × {email, address, account_number, phone}.
 Every record carries a `synthetic` boolean field so consumers can filter
 to real-only or synthetic-only as needed.
 
@@ -180,10 +180,10 @@ pretrained classifier-head weights without label remapping.
 | Tag scheme | BIOES, 33 classes (O + B/I/E/S × 8 cats) |
 | Source corpora | apertus-pretrain-swiss, apertus-pretrain-romansh, gheim-synthetic |
 | Registers | Court rulings, parliamentary records, web news, Romansh literary/journalistic, synthetic (dev chats / CRM records / incident reports) |
-| Synthetic location | Train (22,500 chunks) + val (1,200) + test (1,200). The val/test slices fill cells where real Swiss text was too sparse to evaluate (notably `secret` × all langs and `en` × {email/address/account/phone}). |
+| Synthetic location | Train (22,500 chunks) + val (1,200) + test (1,200). The val/test slices fill cells where real Swiss text was too sparse to evaluate (in particular `secret` across all languages and `en` × {email/address/account/phone}). |
 | Negative ratio | ~7.5% (no-PII chunks; synthetic chunks all positive) |
 | License | CC BY 4.0 |
-| Splits | `train` (139,641) / `validation` (15,834) / `test` (15,861) — doc-level isolated for real chunks, stratified by (lang × subset). |
+| Splits | `train` (139,641) / `validation` (15,834) / `test` (15,861); document-level isolation for real chunks, stratified by (lang × subset). |
 
 ---
 
@@ -204,7 +204,7 @@ scope.
 
 Language detection used `facebook/fasttext-language-identification` (NLLB-200
 labels) at confidence ≥ 0.5. Chunks with confident non-target labels (e.g.
-Russian, Portuguese, Spanish) were dropped — see "Curation pipeline" below.
+Russian, Portuguese, Spanish) were dropped. See "Curation pipeline" below.
 
 ---
 
@@ -221,7 +221,7 @@ recall policy.
 | `private_address` | Postal addresses, building names, PO boxes, Swiss-format street/PLZ/city |
 | `private_date` | Dates and date phrases in any locale-format (DD.MM.YYYY, ISO, written-out months) |
 | `private_email` | Email addresses (full), institutional and personal |
-| `private_person` | Person names — first/last/full, titles included when adjacent (Frau, Madame, Signor, Dr., av., etc.) |
+| `private_person` | Person names (first, last, or full); titles included when adjacent (Frau, Madame, Signor, Dr., av., etc.) |
 | `private_phone` | Phone numbers in CH (+41, 0XX) and international formats |
 | `private_url` | URLs and bare hostnames |
 | `secret` | API keys, passwords, secrets, OAuth tokens, JWTs, hash digests |
@@ -249,8 +249,8 @@ masked).
 
 ### Data instances
 
-Six representative records — one per source-type × major-PII-shape — to
-convey what the dataset looks like in practice.
+Six representative records (one per source-type, covering the major PII
+shapes) showing the on-disk schema.
 
 **1. Real Swiss-German court ruling with regex-detected date** (Apertus
 `entscheidsuche`):
@@ -381,7 +381,7 @@ demonstrates checksummed CHE-VAT detection by regex):
 | `source_dataset` | string | `swiss-ai/apertus-pretrain-swiss`, `swiss-ai/apertus-pretrain-romansh`, or `gheim-synthetic`. |
 | `doc_id` | string | The source document identifier, stable within `source_dataset`. |
 | `chunk_index_in_doc` | int | Position of this chunk within its source document (0-indexed). |
-| `spans` | list | List of PII spans. Each span is an object — see below. |
+| `spans` | list | List of PII spans. Each span is an object (see "Span structure" below). |
 | `labeler` | string | The model or program that produced this chunk's spans (Gemma model ID, or `regex+checksum:...`). |
 | `prompt_version` | string | The labeler prompt or rule version, for reproducibility. |
 | `labeled_at` | string | ISO-8601 timestamp of when labeling occurred. |
@@ -399,10 +399,10 @@ demonstrates checksummed CHE-VAT detection by regex):
   "label": "private_date", // one of the 8 categories
   "value": "7. August 2016", // the literal substring text[start:end]
   "source": "regex"        // provenance, one of:
-                           //   "gemma"      — labelled by Gemma 4 26B-A4B
-                           //   "regex"      — added by the checksum-validated regex catalogue
-                           //   "synthetic"  — placed by the slot-fill verifier
-                           //   "ai4privacy" — sourced from the AI4Privacy training augment
+                           //   "gemma":      labelled by Gemma 4 26B-A4B
+                           //   "regex":      added by the checksum-validated regex catalogue
+                           //   "synthetic":  placed by the slot-fill verifier
+                           //   "ai4privacy": sourced from the AI4Privacy training augment
 }
 ```
 
@@ -440,7 +440,7 @@ These synthetic chunks are flagged with `synthetic: true` and
 `subset: "synthetic"`, so analysis can compute per-source metrics
 (real-only F1, synthetic-only F1, mixed F1). The synthetic placement is
 deterministic (seed=17). No synthetic chunk appears in more than one
-split — train/val/test contain disjoint synthetic chunk IDs.
+split: train, validation, and test contain disjoint synthetic chunk IDs.
 
 **What this means for benchmarking.** Reported overall F1 on val/test
 mixes real-Swiss and synthetic-Faker performance. For a "real-only"
@@ -492,28 +492,29 @@ at confidence ≥ 0.5; chunks below threshold are dropped.
 This dataset is not human-annotated. Spans are produced by three
 automated annotators:
 
-1. **Gemma 4 26B-A4B (cyankiwi AWQ-4bit, run via vLLM)** — produces the
+1. **Gemma 4 26B-A4B (cyankiwi AWQ-4bit, run via vLLM).** Produces the
    primary span labels on real chunks via structured-output JSON-schema
-   decoding. Provides the majority of spans on real chunks.
-2. **`gheim.detectors.composite`** — a regex catalogue with checksum
+   decoding. Contributes the majority of spans on real chunks.
+2. **`gheim.detectors.composite`.** A regex catalogue with checksum
    validators (ISO 13616 mod-97 for IBAN, EAN-13 mod-10 for AHV,
    ISO 7064 mod-11 for VAT-CHE, Luhn for credit cards) for
    structured-format PII (IBAN, AHV, VAT, credit card, phone, email,
    URL). Spans added by this stage are marked `"source": "regex"`.
-3. **Slot-fill verifier on synthetic chunks** — a script that
-   pre-generates payload values (Faker_CH names/addresses/phones,
-   checksummed CH-IBAN/AHV/VAT-CHE, common secret formats) and
+3. **Slot-fill verifier on synthetic chunks.** A script that
+   pre-generates payload values (Faker_CH names, addresses, phones;
+   checksummed CH-IBAN, AHV, VAT-CHE; common secret formats) and
    prompts Gemma to embed them verbatim into natural prose. The
    verifier accepts a chunk only if every payload value appears
-   exactly in the model output; rejected ~2% of generations. Spans
-   added by this stage are marked `"source": "synthetic"`.
+   exactly in the model output. Rejection rate was approximately 2%
+   of generations. Spans added by this stage are marked
+   `"source": "synthetic"`.
 
 The first two annotators were run independently on each real chunk
 and merged with regex-on-overlap priority. Label noise was measured by
 comparing the dataset to a 4-way independent subagent labelling on a
-stratified 176-chunk sample, yielding **F1 = 0.664** as an upper-bound
-estimate of label noise (the gap is largely policy-interpretation, not
-random error — see [Limitations](#limitations)).
+stratified 176-chunk sample, yielding F1 = 0.664 as an upper-bound
+estimate of label noise. The gap is largely policy-interpretation
+rather than random error (see [Limitations](#limitations)).
 
 #### Personal and sensitive information
 
@@ -554,9 +555,9 @@ enough to motivate the gap-fill.
 | | de_ch | fr_ch | it_ch | rm | en |
 |---|---:|---:|---:|---:|---:|
 | `secret` (real: 39 / 8 / 2 / 3 / 3) | +3,000 | +3,000 | +3,000 | +3,000 | +4,500 |
-| `account_number` (real: 1,092 / 992 / **182** / **200** / **14**) | — | — | +2,800 | +2,800 | +2,800 |
-| `private_address` (real: 7,146 / 7,322 / 5,692 / 1,801 / **31**) | — | — | — | — | +2,800 |
-| `private_phone` (real: 6,602 / 5,617 / 5,343 / 1,787 / **75**) | — | — | — | — | +4,300 |
+| `account_number` (real: 1,092 / 992 / **182** / **200** / **14**) | 0 | 0 | +2,800 | +2,800 | +2,800 |
+| `private_address` (real: 7,146 / 7,322 / 5,692 / 1,801 / **31**) | 0 | 0 | 0 | 0 | +2,800 |
+| `private_phone` (real: 6,602 / 5,617 / 5,343 / 1,787 / **75**) | 0 | 0 | 0 | 0 | +4,300 |
 | `private_email` (real: 671 / 1,431 / **310** / 562 / **10**) | +3,000 | +3,000 | +5,800 | +5,800 | +7,300 |
 | `private_person` (side-effect of multi-PII templates) | +3,000 | +3,000 | +5,800 | +5,800 | +7,300 |
 
@@ -608,7 +609,7 @@ About 85% of positive chunks contain 1–3 spans. < 0.5% contain more than 10.
   they do not constitute representative English-PII coverage.
 - **Synthetic chunks are short and PII-dense.** The synthetic templates
   (Slack/Teams messages, CRM records, incident reports) typically span
-  100–400 characters with 3–5 PII spans each — denser than the real
+  100-400 characters with 3-5 PII spans each, denser than the real
   Apertus chunks (200–2,000 characters, 1–3 spans). Models trained on
   the mix may over-expect PII density.
 - **Synthetic person/email values are Faker-derived.** They look Swiss
@@ -634,7 +635,7 @@ About 85% of positive chunks contain 1–3 spans. < 0.5% contain more than 10.
   text yielded too few `secret` examples to populate the held-out
   splits (~7 chunks total before synthesis). Reported `secret` F1
   reflects detection of Faker-generated API keys, JWTs, and OAuth
-  tokens embedded in LLM-generated developer prose — a reasonable
+  tokens embedded in LLM-generated developer prose. This is a reasonable
   proxy for the production "secret in dev/ops chat" leak path, but
   not a Swiss-grounded benchmark. Filter `synthetic == false` for a
   real-only `secret` evaluation.
@@ -649,7 +650,7 @@ About 85% of positive chunks contain 1–3 spans. < 0.5% contain more than 10.
 ### Social impact and intended use
 
 This dataset is intended to support training and evaluation of PII
-detection models — particularly for Swiss-market applications where
+detection models, particularly for Swiss-market applications where
 data must be anonymised before being sent to cloud-hosted services. The
 underlying source corpora are publicly published Swiss documents
 (court rulings, parliament, web, Romansh literary/news), so the dataset
@@ -673,7 +674,7 @@ CC BY 4.0.
 
 When using this dataset, **please attribute**:
 
-> "gheim-ch-pii-171k" — Joel Barmettler, 2026.
+> "gheim-ch-pii-171k" by Joel Barmettler, 2026.
 > Built from `swiss-ai/apertus-pretrain-swiss` and `-romansh` plus
 > Gemma-generated synthetic gap-fill.
 
@@ -725,23 +726,23 @@ extensions, or label-space changes are batched into minor/major releases
 
 This dataset stands on the shoulders of:
 
-- **`swiss-ai/apertus-pretrain-{swiss,romansh}`** — without the curated
+- **`swiss-ai/apertus-pretrain-{swiss,romansh}`.** without the curated
   Swiss text corpus, none of this would be possible. Thanks to the
   swiss-ai team for the open release.
-- **`openai/privacy-filter`** — the 33-class BIOES label space used here
+- **`openai/privacy-filter`.** the 33-class BIOES label space used here
   was adopted from this model, so models trained on this dataset share
   the same output schema.
-- **`cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit`** — the AWQ-quantised Gemma 4
+- **`cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit`.** the AWQ-quantised Gemma 4
   used for the bulk of LLM-based labelling and synthetic gap-fill.
-- **`ai4privacy/openpii-1m` and `pii-masking-300k`** — informed the label
+- **`ai4privacy/openpii-1m` and `pii-masking-300k`.** informed the label
   REMAP and the multi-schema reconciliation. Used downstream as a
   training augment for English anchor and CH-region email rescue.
-- **HuggingFace `datasets`, `transformers`, `accelerate`** — the entire
+- **HuggingFace `datasets`, `transformers`, `accelerate`.** the entire
   pipeline, from streaming Apertus to publishing this card, runs on HF
   infra.
-- **vLLM** — made the 24,900-chunk synthetic generation tractable on
+- **vLLM.** made the 24,900-chunk synthetic generation tractable on
   2× RTX 4090 in under an hour.
-- **Faker** — for Faker_CH locales used in synthetic payload generation
+- **Faker.** for Faker_CH locales used in synthetic payload generation
   (names, addresses, phones).
 
 ---
@@ -750,14 +751,14 @@ This dataset stands on the shoulders of:
 
 Semantic versioning, dataset edition:
 
-- **MAJOR** — schema changes (field added/removed/renamed), label-space
+- **MAJOR.** schema changes (field added/removed/renamed), label-space
   changes (categories added/removed/merged), train/val/test resplit,
   significant content removal. Will require dataset-loading code changes
   for downstream users.
-- **MINOR** — new languages added, new source corpora added, additional
+- **MINOR.** new languages added, new source corpora added, additional
   configs published, ≥10% growth in chunk count, opt-in fields added.
   Existing fields and splits stay backward compatible.
-- **PATCH** — label corrections, span-offset fixes, documentation
+- **PATCH.** label corrections, span-offset fixes, documentation
   improvements, frontmatter updates. Chunk identities preserved.
 
 Latest version: **1.0** (this card).
@@ -766,7 +767,7 @@ Latest version: **1.0** (this card).
 
 ## Changelog
 
-### v1.0 — 2026-05-09 (initial release)
+### v1.0 (2026-05-09, initial release)
 
 - 171,336 chunks across 5 languages (de_ch, fr_ch, it_ch, rm, en).
 - 8 PII categories, 33-class BIOES label space.
@@ -784,5 +785,5 @@ Latest version: **1.0** (this card).
 
 ## Contact
 
-Joel Barmettler — joel.barmettler@gmail.com
+Joel Barmettler. joel.barmettler@gmail.com
 [github.com/joelbarmettlerUZH/gheim](https://github.com/joelbarmettlerUZH/gheim) · [GitHub Issues](https://github.com/joelbarmettlerUZH/gheim/issues)
