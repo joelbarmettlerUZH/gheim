@@ -42,6 +42,10 @@ model-index:
             value: 0.9258
 ---
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/joelbarmettlerUZH/gheim/main/assets/logo.png" alt="gheim" width="360">
+</p>
+
 # gheim-ch-559m
 
 A multilingual token-classification model for personally-identifiable information
