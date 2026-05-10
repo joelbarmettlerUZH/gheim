@@ -11,9 +11,11 @@
         "typescript": "^5.5.0",
       },
       "peerDependencies": {
+        "@huggingface/transformers": ">=3.0.0 <5.0.0",
         "openai": ">=4.0.0 <6.0.0",
       },
       "optionalPeers": [
+        "@huggingface/transformers",
         "openai",
       ],
     },

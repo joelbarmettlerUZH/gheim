@@ -6,7 +6,6 @@ CPU. Skipped by default — set ``GHEIM_RUN_LIVE=1`` to enable.
 from __future__ import annotations
 
 import pytest
-
 from gheim import LocalDetector, Session, anonymize_text, deanonymize_stream, deanonymize_text
 
 pytestmark = pytest.mark.live

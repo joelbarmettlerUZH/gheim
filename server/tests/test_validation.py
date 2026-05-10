@@ -46,9 +46,11 @@ def client(monkeypatch: pytest.MonkeyPatch):
     import gheim_server.main as main_mod
     importlib.reload(main_mod)
     fake = _FakePipeline()
-    with patch.object(main_mod.registry, "get", return_value=fake):
-        with TestClient(main_mod.app) as c:
-            yield c, fake
+    with (
+        patch.object(main_mod.registry, "get", return_value=fake),
+        TestClient(main_mod.app) as c,
+    ):
+        yield c, fake
 
 
 # ---------- C.2 pydantic validation ----------

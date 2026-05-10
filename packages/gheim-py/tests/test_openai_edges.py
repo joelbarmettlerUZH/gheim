@@ -5,12 +5,9 @@ from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from typing import Any
 
-import pytest
-
 import gheim.openai as gheim_openai_mod
+import pytest
 from gheim import Session, Span
-from gheim.detectors.base import Detector
-
 
 # ---------- shared fakes ----------
 
@@ -51,7 +48,7 @@ class FakeChunk:
     id: str = "chunk-x"
     model: str = "gpt-4o"
 
-    def model_copy(self, *, deep: bool = False) -> "FakeChunk":
+    def model_copy(self, *, deep: bool = False) -> FakeChunk:
         return FakeChunk(
             id=self.id,
             model=self.model,

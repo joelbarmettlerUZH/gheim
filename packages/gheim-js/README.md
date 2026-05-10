@@ -1,8 +1,10 @@
 <div align="center">
 
-<h1 align="center" style="font-size: 28px">gheim (JavaScript / TypeScript)</h1>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/joelbarmettlerUZH/gheim/main/assets/logo.png" alt="gheim" width="360">
+</p>
 
-<p align="center"><strong>PII round-trip for LLM APIs — JavaScript.</strong></p>
+<p align="center"><strong>gheim (JavaScript / TypeScript). PII round-trip for LLM APIs.</strong></p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/gheim"><img src="https://img.shields.io/npm/v/gheim?color=blue&label=npm" alt="npm"></a>
@@ -12,19 +14,51 @@
 
 </div>
 
-See the [monorepo README](https://github.com/joelbarmettlerUZH/gheim) for the
-product pitch, diagram, and speed tables.
+Detect PII in text, substitute it with stable sentinels (`<PERSON_1>`,
+`<EMAIL_2>`, ...), send the redacted text to any LLM, and restore the
+originals on the way back, including in streamed responses. The package
+is framework-agnostic and ships a drop-in `openai` client wrapper for
+zero-effort integration.
+
+See the [monorepo README](https://github.com/joelbarmettlerUZH/gheim) for
+the cross-language overview and architecture.
 
 ## Install
 
 ```bash
-npm install gheim                           # or: bun add gheim
-npm install gheim openai                    # drop-in OpenAI client
-npm install gheim @huggingface/transformers # on-device detection
+npm install gheim                            # or: bun add gheim
+npm install gheim openai                     # add the drop-in OpenAI client
+npm install gheim @huggingface/transformers  # add on-device detection
 ```
 
-`openai` and `@huggingface/transformers` are optional peer deps — gheim itself
-pulls in nothing extra.
+`openai` and `@huggingface/transformers` are optional peer dependencies.
+The core package itself has no runtime dependencies.
+
+## Model choice
+
+`LocalDetector` loads a token-classification model via
+[`@huggingface/transformers`](https://www.npmjs.com/package/@huggingface/transformers)
+(transformers.js). Two models are recommended depending on the
+deployment context. Both implement the same 33-class BIOES output
+schema and are interchangeable.
+
+| Model | Best for | Parameters | Notes |
+|---|---|---:|---|
+| [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) | Swiss-market text (de_CH, fr_CH, it_CH, rm, en) with CH-format account numbers (IBAN, AHV, VAT-CHE) | 560M | Apache 2.0. Test F1 = 0.916 on Swiss text. ONNX export ships in the `onnx/` subfolder. |
+| [`openai/privacy-filter`](https://huggingface.co/openai/privacy-filter) | English-first or general use, long-context (up to 128k tokens) | 1.4B (50M active, MoE) | Apache 2.0. Wider language coverage, larger weights. |
+
+```ts
+import { LocalDetector } from "gheim";
+
+// Recommended for Swiss-market text:
+const det = new LocalDetector({ model: "joelbarmettler/gheim-ch-560m" });
+
+// Alternative for English or general use:
+const detEn = new LocalDetector({ model: "openai/privacy-filter" });
+```
+
+The package default `model` is `openai/privacy-filter`. Pass `model`
+explicitly to opt into the Swiss model.
 
 ## Drop-in OpenAI client
 
@@ -62,8 +96,7 @@ const r = await client.chat.completions.create({
 });
 ```
 
-All non-chat resources are on `client.raw` once `await client.ready()`
-resolves.
+All non-chat OpenAI resources are on `client.raw` once `await client.ready()` resolves.
 
 ## Framework-agnostic
 
@@ -71,13 +104,15 @@ resolves.
 import { Session, LocalDetector, anonymizeText, deanonymizeText } from "gheim";
 
 const session = new Session();
-(session as any).detector = new LocalDetector();
+(session as any).detector = new LocalDetector({
+  model: "joelbarmettler/gheim-ch-560m",
+});
 const clean = await anonymizeText("Hi, my name is Joel", session);
 // ... call any LLM with clean ...
 const final = deanonymizeText(responseText, session);
 ```
 
-Streaming deanonymizer for any text chunk source:
+Streaming deanonymizer for any text-chunk source:
 
 ```ts
 import { deanonymizeStream } from "gheim";
@@ -115,9 +150,41 @@ await client.ready();
 client.raw.beta.assistants.create(...);  // always works regardless of strict mode
 ```
 
+## Detectors
+
+```ts
+import { LocalDetector, RemoteDetector, defaultDetector } from "gheim";
+
+// Local: via @huggingface/transformers, on Node and Bun.
+const local = new LocalDetector({
+  model: "joelbarmettler/gheim-ch-560m",
+  device: "auto",
+  dtype: "fp32",
+});
+
+// Remote: against your own gheim-server or api.gheim.ch.
+const remote = new RemoteDetector({
+  baseUrl: "http://your-host:8080",
+  apiKey: "...",
+});
+
+// Picks remote when GHEIM_API_KEY is set in the environment, else local.
+const auto = defaultDetector();
+```
+
+## Runtime support
+
+Tested on Node 18+ and Bun 1.1+ with `device: "cpu"` (the default). The
+underlying transformers.js library also supports `device: "webgpu"` in
+modern browsers; the WebGPU path is not exercised in CI and should be
+considered best-effort.
+
+For Node servers, installing `onnxruntime-node` alongside
+`@huggingface/transformers` enables the native ONNX backend, which is
+typically 5-10× faster than the default WebAssembly backend.
 ## Artifacts
 
-Ships as dual ESM + CJS with full `.d.ts`:
+Ships as dual ESM and CJS with full `.d.ts` typings:
 
 ```
 dist/esm/{index,openai}.js
@@ -125,22 +192,16 @@ dist/cjs/{index,openai}.cjs
 dist/types/**/*.d.ts
 ```
 
-Works in Node 18+ and the browser (`device: "webgpu"` on `LocalDetector`).
+## Composite detector (recommended for production)
 
-## Detectors
+For categories where structure is verifiable by checksum (CH-IBAN, AHV,
+VAT-CHE, credit cards, common token formats), the Python sibling
+package ships a composite detector that pairs the regex catalogue with
+the model. The JavaScript package implements the model side; combine
+with your own regex layer or proxy through `gheim-server`, which
+applies the composite detector internally.
 
-```ts
-import { LocalDetector, RemoteDetector, defaultDetector } from "gheim";
+## License
 
-// Local — via @huggingface/transformers, Node or browser
-const local = new LocalDetector({ device: "auto", dtype: "fp32" });
-
-// Remote — your own gheim-server or api.gheim.ch
-const remote = new RemoteDetector({
-  baseUrl: "http://your-host:8080",
-  apiKey: "...",
-});
-
-// Picks remote if GHEIM_API_KEY env is set, else local
-const auto = defaultDetector();
-```
+Apache 2.0. Bundled model weights are inherited from the upstream
+license of the model you select.

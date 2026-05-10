@@ -1,8 +1,10 @@
 <div align="center">
 
-<h1 align="center" style="font-size: 28px">gheim (Python)</h1>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/joelbarmettlerUZH/gheim/main/assets/logo.png" alt="gheim" width="360">
+</p>
 
-<p align="center"><strong>PII round-trip for LLM APIs — Python.</strong></p>
+<p align="center"><strong>gheim (Python). PII round-trip for LLM APIs.</strong></p>
 
 <p align="center">
   <a href="https://pypi.org/project/gheim/"><img src="https://img.shields.io/pypi/v/gheim?color=blue&label=PyPI" alt="PyPI"></a>
@@ -12,24 +14,56 @@
 
 </div>
 
-See the [monorepo README](https://github.com/joelbarmettlerUZH/gheim) for the
-product pitch, diagram, and speed tables.
+Detect PII in text, substitute it with stable sentinels (`<PERSON_1>`,
+`<EMAIL_2>`, ...), send the redacted text to any LLM, and restore the
+originals on the way back, including in streamed responses. The package
+is framework-agnostic and ships a drop-in `openai` client wrapper for
+zero-effort integration.
+
+See the [monorepo README](https://github.com/joelbarmettlerUZH/gheim) for
+the cross-language overview and architecture.
 
 ## Install
 
 ```bash
-uv add gheim                          # core — needs a RemoteDetector or GHEIM_API_KEY
-uv add "gheim[local]"                 # + torch / transformers for on-device detection
+uv add gheim                          # core: pairs with a RemoteDetector or GHEIM_API_KEY
+uv add "gheim[local]"                 # + torch and transformers for on-device detection
 uv add "gheim[openai]"                # + drop-in OpenAI client
 uv add "gheim[local,openai]"          # both
 ```
+
+## Model choice
+
+`LocalDetector` runs a token-classification model in process. Two models
+are recommended depending on the deployment context. Both implement the
+same 33-class BIOES output schema and are interchangeable in
+`LocalDetector` and the rest of the API.
+
+| Model | Best for | Parameters | Notes |
+|---|---|---:|---|
+| [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) | Swiss-market text (de_CH, fr_CH, it_CH, rm, en) with CH-format account numbers (IBAN, AHV, VAT-CHE) | 560M | Apache 2.0. Test F1 = 0.916 on Swiss text. |
+| [`openai/privacy-filter`](https://huggingface.co/openai/privacy-filter) | English-first or general use, long-context (up to 128k tokens) | 1.4B (50M active, MoE) | Apache 2.0. Wider language coverage, larger weights. |
+
+```python
+from gheim import LocalDetector
+
+# Recommended for Swiss-market text:
+det = LocalDetector(model_id="joelbarmettler/gheim-ch-560m")
+
+# Alternative for English or general use:
+det = LocalDetector(model_id="openai/privacy-filter")
+```
+
+The package default `model_id` is `openai/privacy-filter`. Set
+`GHEIM_DEFAULT_MODEL=joelbarmettler/gheim-ch-560m` in the environment, or
+pass `model_id` explicitly, to opt into the Swiss model.
 
 ## Drop-in OpenAI client
 
 ```python
 from gheim.openai import OpenAI
 
-client = OpenAI()  # same args as openai.OpenAI
+client = OpenAI()  # same constructor args as openai.OpenAI
 r = client.chat.completions.create(
     model="gpt-4o",
     messages=[{"role": "user", "content": "Hi, my name is Joel"}],
@@ -71,7 +105,7 @@ r = client.chat.completions.create(
 ```python
 from gheim import Session, LocalDetector, anonymize_text, deanonymize_text
 
-session = Session(detector=LocalDetector())
+session = Session(detector=LocalDetector(model_id="joelbarmettler/gheim-ch-560m"))
 clean = anonymize_text("Hi, my name is Joel", session)
 # ... call any LLM with clean ...
 final = deanonymize_text(response_text, session)
@@ -90,7 +124,7 @@ Chat-message helpers:
 ```python
 from gheim import anonymize_messages
 
-redacted = anonymize_messages(messages, session)  # preserves role/name/tool_call_id
+redacted = anonymize_messages(messages, session)  # preserves role, name, tool_call_id
 ```
 
 ## Wrapped endpoints
@@ -118,13 +152,31 @@ client.raw.beta.assistants.create(...)  # always works regardless of strict mode
 ## Detector backends
 
 ```python
-# Local inference — downloads weights to ~/.cache/gheim/ on first use
-from gheim import LocalDetector
-det = LocalDetector(device="auto", dtype=torch.bfloat16)
+from gheim import LocalDetector, RemoteDetector, default_detector
 
-# Remote — your own gheim-server or api.gheim.ch
-from gheim import RemoteDetector
+# Local inference. Weights download to the HF cache on first use.
+det = LocalDetector(model_id="joelbarmettler/gheim-ch-560m",
+                    device="auto", dtype=torch.bfloat16)
+
+# Remote inference against your own gheim-server or api.gheim.ch.
 det = RemoteDetector(base_url="http://your-host:8080", api_key="...")
+
+# default_detector() picks remote if GHEIM_API_KEY is set, else local.
+det = default_detector()
 ```
 
-`default_detector()` picks remote if `GHEIM_API_KEY` is set, else local.
+## Composite detector (recommended for production)
+
+For categories where structure is verifiable by checksum (CH-IBAN, AHV,
+VAT-CHE, credit cards, common token formats) the package ships a regex
+catalogue under `gheim.detectors.composite` that pairs with the model
+detector. The composite detector applies regex first, masks matched
+spans, then runs the model on the remainder. This pushes effective
+recall on `account_number`, `private_phone`, and `private_url` close
+to 1.0 with high precision; the underlying ML model handles person
+names, addresses, and dates.
+
+## License
+
+Apache 2.0. Bundled model weights are inherited from the upstream
+license of the model you select.

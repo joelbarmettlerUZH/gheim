@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 _MERGE_GAP = 1
 
 
-def _merge_adjacent(text: str, spans: list["Span"]) -> list[tuple[int, int, str]]:
+def _merge_adjacent(text: str, spans: list[Span]) -> list[tuple[int, int, str]]:
     """Merge runs of same-label spans that touch (or are separated by ≤ ``_MERGE_GAP``
     whitespace characters)."""
     out: list[tuple[int, int, str]] = []
@@ -61,7 +61,7 @@ class Session:
     _coalesce: dict[tuple[str, str], str] = field(default_factory=dict)
     _counters: dict[str, int] = field(default_factory=dict)
     detector: Annotated[
-        "Detector | None", "Optional default detector reused across calls in this session."
+        Detector | None, "Optional default detector reused across calls in this session."
     ] = None
 
     def allocate(
@@ -84,7 +84,7 @@ class Session:
     def apply_spans(
         self,
         text: Annotated[str, "Original text the spans were detected in."],
-        spans: Annotated[list["Span"], "Detected PII spans, possibly unsorted."],
+        spans: Annotated[list[Span], "Detected PII spans, possibly unsorted."],
     ) -> str:
         """Replace each span in ``text`` with an allocated sentinel. Left-to-right, non-overlapping.
 
