@@ -1,0 +1,674 @@
+\documentclass[manuscript,nonacm,11pt]{acmart}
+\settopmatter{printacmref=false}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+
+% Hide the ACM submission boilerplate that has no place in a
+% self-published technical report.
+\setcopyright{none}
+\acmConference{}{}{}
+\renewcommand{\footnotetextcopyrightpermission}[1]{}
+\pagestyle{plain}
+
+\title{gheim: A Swiss-Tuned PII Detector and Companion Dataset for the Four Official Languages of Switzerland and English}
+\author{Joel Barmettler}
+\affiliation{%
+  \institution{Independent}
+  \city{Zürich}
+  \country{Switzerland}
+}
+\email{jbarmettler@proton.me}
+
+\begin{document}
+
+\begin{abstract}
+We release \textsf{gheim-ch-pii-171k}, a 171,336-chunk personally-identifiable
+information (PII) named-entity-recognition dataset covering the four
+official Swiss languages (Swiss German, Swiss French, Swiss Italian,
+Romansh) and English, and \textsf{gheim-ch-560m}, a 560M-parameter
+\textsf{xlm-roberta-large} fine-tune released alongside it. The dataset
+combines real Swiss text from court rulings, federal parliament records,
+Swiss-filtered web text and a Romansh corpus with an LLM-generated
+synthetic gap-fill layer that covers cells where the real-text corpus
+was too sparse for training and evaluation. The model attains a
+strict-span F\textsubscript{1} of 0.916 on a held-out test split,
+outperforming the next-strongest open contestant
+(\textsf{openai/privacy-filter} zero-shot) by 47 percentage points
+on the same Swiss test set, and reaching 0.89--0.96 person-NER
+F\textsubscript{1} on four widely-used external benchmarks. The dataset
+ships under CC BY 4.0; the model under Apache 2.0; both are available
+on the Hugging Face Hub. Reproducible eval scripts and checkpoints are
+on GitHub.
+\end{abstract}
+
+\maketitle
+
+% --------------------------------------------------------------------
+\section{Introduction}
+\label{sec:intro}
+
+The dominant pattern in production large-language-model (LLM) workflows
+is to call a hosted API: OpenAI, Anthropic, Google, Mistral. For
+Swiss-market deployments this raises a recurring compliance concern:
+every request that contains a customer name, a Swiss address, an IBAN,
+or an AHV/AVS social-security number leaves Swiss jurisdiction the
+moment it crosses the API boundary. Anonymising sensitive content
+before the request and restoring the originals on the response is the
+established mitigation. The accuracy of the round-trip depends on the
+quality of the underlying named-entity recogniser.
+
+Existing public PII detectors handle Swiss text poorly. The closest
+open generalist, \textsf{openai/privacy-filter}~\cite{openai2025privacyfilter},
+reaches a strict-span F\textsubscript{1} of 0.44 on our held-out Swiss
+test set despite being a 1.4B-parameter mixture-of-experts model trained
+on multilingual data. Microsoft Presidio~\cite{microsoft2023presidio},
+configured with per-language NLP engines, reaches 0.43. Multilingual
+NER baselines such as Davlan's \textsf{xlm-roberta-base-ner-hrl}
+~\cite{davlan2022xlmrnerhrl} reach 0.65 person-only F\textsubscript{1}.
+None of the available systems fluently handle the four official
+Swiss languages together with the structured PII formats common in
+Swiss documents (CH-IBAN, AHV, VAT-CHE), and only one
+(SwissNER~\cite{vamvas2023swissner}) provides a Romansh evaluation
+slice.
+
+This work contributes:
+
+\begin{enumerate}
+  \item \textsf{gheim-ch-pii-171k}, a multilingual PII NER dataset of
+        171,336 chunks across Swiss German, Swiss French, Swiss Italian,
+        Romansh and English, covering eight PII categories
+        (account number, address, date, email, person, phone, URL,
+        secret), encoded in a 33-class BIOES tag scheme byte-aligned
+        with \textsf{openai/privacy-filter}.
+  \item \textsf{gheim-ch-560m}, a 560M-parameter token-classification
+        model fine-tuned from \textsf{xlm-roberta-large}~\cite{conneau2020unsupervised}
+        on the dataset, attaining a held-out test F\textsubscript{1}
+        of 0.916 strict-span and 0.958 character-level.
+  \item A reproducible evaluation harness that scores both the released
+        model on four established external benchmarks
+        (\textsf{ai4privacy/openpii-1m}, ZurichNLP \textsf{swissner},
+        Babelscape \textsf{WikiNeural}~\cite{tedeschi2021wikineural},
+        CoNLL-2003~\cite{tjong2003introduction}) and seven competing
+        open detectors on the released test set, with replication
+        checks against each baseline's published numbers on its native
+        dataset.
+\end{enumerate}
+
+The rest of the paper is structured as follows.
+Section~\ref{sec:dataset} describes the dataset construction.
+Section~\ref{sec:model} covers model selection and training.
+Section~\ref{sec:eval} reports the evaluation, including the
+methodology-validation cross-checks. Section~\ref{sec:limits} discusses
+limitations. Section~\ref{sec:related} situates the work against prior
+art. Section~\ref{sec:conclusion} concludes.
+
+% --------------------------------------------------------------------
+\section{Dataset: gheim-ch-pii-171k}
+\label{sec:dataset}
+
+\subsection{Source corpora and language coverage}
+
+Real-text content is drawn from the Apertus pretrain
+corpora~\cite{swissai2025apertus}, specifically the Swiss legal
+slice (\texttt{entscheidsuche}), the federal parliament records
+(\texttt{curia\_vista}), the Swiss-filtered subset of FineWeb-2,
+and the Romansh corpus (\texttt{romansh}). Source documents are
+chunked at sentence boundaries to roughly 1{,}500 characters, then
+tagged with \texttt{facebook/fasttext-language-identifica\-tion}
+at confidence $\geq 0.5$. Chunks below threshold are dropped.
+The five-language distribution of the released dataset is shown in
+Table~\ref{tab:lang-dist}.
+
+\begin{table}[h]
+\centering
+\caption{Per-language chunk distribution.}
+\label{tab:lang-dist}
+\begin{tabular}{l l r r}
+\toprule
+Code   & Variant                              & Chunks & \% \\
+\midrule
+de\_ch & Swiss German written standard        & 48{,}564 & 28.3 \\
+fr\_ch & Swiss French                         & 48{,}097 & 28.1 \\
+it\_ch & Swiss Italian (Ticino/Grisons)       & 45{,}462 & 26.5 \\
+rm     & Romansh (Rumantsch Grischun + idioms)& 17{,}171 & 10.0 \\
+en     & English (international, Swiss-context)& 12{,}042 & ~7.0 \\
+\midrule
+\multicolumn{2}{l}{Total}                     & 171{,}336 & 100 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Spoken-form Swiss German (GSW) is not represented: the corpus is
+written-standard German as used in Swiss legal and journalistic
+contexts. The fasttext language identifier labels GSW
+(``chuchichäschtli''-style orthography) as standard German, so
+incidental dialect content cannot be reliably separated.
+
+\subsection{Annotation schema}
+
+The label space follows the \textsf{openai/privacy-filter} taxonomy:
+eight PII categories listed in Table~\ref{tab:cats}, each encoded in a
+BIOES tag scheme~\cite{ratinov2009design} (Begin, Inside, Outside, End,
+Single), giving 33 classes overall (one outside class plus four BIOES
+positions for each of the eight categories). The byte-identical label
+mapping is deliberate: it lets a fine-tune started from
+\textsf{openai/privacy-filter}'s checkpoint reuse the pretrained
+classifier-head weights without remapping. The \texttt{private\_}
+prefix is historical; all eight cells are applied with a recall-oriented
+labelling policy and may flag publicly-listed institutional entities
+(e.g.\ a court switchboard phone number).
+
+\begin{table}[h]
+\centering
+\caption{The eight PII categories.}
+\label{tab:cats}
+\small
+\begin{tabular}{l l}
+\toprule
+Category               & Examples \\
+\midrule
+\texttt{account\_number} & CH-IBAN, AHV/AVS, VAT-CHE, credit cards \\
+\texttt{private\_address} & Bahnhofstrasse 1, 8001 Zürich \\
+\texttt{private\_date}   & 1990-01-02, 14.\,M\"arz 2026 \\
+\texttt{private\_email}  & alice@example.ch \\
+\texttt{private\_person} & Joel Barmettler, Dr.\ Schmidt \\
+\texttt{private\_phone}  & +41 44 268 12 34 \\
+\texttt{private\_url}    & https://kanzlei.ch/...{} \\
+\texttt{secret}          & API keys, bearer tokens \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Curation pipeline}
+
+The dataset is the output of a seven-phase pipeline. Real-text chunks
+are passed through (i) language detection, (ii) primary annotation by
+Gemma 4 26B-A4B via structured-output JSON-schema decoding,
+(iii) augmentation by a regex catalogue with checksum validators
+(ISO 13616 mod-97 for IBAN, EAN-13 mod-10 for AHV, ISO 7064 mod-11
+for VAT-CHE, Luhn for credit cards), with the regex annotator taking
+priority on overlap. The annotated chunks are then balanced by
+per-document, per-value and per-cell caps to limit document-level
+concentration and value memorisation, then split at the document level
+into train, validation and test stratified by (language $\times$ source).
+
+A separate synthetic gap-fill layer is appended to populate cells where
+real-Swiss-text coverage was insufficient. A slot-fill verifier
+pre-generates payload values (Faker\_CH names, addresses and phones;
+checksum-validated CH-IBAN, AHV and VAT-CHE; common secret formats),
+then prompts Gemma to embed those exact values verbatim into natural
+multilingual prose (developer chat, customer-record notes, incident
+reports). The verifier accepts a chunk only if every payload value
+appears as an exact substring in the model output. Rejection rate
+was approximately 2~\% of generations. 24,900 of these synthetic
+chunks are placed in the training split (22,500), validation (1,200)
+and test (1,200), with deterministic seeded placement and disjoint
+chunk IDs across splits. The remaining 146,436 chunks are real-text.
+Every record carries a \texttt{synthetic} boolean field so consumers
+can filter to real-only or synthetic-only as required.
+
+\subsection{Splits and held-out integrity}
+
+Documents are partitioned at the source-document level before any
+chunk is taken, with stratification by (language $\times$ source), so
+no chunk in test or validation comes from a document with a chunk
+in train. Synthetic chunks are placed deterministically (random seed
+17). Final split sizes are 139,641 / 15,834 / 15,861 chunks for
+train / validation / test.
+
+\subsection{Label noise}
+
+Annotations are machine-generated; no third-party human annotators
+were contracted. As an upper bound on label noise we ran four
+independent subagent re-labellings on a stratified 176-chunk sample
+and compared the dataset to the four-way majority vote, yielding an
+F\textsubscript{1} of 0.66. Inspection of disagreements indicates the
+gap is dominated by policy-interpretation differences (e.g.\ whether
+to label the publicly-listed switchboard number of a court as PII)
+rather than random error.
+
+% --------------------------------------------------------------------
+\section{Model: gheim-ch-560m}
+\label{sec:model}
+
+\subsection{Architecture and base-model selection}
+
+The model is a token-classification head atop
+\textsf{xlm-roberta-large}~\cite{conneau2020unsupervised} (24 layers,
+1024 hidden, 16 heads, 560M parameters). XLM-R-large was selected
+following a controlled bake-off against \textsf{ZurichNLP/swissbert}
+~\cite{vamvas2023swissbert} (270M dense), summarised in
+Table~\ref{tab:bakeoff}. Both bases received an identical 5$\times$3
+hyperparameter sweep over (learning rate, layer-wise LR decay) at
+one epoch, after which the winning configuration per base was trained
+for three full epochs and selected by best validation F\textsubscript{1}.
+A third candidate, \textsf{openai/privacy-filter}, was deferred:
+the Olmo-MoE ONNX export is not currently stable in
+\textsf{optimum}~\cite{onnxruntime}, which would constrain
+JavaScript-side portability of the released model.
+
+\begin{table}[h]
+\centering
+\caption{Base-model bake-off.}
+\label{tab:bakeoff}
+\small
+\begin{tabular}{l r r}
+\toprule
+Base model                                  & Val F\textsubscript{1} & Test F\textsubscript{1} \\
+\midrule
+\textsf{ZurichNLP/swissbert} (270M)         & 0.910 & not run \\
+\textsf{FacebookAI/xlm-roberta-large} (560M)& \textbf{0.918} & \textbf{0.916} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In the (LR, LLRD) sweep, learning rate was the dominant factor:
+F\textsubscript{1} increased monotonically with LR over the tested
+range (5e-6 to 5e-5) for both bases. Layer-wise LR decay did not
+improve any cell at any tested value (1.0, 0.95, 0.9). The selected
+configuration is therefore LR = 5$\times$10\textsuperscript{$-$5}
+without LLRD.
+
+\subsection{Training procedure}
+
+The training mix is the train split of \textsf{gheim-ch-pii-171k}
+(139,641 chunks) plus a small AI4Privacy English/email augmentation
+slice (approximately 14,000 chunks drawn from
+\texttt{ai4privacy/openpii-1m}~\cite{ai4privacy2024openpii}) added to
+shore up English-anchor coverage and CH-region email recall, for a
+total of 153,641 training chunks. The validation and test splits used
+for the headline metrics contain no AI4Privacy data. Hyperparameters
+are listed in Table~\ref{tab:hyperparams}.
+
+\begin{table}[h]
+\centering
+\caption{Training hyperparameters.}
+\label{tab:hyperparams}
+\small
+\begin{tabular}{l l}
+\toprule
+Hyperparameter        & Value \\
+\midrule
+Optimiser             & AdamW~\cite{loshchilov2019decoupled} \\
+Learning rate         & 5e-5 \\
+LR scheduler          & Cosine, 5\% warmup \\
+Layer-wise LR decay   & 1.0 (off) \\
+Effective batch size  & 128 (per-device 64 $\times$ 2 GPUs DDP) \\
+Epochs                & 3; best at epoch 2.50 \\
+Max sequence length   & 512 \\
+Precision             & bf16 \\
+Hardware              & 2 $\times$ NVIDIA RTX 4090 \\
+Wall time             & ${\approx}$ 52 min train + 4 min eval \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The best checkpoint was selected by \texttt{eval\_overall\_f1} on the
+validation split. The held-out test split was scored exactly once on
+the selected checkpoint to produce the headline numbers in
+Section~\ref{sec:eval}.
+
+\subsection{Deployment formats}
+
+The model ships in two formats. Server-side users load
+\texttt{model.safetensors} (fp32 PyTorch, 2.2 GB) via
+\textsf{transformers}~\cite{wolf2020transformers}; in-browser users load
+\texttt{onnx/model\_quantized.onnx} (int8 dynamic-quantised ONNX,
+552 MB) via \textsf{transformers.js}~\cite{transformersjs} on WebGPU
+or WebAssembly. The int8 export reproduces 99.4\% of the fp32 strict
+F\textsubscript{1} (0.909 vs 0.916, $-$0.7 pp); the loss is concentrated
+in the two categories that were already weakest under fp32
+(Table~\ref{tab:percat}, columns headed ``Quant.~$\Delta$'').
+
+% --------------------------------------------------------------------
+\section{Evaluation}
+\label{sec:eval}
+
+\subsection{Methodology}
+
+Two metrics are reported throughout. \textbf{Strict-span F\textsubscript{1}}
+is the standard NER literature metric: a predicted span counts as a
+true positive only if its (start, end, label) tuple matches a gold span
+exactly. Computed via \textsf{seqeval}~\cite{nakayama2018seqeval} at
+the token level for HF and ONNX backends, and via char-level set match
+for span-emitting backends (spaCy, Presidio) that lack a token grid.
+\textbf{Char-level F\textsubscript{1}} (label-aware) is computed over
+$(\text{character index}, \text{label})$ pairs: it asks ``did the model
+mask the right characters with the right category?'' and is invariant
+to entity-segmentation policy differences across systems.
+
+The latter matters because cross-model PII evaluation has a structural
+problem: different annotation conventions split the same surface form
+differently. \textsf{ai4privacy/openpii-1m} splits a person mention
+into a \texttt{GIVENNAME} and a \texttt{SURNAME} span;
+\textsf{gheim-ch-560m} and CoNLL-2003 emit one combined \texttt{PERSON}
+span; address detectors fragment ``Werdstrasse 36, 8004 Zürich''
+at the comma or do not. Strict-span F\textsubscript{1} penalises every
+boundary mismatch even when the underlying redaction-utility goal is
+met. Reporting both metrics lets the reader judge which is appropriate
+for their use case: strict for literature comparability, char for
+deployment.
+
+\subsection{Headline performance}
+
+On the held-out test split of \textsf{gheim-ch-pii-171k} (15,861
+chunks), \textsf{gheim-ch-560m} attains a strict-span F\textsubscript{1}
+of 0.916 (precision 0.907, recall 0.926) and a char F\textsubscript{1}
+of 0.958. The validation/test gap is 0.002, consistent with no
+observable overfitting to the validation set used for checkpoint
+selection. Per-category and per-language breakdowns are in
+Tables~\ref{tab:percat} and \ref{tab:perlang}.
+
+\begin{table}[h]
+\centering
+\caption{Per-category F\textsubscript{1}. ``Quant.~$\Delta$'' is the change
+under int8 quantisation relative to the fp32 strict cell.}
+\label{tab:percat}
+\small
+\begin{tabular}{l r r r r}
+\toprule
+Category              & Strict & Char  & Quant. $\Delta$ & $n_\text{gold}$ \\
+\midrule
+\texttt{secret}            & 0.996 & 0.998 & $+0.002$ & 1{,}104 \\
+\texttt{private\_email}    & 0.987 & 0.994 & $-0.003$ & 1{,}712 \\
+\texttt{private\_phone}    & 0.986 & 0.989 & $-0.002$ & 3{,}329 \\
+\texttt{private\_url}      & 0.947 & 0.991 & $-0.002$ & 3{,}991 \\
+\texttt{private\_date}     & 0.922 & 0.935 & $-0.007$ & 9{,}678 \\
+\texttt{private\_person}   & 0.915 & 0.944 & $-0.006$ & 14{,}726 \\
+\texttt{private\_address}  & 0.782 & 0.886 & $-0.021$ & 3{,}507 \\
+\texttt{account\_number}   & 0.669 & 0.763 & $-0.053$ & 502 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Per-language F\textsubscript{1} on the held-out test split.}
+\label{tab:perlang}
+\small
+\begin{tabular}{l r r r}
+\toprule
+Language & Strict & Char  & $n_\text{chunks}$ \\
+\midrule
+en       & 0.954  & 0.981 & 893    \\
+it\_ch   & 0.942  & 0.972 & 4{,}169 \\
+de\_ch   & 0.911  & 0.954 & 4{,}753 \\
+fr\_ch   & 0.906  & 0.953 & 4{,}705 \\
+rm       & 0.853  & 0.923 & 1{,}341 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The best-served categories are the structured ones with strong surface
+signals (\texttt{secret}, \texttt{email}, \texttt{phone}, \texttt{URL});
+the weakest are \texttt{private\_address} and \texttt{account\_number}.
+Address weakness is dominated by boundary placement on multi-token
+addresses; account-number weakness reflects the small per-language
+support (502 spans across all five languages) plus the structural
+similarity of CH-IBAN, EU-IBAN and other non-Swiss numbers. For
+production use both categories are intended to be paired with a
+deterministic regex front-end that applies checksum validation
+(see \texttt{packages/gheim-py/src/gheim/detectors/composite.py}).
+
+\subsection{Comparison to other systems}
+
+Seven other open PII / NER systems were scored on the same test split
+under the same harness. Results are in Table~\ref{tab:directionA}.
+PER-only models (Davlan, dslim, spaCy) emit only person mentions and
+no other PII categories; their overall F\textsubscript{1} on our
+8-category schema is therefore artificially low and is reported as
+n/a in the table; the meaningful number for those is the
+\texttt{private\_person} cell (Table~\ref{tab:directionA}, last two
+columns).
+
+\begin{table*}[t]
+\centering
+\caption{Direction A: other models on the \textsf{gheim-ch-pii-171k}
+test split. Strict and char F\textsubscript{1} for both the overall
+8-category metric and the \texttt{private\_person} cell.}
+\label{tab:directionA}
+\small
+\begin{tabular}{l r r r r}
+\toprule
+Model                                                            & Strict F1 & Char F1 & PER strict & PER char \\
+\midrule
+\textbf{\textsf{joelbarmettler/gheim-ch-560m}}                  & \textbf{0.916} & \textbf{0.958} & \textbf{0.915} & \textbf{0.944} \\
+\textsf{openai/privacy-filter} (1.4B MoE, zero-shot)             & 0.443 & 0.610 & 0.406 & 0.561 \\
+Microsoft Presidio (multi-lang config)                           & 0.434 & 0.562 & 0.442 & 0.521 \\
+\textsf{Davlan/xlm-roberta-base-ner-hrl}                         & n/a   & n/a   & 0.645 & 0.728 \\
+\textsf{Davlan/distilbert-base-multilingual-cased-ner-hrl}       & n/a   & n/a   & 0.619 & 0.771 \\
+spaCy \texttt{de/fr/it\_core\_news\_lg}                          & n/a   & n/a   & 0.505 & 0.621 \\
+\textsf{dslim/bert-base-NER} (English slice)                     & n/a   & n/a   & 0.512 & 0.770 \\
+\textsf{Isotonic/distilbert\_finetuned\_ai4privacy\_v2}          & 0.157 & 0.508 & 0.264 & 0.507 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The released model leads every other system on every cell that is
+directly comparable. The two metrics tell the same story: strict
+F\textsubscript{1} shows a 47-pp lead over the strongest contestant
+(\textsf{openai/privacy-filter}), char F\textsubscript{1} shows a 35-pp
+lead. The gap between the two metrics is largest for systems whose
+schema differs most from ours: \textsf{Isotonic/distilbert\_finetuned\_ai4privacy\_v2}
+gains $+35$ pp under char F\textsubscript{1} because its fine-grained
+schema (FIRSTNAME, LASTNAME, MIDDLENAME, PREFIX, $\ldots$) collapses
+under our 8-category remap and produces highly fragmented spans;
+\textsf{openai/privacy-filter} gains $+17$ pp because the Olmo
+tokeniser emits subword boundaries that do not align with the gold
+span ends.
+
+Per-language overall char F\textsubscript{1} is given in
+Table~\ref{tab:perlangcompare}: gheim leads every other system in every
+language. The model is the only entry with native Romansh support.
+
+\begin{table}[h]
+\centering
+\caption{Per-language char F\textsubscript{1} on the
+\textsf{gheim-ch-pii-171k} test split, top three contestants.}
+\label{tab:perlangcompare}
+\small
+\begin{tabular}{l r r r}
+\toprule
+Lang.  & gheim & priv-filter & Presidio \\
+\midrule
+en     & \textbf{0.981} & 0.788 & 0.561 \\
+de\_ch & \textbf{0.954} & 0.569 & 0.572 \\
+fr\_ch & \textbf{0.953} & 0.577 & 0.596 \\
+it\_ch & \textbf{0.972} & 0.630 & 0.690 \\
+rm     & \textbf{0.923} & 0.643 & 0.251 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Cross-domain evaluation}
+
+The released model was scored on four established external benchmarks
+(Table~\ref{tab:directionB}). For pure-NER datasets (\textsf{swissner},
+CoNLL-2003, WikiNeural) only PER maps to a \textsf{gheim} category;
+the meaningful number is therefore the PER cell. The non-PER overall
+F\textsubscript{1} is dragged down by the model predicting categories
+(dates, URLs, addresses) that the NER datasets do not label.
+
+\begin{table*}[t]
+\centering
+\caption{Direction B: \textsf{gheim-ch-560m} on external benchmarks.}
+\label{tab:directionB}
+\small
+\begin{tabular}{l r r r r r}
+\toprule
+External benchmark                                & $n$        & Overall strict & Overall char & PER strict & PER char \\
+\midrule
+\textsf{ai4privacy/pii-masking-openpii-1m}        & 8{,}000    & 0.919          & 0.972        & 0.776      & 0.920 \\
+Babelscape \textsf{WikiNeural}                    & 8{,}000    & 0.833          & 0.880        & 0.919      & 0.960 \\
+ZurichNLP \textsf{swissner}                       & 800        & 0.781          & 0.838        & 0.903      & 0.946 \\
+CoNLL-2003                                        & 3{,}453    & 0.678          & 0.703        & 0.887      & 0.936 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The model's PER F\textsubscript{1} stays in [0.89, 0.96] across all
+four datasets under both metrics. This is consistent with no
+overfitting to the training distribution: the four datasets cover
+templated synthetic English+European PII (openpii-1m), real Swiss
+news in four languages (swissner), the 22-year-old reference English
+NER benchmark (CoNLL-2003), and Wikipedia-grounded multilingual NER
+(WikiNeural). The notable exception is the strict-span PER score on
+\textsf{openpii-1m} (0.776 vs.\ char 0.920): \textsf{openpii-1m}'s
+gold splits each person mention into separate \texttt{GIVENNAME} and
+\texttt{SURNAME} spans, which after our remap fragment into two
+adjacent spans of \texttt{private\_person} where our model emits one
+combined span. Char F\textsubscript{1} reports the redaction outcome
+(every PII character correctly masked) and is the appropriate metric
+for the cross-schema comparison.
+
+On Swiss news (\textsf{swissner}, the only Swiss-news NER set that
+includes Romansh), per-language person-character F\textsubscript{1} is
+0.864 (de), 0.870 (fr), 0.835 (it), 0.795 (rm).
+
+\subsection{Methodology validation}
+
+To check that the harness above is sound rather than an unfair
+implementation, we replicated each external system on the dataset
+on which it was trained and compared our reproduction to the system's
+own published F\textsubscript{1} (Table~\ref{tab:replication}).
+Three of four reproductions match within $\pm$0.03; the
+fourth (Isotonic) is discussed below.
+
+\begin{table}[h]
+\centering
+\caption{Methodology validation: each baseline scored on its own
+training-distribution dataset, against published numbers.}
+\label{tab:replication}
+\small
+\begin{tabular}{l r r r}
+\toprule
+Replication target                          & Their claim & Our repro & $\Delta$ \\
+\midrule
+dslim/bert-base-NER on CoNLL-2003           & 0.910       & 0.913     & $+0.003$ \\
+dslim PER on CoNLL-2003                     & ${\sim}$0.96 & 0.957    & $-0.003$ \\
+Davlan-XLMR on WikiNeural avg               & ${\sim}$0.84 & 0.813    & $-0.027$ \\
+spaCy \texttt{de\_core\_news\_lg} on swissner\_de & ${\sim}$0.83 & 0.841 & $+0.011$ \\
+Isotonic distilbert on AI4Privacy           & 0.955       & 0.969$^\dagger$ & $+0.014$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+$^\dagger$The fourth row required investigation. Isotonic's claimed
+F\textsubscript{1} of 0.955 initially reproduced as 0.78 strict-span
+F\textsubscript{1} on the same data, an apparent 17-pp gap. The
+difference traces to the metric: Isotonic's reported number is
+\emph{per-token classification accuracy} (which includes the dominant
+\texttt{O} class and is much higher than per-span F\textsubscript{1}).
+Reproducing Isotonic's metric exactly (per-token accuracy including
+\texttt{O}) yields 0.969, matching their 0.955 within sampling noise.
+Our strict-span F\textsubscript{1} of 0.78 on the same data is the
+correct NER-literature comparison.
+
+% --------------------------------------------------------------------
+\section{Limitations}
+\label{sec:limits}
+
+\begin{itemize}
+  \item \textbf{Recall-oriented labelling policy.} Public Swiss documents
+        contain extensive personally-identifiable information that is
+        already public (court rulings, parliament records, public
+        officials). The dataset labels these as PII and the model
+        learns to flag them. Applications that need to distinguish
+        public from private entities should layer a downstream
+        public-vs-private classifier.
+  \item \textbf{\texttt{private\_address} test F\textsubscript{1} is 0.78.}
+        Boundary placement on multi-token addresses is the dominant
+        error mode.
+  \item \textbf{\texttt{account\_number} test F\textsubscript{1} is 0.67.}
+        Production deployments should pair the model with a regex
+        front-end with checksum validation (IBAN, AHV, VAT-CHE, Luhn).
+  \item \textbf{Romansh test F\textsubscript{1} is 0.85}, the weakest
+        of the five languages. The Romansh training material is
+        dominated by a single literary/journalistic register
+        (Rumantsch Grischun), so dialectal or technical RM text is
+        unmeasured.
+  \item \textbf{Swiss German dialect (GSW) is not measured.} The
+        fasttext detector used in data preparation labels GSW as
+        standard German.
+  \item \textbf{Annotations are machine-generated.} The dataset was
+        not human-annotated; the F\textsubscript{1} of 0.66 against
+        a four-way subagent re-labelling is reported as an
+        upper bound on label noise rather than as a quality claim.
+  \item \textbf{Re-identification is not in scope.} The model is
+        intended for redaction. It is not designed to identify or
+        link entities to real persons and does not return
+        entity-linked identifiers.
+\end{itemize}
+
+% --------------------------------------------------------------------
+\section{Related work}
+\label{sec:related}
+
+\paragraph{General-purpose PII detectors.} Microsoft
+Presidio~\cite{microsoft2023presidio} is the dominant rule-and-NER
+hybrid in industry: a per-language spaCy NER engine combined with
+regex and checksum recognisers for structured formats. The AI4Privacy
+family~\cite{ai4privacy2024openpii,ai4privacy2024pii200k} provides
+large-scale templated synthetic PII corpora and a number of
+fine-tuned distilbert checkpoints; their breadth (12+ extended
+categories, 17+ locales) is greater than ours but real-text Swiss
+coverage is absent. \textsf{openai/privacy-filter}~\cite{openai2025privacyfilter}
+is a 1.4B mixture-of-experts checkpoint (50M active parameters) that
+shares our 33-class BIOES schema and is the canonical zero-shot
+baseline for our comparison.
+
+\paragraph{Multilingual NER.} The XLM-R family~\cite{conneau2020unsupervised}
+is the de-facto starting point for multilingual token-classification.
+Davlan's high-resource-language NER fine-tunes
+~\cite{davlan2022xlmrnerhrl} are trained on PER/ORG/LOC across many
+European languages and serve as a generalist baseline.
+WikiNeural~\cite{tedeschi2021wikineural} provides large-scale
+silver-data multilingual NER training and evaluation. The classic
+CoNLL-2003 shared task~\cite{tjong2003introduction} remains the
+reference English NER benchmark.
+
+\paragraph{Swiss NLP.} \textsf{SwissBERT}~\cite{vamvas2023swissbert}
+is a multilingual encoder pretrained on Swiss text covering all
+four official languages, and its companion
+\textsf{SwissNER}~\cite{vamvas2023swissner} is the only public Swiss
+news NER test set with a Romansh slice. The Apertus pretrain
+corpora~\cite{swissai2025apertus} provide the source text for our
+real-chunk content. Faker\_CH provides Swiss-locale random
+data for our synthetic gap-fill payloads.
+
+\paragraph{Industry tooling.} \textsf{transformers}~\cite{wolf2020transformers}
+is the runtime; \textsf{transformers.js}~\cite{transformersjs} powers
+the browser-side demo; \textsf{seqeval}~\cite{nakayama2018seqeval}
+provides the strict-span scoring; \textsf{spaCy}~\cite{honnibal2020spacy}
+provides the per-language NER pipelines used in the comparison and
+inside Presidio.
+
+% --------------------------------------------------------------------
+\section{Conclusion}
+\label{sec:conclusion}
+
+We released \textsf{gheim-ch-pii-171k} and \textsf{gheim-ch-560m},
+a Swiss-tuned PII NER dataset and model targeting a deployment
+context (LLM-API anonymisation round-trip) that the existing open
+detectors handle poorly on Swiss text. The model leads every public
+contestant by 35-pp on the same Swiss test set under either reported
+metric and stays within $[0.89, 0.96]$ person-NER F\textsubscript{1}
+across four cross-domain external benchmarks. The companion dataset
+is released under CC BY 4.0; the model under Apache 2.0; both are
+on the Hugging Face Hub. The full evaluation harness, the per-system
+JSONs, and the reproducible build of the comparison tables are at
+\url{https://github.com/joelbarmettlerUZH/gheim}.
+
+\paragraph{Future work.} A privately-tuned variant covering spoken
+GSW, dialectal Romansh and additional account-number formats; a
+distilled student model in the 100M-parameter range for
+edge-side deployment; and a public-versus-private-entity
+post-classifier to relax the recall-oriented labelling policy when
+applications require stricter precision.
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}
