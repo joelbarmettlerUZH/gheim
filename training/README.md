@@ -4,41 +4,35 @@
 
 # gheim training
 
-Swiss-market fine-tuning pipeline for `openai/privacy-filter`. Produces
-`joelbarmettler/gheim-1`, a drop-in token-classification checkpoint compatible
-with `gheim.detectors.LocalDetector` and the gheim detection server.
+Pipeline that produces [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m)
+and the companion [`joelbarmettler/gheim-ch-pii-171k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k)
+dataset. A fine-tune of `xlm-roberta-large` on Swiss-domain text, scored
+against a held-out test split and against seven external PII / NER
+systems (see [`MODEL_CARD.md`](../MODEL_CARD.md) for the full comparison).
 
 ## Layout
 
-```
-training/
-├── configs/                        # hyperparams + accelerate config
-├── src/gheim_training/
-│   ├── data/
-│   │   ├── label_space.py          # 33 BIOES tags — single source of truth
-│   │   ├── schema.py               # canonical example dataclass
-│   │   ├── bioes.py                # char-spans → token BIOES via tokenizer offsets
-│   │   ├── synthetic/              # Layer 1: Faker-CH + handwritten templates
-│   │   ├── apertus/                # Layer 3: Apertus-8B-Instruct slot-filled generation
-│   │   ├── ai4privacy.py           # Layer 2: pii-masking-300k filter + remap
-│   │   ├── english_anchor.py       # Layer 4: ~25% English to prevent forgetting
-│   │   └── build.py                # combine, dedupe, stratified split
-│   ├── scripts/
-│   │   ├── tokenizer_audit.py      # fragmentation report on Swiss surface forms
-│   │   └── push_to_hub.py          # publish joelbarmettler/gheim-1
-│   ├── train.py                    # HF Trainer entrypoint
-│   └── eval/
-│       ├── harness.py              # F1 per entity × per language × per canton
-│       ├── baselines/              # zero-shot, presidio_ch, swissbert_ner
-│       ├── swissner.py             # ZurichNLP SwissNER loader
-│       └── handcrafted/            # frozen tricky-case eval set
-└── pyproject.toml
-```
+- `configs/`: hyperparameter and accelerate configs for the bake-off
+  runs and the leader's hyperparameter sweep.
+- `src/gheim_training/data/`: the 7-phase curation pipeline that builds
+  `gheim-ch-pii-171k` from the Apertus pretrain corpora plus a synthetic
+  gap-fill layer. Each script is a phase; see
+  [`DATASET_CARD.md`](../DATASET_CARD.md) for the curation procedure.
+- `src/gheim_training/data/synthetic/`: Faker-CH name and address
+  generators backed by Geonames-CH, plus the Gemma-driven slot-fill
+  generator for the synthetic gap-fill chunks.
+- `src/gheim_training/eval/`: the comparison eval pipeline (consolidated
+  to four scripts: `eval_on_ours.py`, `eval_on_external.py`,
+  `replicate_native.py`, `report.py`).
+- `src/gheim_training/train.py`: HF Trainer entrypoint.
 
 ## Sequence
 
-1. Tokenizer audit (cheap, run first)
-2. Build datasets (Layer 1 + 2 + 3 + 4)
-3. Train v1 (~1 day on 2x4090)
-4. Eval against baselines
-5. Push to hub
+1. Build the dataset (`data/p*.py` scripts in order).
+2. Bake-off three base models on the same training mix (`configs/bakeoff_*.yaml`).
+3. Hyperparameter sweep on the leader (`configs/sweep_v2_*.yaml`).
+4. Score the leader on the held-out test split once (`eval/eval_on_ours.py`).
+5. Score the comparison contestants and the cross-domain external benchmarks
+   (`eval/eval_on_ours.py` and `eval/eval_on_external.py`).
+6. Render the comparison section (`eval/report.py`) and paste into
+   [`MODEL_CARD.md`](../MODEL_CARD.md).

@@ -30,18 +30,11 @@ stable sentinels, sends the redacted text to any LLM, and restores the
 originals as the response streams back. The user sees `Joel`. OpenAI only ever
 sees `<PERSON_1>`.
 
-```
-"Hi, my name is Joel, my IBAN is CH9300762011..."
-              │
-              ▼   gheim.detect → allocate sentinels
-"Hi, my name is <PERSON_1>, my IBAN is <ACCOUNT_1>."
-              │
-              ▼   any LLM (OpenAI, Claude, Gemini, ...)
-"Hi <PERSON_1>, your IBAN <ACCOUNT_1> is valid."
-              │
-              ▼   gheim streaming deanonymizer (bounded hold-back)
-"Hi Joel, your IBAN CH9300762011... is valid."
-```
+The round-trip is four steps: (1) detect PII spans on the input, (2) swap
+each span for a stable sentinel like `<PERSON_1>` or `<ACCOUNT_1>`, (3)
+send the redacted text to any LLM, (4) substitute the originals back into
+the response on the way out, including across SSE token boundaries via a
+bounded hold-back buffer.
 
 ## What ships
 
