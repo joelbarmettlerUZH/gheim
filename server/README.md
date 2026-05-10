@@ -1,8 +1,10 @@
 <div align="center">
 
-<h1 align="center" style="font-size: 28px">gheim-server</h1>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/joelbarmettlerUZH/gheim/main/assets/logo.png" alt="gheim" width="360">
+</p>
 
-<p align="center"><strong>PII detection HTTP server — pairs with the <code>gheim</code> client libraries.</strong></p>
+<p align="center"><strong>gheim-server. PII detection HTTP server, pairs with the <code>gheim</code> client libraries.</strong></p>
 
 <p align="center">
   <a href="https://github.com/joelbarmettlerUZH/gheim/pkgs/container/gheim-server"><img src="https://img.shields.io/badge/ghcr.io-gheim--server-blue" alt="ghcr"></a>

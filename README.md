@@ -1,6 +1,8 @@
 <div align="center">
 
-<h1 align="center" style="font-size: 32px">gheim</h1>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/joelbarmettlerUZH/gheim/main/assets/logo.png" alt="gheim" width="420">
+</p>
 
 <p align="center"><strong>PII round-trip for LLM APIs. Anonymize before the request, de-anonymize the stream on the way back.</strong></p>
 

@@ -1,8 +1,10 @@
 <div align="center">
 
-<h1 align="center" style="font-size: 28px">gheim (Python)</h1>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/joelbarmettlerUZH/gheim/main/assets/logo.png" alt="gheim" width="360">
+</p>
 
-<p align="center"><strong>PII round-trip for LLM APIs — Python.</strong></p>
+<p align="center"><strong>gheim (Python). PII round-trip for LLM APIs.</strong></p>
 
 <p align="center">
   <a href="https://pypi.org/project/gheim/"><img src="https://img.shields.io/pypi/v/gheim?color=blue&label=PyPI" alt="PyPI"></a>

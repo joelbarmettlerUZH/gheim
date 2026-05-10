@@ -47,6 +47,10 @@ configs:
     default: true
 ---
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/joelbarmettlerUZH/gheim/main/assets/logo.png" alt="gheim" width="360">
+</p>
+
 # gheim-ch-pii-171k
 
 > **Summary.** 171,336-chunk multilingual PII NER dataset covering the

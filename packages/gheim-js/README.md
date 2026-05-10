@@ -1,8 +1,10 @@
 <div align="center">
 
-<h1 align="center" style="font-size: 28px">gheim (JavaScript / TypeScript)</h1>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/joelbarmettlerUZH/gheim/main/assets/logo.png" alt="gheim" width="360">
+</p>
 
-<p align="center"><strong>PII round-trip for LLM APIs — JavaScript.</strong></p>
+<p align="center"><strong>gheim (JavaScript / TypeScript). PII round-trip for LLM APIs.</strong></p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/gheim"><img src="https://img.shields.io/npm/v/gheim?color=blue&label=npm" alt="npm"></a>
