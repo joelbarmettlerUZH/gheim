@@ -1,0 +1,244 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette: editorial / classified-document */
+  --color-paper: #f6f5ef;
+  --color-paper-dim: #ecebe3;
+  --color-ink: #0a0a0a;
+  --color-ink-soft: #2a2a26;
+  --color-rule: #d6d4c8;
+  --color-accent: #b34a2c;
+  --color-accent-soft: #d4a08c;
+
+  /* Per-category accents (faint left-rail in the demo) */
+  --color-cat-person: #b34a2c;
+  --color-cat-email: #1f6f5c;
+  --color-cat-phone: #5a4fcf;
+  --color-cat-address: #a06a14;
+  --color-cat-date: #8d2c5c;
+  --color-cat-url: #2c5fa8;
+  --color-cat-secret: #c11616;
+  --color-cat-account: #4a4a4a;
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-serif: "Newsreader", "Georgia", serif;
+
+  /* Editorial radius scale */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+}
+
+html,
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+
+body {
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Document-grain background — very subtle, prints feel */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image: radial-gradient(
+    rgba(10, 10, 10, 0.025) 1px,
+    transparent 1px
+  );
+  background-size: 4px 4px;
+}
+
+/* ===================================================================
+ * Redaction primitives — the brand visual language
+ * =================================================================== */
+
+/* Inline redaction bar over actual text. Used in headlines and demo. */
+.redact {
+  position: relative;
+  display: inline-block;
+  white-space: pre;
+}
+
+.redact::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 0.16em;
+  bottom: 0.16em;
+  background: var(--color-ink);
+  outline: 2px solid var(--color-paper);
+  outline-offset: -1px;
+  transform-origin: left center;
+  border-radius: 1px;
+  z-index: 1;
+  /* Animation: bar slides in left → right */
+  animation: redact-in 0.55s cubic-bezier(0.83, 0, 0.17, 1) forwards;
+}
+
+.redact[data-static="true"]::after {
+  animation: none;
+  transform: scaleX(1);
+}
+
+@keyframes redact-in {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+/* Per-category coloured rail under the bar (subtle) */
+.redact[data-cat="private_person"]::before,
+.redact[data-cat="private_email"]::before,
+.redact[data-cat="private_phone"]::before,
+.redact[data-cat="private_address"]::before,
+.redact[data-cat="private_date"]::before,
+.redact[data-cat="private_url"]::before,
+.redact[data-cat="secret"]::before,
+.redact[data-cat="account_number"]::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  height: 2px;
+  z-index: 2;
+  pointer-events: none;
+  animation: redact-rail 0.55s cubic-bezier(0.83, 0, 0.17, 1) 0.05s both;
+}
+
+.redact[data-cat="private_person"]::before {
+  background: var(--color-cat-person);
+}
+.redact[data-cat="private_email"]::before {
+  background: var(--color-cat-email);
+}
+.redact[data-cat="private_phone"]::before {
+  background: var(--color-cat-phone);
+}
+.redact[data-cat="private_address"]::before {
+  background: var(--color-cat-address);
+}
+.redact[data-cat="private_date"]::before {
+  background: var(--color-cat-date);
+}
+.redact[data-cat="private_url"]::before {
+  background: var(--color-cat-url);
+}
+.redact[data-cat="secret"]::before {
+  background: var(--color-cat-secret);
+}
+.redact[data-cat="account_number"]::before {
+  background: var(--color-cat-account);
+}
+
+@keyframes redact-rail {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  100% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+/* Sentinel pill shown when toggled to "What the LLM sees" view. */
+.sentinel {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: 0.05em 0.4em;
+  border-radius: 2px;
+  border: 1px solid var(--color-ink);
+  vertical-align: baseline;
+}
+
+/* ===================================================================
+ * Editorial section primitives
+ * =================================================================== */
+.section-rule {
+  border-top: 1px solid var(--color-rule);
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.btn-primary {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  border: 1px solid var(--color-ink);
+}
+.btn-primary:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--color-accent);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-ink);
+}
+.btn-ghost:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--color-ink);
+}
+
+/* Code block style */
+.codeblock {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  background: var(--color-ink);
+  color: #ebebe2;
+  padding: 1rem 1.15rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  line-height: 1.55;
+}
+
+.codeblock .tok-comment {
+  color: #7e7e74;
+}
+.codeblock .tok-string {
+  color: #d4a08c;
+}
+.codeblock .tok-keyword {
+  color: #c8b3ff;
+}
+.codeblock .tok-fn {
+  color: #9ad4c0;
+}
+.codeblock .tok-number {
+  color: #d4a08c;
+}
