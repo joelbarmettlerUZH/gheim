@@ -41,21 +41,21 @@ same 33-class BIOES output schema and are interchangeable in
 
 | Model | Best for | Parameters | Notes |
 |---|---|---:|---|
-| [`joelbarmettler/gheim-ch-559m`](https://huggingface.co/joelbarmettler/gheim-ch-559m) | Swiss-market text (de_CH, fr_CH, it_CH, rm, en) with CH-format account numbers (IBAN, AHV, VAT-CHE) | 559M | Apache 2.0. Test F1 = 0.916 on Swiss text. |
+| [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) | Swiss-market text (de_CH, fr_CH, it_CH, rm, en) with CH-format account numbers (IBAN, AHV, VAT-CHE) | 560M | Apache 2.0. Test F1 = 0.916 on Swiss text. |
 | [`openai/privacy-filter`](https://huggingface.co/openai/privacy-filter) | English-first or general use, long-context (up to 128k tokens) | 1.4B (50M active, MoE) | Apache 2.0. Wider language coverage, larger weights. |
 
 ```python
 from gheim import LocalDetector
 
 # Recommended for Swiss-market text:
-det = LocalDetector(model_id="joelbarmettler/gheim-ch-559m")
+det = LocalDetector(model_id="joelbarmettler/gheim-ch-560m")
 
 # Alternative for English or general use:
 det = LocalDetector(model_id="openai/privacy-filter")
 ```
 
 The package default `model_id` is `openai/privacy-filter`. Set
-`GHEIM_DEFAULT_MODEL=joelbarmettler/gheim-ch-559m` in the environment, or
+`GHEIM_DEFAULT_MODEL=joelbarmettler/gheim-ch-560m` in the environment, or
 pass `model_id` explicitly, to opt into the Swiss model.
 
 ## Drop-in OpenAI client
@@ -105,7 +105,7 @@ r = client.chat.completions.create(
 ```python
 from gheim import Session, LocalDetector, anonymize_text, deanonymize_text
 
-session = Session(detector=LocalDetector(model_id="joelbarmettler/gheim-ch-559m"))
+session = Session(detector=LocalDetector(model_id="joelbarmettler/gheim-ch-560m"))
 clean = anonymize_text("Hi, my name is Joel", session)
 # ... call any LLM with clean ...
 final = deanonymize_text(response_text, session)
@@ -133,7 +133,7 @@ redacted = anonymize_messages(messages, session)  # preserves role, name, tool_c
 from gheim import LocalDetector, RemoteDetector, default_detector
 
 # Local inference. Weights download to the HF cache on first use.
-det = LocalDetector(model_id="joelbarmettler/gheim-ch-559m",
+det = LocalDetector(model_id="joelbarmettler/gheim-ch-560m",
                     device="auto", dtype=torch.bfloat16)
 
 # Remote inference against your own gheim-server or api.gheim.ch.

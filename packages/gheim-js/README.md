@@ -44,14 +44,14 @@ schema and are interchangeable.
 
 | Model | Best for | Parameters | Notes |
 |---|---|---:|---|
-| [`joelbarmettler/gheim-ch-559m`](https://huggingface.co/joelbarmettler/gheim-ch-559m) | Swiss-market text (de_CH, fr_CH, it_CH, rm, en) with CH-format account numbers (IBAN, AHV, VAT-CHE) | 559M | Apache 2.0. Test F1 = 0.916 on Swiss text. ONNX export ships in the `onnx/` subfolder. |
+| [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) | Swiss-market text (de_CH, fr_CH, it_CH, rm, en) with CH-format account numbers (IBAN, AHV, VAT-CHE) | 560M | Apache 2.0. Test F1 = 0.916 on Swiss text. ONNX export ships in the `onnx/` subfolder. |
 | [`openai/privacy-filter`](https://huggingface.co/openai/privacy-filter) | English-first or general use, long-context (up to 128k tokens) | 1.4B (50M active, MoE) | Apache 2.0. Wider language coverage, larger weights. |
 
 ```ts
 import { LocalDetector } from "gheim";
 
 // Recommended for Swiss-market text:
-const det = new LocalDetector({ model: "joelbarmettler/gheim-ch-559m" });
+const det = new LocalDetector({ model: "joelbarmettler/gheim-ch-560m" });
 
 // Alternative for English or general use:
 const detEn = new LocalDetector({ model: "openai/privacy-filter" });
@@ -105,7 +105,7 @@ import { Session, LocalDetector, anonymizeText, deanonymizeText } from "gheim";
 
 const session = new Session();
 (session as any).detector = new LocalDetector({
-  model: "joelbarmettler/gheim-ch-559m",
+  model: "joelbarmettler/gheim-ch-560m",
 });
 const clean = await anonymizeText("Hi, my name is Joel", session);
 // ... call any LLM with clean ...
@@ -135,7 +135,7 @@ import { LocalDetector, RemoteDetector, defaultDetector } from "gheim";
 
 // Local: via @huggingface/transformers, on Node and Bun.
 const local = new LocalDetector({
-  model: "joelbarmettler/gheim-ch-559m",
+  model: "joelbarmettler/gheim-ch-560m",
   device: "auto",
   dtype: "fp32",
 });

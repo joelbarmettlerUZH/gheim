@@ -1,7 +1,7 @@
 /**
  * Local-checkpoint variant of live-swiss.test.ts.
  *
- * Loads the gheim-ch-559m ONNX export from a local directory (no HF Hub
+ * Loads the gheim-ch-560m ONNX export from a local directory (no HF Hub
  * needed). Used pre-publication to verify the JS detector works end-to-end
  * against our actual fine-tuned model.
  *
@@ -11,7 +11,7 @@
  *
  * The model directory structure transformers.js expects:
  *   $GHEIM_LOCAL_MODEL_DIR/
- *     gheim-ch-559m/
+ *     gheim-ch-560m/
  *       config.json
  *       tokenizer.json
  *       tokenizer_config.json
@@ -36,7 +36,7 @@ const enabled = LIVE && LOCAL_DIR.length > 0;
 const t = enabled ? test : test.skip;
 
 const TIMEOUT = 600_000;
-const MODEL_NAME = "gheim-ch-559m";
+const MODEL_NAME = "gheim-ch-560m";
 
 if (enabled) {
   // Configure transformers.js to load from local disk only.
@@ -48,7 +48,7 @@ if (enabled) {
   console.log(`[live-swiss-local] loading from ${env.localModelPath}${MODEL_NAME}`);
 }
 
-describe("live-swiss-local: gheim-ch-559m ONNX from local disk", () => {
+describe("live-swiss-local: gheim-ch-560m ONNX from local disk", () => {
   t("loads the model from the local ONNX export", async () => {
     const det = new LocalDetector({ model: MODEL_NAME, device: "cpu", dtype: "fp32" });
     const spans = await det.detect("Hello.");
