@@ -54,16 +54,20 @@ is to call a hosted API: OpenAI, Anthropic, Google, Mistral. For
 Swiss-market deployments this raises a recurring compliance concern:
 every request that contains a customer name, a Swiss address, an IBAN,
 or an AHV/AVS social-security number leaves Swiss jurisdiction the
-moment it crosses the API boundary. Anonymising sensitive content
-before the request and restoring the originals on the response is the
-established mitigation. The accuracy of the round-trip depends on the
-quality of the underlying named-entity recogniser.
+moment it crosses the API boundary. The legal landscape for using
+third-party LLM services with personal data under Swiss law is
+analysed in detail by~\citet{rosenthal2025jusletter}; the practical
+mitigation in production systems is to anonymise sensitive content
+before the request and restore the originals on the response. The
+accuracy of the round-trip depends on the quality of the underlying
+named-entity recogniser.
 
 Existing public PII detectors handle Swiss text poorly. The closest
-open generalist, \textsf{openai/privacy-filter}~\cite{openai2025privacyfilter},
-reaches a strict-span F\textsubscript{1} of 0.44 on our held-out Swiss
-test set despite being a 1.4B-parameter mixture-of-experts model trained
-on multilingual data. Microsoft Presidio~\cite{microsoft2023presidio},
+open generalist, \textsf{openai/privacy-filter}~\cite{openai2025privacyfilter}
+(an OLMoE-based~\cite{muennighoff2024olmoe} 1.4B-parameter
+mixture-of-experts model with 50M active parameters), reaches a
+strict-span F\textsubscript{1} of 0.44 on our held-out Swiss test
+set despite multilingual training. Microsoft Presidio~\cite{microsoft2023presidio},
 configured with per-language NLP engines, reaches 0.43. Multilingual
 NER baselines such as Davlan's \textsf{xlm-roberta-base-ner-hrl}
 ~\cite{davlan2022xlmrnerhrl} reach 0.65 person-only F\textsubscript{1}.
@@ -111,13 +115,18 @@ art. Section~\ref{sec:conclusion} concludes.
 \subsection{Source corpora and language coverage}
 
 Real-text content is drawn from the Apertus pretrain
-corpora~\cite{swissai2025apertus}, specifically the Swiss legal
-slice (\texttt{entscheidsuche}), the federal parliament records
-(\texttt{curia\_vista}), the Swiss-filtered subset of FineWeb-2,
-and the Romansh corpus (\texttt{romansh}). Source documents are
-chunked at sentence boundaries to roughly 1{,}500 characters, then
-tagged with \texttt{facebook/fasttext-language-identifica\-tion}
-at confidence $\geq 0.5$. Chunks below threshold are dropped.
+corpora~\cite{apertus2025}: the Swiss legal-decisions
+subset \texttt{entscheidsuche} curated from the Open Legal Data Platform
+of the same name~\cite{entscheidsuche2025}, federal-parliament
+proceedings drawn from the \texttt{curia\_vista} business
+database~\cite{curiavista2024}, the Swiss-filtered slice of
+FineWeb-2~\cite{penedo2025fineweb2}, and the Romansh corpus released
+alongside Apertus, which compiles material from cantonal law texts,
+the Lia Rumantscha online dictionaries, the ZurichNLP bilingual
+corpus, and Romansh Wikipedia. Source documents are chunked at
+sentence boundaries to roughly 1{,}500 characters, then tagged with
+\texttt{facebook/fasttext-language-identifica\-tion} at confidence
+$\geq 0.5$. Chunks below threshold are dropped.
 The five-language distribution of the released dataset is shown in
 Table~\ref{tab:lang-dist}.
 
@@ -606,44 +615,115 @@ correct NER-literature comparison.
 \section{Related work}
 \label{sec:related}
 
-\paragraph{General-purpose PII detectors.} Microsoft
-Presidio~\cite{microsoft2023presidio} is the dominant rule-and-NER
-hybrid in industry: a per-language spaCy NER engine combined with
-regex and checksum recognisers for structured formats. The AI4Privacy
-family~\cite{ai4privacy2024openpii,ai4privacy2024pii200k} provides
-large-scale templated synthetic PII corpora and a number of
-fine-tuned distilbert checkpoints; their breadth (12+ extended
-categories, 17+ locales) is greater than ours but real-text Swiss
-coverage is absent. \textsf{openai/privacy-filter}~\cite{openai2025privacyfilter}
-is a 1.4B mixture-of-experts checkpoint (50M active parameters) that
-shares our 33-class BIOES schema and is the canonical zero-shot
-baseline for our comparison.
+\subsection{PII detection and de-identification}
 
-\paragraph{Multilingual NER.} The XLM-R family~\cite{conneau2020unsupervised}
-is the de-facto starting point for multilingual token-classification.
-Davlan's high-resource-language NER fine-tunes
+The dominant industrial open-source PII detector is Microsoft
+Presidio~\cite{microsoft2023presidio}: a per-language spaCy NER
+engine combined with checksum-validated regex recognisers for
+structured formats (IBAN, credit card, SSN, etc.). Presidio's
+strength is its large built-in catalogue and easy extension; its
+weakness on Swiss text is reproducible from the per-spaCy NER
+backbone (Section~\ref{sec:eval}, Table~\ref{tab:directionA}).
+
+The AI4Privacy family of corpora and fine-tuned checkpoints
+~\cite{ai4privacy2024openpii,ai4privacy2024pii200k} is the most
+prolific recent open-source effort. Their datasets are templated
+synthetic prose with embedded Faker-generated PII at the million-chunk
+scale across 12+ fine-grained categories and 17+ locale variants,
+and the published distilbert fine-tunes (e.g.\ \textsf{Isotonic/distil-bert\_finetuned\_ai4privacy\_v2})
+are the most-downloaded open PII detectors on the Hugging Face Hub.
+Section~\ref{sec:eval} confirms the published per-token accuracy
+numbers but shows a sharp drop on real Swiss text: when scored under
+strict-span F\textsubscript{1} on \textsf{gheim-ch-pii-171k} the
+fine-tunes reach 0.16. The cross-domain gap reflects template-vs-real
+domain shift more than label-noise: AI4Privacy's underlying templates
+were not designed with Swiss surface forms (CH-IBAN, AHV/AVS,
+\texttt{+41} phones, German-language addresses) as targets.
+
+\textsf{openai/privacy-filter}~\cite{openai2025privacyfilter} is the
+strongest open zero-shot generalist on our test set. It is a
+token-classification head atop OLMoE~\cite{muennighoff2024olmoe},
+a 1.4B-total-parameter mixture-of-experts encoder with 50M parameters
+active per token, and it shares our 33-class BIOES schema. Its
+\texttt{openai}-namespace release made it the default upstream from
+which our schema is byte-aligned, so a fine-tune started from this
+model can reuse the pretrained classifier-head weights.
+
+\subsection{Multilingual NER}
+
+\textsf{XLM-RoBERTa}~\cite{conneau2020unsupervised} is the de-facto
+starting point for multilingual token-classification and is the base
+of \textsf{gheim-ch-560m}. The Davlan family of fine-tunes
 ~\cite{davlan2022xlmrnerhrl} are trained on PER/ORG/LOC across many
-European languages and serve as a generalist baseline.
+European languages and provide our generalist baseline.
 WikiNeural~\cite{tedeschi2021wikineural} provides large-scale
-silver-data multilingual NER training and evaluation. The classic
-CoNLL-2003 shared task~\cite{tjong2003introduction} remains the
-reference English NER benchmark.
+silver-data multilingual NER training and evaluation across nine
+European languages and is one of our cross-domain external
+benchmarks. The classic CoNLL-2003 shared
+task~\cite{tjong2003introduction} remains the reference English NER
+benchmark and is also part of our cross-domain evaluation. The BIOES
+tag scheme used throughout follows the design analysis of
+\citet{ratinov2009design}.
 
-\paragraph{Swiss NLP.} \textsf{SwissBERT}~\cite{vamvas2023swissbert}
-is a multilingual encoder pretrained on Swiss text covering all
-four official languages, and its companion
-\textsf{SwissNER}~\cite{vamvas2023swissner} is the only public Swiss
-news NER test set with a Romansh slice. The Apertus pretrain
-corpora~\cite{swissai2025apertus} provide the source text for our
-real-chunk content. Faker\_CH provides Swiss-locale random
-data for our synthetic gap-fill payloads.
+\subsection{Swiss-NLP and the Apertus stack}
 
-\paragraph{Industry tooling.} \textsf{transformers}~\cite{wolf2020transformers}
-is the runtime; \textsf{transformers.js}~\cite{transformersjs} powers
-the browser-side demo; \textsf{seqeval}~\cite{nakayama2018seqeval}
-provides the strict-span scoring; \textsf{spaCy}~\cite{honnibal2020spacy}
-provides the per-language NER pipelines used in the comparison and
-inside Presidio.
+\textsf{SwissBERT}~\cite{vamvas2023swissbert} is the prior
+state-of-the-art encoder pretrained on Swiss text covering all four
+official languages, including Romansh. We considered SwissBERT as a
+base in the bake-off (Section~\ref{sec:model}, Table~\ref{tab:bakeoff})
+and selected XLM-R-large by 0.8 pp validation F\textsubscript{1};
+SwissBERT remains a competitive alternative when ${\sim}$300M
+parameters is the deployment ceiling. Its companion test
+set, \textsf{SwissNER}~\cite{vamvas2023swissner}, is the only public
+Swiss-news NER set that includes Romansh and is one of our
+cross-domain external benchmarks. The Romansh evaluation in particular
+relates closely to the \textsf{WMT24++} benchmark
+extension of~\citet{vamvas2025romansh_wmt}, which adds Rumantsch
+Grischun together with the five regional Romansh idioms (Sursilvan,
+Sutsilvan, Surmiran, Puter, Vallader) to the WMT machine-translation
+benchmark; the Apertus Romansh corpus, which underlies our
+\texttt{rm} chunks, is constructed in a similar idiom-aware way.
+
+The real-text portion of our dataset is sourced from the Apertus
+pretrain corpora released alongside the Apertus Swiss-language
+LLM~\cite{apertus2025}. Apertus aggregates four Swiss-domain sources:
+the Open Legal Data Platform \textsf{Entscheidsuche}, which provides
+machine-readable Swiss court decisions across cantons in their
+original German, French, or Italian~\cite{entscheidsuche2025};
+\textsf{Curia Vista}, the official business database of the Swiss
+Federal Assembly, which includes parliamentary motions, postulates,
+and transcripts in German, French, and Italian~\cite{curiavista2024};
+the Swiss-filtered subset of FineWeb-2~\cite{penedo2025fineweb2} (the
+multilingual web-crawl corpus that scales the FineWeb pipeline of
+\citet{penedo2024fineweb} to all languages and applies XLM-R-based
+quality filters); and a purpose-built Romansh corpus drawing on
+cantonal law texts, the Lia Rumantscha online dictionaries, the
+ZurichNLP bilingual corpus, and Romansh Wikipedia. These corpora
+are released under CC-BY-4.0-compatible licences and are the
+substrate for the real-Swiss-text portion of \textsf{gheim-ch-pii-171k}.
+
+\subsection{Quantisation for browser deployment}
+
+The released model ships an int8 ONNX export so the demo at
+\href{https://gheim.ch}{gheim.ch} runs entirely in-browser via
+WebGPU or WebAssembly. The quantisation procedure follows the
+post-training integer-arithmetic-only inference framework of
+\citet{jacob2018quantization}, applied through ONNX
+Runtime~\cite{onnxruntime} via the \textsf{optimum} dynamic-quantizer
+with AVX-512 VNNI as the deployment target. The browser runtime is
+\textsf{Transformers.js}~\cite{transformersjs}.
+
+\subsection{Industry tooling}
+
+\textsf{transformers}~\cite{wolf2020transformers} is the training
+and inference runtime. \textsf{seqeval}~\cite{nakayama2018seqeval}
+provides the strict-span scoring used both for our headline
+F\textsubscript{1} and for every comparison and replication entry
+in Section~\ref{sec:eval}. \textsf{spaCy}~\cite{honnibal2020spacy}
+provides the per-language NER pipelines used in our comparison
+and inside Presidio. AdamW~\cite{loshchilov2019decoupled} is the
+optimiser. Faker\_CH provides the Swiss-locale random data used in
+our synthetic gap-fill payload generation.
 
 % --------------------------------------------------------------------
 \section{Conclusion}

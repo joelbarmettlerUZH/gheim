@@ -1,3 +1,7 @@
+% =============================================================================
+% Foundation models & training methods
+% =============================================================================
+
 @article{conneau2020unsupervised,
   title   = {Unsupervised Cross-lingual Representation Learning at Scale},
   author  = {Conneau, Alexis and Khandelwal, Kartikay and Goyal, Naman and
@@ -19,6 +23,45 @@
   year      = {2017}
 }
 
+@misc{loshchilov2019decoupled,
+  title  = {Decoupled Weight Decay Regularization},
+  author = {Loshchilov, Ilya and Hutter, Frank},
+  year   = {2019},
+  eprint = {1711.05101},
+  archivePrefix = {arXiv},
+  url    = {https://arxiv.org/abs/1711.05101}
+}
+
+@misc{jacob2018quantization,
+  title  = {Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference},
+  author = {Jacob, Benoit and Kligys, Skirmantas and Chen, Bo and Zhu,
+            Menglong and Tang, Matthew and Howard, Andrew and Adam, Hartwig
+            and Kalenichenko, Dmitry},
+  year   = {2018},
+  eprint = {1712.05877},
+  archivePrefix = {arXiv},
+  url    = {https://arxiv.org/abs/1712.05877}
+}
+
+@misc{muennighoff2024olmoe,
+  title  = {{OLMoE}: Open Mixture-of-Experts Language Models},
+  author = {Muennighoff, Niklas and Soldaini, Luca and Groeneveld, Dirk and
+            Lo, Kyle and Morrison, Jacob and Min, Sewon and Shi, Weijia and
+            Walsh, Pete and Tafjord, Oyvind and Lambert, Nathan and Wang,
+            Yizhong and Bhagia, Akshita and Liu, Mengzhou and Petrov, Ben
+            and Tsai, Alana and Hajishirzi, Hannaneh and Smith, Noah A. and
+            Zettlemoyer, Luke and Beltagy, Iz and Groeneveld, Dirk and
+            Soldaini, Luca and Hajishirzi, Hannaneh},
+  year   = {2024},
+  eprint = {2409.02060},
+  archivePrefix = {arXiv},
+  url    = {https://arxiv.org/abs/2409.02060}
+}
+
+% =============================================================================
+% NER datasets and methodology
+% =============================================================================
+
 @inproceedings{tjong2003introduction,
   title     = {Introduction to the {CoNLL}-2003 Shared Task: Language-Independent Named Entity Recognition},
   author    = {Tjong Kim Sang, Erik F. and De Meulder, Fien},
@@ -37,6 +80,41 @@
   doi       = {10.18653/v1/2021.findings-emnlp.215}
 }
 
+@inproceedings{ratinov2009design,
+  title     = {Design Challenges and Misconceptions in Named Entity Recognition},
+  author    = {Ratinov, Lev and Roth, Dan},
+  booktitle = {Proceedings of the Thirteenth Conference on Computational Natural Language Learning ({CoNLL}-2009)},
+  pages     = {147--155},
+  year      = {2009}
+}
+
+@misc{nakayama2018seqeval,
+  title        = {{seqeval}: A {P}ython framework for sequence labeling evaluation},
+  author       = {Nakayama, Hiroki},
+  year         = {2018},
+  url          = {https://github.com/chakki-works/seqeval}
+}
+
+@misc{davlan2022xlmrnerhrl,
+  title        = {{XLM}-{R}o{BERT}a-base fine-tuned on multilingual {NER} (high-resource languages)},
+  author       = {Adelani, David Ifeoluwa},
+  howpublished = {Hugging Face model},
+  year         = {2022},
+  url          = {https://huggingface.co/Davlan/xlm-roberta-base-ner-hrl}
+}
+
+@misc{dslim2020bertbasener,
+  title        = {{BERT} Base {NER}: A {BERT} model fine-tuned on {CoNLL}-2003},
+  author       = {Dieguez, Sasha},
+  howpublished = {Hugging Face model},
+  year         = {2020},
+  url          = {https://huggingface.co/dslim/bert-base-NER}
+}
+
+% =============================================================================
+% PII detection and anonymization
+% =============================================================================
+
 @misc{ai4privacy2024openpii,
   title        = {{PII} Masking {O}pen{PII}-1{M}: A multilingual {PII} dataset},
   author       = {{AI4Privacy}},
@@ -54,87 +132,10 @@
 }
 
 @misc{microsoft2023presidio,
-  title        = {Presidio: Context-aware, pluggable and customizable {PII} anonymization service},
+  title        = {{Presidio}: Context-aware, pluggable and customizable {PII} anonymization service},
   author       = {{Microsoft}},
   year         = {2023},
   url          = {https://github.com/microsoft/presidio}
-}
-
-@misc{adelani2022masakhaner,
-  title        = {{MasakhaNER} 2.0: {Africa}-centric Transfer Learning for Named Entity Recognition},
-  author       = {Adelani, David Ifeoluwa and others},
-  year         = {2022},
-  howpublished = {Findings of EMNLP 2022},
-  url          = {https://aclanthology.org/2022.emnlp-main.298/}
-}
-
-@misc{davlan2022xlmrnerhrl,
-  title        = {{XLM}-{R}o{BERT}a-base fine-tuned on multilingual {NER} (high-resource languages)},
-  author       = {Adelani, David},
-  howpublished = {Hugging Face model},
-  year         = {2022},
-  url          = {https://huggingface.co/Davlan/xlm-roberta-base-ner-hrl}
-}
-
-@misc{dslim2020bertbasener,
-  title        = {{BERT} Base {NER}: A {BERT} model fine-tuned on {CoNLL}-2003},
-  author       = {Dieguez, Sasha},
-  howpublished = {Hugging Face model},
-  year         = {2020},
-  url          = {https://huggingface.co/dslim/bert-base-NER}
-}
-
-@misc{vamvas2023swissbert,
-  title  = {Swiss{BERT}: The Multilingual Language Model for {S}witzerland},
-  author = {Vamvas, Jannis and Aepli, No{\"e}mi and Sennrich, Rico},
-  year   = {2023},
-  eprint = {2303.13310},
-  archivePrefix = {arXiv}
-}
-
-@misc{vamvas2023swissner,
-  title        = {{SwissNER}: A {NER} test set for {Swiss} {S}tandard {G}erman, {F}rench, {I}talian, and {R}omansh},
-  author       = {Vamvas, Jannis and Aepli, No{\"e}mi and Sennrich, Rico},
-  howpublished = {Hugging Face dataset},
-  year         = {2023},
-  url          = {https://huggingface.co/datasets/ZurichNLP/swissner}
-}
-
-@misc{honnibal2020spacy,
-  title        = {{spaCy}: Industrial-strength Natural Language Processing in {Python}},
-  author       = {Honnibal, Matthew and Montani, Ines and Van Landeghem, Sofie and Boyd, Adriane},
-  year         = {2020},
-  doi          = {10.5281/zenodo.1212303}
-}
-
-@misc{wolf2020transformers,
-  title        = {Transformers: State-of-the-Art Natural Language Processing},
-  author       = {Wolf, Thomas and Debut, Lysandre and Sanh, Victor and others},
-  year         = {2020},
-  howpublished = {Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing: System Demonstrations},
-  pages        = {38--45},
-  doi          = {10.18653/v1/2020.emnlp-demos.6}
-}
-
-@misc{nakayama2018seqeval,
-  title        = {seqeval: A {P}ython framework for sequence labeling evaluation},
-  author       = {Nakayama, Hiroki},
-  year         = {2018},
-  url          = {https://github.com/chakki-works/seqeval}
-}
-
-@misc{onnxruntime,
-  title        = {{ONNX} Runtime: A cross-platform inference and training accelerator},
-  author       = {{Microsoft}},
-  year         = {2018},
-  url          = {https://onnxruntime.ai}
-}
-
-@misc{transformersjs,
-  title        = {Transformers.js: Run Transformers directly in the browser},
-  author       = {{Hugging Face}},
-  year         = {2024},
-  url          = {https://huggingface.co/docs/transformers.js}
 }
 
 @misc{openai2025privacyfilter,
@@ -145,26 +146,123 @@
   url          = {https://huggingface.co/openai/privacy-filter}
 }
 
-@misc{swissai2025apertus,
-  title        = {Apertus pretrain corpora},
-  author       = {{Swiss AI Initiative}},
-  howpublished = {Hugging Face datasets},
+% =============================================================================
+% Swiss-NLP, source corpora, and Apertus
+% =============================================================================
+
+@misc{apertus2025,
+  title  = {{A}pertus: Democratizing Open and Compliant {LLM}s for Global Language Environments},
+  author = {Hern{\'a}ndez-Cano, Alejandro and H{\"a}gele, Alexander and Huang, Allen Hao and
+            Romanou, Angelika and Solergibert, Antoni-Joan and others},
+  year   = {2025},
+  eprint = {2509.14233},
+  archivePrefix = {arXiv},
+  url    = {https://arxiv.org/abs/2509.14233}
+}
+
+@misc{entscheidsuche2025,
+  author       = {{Association Entscheidsuche}},
+  title        = {Entscheidsuche.ch: Open Legal Data Platform for {S}wiss court decisions},
+  howpublished = {\url{https://entscheidsuche.ch/docs}},
   year         = {2025},
-  url          = {https://huggingface.co/swiss-ai}
+  note         = {Accessed: 2025-08-31}
 }
 
-@misc{loshchilov2019decoupled,
-  title  = {Decoupled Weight Decay Regularization},
-  author = {Loshchilov, Ilya and Hutter, Frank},
-  year   = {2019},
-  eprint = {1711.05101},
-  archivePrefix = {arXiv}
+@misc{curiavista2024,
+  author       = {{The Swiss Parliament}},
+  title        = {Curia Vista: business database of the {S}wiss {F}ederal {A}ssembly},
+  howpublished = {\url{https://www.parlament.ch/en/ratsbetrieb/curia-vista}},
+  year         = {2024},
+  note         = {Accessed: 2024-04-24}
 }
 
-@misc{ratinov2009design,
-  title     = {Design Challenges and Misconceptions in Named Entity Recognition},
-  author    = {Ratinov, Lev and Roth, Dan},
-  booktitle = {Proceedings of the Thirteenth Conference on Computational Natural Language Learning ({CoNLL}-2009)},
-  pages     = {147--155},
-  year      = {2009}
+@misc{penedo2024fineweb,
+  title  = {The {FineWeb} Datasets: Decanting the Web for the Finest Text Data at Scale},
+  author = {Penedo, Guilherme and Kydl{\'\i}{\v{c}}ek, Hynek and Allal, Loubna Ben and
+            Lozhkov, Anton and Mitchell, Margaret and Raffel, Colin and Werra,
+            Leandro Von and Wolf, Thomas},
+  year   = {2024},
+  eprint = {2406.17557},
+  archivePrefix = {arXiv},
+  url    = {https://arxiv.org/abs/2406.17557}
+}
+
+@article{penedo2025fineweb2,
+  title   = {{FineWeb2}: One Pipeline to Scale Them All -- Adapting Pre-Training Data Processing to Every Language},
+  author  = {Penedo, Guilherme and Kydl{\'\i}{\v{c}}ek, Hynek and Sabol{\v{c}}ec, Vinko and
+             Messmer, Bettina and Foroutan, Negar and Kargaran, Amir Hossein and
+             Raffel, Colin and Jaggi, Martin and Von Werra, Leandro and Wolf, Thomas},
+  journal = {arXiv preprint arXiv:2506.20920},
+  year    = {2025},
+  url     = {https://arxiv.org/abs/2506.20920}
+}
+
+@misc{vamvas2025romansh_wmt,
+  title         = {Expanding the {WMT24++} Benchmark with {R}umantsch {G}rischun, {S}ursilvan, {S}utsilvan, {S}urmiran, {P}uter, and {V}allader},
+  author        = {Vamvas, Jannis and P{\'e}rez Prat, Ignacio and Soliva, Not Battesta and others and Sennrich, Rico},
+  year          = {2025},
+  eprint        = {2509.03148},
+  archivePrefix = {arXiv},
+  url           = {https://arxiv.org/abs/2509.03148}
+}
+
+@article{rosenthal2025jusletter,
+  title   = {Training {AI} language models with third-party content and data from a legal perspective},
+  author  = {Rosenthal, David and Veraldi, Livio},
+  journal = {Jusletter-IT},
+  year    = {2025},
+  month   = mar,
+  doi     = {10.38023/bec9257a-a6bb-41cf-b2f3-fda8ae3b448d},
+  url     = {https://www.rosenthal.ch/downloads/Rosenthal-Veraldi_Training_LLM_Swiss_Law_Jusletter_IT.pdf}
+}
+
+@misc{vamvas2023swissbert,
+  title  = {Swiss{BERT}: The Multilingual Language Model for {S}witzerland},
+  author = {Vamvas, Jannis and Aepli, No{\"e}mi and Sennrich, Rico},
+  year   = {2023},
+  eprint = {2303.13310},
+  archivePrefix = {arXiv},
+  url    = {https://arxiv.org/abs/2303.13310}
+}
+
+@misc{vamvas2023swissner,
+  title        = {{SwissNER}: A {NER} test set for {Swiss} {S}tandard {G}erman, {F}rench, {I}talian, and {R}omansh},
+  author       = {Vamvas, Jannis and Aepli, No{\"e}mi and Sennrich, Rico},
+  howpublished = {Hugging Face dataset},
+  year         = {2023},
+  url          = {https://huggingface.co/datasets/ZurichNLP/swissner}
+}
+
+% =============================================================================
+% Industry tooling (libraries / runtimes)
+% =============================================================================
+
+@misc{honnibal2020spacy,
+  title        = {{spaCy}: Industrial-strength Natural Language Processing in {Python}},
+  author       = {Honnibal, Matthew and Montani, Ines and Van Landeghem, Sofie and Boyd, Adriane},
+  year         = {2020},
+  doi          = {10.5281/zenodo.1212303}
+}
+
+@inproceedings{wolf2020transformers,
+  title        = {{Transformers}: State-of-the-Art Natural Language Processing},
+  author       = {Wolf, Thomas and Debut, Lysandre and Sanh, Victor and others},
+  year         = {2020},
+  booktitle    = {Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing: System Demonstrations},
+  pages        = {38--45},
+  doi          = {10.18653/v1/2020.emnlp-demos.6}
+}
+
+@misc{onnxruntime,
+  title        = {{ONNX} Runtime: A cross-platform inference and training accelerator},
+  author       = {{Microsoft}},
+  year         = {2018},
+  url          = {https://onnxruntime.ai}
+}
+
+@misc{transformersjs,
+  title        = {{Transformers.js}: Run Transformers directly in the browser},
+  author       = {{Hugging Face}},
+  year         = {2024},
+  url          = {https://huggingface.co/docs/transformers.js}
 }
