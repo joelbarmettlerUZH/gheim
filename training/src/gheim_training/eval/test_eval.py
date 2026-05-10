@@ -15,13 +15,12 @@ from __future__ import annotations
 
 import argparse
 import json
-from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
 
 from ..data.bioes import IGNORE_INDEX, encode_example
-from ..data.label_space import ID2LABEL, NUM_LABELS
+from ..data.label_space import ID2LABEL
 from ..data.schema import Example, Span
 
 
