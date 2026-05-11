@@ -67,19 +67,23 @@ const sentinelOutput = computed(() => substitute(input.value, spans.value));
 
 interface Segment {
   text: string;
-  span?: DetectedSpan;
+  label?: string;
 }
 
+// Both the Bars view and the Sentinel view drive off the SAME merged
+// span list (computed in `substitute`) so a single IBAN renders as ONE
+// black bar / ONE <ACCOUNT_1> instead of a dozen fragments per BPE
+// subword. Without this the Vue demo over-reported entity counts and
+// the LLM-side preview was unreadable.
 const segments = computed<Segment[]>(() => {
   const text = input.value;
-  const sorted = [...spans.value].sort((a, b) => a.start - b.start);
+  const merged = sentinelOutput.value.merged;
   const out: Segment[] = [];
   let cursor = 0;
-  for (const s of sorted) {
-    if (s.start < cursor) continue;
-    if (s.start > cursor) out.push({ text: text.slice(cursor, s.start) });
-    out.push({ text: text.slice(s.start, s.end), span: s });
-    cursor = s.end;
+  for (const m of merged) {
+    if (m.start > cursor) out.push({ text: text.slice(cursor, m.start) });
+    out.push({ text: text.slice(m.start, m.end), label: m.label });
+    cursor = m.end;
   }
   if (cursor < text.length) out.push({ text: text.slice(cursor) });
   return out;
@@ -87,7 +91,7 @@ const segments = computed<Segment[]>(() => {
 
 const counts = computed(() => {
   const c: Record<string, number> = {};
-  for (const s of spans.value) c[s.label] = (c[s.label] ?? 0) + 1;
+  for (const m of sentinelOutput.value.merged) c[m.label] = (c[m.label] ?? 0) + 1;
   return c;
 });
 
@@ -240,10 +244,10 @@ const labelDisplay: Record<string, string> = {
           >
             <template v-for="(seg, i) in segments" :key="`${requestId}-${i}`">
               <span
-                v-if="seg.span"
+                v-if="seg.label"
                 class="redact"
-                :data-cat="seg.span.label"
-                :title="`${labelDisplay[seg.span.label] ?? seg.span.label} · ${(seg.span.score * 100).toFixed(0)}%`"
+                :data-cat="seg.label"
+                :title="labelDisplay[seg.label] ?? seg.label"
                 >{{ seg.text }}</span
               ><template v-else>{{ seg.text }}</template>
             </template>
