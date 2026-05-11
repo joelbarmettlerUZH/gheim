@@ -105,46 +105,39 @@ def test_from_json_preserves_normalized_dedup():
 
 
 # ---------------------------------------------------------------------------
-# Known limitations: aliasing / pluralization / format normalization.
-# These are intentionally xfail until we add the opt-in normalizers
-# (Ask B in the upcoming work). Marking them documents what the cheap
-# NFKC+casefold approach explicitly does NOT cover.
+# Documented limitation: distinct surface forms of the same identity
+# (``Joel`` vs ``Joel Barmettler``) get distinct sentinels under the
+# default key. Resolving this is a coreference problem (out of scope
+# for a redaction library); users who need it can pass a custom
+# callable normalizer that strips first-name-only forms — at the cost
+# of false-merging different "Joel"s in the same document.
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(reason="Person-name aliasing not yet implemented (would need nameparser).")
-def test_first_name_vs_full_name_should_collapse():
+def test_first_name_vs_full_name_get_distinct_sentinels():
     s = Session()
     a = s.allocate("private_person", "Joel")
     b = s.allocate("private_person", "Joel Barmettler")
     c = s.allocate("private_person", "J. Barmettler")
-    assert a == b == c
+    assert a != b != c
+    assert {a, b, c} == {"<PERSON_1>", "<PERSON_2>", "<PERSON_3>"}
 
 
-# Phone- and date-format collapsing requires opt-in normalizers; see
-# tests/test_normalizers.py for the working configuration. Without them,
-# the default NFKC+casefold key naturally treats "+41 44 268 12 34" and
-# "044 268 12 34" as different surfaces.
-@pytest.mark.xfail(reason="Phone canonicalisation requires opt-in e164 normalizer; see test_normalizers.py.")
-def test_phone_format_variants_should_collapse():
+# Phone- and date-format collapsing is covered by the opt-in
+# normalizers (test_normalizers.py). Here we assert the default key's
+# documented behavior: format variants of the same number do NOT
+# collapse without an explicit e164/iso_date normalizer.
+
+def test_phone_format_variants_default_get_distinct_sentinels():
     s = Session()
     a = s.allocate("private_phone", "+41 44 268 12 34")
     b = s.allocate("private_phone", "0041 44 268 12 34")
     c = s.allocate("private_phone", "044 268 12 34")
-    assert a == b == c
+    assert a != b != c
 
 
-@pytest.mark.xfail(reason="Date canonicalisation requires opt-in iso_date normalizer; see test_normalizers.py.")
-def test_date_format_variants_should_collapse():
+def test_date_format_variants_default_get_distinct_sentinels():
     s = Session()
     a = s.allocate("private_date", "1990-01-02")
     b = s.allocate("private_date", "2. Januar 1990")
     c = s.allocate("private_date", "Jan 2, 1990")
-    assert a == b == c
-
-
-@pytest.mark.xfail(reason="Transliteration normalization not yet implemented.")
-def test_german_transliteration_variants_should_collapse():
-    """``Müller`` and ``Mueller`` are the same person in German bureaucracy.
-    Casefold doesn't catch this; it'd require unidecode or similar."""
-    s = Session()
-    assert s.allocate("private_person", "Müller") == s.allocate("private_person", "Mueller")
+    assert a != b != c

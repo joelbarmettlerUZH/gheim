@@ -7,7 +7,7 @@ from typing import Annotated, Any
 
 from .base import Span, trim_span
 
-DEFAULT_MODEL = "openai/privacy-filter"
+DEFAULT_MODEL = "joelbarmettler/gheim-ch-560m"
 
 # Default sliding-window chunking parameters. The model's positional limit is
 # 512 tokens; reserving 2 for [CLS]/[SEP] leaves 510 usable. The overlap

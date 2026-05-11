@@ -8,7 +8,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import { Session } from "../src/core/session.ts";
-import { e164, isoDate, resolveNormalizer } from "../src/normalizers.ts";
+import { e164, germanTransliteration, isoDate, resolveNormalizer } from "../src/normalizers.ts";
 
 // ---------------------------------------------------------------------------
 // e164: phone-number canonicalization
@@ -80,6 +80,41 @@ describe("isoDate normalizer", () => {
     const b = s.allocate("private_date", "NOT A DATE AT ALL");
     expect(a).toBe("<DATE_1>");
     expect(b).toBe("<DATE_1>");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// germanTransliteration: ü/ö/ä/ß → ue/oe/ae/ss
+// ---------------------------------------------------------------------------
+
+describe("germanTransliteration normalizer", () => {
+  test("collapses umlaut variants of names", () => {
+    const s = new Session({ normalizers: { private_person: germanTransliteration() } });
+    expect(s.allocate("private_person", "Müller")).toBe("<PERSON_1>");
+    expect(s.allocate("private_person", "Mueller")).toBe("<PERSON_1>");
+    expect(s.allocate("private_person", "MÜLLER")).toBe("<PERSON_1>");
+    expect(s.allocate("private_person", "MUELLER")).toBe("<PERSON_1>");
+  });
+
+  test("collapses eszett and umlauts in addresses", () => {
+    const s = new Session({ normalizers: { private_address: germanTransliteration() } });
+    const a = s.allocate("private_address", "Bahnhofstraße 1, 8001 Zürich");
+    const b = s.allocate("private_address", "Bahnhofstrasse 1, 8001 Zuerich");
+    const c = s.allocate("private_address", "BAHNHOFSTRASSE 1, 8001 ZÜRICH");
+    expect(a).toBe("<ADDRESS_1>");
+    expect(b).toBe("<ADDRESS_1>");
+    expect(c).toBe("<ADDRESS_1>");
+  });
+
+  test("does not merge different names", () => {
+    const s = new Session({ normalizers: { private_person: germanTransliteration() } });
+    expect(s.allocate("private_person", "Müller")).not.toBe(s.allocate("private_person", "Schmidt"));
+  });
+
+  test("via resolveNormalizer string shortcut", () => {
+    const fn = resolveNormalizer("german");
+    expect(fn("Müller")).toBe("mueller");
+    expect(fn("Müller")).toBe(fn("Mueller"));
   });
 });
 

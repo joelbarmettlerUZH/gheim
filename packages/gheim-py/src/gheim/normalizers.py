@@ -36,6 +36,7 @@ fail with an actionable ``ImportError`` if the user forgot the extra::
 """
 from __future__ import annotations
 
+import unicodedata
 from collections.abc import Callable
 from typing import Annotated
 
@@ -80,6 +81,37 @@ def e164(
     return norm
 
 
+# DIN 5007-2 / Duden German transliteration table.
+_GERMAN_TRANSLIT = str.maketrans({
+    "ä": "ae", "Ä": "ae",
+    "ö": "oe", "Ö": "oe",
+    "ü": "ue", "Ü": "ue",
+    # ß is handled by str.casefold() (→ "ss"), included here for the
+    # rare codepath where casefold isn't applied.
+    "ß": "ss",
+})
+
+
+def german_transliteration() -> Normalizer:
+    """German DIN-5007-2 transliteration on top of NFKC + casefold.
+
+    Collapses ``ä``→``ae``, ``ö``→``oe``, ``ü``→``ue``, ``ß``→``ss`` so
+    that surface variants common in German bureaucracy (the same person
+    sometimes writes their name with or without umlauts: ``Müller`` /
+    ``Mueller`` / ``MÜLLER`` / ``MUELLER``) collapse to one sentinel.
+
+    Standard NFKC + casefold alone would treat ``Müller`` and ``Mueller``
+    as different people (the codepoint ``ü`` doesn't decompose to ``ue``);
+    this normalizer fixes that.
+
+    Pure-Python — no extra dependencies.
+    """
+    def norm(s: str) -> str | None:
+        out = unicodedata.normalize("NFKC", s).translate(_GERMAN_TRANSLIT).casefold()
+        return " ".join(out.split())
+    return norm
+
+
 def iso_date(
     languages: Annotated[
         list[str] | None,
@@ -120,6 +152,7 @@ def iso_date(
 _BUILTINS: dict[str, Callable[[], Normalizer]] = {
     "e164": e164,
     "iso_date": iso_date,
+    "german": german_transliteration,
 }
 
 

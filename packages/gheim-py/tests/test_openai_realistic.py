@@ -375,16 +375,13 @@ def test_same_surface_across_turns_uses_stable_sentinel(sync_client):
     assert "Joel Barmettler" in out2.choices[0].message.content
 
 
-@pytest.mark.xfail(
-    reason="Person-name aliasing not yet implemented: ``JOEL`` (first name) "
-           "and ``Joel Barmettler`` (full name) are distinct surfaces and "
-           "currently get distinct sentinels. Documented limitation; would "
-           "be fixed by an opt-in nameparser-based normalizer.",
-)
-def test_first_name_in_later_turn_should_collapse_to_existing_sentinel(sync_client):
-    """Aliasing case: the user references Joel by full name in turn 1
-    and by first name only in turn 2. Ideally both refer to the same
-    person and reuse <PERSON_1>; today they don't."""
+def test_first_name_in_later_turn_gets_distinct_sentinel(sync_client):
+    """Documented limitation: ``Joel Barmettler`` (full name, turn 1) and
+    ``Joel`` (first name only, turn 2) are distinct surfaces and get
+    distinct sentinels. This is a coreference problem (out of scope for
+    a redaction library); users who need aliasing can pass a custom
+    callable normalizer that strips first-name-only forms — at the cost
+    of false-merging different "Joel"s in the same document."""
     inner = sync_client.chat.completions.inner
     session = Session(detector=FakeDetector(REALISTIC_PII))
 
@@ -406,8 +403,11 @@ def test_first_name_in_later_turn_should_collapse_to_existing_sentinel(sync_clie
         gheim_session=session,
     )
     turn2_payload = inner.captured_calls[1]["messages"][0]["content"]
-    # Currently: "Is <PERSON_2> still locked out?" — fails the xfail.
-    assert "<PERSON_1>" in turn2_payload
+    # Joel and Joel Barmettler get different sentinels — first wins
+    # <PERSON_1>, second gets <PERSON_2>. Both PII forms still get
+    # redacted, just under separate placeholders.
+    assert "Joel" not in turn2_payload
+    assert "<PERSON_2>" in turn2_payload
 
 
 def test_distinct_persons_get_distinct_sentinels(sync_client):

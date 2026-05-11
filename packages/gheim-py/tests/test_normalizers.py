@@ -8,7 +8,12 @@ from __future__ import annotations
 
 import pytest
 from gheim import Session
-from gheim.normalizers import e164, iso_date, resolve_normalizer
+from gheim.normalizers import (
+    e164,
+    german_transliteration,
+    iso_date,
+    resolve_normalizer,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -83,6 +88,46 @@ def test_iso_date_falls_back_on_unparseable_input():
     a = s.allocate("private_date", "not a date at all")
     b = s.allocate("private_date", "NOT A DATE AT ALL")
     assert a == b == "<DATE_1>"  # NFKC+casefold collapse on the fallback
+
+
+# ---------------------------------------------------------------------------
+# german_transliteration: ü/ö/ä/ß → ue/oe/ae/ss
+# ---------------------------------------------------------------------------
+
+def test_german_transliteration_collapses_umlauts():
+    """``Müller`` and ``Mueller`` are the same person in German bureaucracy
+    but the codepoint ``ü`` doesn't decompose to ``ue`` under NFKC. The
+    german_transliteration normalizer applies DIN-5007-2 so all four
+    variants — Müller / Mueller / MÜLLER / MUELLER — collapse to one
+    sentinel."""
+    s = Session(normalizers={"private_person": german_transliteration()})
+    assert s.allocate("private_person", "Müller") == "<PERSON_1>"
+    assert s.allocate("private_person", "Mueller") == "<PERSON_1>"
+    assert s.allocate("private_person", "MÜLLER") == "<PERSON_1>"
+    assert s.allocate("private_person", "MUELLER") == "<PERSON_1>"
+
+
+def test_german_transliteration_collapses_eszett_and_umlaut_addresses():
+    """Address surface variants too: ``Straße`` / ``Strasse`` collapse
+    (eszett expansion); ``Zürich`` / ``Zuerich`` collapse (umlaut)."""
+    s = Session(normalizers={"private_address": german_transliteration()})
+    a = s.allocate("private_address", "Bahnhofstraße 1, 8001 Zürich")
+    b = s.allocate("private_address", "Bahnhofstrasse 1, 8001 Zuerich")
+    c = s.allocate("private_address", "BAHNHOFSTRASSE 1, 8001 ZÜRICH")
+    assert a == b == c == "<ADDRESS_1>"
+
+
+def test_german_transliteration_does_not_merge_different_names():
+    s = Session(normalizers={"private_person": german_transliteration()})
+    a = s.allocate("private_person", "Müller")
+    b = s.allocate("private_person", "Schmidt")
+    assert a != b
+
+
+def test_german_transliteration_via_string_shortcut():
+    fn = resolve_normalizer("german")
+    # German transliteration always succeeds (pure-Python; no parse step).
+    assert fn("Müller") == fn("Mueller") == "mueller"
 
 
 # ---------------------------------------------------------------------------

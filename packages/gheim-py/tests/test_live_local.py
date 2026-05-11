@@ -1,19 +1,41 @@
 """Real-model end-to-end tests for LocalDetector + plain + openai surfaces.
 
-These download `openai/privacy-filter` (~3 GB on first run) and run inference on
-CPU. Skipped by default — set ``GHEIM_RUN_LIVE=1`` to enable.
+Loads ``joelbarmettler/gheim-ch-560m`` (~2.2 GB on first run) and runs
+inference on CPU. The first run downloads the model from the
+HuggingFace Hub (~30s on a fast connection); subsequent runs hit the
+HF cache.
+
+Resolution order for the test model:
+  1. ``$GHEIM_TEST_MODEL`` env var (any HF id or local directory)
+  2. ``../../checkpoints/stage2_xlmr`` if it exists locally
+  3. ``joelbarmettler/gheim-ch-560m`` (HF Hub fallback)
 """
 from __future__ import annotations
+
+import os
+from pathlib import Path
 
 import pytest
 from gheim import LocalDetector, Session, anonymize_text, deanonymize_stream, deanonymize_text
 
-pytestmark = pytest.mark.live
+
+def _resolve_test_model() -> str:
+    env = os.environ.get("GHEIM_TEST_MODEL")
+    if env:
+        return env
+    repo_root = Path(__file__).resolve().parents[3]
+    local_ckpt = repo_root / "checkpoints" / "stage2_xlmr"
+    if local_ckpt.is_dir() and (local_ckpt / "config.json").is_file():
+        return str(local_ckpt)
+    return "joelbarmettler/gheim-ch-560m"
+
+
+_TEST_MODEL = _resolve_test_model()
 
 
 @pytest.fixture(scope="module")
 def detector() -> LocalDetector:
-    return LocalDetector(device="cpu")
+    return LocalDetector(model_id=_TEST_MODEL, device="cpu")
 
 
 def test_local_detector_finds_name(detector: LocalDetector) -> None:

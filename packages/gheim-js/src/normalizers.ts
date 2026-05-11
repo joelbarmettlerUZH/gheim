@@ -162,9 +162,35 @@ export function isoDate(opts: IsoDateOptions = {}): Normalizer {
   };
 }
 
+/**
+ * German DIN-5007-2 transliteration on top of NFKC + lowercase. Collapses
+ * `ä`→`ae`, `ö`→`oe`, `ü`→`ue`, `ß`→`ss` so that German bureaucracy
+ * surface variants — `Müller` / `Mueller` / `MÜLLER` / `MUELLER` — collapse
+ * to one sentinel. The codepoint `ü` doesn't decompose to `ue` under NFKC,
+ * which is why the default key alone misses this case.
+ *
+ * Pure-JS — no extra dependencies.
+ */
+export function germanTransliteration(): Normalizer {
+  const table: Record<string, string> = {
+    ä: "ae", Ä: "ae",
+    ö: "oe", Ö: "oe",
+    ü: "ue", Ü: "ue",
+    ß: "ss",
+  };
+  return (s: string): string | null => {
+    let out = "";
+    for (const ch of s.normalize("NFKC")) {
+      out += table[ch] ?? ch;
+    }
+    return out.toLowerCase().split(/\s+/).filter(Boolean).join(" ");
+  };
+}
+
 const BUILTINS: Record<string, () => Normalizer> = {
   e164: () => e164(),
   iso_date: () => isoDate(),
+  german: () => germanTransliteration(),
 };
 
 /** Resolve a built-in name or pass through a custom callable. */

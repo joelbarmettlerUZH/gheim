@@ -14,7 +14,7 @@
  */
 import type { Detector, Span } from "./base.ts";
 
-export const DEFAULT_MODEL = "openai/privacy-filter";
+export const DEFAULT_MODEL = "joelbarmettler/gheim-ch-560m";
 
 /** Default sliding-window chunking parameters; see LocalDetector docstring. */
 const DEFAULT_CHUNK_TOKENS = 510;
