@@ -25,12 +25,14 @@ export {
   REMOTE_DEFAULT_MODEL,
   RemoteDetector,
   LocalDetector,
+  CompositeDetector,
   defaultDetector,
 } from "./detectors/index.ts";
 export type {
   RemoteDetectorOptions,
   LocalDetectorOptions,
   LocalDetectorLoadEvent,
+  CompositeDetectorOptions,
 } from "./detectors/index.ts";
 export {
   anonymizeMessages,
@@ -43,7 +45,7 @@ export type { ChatMessage } from "./plain.ts";
 // Note: gheim/openai is exposed as a separate subpath export.
 // Import from "gheim/openai" to use OpenAI-typed helpers.
 
-export const VERSION = "0.1.2";
+export const VERSION = "0.1.3";
 
 export { mergeAdjacent } from "./core/session.ts";
 export type { MergedSpan } from "./core/session.ts";

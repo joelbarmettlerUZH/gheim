@@ -1,6 +1,6 @@
 [project]
 name = "gheim"
-version = "0.1.2"
+version = "0.1.3"
 description = "PII round-trip for LLM APIs: anonymize before the request, de-anonymize the stream on the way back."
 readme = "README.md"
 requires-python = ">=3.11"

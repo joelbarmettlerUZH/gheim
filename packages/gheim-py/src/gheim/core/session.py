@@ -20,6 +20,24 @@ if TYPE_CHECKING:
 _MERGE_GAP = 1
 
 
+@dataclass(frozen=True, slots=True)
+class MergedSpan:
+    """A span after merge: same shape as :class:`Span` but without
+    ``text``/``score`` carried. Returned by :meth:`Session.apply_spans_detailed`."""
+
+    start: int
+    end: int
+    label: str
+
+
+@dataclass(frozen=True, slots=True)
+class ApplySpansResult:
+    """Return type of :meth:`Session.apply_spans_detailed`."""
+
+    redacted: Annotated[str, "Text with each detected span replaced by its sentinel."]
+    merged: Annotated[list[MergedSpan], "The post-merge span list (offsets into the original text)."]
+
+
 def _normalize_surface(s: str) -> str:
     """Normalize a surface form for sentinel-coalescing key purposes.
 
@@ -147,13 +165,29 @@ class Session:
         Adjacent same-label spans (``alice@example`` + ``.com``) are merged before
         allocation so a split email doesn't end up as two separate sentinels.
         """
+        return self.apply_spans_detailed(text, spans).redacted
+
+    def apply_spans_detailed(
+        self,
+        text: Annotated[str, "Original text the spans were detected in."],
+        spans: Annotated[list[Span], "Detected PII spans, possibly unsorted."],
+    ) -> "ApplySpansResult":
+        """Like :meth:`apply_spans` but also returns the post-merge span list.
+
+        UI consumers (segment renderers, bar overlays, ablation scripts)
+        typically need both the redacted text *and* the merged spans so
+        they can highlight the redacted runs at their original character
+        positions. Without this method they'd have to call the internal
+        merge again on the same input. Pure convenience — no extra cost
+        over ``apply_spans``.
+        """
         if not spans:
-            return text
+            return ApplySpansResult(redacted=text, merged=[])
         sorted_spans = sorted(spans, key=lambda s: (s.start, -(s.end - s.start)))
-        merged = _merge_adjacent(text, sorted_spans)
+        merged_tuples = _merge_adjacent(text, sorted_spans)
         out: list[str] = []
         cursor = 0
-        for span_start, span_end, label in merged:
+        for span_start, span_end, label in merged_tuples:
             if span_start < cursor:
                 continue
             if span_start < 0 or span_end > len(text) or span_start >= span_end:
@@ -163,7 +197,10 @@ class Session:
             out.append(self.allocate(label, surface))
             cursor = span_end
         out.append(text[cursor:])
-        return "".join(out)
+        merged_spans = [
+            MergedSpan(start=s, end=e, label=l) for s, e, l in merged_tuples
+        ]
+        return ApplySpansResult(redacted="".join(out), merged=merged_spans)
 
     def restore(
         self,

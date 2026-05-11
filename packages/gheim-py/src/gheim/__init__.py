@@ -9,7 +9,7 @@ Public API:
 - ``deanonymize_stream`` — wrap a chunk iterator
 - ``gheim.openai.OpenAI`` — drop-in OpenAI client (subpackage import)
 """
-from .core.session import Session
+from .core.session import ApplySpansResult, MergedSpan, Session
 from .core.stream import StreamDeanonymizer
 from .detectors import Detector, LocalDetector, RemoteDetector, Span, default_detector
 from .plain import (
@@ -21,11 +21,13 @@ from .plain import (
     deanonymize_text,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.1.3"
 
 __all__ = [
+    "ApplySpansResult",
     "Detector",
     "LocalDetector",
+    "MergedSpan",
     "RemoteDetector",
     "Session",
     "Span",
