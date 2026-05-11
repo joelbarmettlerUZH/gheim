@@ -52,19 +52,25 @@ bounded hold-back buffer.
 ### Python · drop-in OpenAI client
 
 ```bash
-uv add "gheim[openai]"
+uv add "gheim[local,openai]"
 ```
 
 ```python
 from gheim.openai import OpenAI    # same constructor as openai.OpenAI
 
-client = OpenAI()
+client = OpenAI()  # detector defaults to joelbarmettler/gheim-ch-560m
 r = client.chat.completions.create(
     model="gpt-4o",
     messages=[{"role": "user", "content": "Hi, my name is Joel."}],
 )
 # r.choices[0].message.content contains "Joel".
 # OpenAI only ever saw "<PERSON_1>".
+```
+
+Custom endpoint or key (e.g. OpenRouter, local vLLM) — pass straight through:
+
+```python
+client = OpenAI(api_key="sk-or-...", base_url="https://openrouter.ai/api/v1")
 ```
 
 Streaming, async (`AsyncOpenAI`), tool calls, and 9 other text-carrying
@@ -75,21 +81,22 @@ are wrapped automatically. See the
 ### JavaScript / TypeScript
 
 ```bash
-npm install gheim openai
+npm install gheim openai @huggingface/transformers
 ```
 
 ```ts
 import { OpenAI } from "gheim/openai";
 
-const client = new OpenAI();
+const client = new OpenAI();  // detector defaults to gheim-ch-560m
 const r = await client.chat.completions.create({
   model: "gpt-4o",
   messages: [{ role: "user", content: "Hi, my name is Joel." }],
 });
 ```
 
-Dual ESM + CJS, full `.d.ts`, Node 18+ and Bun 1.1+. Browser-side via
-`@huggingface/transformers` (WebGPU). See the
+`apiKey` and `baseURL` work at the top level (mirrors the official
+`openai` client). Dual ESM + CJS, full `.d.ts`, Node 18+, Bun 1.1+,
+modern browsers (auto WebGPU + WASM fallback). See the
 [JS SDK README](packages/gheim-js/README.md).
 
 ### Self-host the detection server

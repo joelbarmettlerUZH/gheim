@@ -75,11 +75,11 @@ function copy(id: string) {
             <span class="kicker">Install</span>
             <button class="text-xs font-mono text-ink-soft hover:text-accent" @click="copy('py-install')">copy</button>
           </div>
-          <pre id="py-install" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-comment"># Core + drop-in OpenAI wrapper</span>
-uv add <span class="tok-string">"gheim[openai]"</span>
+          <pre id="py-install" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-comment"># Drop-in OpenAI wrapper + on-device detection</span>
+uv add <span class="tok-string">"gheim[local,openai]"</span>
 
-<span class="tok-comment"># Add on-device detection (torch + transformers)</span>
-uv add <span class="tok-string">"gheim[local,openai]"</span></pre>
+<span class="tok-comment"># Or, if you'll point gheim at a remote detection server:</span>
+uv add <span class="tok-string">"gheim[openai]"</span></pre>
         </div>
 
         <div class="border border-rule rounded-md bg-paper flex flex-col">
@@ -111,10 +111,10 @@ r = client.chat.completions.<span class="tok-fn">create</span>(
             <button class="text-xs font-mono text-ink-soft hover:text-accent" @click="copy('node-install')">copy</button>
           </div>
           <pre id="node-install" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-comment"># Server-side / Bun / Node 18+</span>
-npm install gheim openai
+npm install gheim openai <span class="tok-string">@huggingface/transformers</span>
 
-<span class="tok-comment"># Optional: on-device detection in Node</span>
-npm install <span class="tok-string">@huggingface/transformers</span></pre>
+<span class="tok-comment"># Or with bun:</span>
+bun add gheim openai <span class="tok-string">@huggingface/transformers</span></pre>
         </div>
 
         <div class="border border-rule rounded-md bg-paper flex flex-col">
@@ -144,7 +144,7 @@ npm install <span class="tok-string">@huggingface/transformers</span></pre>
             <span class="kicker">Install</span>
             <button class="text-xs font-mono text-ink-soft hover:text-accent" @click="copy('br-install')">copy</button>
           </div>
-          <pre id="br-install" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-comment"># Bundle for the browser</span>
+          <pre id="br-install" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-comment"># Bundle for the browser (Vite, Webpack, etc.)</span>
 npm install gheim <span class="tok-string">@huggingface/transformers</span></pre>
         </div>
 
@@ -158,9 +158,9 @@ npm install gheim <span class="tok-string">@huggingface/transformers</span></pre
 
 <span class="tok-keyword">const</span> session = <span class="tok-keyword">new</span> <span class="tok-fn">Session</span>();
 session.detector = <span class="tok-keyword">new</span> <span class="tok-fn">LocalDetector</span>({
-  model: <span class="tok-string">"joelbarmettler/gheim-ch-560m"</span>,
-  device: <span class="tok-string">"webgpu"</span>,
-  dtype:  <span class="tok-string">"q8"</span>,
+  <span class="tok-comment">// Defaults: model = joelbarmettler/gheim-ch-560m,</span>
+  <span class="tok-comment">// device = "auto" (probes WebGPU, falls back to WASM).</span>
+  dtype: <span class="tok-string">"q8"</span>,
 });
 
 <span class="tok-keyword">const</span> clean = <span class="tok-keyword">await</span> <span class="tok-fn">anonymizeText</span>(<span class="tok-string">"Hi, my name is Joel"</span>, session);

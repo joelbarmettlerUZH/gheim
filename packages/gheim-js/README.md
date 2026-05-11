@@ -38,33 +38,38 @@ The core package itself has no runtime dependencies.
 
 `LocalDetector` loads a token-classification model via
 [`@huggingface/transformers`](https://www.npmjs.com/package/@huggingface/transformers)
-(transformers.js). Two models are recommended depending on the
-deployment context. Both implement the same 33-class BIOES output
-schema and are interchangeable.
+(transformers.js). The package's default model is
+[`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m)
+— a 560M xlm-roberta-large fine-tune optimised for Swiss-market PII
+(strict-span F1 0.916 on Swiss text, see
+[MODEL_CARD.md](https://github.com/joelbarmettlerUZH/gheim/blob/main/MODEL_CARD.md)).
+Any HuggingFace token-classification model that emits the same 33-class
+BIOES schema can be substituted via `model:`.
 
 | Model | Best for | Parameters | Notes |
 |---|---|---:|---|
-| [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) | Swiss-market text (de_CH, fr_CH, it_CH, rm, en) with CH-format account numbers (IBAN, AHV, VAT-CHE) | 560M | Apache 2.0. Test F1 = 0.916 on Swiss text. ONNX export ships in the `onnx/` subfolder. |
+| [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) **(default)** | Swiss-market text (de_CH, fr_CH, it_CH, rm, en) with CH-format account numbers (IBAN, AHV, VAT-CHE) | 560M | Apache 2.0. Test F1 0.916. Hub repo ships `onnx/model_quantized.onnx` only — load with `dtype: "q8"`. |
 | [`openai/privacy-filter`](https://huggingface.co/openai/privacy-filter) | English-first or general use, long-context (up to 128k tokens) | 1.4B (50M active, MoE) | Apache 2.0. Wider language coverage, larger weights. |
 
 ```ts
 import { LocalDetector } from "gheim";
 
-// Recommended for Swiss-market text:
-const det = new LocalDetector({ model: "joelbarmettler/gheim-ch-560m" });
+// Default — Swiss-tuned, q8 ONNX. `device: "auto"` probes WebGPU in
+// the browser and falls back to WASM; in Node it's WASM directly.
+const det = new LocalDetector({ dtype: "q8" });
 
 // Alternative for English or general use:
 const detEn = new LocalDetector({ model: "openai/privacy-filter" });
 ```
-
-The package default `model` is `openai/privacy-filter`. Pass `model`
-explicitly to opt into the Swiss model.
 
 ## Drop-in OpenAI client
 
 ```ts
 import { OpenAI } from "gheim/openai";
 
+// Same constructor shape as `openai`. `apiKey`, `baseURL`, etc. work
+// at the top level (forwarded to the inner client). gheim-specific
+// keys: `gheimDetector`, `gheimStrict`, `openaiClient`, `clientOptions`.
 const client = new OpenAI();
 const r = await client.chat.completions.create({
   model: "gpt-4o",
@@ -72,6 +77,17 @@ const r = await client.chat.completions.create({
 });
 // r.choices[0].message.content contains "Joel".
 // OpenAI only ever saw "<PERSON_1>".
+```
+
+Custom endpoint or key (e.g. OpenRouter, local vLLM):
+
+```ts
+import { OpenAI } from "gheim/openai";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
+});
 ```
 
 Streaming:
@@ -104,9 +120,9 @@ All non-chat OpenAI resources are on `client.raw` once `await client.ready()` re
 import { Session, LocalDetector, anonymizeText, deanonymizeText } from "gheim";
 
 const session = new Session();
-(session as any).detector = new LocalDetector({
-  model: "joelbarmettler/gheim-ch-560m",
-});
+(session as any).detector = new LocalDetector({ dtype: "q8" });
+//                                 ^ defaults to joelbarmettler/gheim-ch-560m
+
 const clean = await anonymizeText("Hi, my name is Joel", session);
 // ... call any LLM with clean ...
 const final = deanonymizeText(responseText, session);
@@ -155,12 +171,18 @@ client.raw.beta.assistants.create(...);  // always works regardless of strict mo
 ```ts
 import { LocalDetector, RemoteDetector, defaultDetector } from "gheim";
 
-// Local: via @huggingface/transformers, on Node and Bun.
+// Local: via @huggingface/transformers, on Node, Bun, and browsers.
+// `device: "auto"` (default) probes navigator.gpu in the browser and
+// falls back to WASM if WebGPU isn't usable; in Node it's WASM only.
 const local = new LocalDetector({
-  model: "joelbarmettler/gheim-ch-560m",
   device: "auto",
-  dtype: "fp32",
+  dtype: "q8",
+  onProgress: (e) => {
+    if (e.fraction != null) console.log(`loading: ${(e.fraction * 100) | 0}%`);
+  },
 });
+await local.load();
+console.log("backend in use:", local.actualDevice);  // "webgpu" or "wasm"
 
 // Remote: against your own gheim-server or api.gheim.ch.
 const remote = new RemoteDetector({
@@ -174,10 +196,9 @@ const auto = defaultDetector();
 
 ## Runtime support
 
-Tested on Node 18+ and Bun 1.1+ with `device: "cpu"` (the default). The
-underlying transformers.js library also supports `device: "webgpu"` in
-modern browsers; the WebGPU path is not exercised in CI and should be
-considered best-effort.
+Tested on Node 18+, Bun 1.1+, and modern browsers (Chrome 113+, Edge,
+Safari 17+, Firefox via flag). Browser builds use WebGPU when available
+and fall back to WebAssembly automatically.
 
 For Node servers, installing `onnxruntime-node` alongside
 `@huggingface/transformers` enables the native ONNX backend, which is

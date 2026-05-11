@@ -86,7 +86,57 @@ output with downstream filtering.
 
 ## Usage
 
-### Python (transformers)
+### Recommended: gheim SDKs (round-trip with sentinel restoration)
+
+For the typical use case — anonymise text, send to an LLM, restore the
+originals on the way back — install the [`gheim`](https://pypi.org/project/gheim/)
+Python or [`gheim`](https://www.npmjs.com/package/gheim) npm package.
+This model is the default detector in both, and the wrappers handle
+sentinel allocation, streaming-aware decode, multi-turn coherent
+sessions, and a drop-in `OpenAI` client.
+
+```bash
+pip install "gheim[local,openai]"        # Python
+npm install gheim openai @huggingface/transformers   # JS / TS
+```
+
+```python
+# Python — drop-in OpenAI client. Defaults to gheim-ch-560m.
+from gheim.openai import OpenAI
+
+client = OpenAI()  # accepts the same kwargs as openai.OpenAI
+r = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user",
+               "content": "Hi, my name is Joel. My phone is +41 44 268 12 34."}],
+)
+# r.choices[0].message.content has the original PII restored.
+# OpenAI only ever saw "<PERSON_1>" and "<PHONE_1>".
+```
+
+```ts
+// JS / TS — same idea.
+import { OpenAI } from "gheim/openai";
+
+const client = new OpenAI();  // accepts the same opts as openai's OpenAI
+const r = await client.chat.completions.create({
+  model: "gpt-4o",
+  messages: [{ role: "user",
+               content: "Hi, my name is Joel. My phone is +41 44 268 12 34." }],
+});
+```
+
+Streaming, async, tool calls, and 9 other text-carrying endpoints
+(`responses`, `embeddings`, `moderations`, `audio.*`, `images.*`) are
+wrapped automatically. Full surface in the package READMEs:
+[Python](https://github.com/joelbarmettlerUZH/gheim/blob/main/packages/gheim-py/README.md)
+·
+[JS](https://github.com/joelbarmettlerUZH/gheim/blob/main/packages/gheim-js/README.md).
+
+### Alternative: raw transformers / transformers.js
+
+If you only need a token classifier (no sentinel round-trip), use the
+HuggingFace pipelines directly.
 
 ```python
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
@@ -103,28 +153,16 @@ for span in ner(text):
     print(f"{span['entity_group']:<18} {span['score']:.2f} {span['word']!r}")
 ```
 
-### JavaScript (transformers.js)
-
-The repository ships an ONNX export under `onnx/` so the model loads in
-[`@huggingface/transformers`](https://www.npmjs.com/package/@huggingface/transformers)
-on Node, Bun, and supported browsers.
-
 ```ts
+// Node / Bun / browser via @huggingface/transformers (transformers.js).
+// The Hub repo only ships the int8 ONNX, so pass dtype: "q8".
 import { pipeline } from "@huggingface/transformers";
 
 const ner = await pipeline("token-classification",
   "joelbarmettler/gheim-ch-560m",
-  { aggregation_strategy: "simple" });
+  { aggregation_strategy: "simple", dtype: "q8" });
 const out = await ner("Email me at alice@example.ch, phone +41 44 268 12 34.");
 ```
-
-### gheim round-trip wrapper
-
-For sentinel-based round-trip anonymisation (text out, text back through an
-external LLM, restored output) the [`gheim`](https://pypi.org/project/gheim/)
-Python package and the [`gheim`](https://www.npmjs.com/package/gheim)
-JavaScript package wrap this model under their `LocalDetector` and expose a
-streaming-aware decode path for the substitution sentinels.
 
 ## Performance
 

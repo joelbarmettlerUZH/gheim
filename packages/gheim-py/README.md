@@ -34,29 +34,29 @@ uv add "gheim[local,openai]"          # both
 
 ## Model choice
 
-`LocalDetector` runs a token-classification model in process. Two models
-are recommended depending on the deployment context. Both implement the
-same 33-class BIOES output schema and are interchangeable in
-`LocalDetector` and the rest of the API.
+`LocalDetector` runs a token-classification model in process. The
+package's default model is
+[`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m)
+— a 560M xlm-roberta-large fine-tune optimised for Swiss-market PII
+(strict-span F1 0.916 on Swiss text, see
+[MODEL_CARD.md](https://github.com/joelbarmettlerUZH/gheim/blob/main/MODEL_CARD.md)).
+Any HuggingFace token-classification model that emits the same 33-class
+BIOES schema can be substituted via the `model_id` constructor arg.
 
 | Model | Best for | Parameters | Notes |
 |---|---|---:|---|
-| [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) | Swiss-market text (de_CH, fr_CH, it_CH, rm, en) with CH-format account numbers (IBAN, AHV, VAT-CHE) | 560M | Apache 2.0. Test F1 = 0.916 on Swiss text. |
+| [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) **(default)** | Swiss-market text (de_CH, fr_CH, it_CH, rm, en) with CH-format account numbers (IBAN, AHV, VAT-CHE) | 560M | Apache 2.0. Test F1 0.916. |
 | [`openai/privacy-filter`](https://huggingface.co/openai/privacy-filter) | English-first or general use, long-context (up to 128k tokens) | 1.4B (50M active, MoE) | Apache 2.0. Wider language coverage, larger weights. |
 
 ```python
 from gheim import LocalDetector
 
-# Recommended for Swiss-market text:
-det = LocalDetector(model_id="joelbarmettler/gheim-ch-560m")
+# Default — Swiss-tuned, 560M:
+det = LocalDetector()
 
 # Alternative for English or general use:
 det = LocalDetector(model_id="openai/privacy-filter")
 ```
-
-The package default `model_id` is `openai/privacy-filter`. Set
-`GHEIM_DEFAULT_MODEL=joelbarmettler/gheim-ch-560m` in the environment, or
-pass `model_id` explicitly, to opt into the Swiss model.
 
 ## Drop-in OpenAI client
 
@@ -70,6 +70,12 @@ r = client.chat.completions.create(
 )
 # r.choices[0].message.content contains "Joel".
 # OpenAI only ever saw "<PERSON_1>".
+```
+
+Custom endpoint or key (e.g. OpenRouter, local vLLM):
+
+```python
+client = OpenAI(api_key="sk-or-...", base_url="https://openrouter.ai/api/v1")
 ```
 
 Streaming:
@@ -105,7 +111,7 @@ r = client.chat.completions.create(
 ```python
 from gheim import Session, LocalDetector, anonymize_text, deanonymize_text
 
-session = Session(detector=LocalDetector(model_id="joelbarmettler/gheim-ch-560m"))
+session = Session(detector=LocalDetector())  # gheim-ch-560m by default
 clean = anonymize_text("Hi, my name is Joel", session)
 # ... call any LLM with clean ...
 final = deanonymize_text(response_text, session)
@@ -152,11 +158,13 @@ client.raw.beta.assistants.create(...)  # always works regardless of strict mode
 ## Detector backends
 
 ```python
+import torch
 from gheim import LocalDetector, RemoteDetector, default_detector
 
 # Local inference. Weights download to the HF cache on first use.
-det = LocalDetector(model_id="joelbarmettler/gheim-ch-560m",
-                    device="auto", dtype=torch.bfloat16)
+# `model_id` defaults to "joelbarmettler/gheim-ch-560m"; pass
+# `dtype=torch.bfloat16` for half-precision GPU inference.
+det = LocalDetector(device="auto", dtype=torch.bfloat16)
 
 # Remote inference against your own gheim-server or api.gheim.ch.
 det = RemoteDetector(base_url="http://your-host:8080", api_key="...")
