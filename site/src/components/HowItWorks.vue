@@ -54,25 +54,60 @@ const steps = [
     </ol>
 
     <!-- Visual flow strip -->
-    <div class="mt-10 border border-rule rounded-md bg-paper-dim p-6 sm:p-8">
-      <p class="kicker mb-4">Round-trip in one paragraph</p>
-      <div class="font-mono text-sm leading-loose break-words">
-        <span>Hi, my name is </span
-        ><span class="redact" data-static="true" data-cat="private_person"
-          >Joel</span
-        ><span> and my email is </span
-        ><span class="redact" data-static="true" data-cat="private_email"
-          >alice@example.ch</span
-        ><span>.</span>
-        <span class="text-ink-soft mx-2">→</span>
-        <span class="sentinel">&lt;PERSON_1&gt;</span>
-        <span class="text-ink-soft">·</span>
-        <span class="sentinel">&lt;EMAIL_1&gt;</span>
-        <span class="text-ink-soft mx-2">→ LLM →</span>
-        <span class="sentinel">&lt;PERSON_1&gt;</span>,
-        <span class="sentinel">&lt;EMAIL_1&gt;</span>
-        <span class="text-ink-soft mx-2">→</span>
-        <span>Joel, alice@example.ch</span>
+    <div class="mt-10 border border-rule rounded-md bg-paper-dim">
+      <div class="px-6 sm:px-8 pt-6 sm:pt-8 pb-3">
+        <p class="kicker">Round-trip in one paragraph</p>
+      </div>
+      <div class="grid sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-rule">
+        <!-- 01 — what the user types -->
+        <div class="p-6 sm:p-7 flex flex-col gap-3">
+          <span class="kicker text-ink-soft">01 — User input</span>
+          <p class="font-mono text-[0.78rem] leading-relaxed">
+            Please draft a polite reminder to <strong class="font-semibold">Joel Barmettler</strong>
+            (<strong class="font-semibold">jbarmettler@proton.me</strong>) that
+            invoice <strong class="font-semibold">CH9300762011623852957</strong>
+            is overdue since <strong class="font-semibold">15 May 2026</strong>.
+          </p>
+        </div>
+        <!-- 02 — what crosses the wire -->
+        <div class="p-6 sm:p-7 flex flex-col gap-3">
+          <span class="kicker text-ink-soft">02 — Sent to OpenAI</span>
+          <p class="font-mono text-[0.78rem] leading-relaxed">
+            Please draft a polite reminder to
+            <span class="sentinel">&lt;PERSON_1&gt;</span>
+            (<span class="sentinel">&lt;EMAIL_1&gt;</span>) that invoice
+            <span class="sentinel">&lt;ACCOUNT_1&gt;</span>
+            is overdue since
+            <span class="sentinel">&lt;DATE_1&gt;</span>.
+          </p>
+        </div>
+        <!-- 03 — LLM response (with sentinels) -->
+        <div class="p-6 sm:p-7 flex flex-col gap-3">
+          <span class="kicker text-ink-soft">03 — LLM response</span>
+          <p class="font-mono text-[0.78rem] leading-relaxed">
+            Subject: Friendly reminder. Dear
+            <span class="sentinel">&lt;PERSON_1&gt;</span>, this is a friendly
+            reminder that invoice
+            <span class="sentinel">&lt;ACCOUNT_1&gt;</span>
+            has been outstanding since
+            <span class="sentinel">&lt;DATE_1&gt;</span>. We will follow up by
+            email at <span class="sentinel">&lt;EMAIL_1&gt;</span>.
+          </p>
+        </div>
+        <!-- 04 — restored to the user -->
+        <div class="p-6 sm:p-7 flex flex-col gap-3">
+          <span class="kicker text-ink-soft">04 — Restored for user</span>
+          <p class="font-mono text-[0.78rem] leading-relaxed">
+            Subject: Friendly reminder. Dear
+            <strong class="font-semibold">Joel Barmettler</strong>, this is a
+            friendly reminder that invoice
+            <strong class="font-semibold">CH9300762011623852957</strong>
+            has been outstanding since
+            <strong class="font-semibold">15 May 2026</strong>. We will follow
+            up by email at
+            <strong class="font-semibold">jbarmettler@proton.me</strong>.
+          </p>
+        </div>
       </div>
     </div>
   </section>

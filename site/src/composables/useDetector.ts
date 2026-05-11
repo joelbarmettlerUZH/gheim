@@ -82,7 +82,12 @@ export function useDetector() {
           dtype: "q8",
           progress_callback: (p: ProgressInfo) => {
             if (p.status === "progress" && p.progress != null) {
-              progress.value = p.progress;
+              // transformers.js reports `progress` as a 0–100 percentage
+              // for some files and 0–1 for others (and occasionally
+              // overshoots if `loaded` exceeds `total` mid-stream).
+              // Normalize + clamp so the bar never reads 4000%.
+              const raw = p.progress > 1 ? p.progress / 100 : p.progress;
+              progress.value = Math.max(0, Math.min(1, raw));
               const mb =
                 p.loaded != null ? (p.loaded / 1024 / 1024).toFixed(0) : "—";
               const total =

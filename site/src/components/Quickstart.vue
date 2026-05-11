@@ -41,7 +41,7 @@ function copy(id: string) {
       <button
         v-for="t in tabs"
         :key="t.id"
-        class="flex-1 px-4 py-3 text-left transition-colors"
+        class="flex-1 px-4 py-3 text-left transition-colors cursor-pointer"
         :class="
           tab === t.id
             ? 'bg-ink text-paper'
@@ -49,7 +49,13 @@ function copy(id: string) {
         "
         @click="tab = t.id"
       >
-        <div class="kicker mb-0.5" :class="tab === t.id ? 'text-paper' : ''">
+        <!-- The .kicker rule sets a fixed dark-grey colour, which makes
+             the tab title invisible on the inverted (selected) tab.
+             Override with style.color so it follows the parent text colour. -->
+        <div
+          class="kicker mb-0.5"
+          :style="tab === t.id ? { color: 'var(--color-paper)' } : undefined"
+        >
           {{ t.label }}
         </div>
         <div
@@ -63,25 +69,25 @@ function copy(id: string) {
 
     <!-- Code panes -->
     <div v-show="tab === 'python'">
-      <div class="grid lg:grid-cols-2 gap-3">
-        <div class="border border-rule rounded-md bg-paper">
+      <div class="grid lg:grid-cols-2 gap-3 items-stretch">
+        <div class="border border-rule rounded-md bg-paper flex flex-col">
           <div class="flex items-center justify-between px-4 py-2 border-b border-rule">
             <span class="kicker">Install</span>
             <button class="text-xs font-mono text-ink-soft hover:text-accent" @click="copy('py-install')">copy</button>
           </div>
-          <pre id="py-install" class="codeblock m-0 rounded-none rounded-b-md"><span class="tok-comment"># Core + drop-in OpenAI wrapper</span>
+          <pre id="py-install" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-comment"># Core + drop-in OpenAI wrapper</span>
 uv add <span class="tok-string">"gheim[openai]"</span>
 
 <span class="tok-comment"># Add on-device detection (torch + transformers)</span>
 uv add <span class="tok-string">"gheim[local,openai]"</span></pre>
         </div>
 
-        <div class="border border-rule rounded-md bg-paper">
+        <div class="border border-rule rounded-md bg-paper flex flex-col">
           <div class="flex items-center justify-between px-4 py-2 border-b border-rule">
             <span class="kicker">Drop-in OpenAI client</span>
             <button class="text-xs font-mono text-ink-soft hover:text-accent" @click="copy('py-code')">copy</button>
           </div>
-          <pre id="py-code" class="codeblock m-0 rounded-none rounded-b-md"><span class="tok-keyword">from</span> gheim.openai <span class="tok-keyword">import</span> OpenAI
+          <pre id="py-code" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-keyword">from</span> gheim.openai <span class="tok-keyword">import</span> OpenAI
 
 client = <span class="tok-fn">OpenAI</span>()  <span class="tok-comment"># same args as openai.OpenAI</span>
 
@@ -98,25 +104,25 @@ r = client.chat.completions.<span class="tok-fn">create</span>(
     </div>
 
     <div v-show="tab === 'node'">
-      <div class="grid lg:grid-cols-2 gap-3">
-        <div class="border border-rule rounded-md bg-paper">
+      <div class="grid lg:grid-cols-2 gap-3 items-stretch">
+        <div class="border border-rule rounded-md bg-paper flex flex-col">
           <div class="flex items-center justify-between px-4 py-2 border-b border-rule">
             <span class="kicker">Install</span>
             <button class="text-xs font-mono text-ink-soft hover:text-accent" @click="copy('node-install')">copy</button>
           </div>
-          <pre id="node-install" class="codeblock m-0 rounded-none rounded-b-md"><span class="tok-comment"># Server-side / Bun / Node 18+</span>
+          <pre id="node-install" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-comment"># Server-side / Bun / Node 18+</span>
 npm install gheim openai
 
 <span class="tok-comment"># Optional: on-device detection in Node</span>
 npm install <span class="tok-string">@huggingface/transformers</span></pre>
         </div>
 
-        <div class="border border-rule rounded-md bg-paper">
+        <div class="border border-rule rounded-md bg-paper flex flex-col">
           <div class="flex items-center justify-between px-4 py-2 border-b border-rule">
             <span class="kicker">Drop-in OpenAI client</span>
             <button class="text-xs font-mono text-ink-soft hover:text-accent" @click="copy('node-code')">copy</button>
           </div>
-          <pre id="node-code" class="codeblock m-0 rounded-none rounded-b-md"><span class="tok-keyword">import</span> { OpenAI } <span class="tok-keyword">from</span> <span class="tok-string">"gheim/openai"</span>;
+          <pre id="node-code" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-keyword">import</span> { OpenAI } <span class="tok-keyword">from</span> <span class="tok-string">"gheim/openai"</span>;
 
 <span class="tok-keyword">const</span> client = <span class="tok-keyword">new</span> <span class="tok-fn">OpenAI</span>();
 
@@ -132,22 +138,22 @@ npm install <span class="tok-string">@huggingface/transformers</span></pre>
     </div>
 
     <div v-show="tab === 'browser'">
-      <div class="grid lg:grid-cols-2 gap-3">
-        <div class="border border-rule rounded-md bg-paper">
+      <div class="grid lg:grid-cols-2 gap-3 items-stretch">
+        <div class="border border-rule rounded-md bg-paper flex flex-col">
           <div class="flex items-center justify-between px-4 py-2 border-b border-rule">
             <span class="kicker">Install</span>
             <button class="text-xs font-mono text-ink-soft hover:text-accent" @click="copy('br-install')">copy</button>
           </div>
-          <pre id="br-install" class="codeblock m-0 rounded-none rounded-b-md"><span class="tok-comment"># Bundle for the browser</span>
+          <pre id="br-install" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-comment"># Bundle for the browser</span>
 npm install gheim <span class="tok-string">@huggingface/transformers</span></pre>
         </div>
 
-        <div class="border border-rule rounded-md bg-paper">
+        <div class="border border-rule rounded-md bg-paper flex flex-col">
           <div class="flex items-center justify-between px-4 py-2 border-b border-rule">
             <span class="kicker">In-browser detection · WebGPU</span>
             <button class="text-xs font-mono text-ink-soft hover:text-accent" @click="copy('br-code')">copy</button>
           </div>
-          <pre id="br-code" class="codeblock m-0 rounded-none rounded-b-md"><span class="tok-keyword">import</span> { Session, LocalDetector,
+          <pre id="br-code" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-keyword">import</span> { Session, LocalDetector,
          anonymizeText, deanonymizeText } <span class="tok-keyword">from</span> <span class="tok-string">"gheim"</span>;
 
 <span class="tok-keyword">const</span> session = <span class="tok-keyword">new</span> <span class="tok-fn">Session</span>();

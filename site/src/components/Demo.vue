@@ -25,6 +25,7 @@ const requestId = ref(0);
 const lastRunMs = ref<number | null>(null);
 
 let debounceHandle: number | undefined;
+const dirty = ref(false);
 
 async function run() {
   const id = ++requestId.value;
@@ -34,18 +35,25 @@ async function run() {
     if (id !== requestId.value) return; // stale
     spans.value = out;
     lastRunMs.value = Math.round(performance.now() - t0);
+    dirty.value = false;
   } catch {
     /* error already in detector.error */
   }
 }
 
+// Per-keystroke detection saturates the WASM thread on long inputs
+// (detection is 0.5–2 s for a typical paragraph), making typing visibly
+// laggy. So: mark the input dirty immediately, but only auto-run after
+// 1.2 s of typing inactivity. The user can also click "Redact now" to
+// run immediately.
 watch(input, () => {
+  dirty.value = true;
   window.clearTimeout(debounceHandle);
   debounceHandle = window.setTimeout(() => {
     if (detector.state.value === "ready" || detector.state.value === "running") {
       void run();
     }
-  }, 350);
+  }, 1200);
 });
 
 async function start() {
@@ -146,11 +154,13 @@ const labelDisplay: Record<string, string> = {
       <div class="w-full h-2 bg-rule rounded-sm overflow-hidden">
         <div
           class="h-full bg-ink transition-[width] duration-300"
-          :style="{ width: `${Math.round(detector.progress.value * 100)}%` }"
+          :style="{
+            width: `${Math.min(100, Math.max(0, Math.round(detector.progress.value * 100)))}%`,
+          }"
         ></div>
       </div>
       <p class="mt-3 text-xs text-ink-soft font-mono">
-        {{ Math.round(detector.progress.value * 100) }}%
+        {{ Math.min(100, Math.max(0, Math.round(detector.progress.value * 100))) }}%
       </p>
     </div>
 
@@ -166,30 +176,40 @@ const labelDisplay: Record<string, string> = {
     </div>
 
     <!-- Working pane -->
-    <div v-else class="grid lg:grid-cols-2 gap-5">
+    <div v-else class="grid lg:grid-cols-2 gap-5 items-stretch">
       <!-- INPUT -->
-      <div class="border border-rule rounded-md bg-paper">
-        <div class="flex items-center justify-between px-4 py-3 border-b border-rule">
+      <div class="border border-rule rounded-md bg-paper flex flex-col">
+        <div
+          class="flex items-center justify-between px-4 border-b border-rule gap-3 h-12 shrink-0"
+        >
           <span class="kicker">Input · plaintext</span>
-          <button
-            class="text-xs font-mono text-ink-soft hover:text-accent"
-            @click="reset"
-          >
-            ↺ reset example
-          </button>
+          <div class="flex items-center gap-3">
+            <button
+              v-if="dirty"
+              class="text-xs font-mono px-2 py-1 rounded-sm bg-ink text-paper hover:opacity-90 cursor-pointer"
+              @click="run"
+            >
+              ↻ Redact now
+            </button>
+            <button
+              class="text-xs font-mono text-ink-soft hover:text-accent cursor-pointer"
+              @click="reset"
+            >
+              ↺ reset example
+            </button>
+          </div>
         </div>
         <textarea
           v-model="input"
-          rows="14"
           spellcheck="false"
-          class="w-full p-4 font-mono text-sm leading-relaxed bg-transparent resize-y outline-none"
+          class="demo-text demo-text-input w-full px-4 py-3 bg-transparent resize-none outline-none flex-1"
         />
       </div>
 
       <!-- OUTPUT -->
-      <div class="border border-rule rounded-md bg-paper">
+      <div class="border border-rule rounded-md bg-paper flex flex-col">
         <div
-          class="flex items-center justify-between px-4 py-3 border-b border-rule gap-3"
+          class="flex items-center justify-between px-4 border-b border-rule gap-3 h-12 shrink-0"
         >
           <span class="kicker">
             <span v-if="view === 'redacted'">Output · redacted view</span>
@@ -197,7 +217,7 @@ const labelDisplay: Record<string, string> = {
           </span>
           <div class="flex items-center gap-2">
             <button
-              class="text-xs font-mono px-2 py-1 rounded-sm transition-colors"
+              class="text-xs font-mono px-2 py-1 rounded-sm transition-colors cursor-pointer"
               :class="
                 view === 'redacted'
                   ? 'bg-ink text-paper'
@@ -208,7 +228,7 @@ const labelDisplay: Record<string, string> = {
               Bars
             </button>
             <button
-              class="text-xs font-mono px-2 py-1 rounded-sm transition-colors"
+              class="text-xs font-mono px-2 py-1 rounded-sm transition-colors cursor-pointer"
               :class="
                 view === 'sentinel'
                   ? 'bg-ink text-paper'
@@ -220,10 +240,10 @@ const labelDisplay: Record<string, string> = {
             </button>
           </div>
         </div>
-        <div class="p-4">
+        <div class="px-4 py-3 flex-1 overflow-auto">
           <div
             v-if="view === 'redacted'"
-            class="font-mono text-sm leading-relaxed whitespace-pre-wrap break-words"
+            class="demo-text whitespace-pre-wrap break-words"
           >
             <template v-for="(seg, i) in segments" :key="`${requestId}-${i}`">
               <span
@@ -242,7 +262,7 @@ const labelDisplay: Record<string, string> = {
           </div>
           <pre
             v-else
-            class="font-mono text-sm leading-relaxed whitespace-pre-wrap break-words m-0"
+            class="demo-text whitespace-pre-wrap break-words m-0"
             >{{ sentinelOutput.redacted }}</pre>
         </div>
       </div>

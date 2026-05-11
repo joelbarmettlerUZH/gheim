@@ -5,24 +5,20 @@ const links = {
     { label: "PyPI · gheim", href: "https://pypi.org/project/gheim/" },
     { label: "npm · gheim", href: "https://www.npmjs.com/package/gheim" },
   ],
-  Model: [
+  "Hugging Face": [
     {
-      label: "Hugging Face · gheim-ch-560m",
+      label: "Model · gheim-ch-560m",
       href: "https://huggingface.co/joelbarmettler/gheim-ch-560m",
     },
     {
       label: "Dataset · gheim-ch-pii-171k",
       href: "https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k",
     },
-    {
-      label: "Model card",
-      href: "https://github.com/joelbarmettlerUZH/gheim/blob/main/MODEL_CARD.md",
-    },
   ],
   About: [
     {
       label: "Author",
-      href: "https://github.com/joelbarmettlerUZH",
+      href: "https://joelbarmettler.xyz",
     },
     {
       label: "Issues",

@@ -72,8 +72,11 @@ body::before {
   position: absolute;
   left: -2px;
   right: -2px;
-  top: 0.16em;
-  bottom: 0.16em;
+  /* Slimmer bar: covers the cap-line through the x-line so descenders
+     and the lower bowls of round letters stay visible — easier to
+     read as a "redaction over text" rather than a full block. */
+  top: 0.30em;
+  bottom: 0.36em;
   background: var(--color-ink);
   outline: 2px solid var(--color-paper);
   outline-offset: -1px;
@@ -192,6 +195,7 @@ body::before {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border-radius: 2px;
+  cursor: pointer;
   transition: transform 0.12s ease, background 0.12s ease;
 }
 
@@ -213,6 +217,27 @@ body::before {
 .btn-ghost:hover {
   transform: translate(-1px, -1px);
   box-shadow: 3px 3px 0 var(--color-ink);
+}
+
+/* Shared typography for the demo's input textarea + output panes — must
+ * be identical so a line in the input lines up horizontally with the same
+ * line in the output, otherwise the redaction effect is hard to follow. */
+.demo-text {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;       /* text-sm */
+  line-height: 1.625;        /* leading-relaxed */
+  font-feature-settings: normal;
+  letter-spacing: 0;
+  -moz-tab-size: 4;
+  tab-size: 4;
+}
+/* Match textarea field-sizing to the output div: grow to the parent's
+ * available height, never show a separate inner scrollbar (the parent
+ * card scrolls if needed). */
+.demo-text-input {
+  field-sizing: content;
+  min-height: 18rem;
+  overflow: auto;
 }
 
 /* Code block style */
