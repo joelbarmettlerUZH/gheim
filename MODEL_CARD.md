@@ -139,18 +139,23 @@ portion). The test set was scored once.
 | Precision | 0.907 | 0.908 |
 | Recall | 0.926 | 0.926 |
 
-Per-category and per-language breakdowns:
+Per-language × per-category char-level F1 on the same test split. Body
+cells are char-level F1 for each (language, category) pair; the
+right-most column gives the per-category average over languages
+(gold-weighted), and the bottom row gives the per-language average
+over categories. The bottom-right cell is the overall char F1.
 
-| Category | F1 | n_gold | | Language | F1 | n_chunks |
-|---|---:|---:|---|---|---:|---:|
-| `secret` | 0.996 | 1,104 | | en | 0.954 | 893 |
-| `private_email` | 0.987 | 1,712 | | it_ch | 0.942 | 4,169 |
-| `private_phone` | 0.986 | 3,329 | | de_ch | 0.911 | 4,753 |
-| `private_url` | 0.947 | 3,991 | | fr_ch | 0.906 | 4,705 |
-| `private_date` | 0.922 | 9,678 | | rm | 0.853 | 1,341 |
-| `private_person` | 0.915 | 14,726 | | | | |
-| `private_address` | 0.782 | 3,507 | | | | |
-| `account_number` | 0.669 | 502 | | | | |
+| Category | de_ch | fr_ch | it_ch | rm | en | Avg. |
+|---|---:|---:|---:|---:|---:|---:|
+| `account_number` | 0.932 | 0.717 | 0.660 | 0.169 | 0.994 | 0.765 |
+| `private_address` | 0.890 | 0.870 | 0.915 | 0.825 | 0.973 | 0.889 |
+| `private_date` | 0.943 | 0.934 | 0.952 | 0.888 | 0.909 | 0.939 |
+| `private_email` | 0.988 | 0.994 | 0.999 | 0.992 | 0.999 | 0.994 |
+| `private_person` | 0.938 | 0.948 | 0.962 | 0.897 | 0.951 | 0.944 |
+| `private_phone` | 0.989 | 0.985 | 0.993 | 0.995 | 0.997 | 0.990 |
+| `private_url` | 0.992 | 0.994 | 0.994 | 0.958 | 0.980 | 0.992 |
+| `secret` | 0.999 | 1.000 | 0.999 | 1.000 | 1.000 | 1.000 |
+| **Avg.** | **0.954** | **0.953** | **0.972** | **0.923** | **0.981** | **0.958** |
 
 For the full comparison against seven other open PII / NER systems on the
 same Swiss test set, cross-domain evaluation on four external benchmarks

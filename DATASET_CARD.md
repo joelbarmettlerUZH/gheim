@@ -77,6 +77,10 @@ configs:
 
 ## Quick start
 
+The dataset is a single configuration on the HuggingFace Hub with three
+splits (`train` / `validation` / `test`). Load it with the standard
+`datasets` library and inspect the first row:
+
 ```python
 from datasets import load_dataset
 
@@ -131,6 +135,11 @@ the pretrained classifier-head weights.
 
 ## Languages
 
+The four official Swiss languages are represented in proportions that
+roughly track Swiss-Hub web text rather than census population, with
+English added as a regression anchor. Distribution across the
+171,336 chunks:
+
 | Code | Variant | Chunks | % |
 |---|---|---:|---:|
 | `de_ch` | Swiss German written standard | 48,564 | 28.3 |
@@ -147,15 +156,20 @@ and journalistic contexts.
 
 ## Categories
 
+The label space has eight PII categories, each encoded in BIOES (Begin,
+Inside, Outside, End, Single) for 33 classes overall. Categories were
+chosen to cover the most common PII flagged for anonymisation in
+Swiss-market LLM round-trips:
+
 | Category | Examples |
 |---|---|
 | `account_number` | CH-IBAN, AHV/AVS, VAT-CHE, credit-card numbers |
 | `private_address` | Bahnhofstrasse 1, 8001 Zürich |
 | `private_date` | 1990-01-02, 14. März 2026 |
-| `private_email` | alice@example.ch |
+| `private_email` | jbarmettler@proton.me |
 | `private_person` | Joel Barmettler, Dr. Schmidt |
 | `private_phone` | +41 44 268 12 34 |
-| `private_url` | https://kanzlei.ch/... |
+| `private_url` | joelbarmettler.xyz |
 | `secret` | API keys, bearer tokens |
 
 The `private_` prefix is historical and does **not** mean the entity has
@@ -171,6 +185,12 @@ classifier.
 ## Dataset structure
 
 ### Data instance
+
+Each row is a JSON object: a chunk of source text plus a list of
+character-aligned PII spans. Provenance fields (`subset`,
+`source_dataset`, `synthetic`) let you filter to a specific
+sub-population. A representative real-text row from the
+parliament-proceedings subset:
 
 ```jsonc
 {
@@ -191,6 +211,9 @@ classifier.
 
 ### Span structure
 
+Each span is a five-field object describing which slice of the chunk
+text carries which PII category and where the label came from:
+
 | Field | Type | Description |
 |---|---|---|
 | `start` | int | Character offset, inclusive. |
@@ -200,6 +223,10 @@ classifier.
 | `source` | string | Provenance: `gemma`, `regex`, `synthetic`, or `ai4privacy`. |
 
 ### Splits
+
+The 171,336 chunks are split roughly 88 / 6 / 6 between training,
+validation and test, with each split keeping the same ratio of real
+to synthetic chunks:
 
 | Split | Chunks | Real | Synthetic | Notes |
 |---|---:|---:|---:|---|
