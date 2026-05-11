@@ -33,6 +33,9 @@ function progressLabel(e: LocalDetectorLoadEvent): string {
       return `Preparing ${e.file ?? "files"}…`;
     case "done":
       return "Ready.";
+    default:
+      // Future-proofing: a new phase the SDK adds shouldn't crash the demo.
+      return "Loading…";
   }
 }
 
@@ -58,7 +61,7 @@ export function useDetector() {
         model: MODEL_ID,
         device: "auto", // SDK probes WebGPU + falls back to WASM if needed
         dtype: "q8",
-        onProgress: (e) => {
+        onProgress: (e: LocalDetectorLoadEvent) => {
           if (e.fraction != null) progress.value = e.fraction;
           progressLabelRef.value = progressLabel(e);
           if (e.device) device.value = e.device;

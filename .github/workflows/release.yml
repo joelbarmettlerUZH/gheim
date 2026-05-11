@@ -34,8 +34,12 @@ jobs:
             hf-${{ runner.os }}-gheim-ch-560m-
       - name: Sync workspace
         run: uv sync --all-packages
-      - name: Python tests
-        run: uv run pytest
+      - name: Python tests (SDK + server)
+        # Training-package tests need external data (Geonames CH dump,
+        # AI4Privacy etc.) that we don't ship in CI — they're dev-only.
+        # The release gate covers what we actually publish: gheim and
+        # gheim-server.
+        run: uv run pytest packages/gheim-py/tests server/tests
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest

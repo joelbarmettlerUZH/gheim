@@ -20,8 +20,10 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
       - name: Sync workspace
         run: uv sync --all-packages
-      - name: Run tests
-        run: uv run pytest
+      - name: Run tests (SDK + server)
+        # Skip training/tests; they need the Geonames CH dump and other
+        # external data files that are dev-only.
+        run: uv run pytest packages/gheim-py/tests server/tests
 
   js:
     runs-on: ubuntu-latest

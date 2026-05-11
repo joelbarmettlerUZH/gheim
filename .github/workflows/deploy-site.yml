@@ -43,6 +43,15 @@ jobs:
       # version on npm before the site can deploy.
       - run: bun install --frozen-lockfile
 
+      # The site imports `gheim` via `workspace:*`. bun symlinks the
+      # package source into `node_modules/gheim`, but `package.json`'s
+      # `exports` map points at `dist/` — which doesn't exist on a fresh
+      # checkout. Build the SDK first so the site's vue-tsc + vite see
+      # real files.
+      - name: Build SDK (so site can resolve `gheim`)
+        run: bun run build
+        working-directory: packages/gheim-js
+
       - run: bun run build
         working-directory: site
 
