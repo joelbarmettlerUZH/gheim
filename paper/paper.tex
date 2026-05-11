@@ -456,7 +456,7 @@ The model ships in two formats. Server-side users load
 or WebAssembly. The int8 export reproduces 99.4\% of the fp32 strict
 F\textsubscript{1} (0.909 vs 0.916, $-$0.7 pp); the loss is concentrated
 in the two categories that were already weakest under fp32
-(Table~\ref{tab:percat}, columns headed ``Quant.~$\Delta$'').
+(Table~\ref{tab:perlangcat}, ``Quant.~$\Delta$'' column).
 
 % --------------------------------------------------------------------
 \section{Evaluation}
@@ -494,91 +494,63 @@ chunks), \textsf{gheim-ch-560m} attains a strict-span F\textsubscript{1}
 of 0.916 (precision 0.907, recall 0.926) and a char F\textsubscript{1}
 of 0.958. The validation/test gap is 0.002, consistent with no
 observable overfitting to the validation set used for checkpoint
-selection. Per-category and per-language breakdowns are in
-Tables~\ref{tab:percat} and \ref{tab:perlang}.
-
-\begin{table}[h]
-\centering
-\caption{Per-category F\textsubscript{1}. ``Quant.~$\Delta$'' is the change
-under int8 quantisation relative to the fp32 strict cell.}
-\label{tab:percat}
-\small
-\begin{tabular}{l r r r r}
-\toprule
-Category              & Strict & Char  & Quant. $\Delta$ & $n_\text{gold}$ \\
-\midrule
-\texttt{secret}            & 0.996 & 0.998 & $+0.002$ & 1{,}104 \\
-\texttt{private\_email}    & 0.987 & 0.994 & $-0.003$ & 1{,}712 \\
-\texttt{private\_phone}    & 0.986 & 0.989 & $-0.002$ & 3{,}329 \\
-\texttt{private\_url}      & 0.947 & 0.991 & $-0.002$ & 3{,}991 \\
-\texttt{private\_date}     & 0.922 & 0.935 & $-0.007$ & 9{,}678 \\
-\texttt{private\_person}   & 0.915 & 0.944 & $-0.006$ & 14{,}726 \\
-\texttt{private\_address}  & 0.782 & 0.886 & $-0.021$ & 3{,}507 \\
-\texttt{account\_number}   & 0.669 & 0.763 & $-0.053$ & 502 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[h]
-\centering
-\caption{Per-language F\textsubscript{1} on the held-out test split.}
-\label{tab:perlang}
-\small
-\begin{tabular}{l r r r}
-\toprule
-Language & Strict & Char  & $n_\text{chunks}$ \\
-\midrule
-en       & 0.954  & 0.981 & 893    \\
-it\_ch   & 0.942  & 0.972 & 4{,}169 \\
-de\_ch   & 0.911  & 0.954 & 4{,}753 \\
-fr\_ch   & 0.906  & 0.953 & 4{,}705 \\
-rm       & 0.853  & 0.923 & 1{,}341 \\
-\bottomrule
-\end{tabular}
-\end{table}
+selection. The per-language $\times$ per-category breakdown is in
+Table~\ref{tab:perlangcat}: body cells give char F\textsubscript{1}
+per (lang, cat); the right-most three columns give the per-category
+marginals (char, strict, int8-quantisation $\Delta$) along with the
+gold-span support; the bottom three rows give the per-language
+marginals (char F\textsubscript{1}, strict F\textsubscript{1},
+chunk count).
 
 \begin{table*}[t]
 \centering
-\caption{Per-language $\times$ per-category char-level F\textsubscript{1}
-on the held-out test split. Categories are sorted by overall F\textsubscript{1};
-languages by their column-aggregate F\textsubscript{1}. The bottom row
-gives gold-span support per language. All cells have positive support;
-the smallest is \texttt{it\_ch}~$\times$~\texttt{account\_number} (24 gold spans),
-and the cell with the lowest F\textsubscript{1} is \texttt{rm}~$\times$
-\texttt{account\_number} (91 spans, all synthetic IBANs).}
+\caption{Held-out test split of \textsf{gheim-ch-pii-171k}, scored
+under \textsf{gheim-ch-560m}. Body cells are char-level
+F\textsubscript{1} for each (language, category) pair. Right-most
+columns give per-category marginals: ``Char'' and ``Strict'' are the
+two F\textsubscript{1} headline metrics, ``Quant.~$\Delta$'' is the
+change under int8 quantisation relative to the fp32 strict cell, and
+$n_\text{gold}$ is the total gold-span support across all languages.
+Bottom rows give the per-language marginals. Smallest cell:
+\texttt{it\_ch}~$\times$~\texttt{account\_number} (24 gold spans);
+weakest cell: \texttt{rm}~$\times$~\texttt{account\_number} (91
+gold spans, all synthetic-injected IBANs).}
 \label{tab:perlangcat}
 \small
-\begin{tabular}{l r r r r r r}
+\begin{tabular}{l r r r r r @{\hspace{1em}} r r r r}
 \toprule
-Category                    & en    & it\_ch & de\_ch & fr\_ch & rm    & Overall \\
+                            & \multicolumn{5}{c}{Char F\textsubscript{1} per language}        & \multicolumn{4}{c}{Per-category marginals} \\
+\cmidrule(lr){2-6}\cmidrule(l){7-10}
+Category                    & de\_ch & fr\_ch & it\_ch & rm    & en    & Char  & Strict & Quant.~$\Delta$ & $n_\text{gold}$ \\
 \midrule
-\texttt{secret}             & 1.000 & 0.999  & 0.999  & 1.000  & 1.000 & 1.000 \\
-\texttt{private\_email}     & 0.999 & 0.999  & 0.988  & 0.994  & 0.992 & 0.994 \\
-\texttt{private\_url}       & 0.980 & 0.994  & 0.992  & 0.994  & 0.958 & 0.992 \\
-\texttt{private\_phone}     & 0.997 & 0.993  & 0.989  & 0.985  & 0.995 & 0.990 \\
-\texttt{private\_person}    & 0.951 & 0.962  & 0.938  & 0.948  & 0.897 & 0.944 \\
-\texttt{private\_date}      & 0.909 & 0.952  & 0.943  & 0.934  & 0.888 & 0.939 \\
-\texttt{private\_address}   & 0.973 & 0.915  & 0.890  & 0.870  & 0.825 & 0.889 \\
-\texttt{account\_number}    & 0.994 & 0.660  & 0.932  & 0.717  & 0.169 & 0.765 \\
+\texttt{account\_number}    & 0.932  & 0.717  & 0.660  & 0.169 & 0.994 & 0.765 & 0.669  & $-0.053$ & 502 \\
+\texttt{private\_address}   & 0.890  & 0.870  & 0.915  & 0.825 & 0.973 & 0.889 & 0.782  & $-0.021$ & 3{,}507 \\
+\texttt{private\_date}      & 0.943  & 0.934  & 0.952  & 0.888 & 0.909 & 0.939 & 0.922  & $-0.007$ & 9{,}678 \\
+\texttt{private\_email}     & 0.988  & 0.994  & 0.999  & 0.992 & 0.999 & 0.994 & 0.987  & $-0.003$ & 1{,}712 \\
+\texttt{private\_person}    & 0.938  & 0.948  & 0.962  & 0.897 & 0.951 & 0.944 & 0.915  & $-0.006$ & 14{,}726 \\
+\texttt{private\_phone}     & 0.989  & 0.985  & 0.993  & 0.995 & 0.997 & 0.990 & 0.986  & $-0.002$ & 3{,}329 \\
+\texttt{private\_url}       & 0.992  & 0.994  & 0.994  & 0.958 & 0.980 & 0.992 & 0.947  & $-0.002$ & 3{,}991 \\
+\texttt{secret}             & 0.999  & 1.000  & 0.999  & 1.000 & 1.000 & 1.000 & 0.996  & $+0.002$ & 1{,}104 \\
 \midrule
-$n_\text{gold}$ (total)     & 2{,}465 & 10{,}182 & 11{,}745 & 11{,}232 & 2{,}925 & 38{,}549 \\
+Per-language char F\textsubscript{1}    & 0.954 & 0.953 & 0.972 & 0.923 & 0.981 & 0.958 & & & \\
+Per-language strict F\textsubscript{1}  & 0.911 & 0.906 & 0.942 & 0.853 & 0.954 & 0.916 & & & \\
+$n_\text{chunks}$                       & 4{,}753 & 4{,}705 & 4{,}169 & 1{,}341 & 893 & 15{,}861 & & & \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-The cross-tabulation in Table~\ref{tab:perlangcat} shows the same
-pattern at finer resolution: structured categories (\texttt{secret},
-\texttt{email}, \texttt{phone}, \texttt{URL}) hold above 0.95 in every
-language, while \texttt{account\_number} carries almost all of the
-per-language variance. The Romansh \texttt{account\_number} cell is
-the only one that drops below 0.5: only 91 of its 117 gold spans
-across the test set are RM IBANs (the rest are synthetic-injected
-chunks), and the model under-recalls them in mixed-language contexts.
-Address weakness is more uniform across the four Swiss languages
-(0.83--0.92) and reflects boundary placement on multi-token addresses
-rather than category confusion. For production use both categories
-are intended to be paired with a deterministic regex front-end that
-applies checksum validation (see
+Structured categories with strong surface signals
+(\texttt{secret}, \texttt{email}, \texttt{phone}, \texttt{URL}) hold
+above 0.95 in every language; \texttt{account\_number} carries almost
+all of the per-language variance. The Romansh \texttt{account\_number}
+cell is the only one below 0.5: only 91 of its 117 gold spans across
+the test set are RM IBANs (the rest are synthetic-injected chunks),
+and the model under-recalls them in mixed-language contexts. Address
+weakness is more uniform across the four Swiss languages (0.83--0.92)
+and reflects boundary placement on multi-token addresses rather than
+category confusion. For production use both categories are intended
+to be paired with a deterministic regex front-end that applies
+checksum validation (see
 \texttt{packages\Bsl gheim\Bhy py\Bsl src\Bsl gheim\Bsl detectors\Bsl composite.py}).
 
 \subsection{Comparison to other systems}
