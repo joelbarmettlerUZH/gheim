@@ -34,6 +34,10 @@ jobs:
           cache-dependency-path: site/package-lock.json
 
       - uses: actions/configure-pages@v6
+        with:
+          # Auto-enable Pages on first run instead of requiring a manual
+          # one-click toggle in the repo settings UI.
+          enablement: true
 
       - run: npm ci
 
