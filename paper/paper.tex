@@ -496,45 +496,44 @@ of 0.958. The validation/test gap is 0.002, consistent with no
 observable overfitting to the validation set used for checkpoint
 selection. The per-language $\times$ per-category breakdown is in
 Table~\ref{tab:perlangcat}: body cells give char F\textsubscript{1}
-per (lang, cat); the right-most three columns give the per-category
-marginals (char, strict, int8-quantisation $\Delta$) along with the
-gold-span support; the bottom three rows give the per-language
-marginals (char F\textsubscript{1}, strict F\textsubscript{1},
-chunk count).
+per (lang, cat); the right-most columns give the per-category strict
+F\textsubscript{1}, the int8-quantisation $\Delta$ on that cell,
+and the gold-span support; the bottom rows give the per-language
+char F\textsubscript{1}, strict F\textsubscript{1}, and chunk count.
 
 \begin{table*}[t]
 \centering
 \caption{Held-out test split of \textsf{gheim-ch-pii-171k}, scored
 under \textsf{gheim-ch-560m}. Body cells are char-level
 F\textsubscript{1} for each (language, category) pair. Right-most
-columns give per-category marginals: ``Char'' and ``Strict'' are the
-two F\textsubscript{1} headline metrics, ``Quant.~$\Delta$'' is the
-change under int8 quantisation relative to the fp32 strict cell, and
-$n_\text{gold}$ is the total gold-span support across all languages.
-Bottom rows give the per-language marginals. Smallest cell:
+columns give per-category marginals: strict-span F\textsubscript{1}
+(the headline NER-literature metric), the change under int8
+quantisation relative to that fp32 strict cell, and the total
+gold-span support across all languages. Bottom rows give the
+per-language marginals. Smallest cell:
 \texttt{it\_ch}~$\times$~\texttt{account\_number} (24 gold spans);
 weakest cell: \texttt{rm}~$\times$~\texttt{account\_number} (91
 gold spans, all synthetic-injected IBANs).}
 \label{tab:perlangcat}
 \small
-\begin{tabular}{l r r r r r @{\hspace{1em}} r r r r}
+\begin{tabular}{l r r r r r @{\hspace{1em}} r r r}
 \toprule
-                            & \multicolumn{5}{c}{Char F\textsubscript{1} per language}        & \multicolumn{4}{c}{Per-category marginals} \\
-\cmidrule(lr){2-6}\cmidrule(l){7-10}
-Category                    & de\_ch & fr\_ch & it\_ch & rm    & en    & Char  & Strict & Quant.~$\Delta$ & $n_\text{gold}$ \\
+                            & \multicolumn{5}{c}{Char F\textsubscript{1} per language}        & \multicolumn{3}{c}{Per-category marginals} \\
+\cmidrule(lr){2-6}\cmidrule(l){7-9}
+Category                    & de\_ch & fr\_ch & it\_ch & rm    & en    & Strict & Quant.~$\Delta$ & $n_\text{gold}$ \\
 \midrule
-\texttt{account\_number}    & 0.932  & 0.717  & 0.660  & 0.169 & 0.994 & 0.765 & 0.669  & $-0.053$ & 502 \\
-\texttt{private\_address}   & 0.890  & 0.870  & 0.915  & 0.825 & 0.973 & 0.889 & 0.782  & $-0.021$ & 3{,}507 \\
-\texttt{private\_date}      & 0.943  & 0.934  & 0.952  & 0.888 & 0.909 & 0.939 & 0.922  & $-0.007$ & 9{,}678 \\
-\texttt{private\_email}     & 0.988  & 0.994  & 0.999  & 0.992 & 0.999 & 0.994 & 0.987  & $-0.003$ & 1{,}712 \\
-\texttt{private\_person}    & 0.938  & 0.948  & 0.962  & 0.897 & 0.951 & 0.944 & 0.915  & $-0.006$ & 14{,}726 \\
-\texttt{private\_phone}     & 0.989  & 0.985  & 0.993  & 0.995 & 0.997 & 0.990 & 0.986  & $-0.002$ & 3{,}329 \\
-\texttt{private\_url}       & 0.992  & 0.994  & 0.994  & 0.958 & 0.980 & 0.992 & 0.947  & $-0.002$ & 3{,}991 \\
-\texttt{secret}             & 0.999  & 1.000  & 0.999  & 1.000 & 1.000 & 1.000 & 0.996  & $+0.002$ & 1{,}104 \\
+\texttt{account\_number}    & 0.932  & 0.717  & 0.660  & 0.169 & 0.994 & 0.669  & $-0.053$ & 502 \\
+\texttt{private\_address}   & 0.890  & 0.870  & 0.915  & 0.825 & 0.973 & 0.782  & $-0.021$ & 3{,}507 \\
+\texttt{private\_date}      & 0.943  & 0.934  & 0.952  & 0.888 & 0.909 & 0.922  & $-0.007$ & 9{,}678 \\
+\texttt{private\_email}     & 0.988  & 0.994  & 0.999  & 0.992 & 0.999 & 0.987  & $-0.003$ & 1{,}712 \\
+\texttt{private\_person}    & 0.938  & 0.948  & 0.962  & 0.897 & 0.951 & 0.915  & $-0.006$ & 14{,}726 \\
+\texttt{private\_phone}     & 0.989  & 0.985  & 0.993  & 0.995 & 0.997 & 0.986  & $-0.002$ & 3{,}329 \\
+\texttt{private\_url}       & 0.992  & 0.994  & 0.994  & 0.958 & 0.980 & 0.947  & $-0.002$ & 3{,}991 \\
+\texttt{secret}             & 0.999  & 1.000  & 0.999  & 1.000 & 1.000 & 0.996  & $+0.002$ & 1{,}104 \\
 \midrule
-Per-language char F\textsubscript{1}    & 0.954 & 0.953 & 0.972 & 0.923 & 0.981 & 0.958 & & & \\
-Per-language strict F\textsubscript{1}  & 0.911 & 0.906 & 0.942 & 0.853 & 0.954 & 0.916 & & & \\
-$n_\text{chunks}$                       & 4{,}753 & 4{,}705 & 4{,}169 & 1{,}341 & 893 & 15{,}861 & & & \\
+Per-language char F\textsubscript{1}    & 0.954 & 0.953 & 0.972 & 0.923 & 0.981 & 0.958 & & \\
+Per-language strict F\textsubscript{1}  & 0.911 & 0.906 & 0.942 & 0.853 & 0.954 & 0.916 & & \\
+$n_\text{chunks}$                       & 4{,}753 & 4{,}705 & 4{,}169 & 1{,}341 & 893 & 15{,}861 & & \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -600,28 +599,35 @@ under our 8-category remap and produces highly fragmented spans;
 tokeniser emits subword boundaries that do not align with the gold
 span ends.
 
-Per-language overall char F\textsubscript{1} is given in
-Table~\ref{tab:perlangcompare}: gheim leads every other system in every
-language. The model is the only entry with native Romansh support.
+Per-language overall char F\textsubscript{1} for every contestant is
+given in Table~\ref{tab:perlangcompare}: gheim leads every other
+system in every language and is the only entry with native Romansh
+support. Cells where a model has no language coverage are reported
+as n/a (spaCy has no Romansh or English pipelines in this
+configuration; \textsf{dslim/bert-base-NER} is English-only).
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \caption{Per-language char F\textsubscript{1} on the
-\textsf{gheim-ch-pii-171k} test split, top three contestants.}
+\textsf{gheim-ch-pii-171k} test split, all eight scored systems.
+Rows are sorted by overall char F\textsubscript{1}.}
 \label{tab:perlangcompare}
 \small
-\begin{tabular}{l r r r}
+\begin{tabular}{l r r r r r r}
 \toprule
-Lang.  & gheim & priv-filter & Presidio \\
+Model                                                            & de\_ch & fr\_ch & it\_ch & rm    & en    & Overall \\
 \midrule
-en     & \textbf{0.981} & 0.788 & 0.561 \\
-de\_ch & \textbf{0.954} & 0.569 & 0.572 \\
-fr\_ch & \textbf{0.953} & 0.577 & 0.596 \\
-it\_ch & \textbf{0.972} & 0.630 & 0.690 \\
-rm     & \textbf{0.923} & 0.643 & 0.251 \\
+\textbf{\textsf{joelbarmettler/gheim-ch-560m}}                  & \textbf{0.954} & \textbf{0.953} & \textbf{0.972} & \textbf{0.923} & \textbf{0.981} & \textbf{0.958} \\
+\textsf{openai/privacy-filter} (1.4B MoE, zero-shot)             & 0.569 & 0.577 & 0.630 & 0.643 & 0.788 & 0.610 \\
+Microsoft Presidio (multi-lang config)                           & 0.572 & 0.596 & 0.690 & 0.251 & 0.561 & 0.562 \\
+\textsf{Isotonic\Bsl distilbert\_finetuned\_ai4privacy\_v2}      & 0.467 & 0.515 & 0.530 & 0.415 & 0.639 & 0.508 \\
+\textsf{Davlan\Bsl distilbert\Bhy base\Bhy multilingual\Bhy cased\Bhy ner\Bhy hrl} & 0.350 & 0.340 & 0.368 & 0.362 & 0.282 & 0.348 \\
+\textsf{Davlan\Bsl xlm\Bhy roberta\Bhy base\Bhy ner\Bhy hrl}     & 0.358 & 0.330 & 0.362 & 0.373 & 0.277 & 0.346 \\
+spaCy \texttt{de/fr/it\_core\_news\_lg}                          & 0.308 & 0.298 & 0.337 & n/a   & n/a   & 0.314 \\
+\textsf{dslim/bert-base-NER} (English slice)                     & n/a   & n/a   & n/a   & n/a   & 0.279 & 0.279 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \subsection{Cross-domain evaluation}
 
