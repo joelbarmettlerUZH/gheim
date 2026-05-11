@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import unicodedata
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Annotated, Any
 
@@ -15,6 +16,19 @@ if TYPE_CHECKING:
 # count as "adjacent" and be merged. Covers the common BPE artifact where the
 # tokenizer splits an email into two adjacent same-label spans.
 _MERGE_GAP = 1
+
+
+def _normalize_surface(s: str) -> str:
+    """Normalize a surface form for sentinel-coalescing key purposes.
+
+    NFKC unicode normalization (so "ﬁ" ligature == "fi"), Unicode-aware
+    casefolding (so "Joel" == "JOEL" == "joel" and "Müller" == "MÜLLER";
+    casefold also expands German "ß" → "ss"), then collapse all
+    whitespace runs to a single space and strip. The mapping still
+    stores the original surface so restoration preserves the first-seen
+    casing; only the lookup key is normalized.
+    """
+    return " ".join(unicodedata.normalize("NFKC", s).casefold().split())
 
 
 def _merge_adjacent(text: str, spans: list[Span]) -> list[tuple[int, int, str]]:
@@ -69,9 +83,17 @@ class Session:
         label: Annotated[str, "Detector label (e.g. 'private_person')."],
         surface: Annotated[str, "Original surface form to be hidden behind a sentinel."],
     ) -> str:
-        """Return (or allocate) the sentinel for this (label, surface) pair."""
+        """Return (or allocate) the sentinel for this (label, surface) pair.
+
+        The coalesce key uses a normalized form of ``surface`` (NFKC +
+        casefold + collapsed whitespace) so trivial variants of the same
+        identity collapse to one sentinel: ``Joel`` / ``JOEL`` / ``joel``,
+        ``Müller`` / ``MÜLLER``, ``"alice@example.com"`` / ``"ALICE@EXAMPLE.COM"``.
+        The mapping stores the original (first-seen) surface so restoration
+        preserves casing.
+        """
         tag = label_tag(label)
-        key = (tag, surface)
+        key = (tag, _normalize_surface(surface))
         existing = self._coalesce.get(key)
         if existing is not None:
             return existing
@@ -142,6 +164,6 @@ class Session:
             parsed = Sentinel.parse(sentinel)
             if parsed is None:
                 continue
-            s._coalesce[(parsed.tag, surface)] = sentinel
+            s._coalesce[(parsed.tag, _normalize_surface(surface))] = sentinel
             s._counters[parsed.tag] = max(s._counters.get(parsed.tag, 0), parsed.index)
         return s
