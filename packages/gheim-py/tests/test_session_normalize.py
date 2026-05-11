@@ -120,7 +120,11 @@ def test_first_name_vs_full_name_should_collapse():
     assert a == b == c
 
 
-@pytest.mark.xfail(reason="Phone canonicalisation not yet implemented (would need phonenumbers).")
+# Phone- and date-format collapsing requires opt-in normalizers; see
+# tests/test_normalizers.py for the working configuration. Without them,
+# the default NFKC+casefold key naturally treats "+41 44 268 12 34" and
+# "044 268 12 34" as different surfaces.
+@pytest.mark.xfail(reason="Phone canonicalisation requires opt-in e164 normalizer; see test_normalizers.py.")
 def test_phone_format_variants_should_collapse():
     s = Session()
     a = s.allocate("private_phone", "+41 44 268 12 34")
@@ -129,7 +133,7 @@ def test_phone_format_variants_should_collapse():
     assert a == b == c
 
 
-@pytest.mark.xfail(reason="Date canonicalisation not yet implemented (would need dateparser).")
+@pytest.mark.xfail(reason="Date canonicalisation requires opt-in iso_date normalizer; see test_normalizers.py.")
 def test_date_format_variants_should_collapse():
     s = Session()
     a = s.allocate("private_date", "1990-01-02")

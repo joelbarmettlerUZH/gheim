@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import unicodedata
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Annotated, Any
 
@@ -10,6 +11,7 @@ from .sentinels import SENTINEL_RE, Sentinel, label_tag
 
 if TYPE_CHECKING:
     from ..detectors.base import Detector, Span
+    from ..normalizers import Normalizer
 
 
 # Maximum number of whitespace characters allowed between two spans for them to
@@ -77,6 +79,25 @@ class Session:
     detector: Annotated[
         Detector | None, "Optional default detector reused across calls in this session."
     ] = None
+    normalizers: Annotated[
+        Mapping[str, "str | Normalizer"] | None,
+        "Optional per-label canonical-form normalizers, e.g. "
+        "``{'private_phone': 'e164', 'private_date': 'iso_date'}`` or "
+        "``{'private_phone': e164(region='CH')}``. A label not listed "
+        "here uses the default NFKC+casefold key. See "
+        "``gheim.normalizers``.",
+    ] = None
+    _resolved_normalizers: dict[str, "Normalizer"] = field(
+        default_factory=dict, init=False, repr=False,
+    )
+
+    def __post_init__(self) -> None:
+        if self.normalizers:
+            from ..normalizers import resolve_normalizer
+            self._resolved_normalizers = {
+                label: resolve_normalizer(spec)
+                for label, spec in self.normalizers.items()
+            }
 
     def allocate(
         self,
@@ -89,11 +110,23 @@ class Session:
         casefold + collapsed whitespace) so trivial variants of the same
         identity collapse to one sentinel: ``Joel`` / ``JOEL`` / ``joel``,
         ``Müller`` / ``MÜLLER``, ``"alice@example.com"`` / ``"ALICE@EXAMPLE.COM"``.
-        The mapping stores the original (first-seen) surface so restoration
-        preserves casing.
+        When a per-label normalizer is configured (via ``normalizers=``)
+        it overrides the default key for that label — used to collapse
+        e.g. phone-format variants under E.164. If the normalizer
+        returns ``None`` (un-parseable), the default NFKC+casefold key
+        is used as a safe fallback so the surface still gets a sentinel.
+
+        The mapping stores the original (first-seen) surface so
+        restoration preserves casing.
         """
         tag = label_tag(label)
-        key = (tag, _normalize_surface(surface))
+        norm_fn = self._resolved_normalizers.get(label)
+        normalized: str | None = None
+        if norm_fn is not None:
+            normalized = norm_fn(surface)
+        if normalized is None:
+            normalized = _normalize_surface(surface)
+        key = (tag, normalized)
         existing = self._coalesce.get(key)
         if existing is not None:
             return existing
@@ -156,14 +189,35 @@ class Session:
     def from_json(
         cls,
         raw: Annotated[str, "JSON string previously produced by Session.to_json()."],
+        *,
+        normalizers: Annotated[
+            Mapping[str, "str | Normalizer"] | None,
+            "Re-apply the same normalizers the session was created with. "
+            "Required if the session originally used custom normalizers; "
+            "otherwise dedup of new variants will fall back to NFKC+casefold "
+            "and miss e.g. phone-format collapses.",
+        ] = None,
     ) -> Session:
         data = json.loads(raw)
         mapping: dict[str, str] = data.get("mapping", {})
-        s = cls(mapping=dict(mapping))
+        s = cls(mapping=dict(mapping), normalizers=normalizers)
+        # The persisted form is just the {sentinel: surface} mapping. To
+        # rebuild the coalesce map we re-normalize each surface, using
+        # any per-label normalizer that was passed back in.
         for sentinel, surface in mapping.items():
             parsed = Sentinel.parse(sentinel)
             if parsed is None:
                 continue
-            s._coalesce[(parsed.tag, _normalize_surface(surface))] = sentinel
+            # Reverse-lookup the label name from the tag — we don't store
+            # the original label, so try every label that maps to this tag.
+            normalized: str | None = None
+            for label, fn in s._resolved_normalizers.items():
+                if label_tag(label) == parsed.tag:
+                    normalized = fn(surface)
+                    if normalized is not None:
+                        break
+            if normalized is None:
+                normalized = _normalize_surface(surface)
+            s._coalesce[(parsed.tag, normalized)] = sentinel
             s._counters[parsed.tag] = max(s._counters.get(parsed.tag, 0), parsed.index)
         return s
