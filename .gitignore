@@ -32,3 +32,4 @@ htmlcov/
 
 # Exceptions: data provenance / audit READMEs that explain what's in /data/.
 !/data/*.md
+packages/gheim-js/package-lock.json
