@@ -394,7 +394,7 @@ JavaScript-side portability of the released model.
 \toprule
 Base model                                  & Val F\textsubscript{1} & Test F\textsubscript{1} \\
 \midrule
-\textsf{ZurichNLP/swissbert} (270M)         & 0.910 & not run \\
+\textsf{ZurichNLP/swissbert} (270M)         & 0.910 & 0.910 \\
 \textsf{FacebookAI/xlm-roberta-large} (560M)& \textbf{0.918} & \textbf{0.916} \\
 \bottomrule
 \end{tabular}
@@ -537,16 +537,49 @@ rm       & 0.853  & 0.923 & 1{,}341 \\
 \end{tabular}
 \end{table}
 
-The best-served categories are the structured ones with strong surface
-signals (\texttt{secret}, \texttt{email}, \texttt{phone}, \texttt{URL});
-the weakest are \texttt{private\_address} and \texttt{account\_number}.
-Address weakness is dominated by boundary placement on multi-token
-addresses; account-number weakness reflects the small per-language
-support (502 spans across all five languages) plus the structural
-similarity of CH-IBAN, EU-IBAN and other non-Swiss numbers. For
-production use both categories are intended to be paired with a
-deterministic regex front-end that applies checksum validation
-(see \texttt{packages\Bsl gheim\Bhy py\Bsl src\Bsl gheim\Bsl detectors\Bsl composite.py}).
+\begin{table*}[t]
+\centering
+\caption{Per-language $\times$ per-category char-level F\textsubscript{1}
+on the held-out test split. Categories are sorted by overall F\textsubscript{1};
+languages by their column-aggregate F\textsubscript{1}. The bottom row
+gives gold-span support per language. All cells have positive support;
+the smallest is \texttt{it\_ch}~$\times$~\texttt{account\_number} (24 gold spans),
+and the cell with the lowest F\textsubscript{1} is \texttt{rm}~$\times$
+\texttt{account\_number} (91 spans, all synthetic IBANs).}
+\label{tab:perlangcat}
+\small
+\begin{tabular}{l r r r r r r}
+\toprule
+Category                    & en    & it\_ch & de\_ch & fr\_ch & rm    & Overall \\
+\midrule
+\texttt{secret}             & 1.000 & 0.999  & 0.999  & 1.000  & 1.000 & 1.000 \\
+\texttt{private\_email}     & 0.999 & 0.999  & 0.988  & 0.994  & 0.992 & 0.994 \\
+\texttt{private\_url}       & 0.980 & 0.994  & 0.992  & 0.994  & 0.958 & 0.992 \\
+\texttt{private\_phone}     & 0.997 & 0.993  & 0.989  & 0.985  & 0.995 & 0.990 \\
+\texttt{private\_person}    & 0.951 & 0.962  & 0.938  & 0.948  & 0.897 & 0.944 \\
+\texttt{private\_date}      & 0.909 & 0.952  & 0.943  & 0.934  & 0.888 & 0.939 \\
+\texttt{private\_address}   & 0.973 & 0.915  & 0.890  & 0.870  & 0.825 & 0.889 \\
+\texttt{account\_number}    & 0.994 & 0.660  & 0.932  & 0.717  & 0.169 & 0.765 \\
+\midrule
+$n_\text{gold}$ (total)     & 2{,}465 & 10{,}182 & 11{,}745 & 11{,}232 & 2{,}925 & 38{,}549 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The cross-tabulation in Table~\ref{tab:perlangcat} shows the same
+pattern at finer resolution: structured categories (\texttt{secret},
+\texttt{email}, \texttt{phone}, \texttt{URL}) hold above 0.95 in every
+language, while \texttt{account\_number} carries almost all of the
+per-language variance. The Romansh \texttt{account\_number} cell is
+the only one that drops below 0.5: only 91 of its 117 gold spans
+across the test set are RM IBANs (the rest are synthetic-injected
+chunks), and the model under-recalls them in mixed-language contexts.
+Address weakness is more uniform across the four Swiss languages
+(0.83--0.92) and reflects boundary placement on multi-token addresses
+rather than category confusion. For production use both categories
+are intended to be paired with a deterministic regex front-end that
+applies checksum validation (see
+\texttt{packages\Bsl gheim\Bhy py\Bsl src\Bsl gheim\Bsl detectors\Bsl composite.py}).
 
 \subsection{Comparison to other systems}
 

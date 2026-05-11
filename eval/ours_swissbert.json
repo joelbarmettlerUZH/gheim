@@ -1,0 +1,206 @@
+{
+  "model_id": "/tmp/swissbert_patched",
+  "backend": "hf",
+  "dataset_id": "data/built_v2",
+  "dataset_split": "test",
+  "n_chunks": 15861,
+  "metrics": {
+    "overall": {
+      "strict_span": {
+        "f1": 0.9099776676848832,
+        "precision": 0.9005461704559888,
+        "recall": 0.9196088095670445,
+        "method": "seqeval-token-level"
+      },
+      "char": {
+        "f1": 0.9560447308477122,
+        "precision": 0.9559106011112042,
+        "recall": 0.9561788982306507,
+        "method": "char-label-aware"
+      }
+    },
+    "per_category": {
+      "account_number": {
+        "strict_span": {
+          "f1": 0.656282450674974,
+          "precision": 0.6854663774403471,
+          "recall": 0.6294820717131474,
+          "n_gold": 502
+        },
+        "char": {
+          "f1": 0.748842812757593,
+          "precision": 0.8847767455798622,
+          "recall": 0.6491150928877651
+        }
+      },
+      "private_address": {
+        "strict_span": {
+          "f1": 0.7662018047579983,
+          "precision": 0.7360126083530338,
+          "recall": 0.7989734816082121,
+          "n_gold": 3507
+        },
+        "char": {
+          "f1": 0.8807382541064003,
+          "precision": 0.8712062203637656,
+          "recall": 0.8904811788532718
+        }
+      },
+      "private_date": {
+        "strict_span": {
+          "f1": 0.9184597385421436,
+          "precision": 0.904518585312093,
+          "recall": 0.9328373630915479,
+          "n_gold": 9678
+        },
+        "char": {
+          "f1": 0.9397193076963887,
+          "precision": 0.9258041170794468,
+          "recall": 0.9540591827771655
+        }
+      },
+      "private_email": {
+        "strict_span": {
+          "f1": 0.9775575633925969,
+          "precision": 0.9755671902268761,
+          "recall": 0.9795560747663551,
+          "n_gold": 1712
+        },
+        "char": {
+          "f1": 0.990007147033981,
+          "precision": 0.9920310424750645,
+          "recall": 0.9879914928934537
+        }
+      },
+      "private_person": {
+        "strict_span": {
+          "f1": 0.9097111974328661,
+          "precision": 0.9050339404529875,
+          "recall": 0.9144370501154421,
+          "n_gold": 14726
+        },
+        "char": {
+          "f1": 0.9400636081953564,
+          "precision": 0.9464481054546854,
+          "recall": 0.9337646701520707
+        }
+      },
+      "private_phone": {
+        "strict_span": {
+          "f1": 0.9790544584081389,
+          "precision": 0.9752608047690015,
+          "recall": 0.9828777410633824,
+          "n_gold": 3329
+        },
+        "char": {
+          "f1": 0.9902305089074772,
+          "precision": 0.9893250542253221,
+          "recall": 0.9911376224968045
+        }
+      },
+      "private_url": {
+        "strict_span": {
+          "f1": 0.9412495342193516,
+          "precision": 0.9332512315270935,
+          "recall": 0.9493861187672262,
+          "n_gold": 3991
+        },
+        "char": {
+          "f1": 0.9912284590236605,
+          "precision": 0.991585599068762,
+          "recall": 0.9908715761486693
+        }
+      },
+      "secret": {
+        "strict_span": {
+          "f1": 0.9968282736746715,
+          "precision": 0.9972801450589301,
+          "recall": 0.9963768115942029,
+          "n_gold": 1104
+        },
+        "char": {
+          "f1": 0.9987648662715275,
+          "precision": 0.9985399192295744,
+          "recall": 0.9989899146866404
+        }
+      }
+    },
+    "per_language": {
+      "de_ch": {
+        "strict_span": {
+          "f1": 0.9039203221021404,
+          "precision": 0.899915611814346,
+          "recall": 0.907960834397616,
+          "method": "seqeval-token-level"
+        },
+        "char": {
+          "f1": 0.950712011112476,
+          "precision": 0.9537039670126546,
+          "recall": 0.9477387692046836,
+          "method": "char-label-aware"
+        },
+        "n_chunks": 4753
+      },
+      "en": {
+        "strict_span": {
+          "f1": 0.9536237703272435,
+          "precision": 0.9439586645468998,
+          "recall": 0.9634888438133874,
+          "method": "seqeval-token-level"
+        },
+        "char": {
+          "f1": 0.9815468549422336,
+          "precision": 0.9790158803549517,
+          "recall": 0.9840909497166759,
+          "method": "char-label-aware"
+        },
+        "n_chunks": 893
+      },
+      "fr_ch": {
+        "strict_span": {
+          "f1": 0.900913501464225,
+          "precision": 0.8848630548639135,
+          "recall": 0.91755698005698,
+          "method": "seqeval-token-level"
+        },
+        "char": {
+          "f1": 0.95062825665493,
+          "precision": 0.945457106361071,
+          "recall": 0.9558562849552916,
+          "method": "char-label-aware"
+        },
+        "n_chunks": 4705
+      },
+      "it_ch": {
+        "strict_span": {
+          "f1": 0.9332746306623617,
+          "precision": 0.9297270955165692,
+          "recall": 0.9368493419760361,
+          "method": "seqeval-token-level"
+        },
+        "char": {
+          "f1": 0.9707439631751721,
+          "precision": 0.973854079058032,
+          "recall": 0.9676536490841381,
+          "method": "char-label-aware"
+        },
+        "n_chunks": 4169
+      },
+      "rm": {
+        "strict_span": {
+          "f1": 0.8529167359149077,
+          "precision": 0.8298835705045278,
+          "recall": 0.8772649572649572,
+          "method": "seqeval-token-level"
+        },
+        "char": {
+          "f1": 0.9182600472813238,
+          "precision": 0.9163709799184659,
+          "recall": 0.9201569192282909,
+          "method": "char-label-aware"
+        },
+        "n_chunks": 1341
+      }
+    }
+  }
+}
