@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import unicodedata
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -197,10 +198,19 @@ class Session:
             out.append(self.allocate(label, surface))
             cursor = span_end
         out.append(text[cursor:])
+        redacted = "".join(out)
+
+        # Duplicate-surface recovery: the model often catches one occurrence
+        # of a name (greeting) but misses a second occurrence in the
+        # signature. Once we know "Lukas Brunner" is a person, every
+        # remaining occurrence in the text is also a person — coalesces
+        # to the same sentinel by design.
+        redacted = _recover_duplicate_occurrences(redacted, self.mapping)
+
         merged_spans = [
             MergedSpan(start=s, end=e, label=l) for s, e, l in merged_tuples
         ]
-        return ApplySpansResult(redacted="".join(out), merged=merged_spans)
+        return ApplySpansResult(redacted=redacted, merged=merged_spans)
 
     def restore(
         self,
@@ -258,3 +268,32 @@ class Session:
             s._coalesce[(parsed.tag, normalized)] = sentinel
             s._counters[parsed.tag] = max(s._counters.get(parsed.tag, 0), parsed.index)
         return s
+
+
+def _recover_duplicate_occurrences(
+    redacted: str, mapping: dict[str, str],
+) -> str:
+    """Substitute remaining occurrences of each known surface with its sentinel.
+
+    Catches the common case where a name appears in the greeting AND in
+    the signature but the model only flagged one occurrence. Coalesces
+    to the same sentinel by design.
+
+    Word-boundary safe via Unicode-aware regex: ``Müller.`` matches but
+    ``Müllergasse`` doesn't. Surfaces are tried longest-first so a
+    "Joel Barmettler" sentinel doesn't get partially shadowed by a
+    separate "Joel" sentinel.
+    """
+    # Sort longest first to avoid prefix shadowing.
+    items = sorted(
+        ((sentinel, surface) for sentinel, surface in mapping.items() if surface),
+        key=lambda x: -len(x[1]),
+    )
+    result = redacted
+    for sentinel, surface in items:
+        # ``re`` `\w` is unicode-aware on str patterns; surround the
+        # surface with negative lookbehind/lookahead for "letter, digit,
+        # or underscore" so we don't match inside a longer word.
+        pattern = re.compile(rf"(?<!\w){re.escape(surface)}(?!\w)")
+        result = pattern.sub(sentinel, result)
+    return result
