@@ -19,5 +19,7 @@ dev = [
     "pytest>=9.0.3",
     "pytest-asyncio>=0.24",
     "openai>=1.50",
+    "phonenumbers>=8",
+    "dateparser>=1.2",
     "ty>=0.0.34",
 ]

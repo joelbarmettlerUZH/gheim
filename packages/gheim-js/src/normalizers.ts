@@ -65,29 +65,31 @@ interface PhoneLib {
   ): { isValid: () => boolean; format: (fmt: "E.164") => string } | undefined;
 }
 
-// ESM-safe synchronous loader. createRequire resolves CJS/ESM packages
-// from the running module via Node's module resolver. Browsers don't have
-// node:module — there the user must pre-bundle the optional dep with their
-// own toolchain (esbuild / vite / webpack will resolve the import) or pass
-// a custom callable normalizer instead.
-let _createRequire: ((url: string) => (mod: string) => unknown) | null = null;
-async function _getCreateRequire(): Promise<typeof _createRequire> {
-  if (_createRequire) return _createRequire;
+// Synchronous loader for optional peer deps via Node's createRequire.
+// Lazy-initialised so the module bundles cleanly to CJS (no top-level
+// await) and so browser builds that never call a normalizer never
+// touch node:module.
+import { createRequire } from "node:module";
+
+type RequireFn = (mod: string) => unknown;
+let _require: RequireFn | null = null;
+let _requireResolved = false;
+
+function _getRequire(): RequireFn | null {
+  if (_requireResolved) return _require;
+  _requireResolved = true;
   try {
-    const m = await import("node:module");
-    _createRequire = m.createRequire as never;
+    _require = createRequire(import.meta.url);
   } catch {
-    _createRequire = null;
+    _require = null;
   }
-  return _createRequire;
+  return _require;
 }
-// Trigger the load eagerly (top-level await is supported in ESM).
-await _getCreateRequire();
 
 function loadSync<T>(name: string, errMsg: string): T {
-  if (!_createRequire) throw new Error(errMsg);
+  const req = _getRequire();
+  if (!req) throw new Error(errMsg);
   try {
-    const req = _createRequire(import.meta.url);
     return req(name) as T;
   } catch {
     throw new Error(errMsg);
