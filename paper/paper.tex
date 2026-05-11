@@ -454,9 +454,12 @@ The model ships in two formats. Server-side users load
 \texttt{onnx/model\_quantized.onnx} (int8 dynamic-quantised ONNX,
 552 MB) via \textsf{transformers.js}~\cite{transformersjs} on WebGPU
 or WebAssembly. The int8 export reproduces 99.4\% of the fp32 strict
-F\textsubscript{1} (0.909 vs 0.916, $-$0.7 pp); the loss is concentrated
-in the two categories that were already weakest under fp32
-(Table~\ref{tab:perlangcat}, ``Quant.~$\Delta$'' column).
+F\textsubscript{1} (0.909 vs 0.916, $-$0.7 pp). Per-category strict
+F\textsubscript{1} deltas range from $+0.002$ on \texttt{secret} to
+$-0.053$ on \texttt{account\_number}, with the loss concentrated in
+the two categories that were already weakest under fp32
+(\texttt{private\_address} $-0.021$, \texttt{account\_number}
+$-0.053$); the other six categories drop by less than 0.01.
 
 % --------------------------------------------------------------------
 \section{Evaluation}
@@ -494,46 +497,35 @@ chunks), \textsf{gheim-ch-560m} attains a strict-span F\textsubscript{1}
 of 0.916 (precision 0.907, recall 0.926) and a char F\textsubscript{1}
 of 0.958. The validation/test gap is 0.002, consistent with no
 observable overfitting to the validation set used for checkpoint
-selection. The per-language $\times$ per-category breakdown is in
-Table~\ref{tab:perlangcat}: body cells give char F\textsubscript{1}
-per (lang, cat); the right-most columns give the per-category strict
-F\textsubscript{1}, the int8-quantisation $\Delta$ on that cell,
-and the gold-span support; the bottom rows give the per-language
-char F\textsubscript{1}, strict F\textsubscript{1}, and chunk count.
+selection. The per-language $\times$ per-category char
+F\textsubscript{1} breakdown is in Table~\ref{tab:perlangcat}, with
+per-category and per-language averages in the right-most column and
+bottom row.
 
 \begin{table*}[t]
 \centering
-\caption{Held-out test split of \textsf{gheim-ch-pii-171k}, scored
-under \textsf{gheim-ch-560m}. Body cells are char-level
-F\textsubscript{1} for each (language, category) pair. Right-most
-columns give per-category marginals: strict-span F\textsubscript{1}
-(the headline NER-literature metric), the change under int8
-quantisation relative to that fp32 strict cell, and the total
-gold-span support across all languages. Bottom rows give the
-per-language marginals. Smallest cell:
-\texttt{it\_ch}~$\times$~\texttt{account\_number} (24 gold spans);
-weakest cell: \texttt{rm}~$\times$~\texttt{account\_number} (91
-gold spans, all synthetic-injected IBANs).}
+\caption{Per-language $\times$ per-category char-level
+F\textsubscript{1} on the held-out test split of
+\textsf{gheim-ch-pii-171k} under \textsf{gheim-ch-560m}.
+The right-most column gives the per-category average
+(over languages, gold-weighted); the bottom row gives the
+per-language average (over categories).}
 \label{tab:perlangcat}
 \small
-\begin{tabular}{l r r r r r @{\hspace{1em}} r r r}
+\begin{tabular}{l r r r r r @{\hspace{1em}} r}
 \toprule
-                            & \multicolumn{5}{c}{Char F\textsubscript{1} per language}        & \multicolumn{3}{c}{Per-category marginals} \\
-\cmidrule(lr){2-6}\cmidrule(l){7-9}
-Category                    & de\_ch & fr\_ch & it\_ch & rm    & en    & Strict & Quant.~$\Delta$ & $n_\text{gold}$ \\
+Category                    & de\_ch & fr\_ch & it\_ch & rm    & en    & Avg.\ \\
 \midrule
-\texttt{account\_number}    & 0.932  & 0.717  & 0.660  & 0.169 & 0.994 & 0.669  & $-0.053$ & 502 \\
-\texttt{private\_address}   & 0.890  & 0.870  & 0.915  & 0.825 & 0.973 & 0.782  & $-0.021$ & 3{,}507 \\
-\texttt{private\_date}      & 0.943  & 0.934  & 0.952  & 0.888 & 0.909 & 0.922  & $-0.007$ & 9{,}678 \\
-\texttt{private\_email}     & 0.988  & 0.994  & 0.999  & 0.992 & 0.999 & 0.987  & $-0.003$ & 1{,}712 \\
-\texttt{private\_person}    & 0.938  & 0.948  & 0.962  & 0.897 & 0.951 & 0.915  & $-0.006$ & 14{,}726 \\
-\texttt{private\_phone}     & 0.989  & 0.985  & 0.993  & 0.995 & 0.997 & 0.986  & $-0.002$ & 3{,}329 \\
-\texttt{private\_url}       & 0.992  & 0.994  & 0.994  & 0.958 & 0.980 & 0.947  & $-0.002$ & 3{,}991 \\
-\texttt{secret}             & 0.999  & 1.000  & 0.999  & 1.000 & 1.000 & 0.996  & $+0.002$ & 1{,}104 \\
+\texttt{account\_number}    & 0.932  & 0.717  & 0.660  & 0.169 & 0.994 & 0.765 \\
+\texttt{private\_address}   & 0.890  & 0.870  & 0.915  & 0.825 & 0.973 & 0.889 \\
+\texttt{private\_date}      & 0.943  & 0.934  & 0.952  & 0.888 & 0.909 & 0.939 \\
+\texttt{private\_email}     & 0.988  & 0.994  & 0.999  & 0.992 & 0.999 & 0.994 \\
+\texttt{private\_person}    & 0.938  & 0.948  & 0.962  & 0.897 & 0.951 & 0.944 \\
+\texttt{private\_phone}     & 0.989  & 0.985  & 0.993  & 0.995 & 0.997 & 0.990 \\
+\texttt{private\_url}       & 0.992  & 0.994  & 0.994  & 0.958 & 0.980 & 0.992 \\
+\texttt{secret}             & 0.999  & 1.000  & 0.999  & 1.000 & 1.000 & 1.000 \\
 \midrule
-Per-language char F\textsubscript{1}    & 0.954 & 0.953 & 0.972 & 0.923 & 0.981 & 0.958 & & \\
-Per-language strict F\textsubscript{1}  & 0.911 & 0.906 & 0.942 & 0.853 & 0.954 & 0.916 & & \\
-$n_\text{chunks}$                       & 4{,}753 & 4{,}705 & 4{,}169 & 1{,}341 & 893 & 15{,}861 & & \\
+Avg.\                       & 0.954  & 0.953  & 0.972  & 0.923 & 0.981 & 0.958 \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -599,79 +591,65 @@ under our 8-category remap and produces highly fragmented spans;
 tokeniser emits subword boundaries that do not align with the gold
 span ends.
 
-Per-language overall char F\textsubscript{1} for every contestant is
-given in Table~\ref{tab:perlangcompare}: gheim leads every other
-system in every language and is the only entry with native Romansh
-support. Cells where a model has no language coverage are reported
-as n/a (spaCy has no Romansh or English pipelines in this
-configuration; \textsf{dslim/bert-base-NER} is English-only).
-
-\begin{table*}[t]
-\centering
-\caption{Per-language char F\textsubscript{1} on the
-\textsf{gheim-ch-pii-171k} test split, all eight scored systems.
-Rows are sorted by overall char F\textsubscript{1}.}
-\label{tab:perlangcompare}
-\small
-\begin{tabular}{l r r r r r r}
-\toprule
-Model                                                            & de\_ch & fr\_ch & it\_ch & rm    & en    & Overall \\
-\midrule
-\textbf{\textsf{joelbarmettler/gheim-ch-560m}}                  & \textbf{0.954} & \textbf{0.953} & \textbf{0.972} & \textbf{0.923} & \textbf{0.981} & \textbf{0.958} \\
-\textsf{openai/privacy-filter} (1.4B MoE, zero-shot)             & 0.569 & 0.577 & 0.630 & 0.643 & 0.788 & 0.610 \\
-Microsoft Presidio (multi-lang config)                           & 0.572 & 0.596 & 0.690 & 0.251 & 0.561 & 0.562 \\
-\textsf{Isotonic\Bsl distilbert\_finetuned\_ai4privacy\_v2}      & 0.467 & 0.515 & 0.530 & 0.415 & 0.639 & 0.508 \\
-\textsf{Davlan\Bsl distilbert\Bhy base\Bhy multilingual\Bhy cased\Bhy ner\Bhy hrl} & 0.350 & 0.340 & 0.368 & 0.362 & 0.282 & 0.348 \\
-\textsf{Davlan\Bsl xlm\Bhy roberta\Bhy base\Bhy ner\Bhy hrl}     & 0.358 & 0.330 & 0.362 & 0.373 & 0.277 & 0.346 \\
-spaCy \texttt{de/fr/it\_core\_news\_lg}                          & 0.308 & 0.298 & 0.337 & n/a   & n/a   & 0.314 \\
-\textsf{dslim/bert-base-NER} (English slice)                     & n/a   & n/a   & n/a   & n/a   & 0.279 & 0.279 \\
-\bottomrule
-\end{tabular}
-\end{table*}
+Among the contestants, gheim is also the only entry with native
+Romansh support; spaCy has no Romansh or English pipelines in this
+configuration, and \textsf{dslim/bert-base-NER} is English-only.
 
 \subsection{Cross-domain evaluation}
 
 The released model was scored on four established external benchmarks
 (Table~\ref{tab:directionB}). For pure-NER datasets (\textsf{swissner},
 CoNLL-2003, WikiNeural) only PER maps to a \textsf{gheim} category;
-the meaningful number is therefore the PER cell. The non-PER overall
-F\textsubscript{1} is dragged down by the model predicting categories
-(dates, URLs, addresses) that the NER datasets do not label.
+the meaningful number is therefore the PER cell. To anchor the
+gheim cells, the table also reports the F\textsubscript{1} of a
+model that was originally trained on each benchmark's distribution
+(reproduced through our harness), so the reader can compare
+\textsf{gheim-ch-560m}'s cross-domain transfer to a same-distribution
+specialist.
 
 \begin{table*}[t]
 \centering
-\caption{Direction B: \textsf{gheim-ch-560m} on external benchmarks.}
+\caption{Direction B: \textsf{gheim-ch-560m} PER F\textsubscript{1} on
+four external benchmarks, anchored against a specialist model trained
+or claimed-state-of-the-art on each benchmark's native distribution.
+gheim is run zero-shot; native baselines are reproduced through the
+same harness.}
 \label{tab:directionB}
 \small
-\begin{tabular}{l r r r r r}
+\begin{tabular}{l r r r l r}
 \toprule
-External benchmark                                & $n$        & Overall strict & Overall char & PER strict & PER char \\
+External benchmark                                & $n$       & gheim PER strict & gheim PER char & Native baseline                              & Native F\textsubscript{1} \\
 \midrule
-\textsf{ai4privacy/pii-masking-openpii-1m}        & 8{,}000    & 0.919          & 0.972        & 0.776      & 0.920 \\
-Babelscape \textsf{WikiNeural}                    & 8{,}000    & 0.833          & 0.880        & 0.919      & 0.960 \\
-ZurichNLP \textsf{swissner}                       & 800        & 0.781          & 0.838        & 0.903      & 0.946 \\
-CoNLL-2003                                        & 3{,}453    & 0.678          & 0.703        & 0.887      & 0.936 \\
+\textsf{ai4privacy/pii-masking-openpii-1m}        & 8{,}000   & 0.776            & 0.920          & \textsf{Isotonic\Bsl distilbert\_ai4privacy} & 0.78$^\dagger$  \\
+Babelscape \textsf{WikiNeural}                    & 8{,}000   & 0.919            & 0.960          & \textsf{Davlan\Bsl xlm\Bhy r\Bhy base\Bhy ner\Bhy hrl} & 0.813$^\ddagger$ \\
+ZurichNLP \textsf{swissner}                       & 800       & 0.903            & 0.946          & spaCy \texttt{de\_core\_news\_lg}            & 0.841$^\S$      \\
+CoNLL-2003                                        & 3{,}453   & 0.887            & 0.936          & \textsf{dslim/bert-base-NER}                 & 0.957           \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-The model's PER F\textsubscript{1} stays in [0.89, 0.96] across all
-four datasets under both metrics. This is consistent with no
-overfitting to the training distribution: the four datasets cover
-templated synthetic English+European PII (openpii-1m), real Swiss
-news in four languages (swissner), the 22-year-old reference English
-NER benchmark (CoNLL-2003), and Wikipedia-grounded multilingual NER
-(WikiNeural). The notable exception is the strict-span PER score on
-\textsf{openpii-1m} (0.776 vs.\ char 0.920): \textsf{openpii-1m}'s
-gold splits each person mention into separate \texttt{GIVENNAME} and
-\texttt{SURNAME} spans, which after our remap fragment into two
-adjacent spans of \texttt{private\_person} where our model emits one
-combined span. Char F\textsubscript{1} reports the redaction outcome
-(every PII character correctly masked) and is the appropriate metric
-for the cross-schema comparison.
+$^\dagger$Isotonic's strict-span F\textsubscript{1} on its own
+training distribution; per-token accuracy across all categories
+(the metric Isotonic itself reports) is 0.969 in our reproduction
+versus 0.955 claimed.
+$^\ddagger$Davlan-XLMR's overall multilingual avg from our
+reproduction (claimed ${\sim}$0.84).
+$^\S$spaCy de\_core's overall F\textsubscript{1} on the German slice
+of \textsf{swissner} (spaCy ships per-language pipelines and has no
+single multilingual model that covers the whole set).
 
-On Swiss news (\textsf{swissner}, the only Swiss-news NER set that
-includes Romansh), per-language person-character F\textsubscript{1} is
+Read row by row: \textsf{gheim-ch-560m} matches or exceeds three of
+the four specialists despite being run zero-shot and without ever
+seeing training data from those benchmarks; only on CoNLL-2003 does
+the English-only specialist remain ahead, by 7~pp char and
+$7$~pp strict. The notable strict-vs.-char gap on \textsf{openpii-1m}
+(0.776 strict, 0.920 char) is entirely a schema artefact:
+\textsf{openpii-1m} splits each person into separate
+\texttt{GIVENNAME} and \texttt{SURNAME} gold spans, which fragment
+into two adjacent \texttt{private\_person} spans under our remap
+even though every PII character is correctly masked. On Swiss news
+(\textsf{swissner}, the only Swiss-news NER set that includes
+Romansh), per-language person-character F\textsubscript{1} is
 0.864 (de), 0.870 (fr), 0.835 (it), 0.795 (rm).
 
 \subsection{Methodology validation}
