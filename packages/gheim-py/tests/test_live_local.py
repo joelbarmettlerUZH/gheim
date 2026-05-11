@@ -50,3 +50,38 @@ def test_deanonymize_stream_with_real_session(detector: LocalDetector) -> None:
     assert "Alice" in restored
     assert person_sentinel not in restored
     _ = redacted  # keep the redacted form alive for debug-on-failure clarity
+
+
+def test_long_input_is_not_silently_truncated(detector: LocalDetector) -> None:
+    """Regression: pre-chunking, anything past ~512 tokens was silently
+    dropped because the underlying transformers pipeline truncates by
+    default. Plant PII near the start, middle, and end of a long
+    document and assert all three are detected."""
+    pad = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " * 80  # ~4.6k chars
+    text = (
+        f"Hi, my name is Alice Smith. {pad}"
+        f"My colleague Bob Jones is also on this. {pad}"
+        f"Please CC carol@example.com on the response."
+    )
+    assert len(text) > 9000  # comfortably past the 512-token limit
+    spans = detector.detect(text)
+    persons_text = " ".join(s.text for s in spans if s.label == "private_person")
+    emails_text = " ".join(s.text for s in spans if s.label == "private_email")
+    assert "Alice" in persons_text, f"missed PII near start: {spans}"
+    assert "Bob" in persons_text, f"missed PII near middle: {spans}"
+    assert "carol" in emails_text, f"missed PII near end: {spans}"
+
+
+def test_detect_batch_processes_multiple_inputs(detector: LocalDetector) -> None:
+    """Cross-input batching: three short texts go through one batched
+    forward pass and each gets its own span list."""
+    texts = [
+        "Hi, my name is Alice Smith.",
+        "Email me at bob@example.com please.",
+        "Nothing personal here.",
+    ]
+    results = detector.detect_batch(texts)
+    assert len(results) == 3
+    assert any(s.label == "private_person" for s in results[0])
+    assert any(s.label == "private_email" for s in results[1])
+    assert results[2] == []  # negative — no PII present
