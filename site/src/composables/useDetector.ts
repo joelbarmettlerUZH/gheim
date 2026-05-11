@@ -57,13 +57,23 @@ export function useDetector() {
       // Dynamic import so transformers.js is split out of the main chunk
       const tx = await import("@huggingface/transformers");
 
-      // Try webgpu, fall back to wasm
-      let preferredDevice = "wasm";
-      if (
-        typeof navigator !== "undefined" &&
-        (navigator as { gpu?: unknown }).gpu
-      ) {
-        preferredDevice = "webgpu";
+      // Pick the best backend. The presence of `navigator.gpu` is necessary
+      // but not sufficient — Chrome / Edge expose the API in environments
+      // where no GPU adapter is actually available (headless, locked-down
+      // managed devices, certain Linux setups). Actually request an adapter
+      // before committing to WebGPU, otherwise transformers.js crashes with
+      // "no available backend" with no clean recovery path.
+      let preferredDevice: "webgpu" | "wasm" = "wasm";
+      const nav = typeof navigator !== "undefined"
+        ? (navigator as { gpu?: { requestAdapter: () => Promise<unknown> } })
+        : null;
+      if (nav?.gpu) {
+        try {
+          const adapter = await nav.gpu.requestAdapter();
+          if (adapter) preferredDevice = "webgpu";
+        } catch {
+          // Adapter request itself threw — stick with WASM.
+        }
       }
 
       try {
