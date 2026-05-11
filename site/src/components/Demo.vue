@@ -24,7 +24,6 @@ const view = ref<"redacted" | "sentinel">("redacted");
 const requestId = ref(0);
 const lastRunMs = ref<number | null>(null);
 
-let debounceHandle: number | undefined;
 const dirty = ref(false);
 
 async function run() {
@@ -41,19 +40,13 @@ async function run() {
   }
 }
 
-// Per-keystroke detection saturates the WASM thread on long inputs
-// (detection is 0.5–2 s for a typical paragraph), making typing visibly
-// laggy. So: mark the input dirty immediately, but only auto-run after
-// 1.2 s of typing inactivity. The user can also click "Redact now" to
-// run immediately.
+// Auto-detect on every keystroke (or even on every typing pause)
+// freezes the tab — the WASM forward pass takes 0.5–2 s per call and
+// blocks the main thread. So: do not auto-run. Just mark the input as
+// dirty so the "↻ Redact now" button surfaces; the user fires
+// detection explicitly when they want it.
 watch(input, () => {
   dirty.value = true;
-  window.clearTimeout(debounceHandle);
-  debounceHandle = window.setTimeout(() => {
-    if (detector.state.value === "ready" || detector.state.value === "running") {
-      void run();
-    }
-  }, 1200);
 });
 
 async function start() {
