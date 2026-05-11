@@ -10,6 +10,46 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # ─────────────────────────── tests (gate every publish) ───────────────────────────
+  # Every publish job depends on `tests` succeeding. We don't want a green
+  # release pipeline alongside a broken model / SDK.
+  tests:
+    name: Run all tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          python-version: '3.12'
+      - name: Cache HuggingFace model downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          # Pin the cache key to the model's current revision on the hub so
+          # we redownload only when the model is republished. Falls back to
+          # any prior gheim-ch-560m cache if no exact match.
+          key: hf-${{ runner.os }}-gheim-ch-560m-${{ hashFiles('packages/gheim-py/tests/test_live_local.py') }}
+          restore-keys: |
+            hf-${{ runner.os }}-gheim-ch-560m-
+      - name: Sync workspace
+        run: uv sync --all-packages
+      - name: Python tests
+        run: uv run pytest
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      # Install from the workspace root (so the site can resolve
+      # `gheim: workspace:*`), then run the SDK's scripts in the
+      # package directory.
+      - run: bun install --frozen-lockfile
+      - name: JS lint + test + build
+        working-directory: packages/gheim-js
+        run: |
+          bun run lint
+          bun test
+          bun run build
+
   # ─────────────────────────── gheim (PyPI) ───────────────────────────
   detect-py:
     name: Detect gheim (py) version
@@ -34,7 +74,7 @@ jobs:
 
   pypi:
     name: Publish gheim to PyPI
-    needs: detect-py
+    needs: [tests, detect-py]
     if: needs.detect-py.outputs.is-new == 'true'
     runs-on: ubuntu-latest
     environment:
@@ -48,8 +88,10 @@ jobs:
         with:
           python-version: '3.12'
       - name: Build sdist + wheel
-        working-directory: packages/gheim-py
-        run: uv build --no-sources
+        # `uv build` from inside a workspace member writes artifacts to the
+        # workspace-root /dist by default; force a per-package output dir
+        # so pypa/gh-action-pypi-publish finds them.
+        run: uv build --package gheim --no-sources --out-dir packages/gheim-py/dist
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: packages/gheim-py/dist
@@ -95,7 +137,7 @@ jobs:
 
   npm:
     name: Publish gheim to npm
-    needs: detect-js
+    needs: [tests, detect-js]
     if: needs.detect-js.outputs.is-new == 'true'
     runs-on: ubuntu-latest
     environment:
@@ -103,9 +145,6 @@ jobs:
       url: https://www.npmjs.com/package/gheim
     permissions:
       id-token: write   # npm provenance
-    defaults:
-      run:
-        working-directory: packages/gheim-js
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -126,14 +165,16 @@ jobs:
             npm install -g npm@latest
             npm --version
           fi
+      # Install from the workspace root so the local SDK is built
+      # against the same dep graph the tests gate ran on.
       - run: bun install --frozen-lockfile
-      - run: bun run lint
-      - run: bun test
       - run: bun run build
+        working-directory: packages/gheim-js
       # No NODE_AUTH_TOKEN: trusted publishing uses the OIDC token GitHub
       # mints for the `npm` environment (configured at npmjs.com → package
       # → Trusted Publishers).
       - run: npm publish --provenance --access public
+        working-directory: packages/gheim-js
 
   release-js:
     name: Tag + release (js)
@@ -173,7 +214,7 @@ jobs:
 
   ghcr:
     name: Build + push gheim-server to ghcr
-    needs: detect-server
+    needs: [tests, detect-server]
     if: needs.detect-server.outputs.is-new == 'true'
     runs-on: ubuntu-latest
     permissions:

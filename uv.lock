@@ -45,7 +45,9 @@ members = [
 
 [manifest.dependency-groups]
 dev = [
+    { name = "dateparser", specifier = ">=1.2" },
     { name = "openai", specifier = ">=1.50" },
+    { name = "phonenumbers", specifier = ">=8" },
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-asyncio", specifier = ">=0.24" },
     { name = "ty", specifier = ">=0.0.34" },

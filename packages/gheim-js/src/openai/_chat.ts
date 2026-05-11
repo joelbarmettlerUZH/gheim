@@ -55,9 +55,27 @@ function restoreChatResponse(
   session: Session,
 ): void {
   for (const choice of response.choices ?? []) {
-    const msg = choice.message;
+    const msg = choice.message as
+      | (typeof choice.message & {
+          reasoning?: string | null;
+          reasoning_details?: Array<{ text?: string | null }> | null;
+        })
+      | undefined;
     if (msg && typeof msg.content === "string") {
       msg.content = session.restore(msg.content);
+    }
+    // Reasoning fields are emitted by reasoning models (deepseek, o1) and
+    // may carry sentinel residue. Restore them so dashboards / logs that
+    // read these fields don't see "<PERSON_1>" etc.
+    if (msg && typeof msg.reasoning === "string") {
+      msg.reasoning = session.restore(msg.reasoning);
+    }
+    if (msg && Array.isArray(msg.reasoning_details)) {
+      for (const r of msg.reasoning_details) {
+        if (r && typeof r.text === "string") {
+          r.text = session.restore(r.text);
+        }
+      }
     }
     for (const tc of msg?.tool_calls ?? []) {
       const fn = (tc as { function?: { arguments?: string } }).function;
@@ -73,9 +91,24 @@ function patchChatChunk(
   buf: StreamDeanonymizer,
 ): void {
   for (const choice of chunk.choices ?? []) {
-    const delta = choice.delta as { content?: string | null };
+    const delta = choice.delta as {
+      content?: string | null;
+      reasoning?: string | null;
+      reasoning_details?: Array<{ text?: string | null }> | null;
+    };
     if (typeof delta.content === "string") {
       delta.content = buf.feed(delta.content);
+    }
+    // Reasoning streams (deepseek, o1) — restore sentinel residue here too.
+    if (typeof delta.reasoning === "string") {
+      delta.reasoning = buf.feed(delta.reasoning);
+    }
+    if (Array.isArray(delta.reasoning_details)) {
+      for (const r of delta.reasoning_details) {
+        if (r && typeof r.text === "string") {
+          r.text = buf.feed(r.text);
+        }
+      }
     }
   }
 }

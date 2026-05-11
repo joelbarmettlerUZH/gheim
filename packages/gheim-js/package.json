@@ -1,6 +1,6 @@
 {
   "name": "gheim",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "PII round-trip for LLM APIs: anonymize before the request, de-anonymize the stream on the way back.",
   "license": "Apache-2.0",
   "author": "Joel Barmettler <joel.barmettler@gmail.com>",
@@ -50,7 +50,7 @@
   ],
   "scripts": {
     "build": "rm -rf dist && bun run build:esm && bun run build:cjs && bun run build:types",
-    "build:esm": "bun build ./src/index.ts ./src/openai/index.ts --outdir ./dist/esm --target node --format esm --external openai --external @huggingface/transformers",
+    "build:esm": "bun build ./src/index.ts ./src/openai/index.ts --outdir ./dist/esm --target browser --format esm --external openai --external @huggingface/transformers --external libphonenumber-js --external chrono-node --external node:module",
     "build:cjs": "bun build ./src/index.ts ./src/openai/index.ts --outdir ./dist/cjs --target node --format cjs --entry-naming '[dir]/[name].cjs' --external openai --external @huggingface/transformers",
     "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
     "test": "bun test",
@@ -69,7 +69,7 @@
     "@huggingface/transformers": ">=3.0.0 <5.0.0",
     "chrono-node": "^2.7.0",
     "libphonenumber-js": "^1.10.0",
-    "openai": ">=4.0.0 <6.0.0"
+    "openai": ">=4.0.0 <7.0.0"
   },
   "peerDependenciesMeta": {
     "openai": {

@@ -44,9 +44,12 @@
 /**
  * A normalizer takes a raw surface and returns a canonical form, or
  * `null` if the surface is unparseable (caller falls back to the
- * default NFKC+lowercase key).
+ * default NFKC+lowercase key). Re-exported from the core for ergonomics
+ * — the canonical declaration lives in `core/session.ts` so that the
+ * main `gheim` entry doesn't pull in `node:module`.
  */
-export type Normalizer = (s: string) => string | null;
+export type { Normalizer } from "./core/session.ts";
+type Normalizer = (s: string) => string | null;
 
 /** Options for {@link e164}. */
 export interface E164Options {

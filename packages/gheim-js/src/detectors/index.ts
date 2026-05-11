@@ -6,7 +6,7 @@ export {
 } from "./remote.ts";
 export type { RemoteDetectorOptions } from "./remote.ts";
 export { LocalDetector } from "./local.ts";
-export type { LocalDetectorOptions } from "./local.ts";
+export type { LocalDetectorOptions, LocalDetectorLoadEvent } from "./local.ts";
 
 import type { Detector } from "./base.ts";
 import { LocalDetector } from "./local.ts";

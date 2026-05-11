@@ -8,6 +8,7 @@
  *   - StreamDeanonymizer (low-level)
  */
 export { Session } from "./core/session.ts";
+export type { Normalizer, SessionOptions } from "./core/session.ts";
 export {
   LABEL_TO_TAG,
   SENTINEL_RE,
@@ -26,7 +27,11 @@ export {
   LocalDetector,
   defaultDetector,
 } from "./detectors/index.ts";
-export type { RemoteDetectorOptions, LocalDetectorOptions } from "./detectors/index.ts";
+export type {
+  RemoteDetectorOptions,
+  LocalDetectorOptions,
+  LocalDetectorLoadEvent,
+} from "./detectors/index.ts";
 export {
   anonymizeMessages,
   anonymizeText,
@@ -38,4 +43,7 @@ export type { ChatMessage } from "./plain.ts";
 // Note: gheim/openai is exposed as a separate subpath export.
 // Import from "gheim/openai" to use OpenAI-typed helpers.
 
-export const VERSION = "0.1.0";
+export const VERSION = "0.1.2";
+
+export { mergeAdjacent } from "./core/session.ts";
+export type { MergedSpan } from "./core/session.ts";

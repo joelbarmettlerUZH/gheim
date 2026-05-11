@@ -26,7 +26,16 @@ const DEFAULT_BATCH_SIZE = 8;
 export interface LocalDetectorOptions {
   /** HuggingFace model id (must be a token-classification model). */
   model?: string;
-  /** transformers.js device: "auto" | "cpu" | "wasm" | "webgpu" | "gpu" | ... */
+  /**
+   * Backend selector. Defaults to `"auto"`, which:
+   *   - in the browser, probes `navigator.gpu.requestAdapter()` and uses
+   *     WebGPU if a real adapter is available, otherwise WASM. If WebGPU
+   *     loading throws (shader compile, OOM, driver bug) it falls back
+   *     to WASM transparently.
+   *   - in Node, just uses WASM (no WebGPU bindings).
+   * Pass `"webgpu"`, `"wasm"`, `"cpu"`, etc. to force a specific backend
+   * (no probe, no fallback — your choice is respected and may throw).
+   */
   device?: string;
   /** Quantization dtype: "fp32" | "fp16" | "q8" | "q4" | "auto" */
   dtype?: string;
@@ -46,6 +55,32 @@ export interface LocalDetectorOptions {
   batchSize?: number;
   /** Optional pre-built pipeline instance (e.g. for tests). */
   pipelineInstance?: unknown;
+  /**
+   * Optional callback fired during model loading. Receives a normalized
+   * event so consumers don't need to reconcile transformers.js's
+   * 0-1-vs-0-100 inconsistency or its raw status strings. Useful for
+   * driving a download progress bar.
+   */
+  onProgress?: (event: LocalDetectorLoadEvent) => void;
+}
+
+/** Normalized model-load event surfaced to {@link LocalDetectorOptions.onProgress}. */
+export interface LocalDetectorLoadEvent {
+  /** Phase of the load. */
+  phase: "initiate" | "download" | "progress" | "ready" | "done";
+  /** File being processed, when applicable. */
+  file?: string;
+  /** Bytes downloaded so far (only on `phase: "progress"`). */
+  loadedBytes?: number;
+  /** Total bytes for `file` (only on `phase: "progress"`). */
+  totalBytes?: number;
+  /** Fraction in [0, 1] (only on `phase: "progress"`). Normalized so
+   *  consumers can use the value directly without bounds-clamping. */
+  fraction?: number;
+  /** Backend currently being attempted (e.g. `"webgpu"`, `"wasm"`).
+   *  When auto-fallback fires, two phase-streams may be observed: one
+   *  for the failed `"webgpu"` attempt, then a fresh stream for `"wasm"`. */
+  device?: string;
 }
 
 interface DetectionItem {
@@ -86,14 +121,20 @@ interface TokenizerOutput {
 
 export class LocalDetector implements Detector {
   readonly model: string;
+  /** Device preference as passed to the constructor (`"auto"`, `"webgpu"`, ...). */
   readonly device: string;
   readonly dtype: string;
   readonly aggregationStrategy: string;
   readonly chunkTokens: number;
   readonly chunkOverlapTokens: number;
   readonly batchSize: number;
+  /** Backend that ended up being used after `load()` resolves. `null` until
+   *  the model is loaded. Different from {@link device} only when
+   *  `device: "auto"` was requested. */
+  actualDevice: string | null = null;
   private _pipeline: PipelineCallable | null = null;
   private _loadPromise: Promise<PipelineCallable> | null = null;
+  private readonly _onProgress?: (event: LocalDetectorLoadEvent) => void;
 
   constructor(opts: LocalDetectorOptions = {}) {
     this.model = opts.model ?? DEFAULT_MODEL;
@@ -103,6 +144,7 @@ export class LocalDetector implements Detector {
     this.chunkTokens = opts.chunkTokens ?? DEFAULT_CHUNK_TOKENS;
     this.chunkOverlapTokens = opts.chunkOverlapTokens ?? DEFAULT_OVERLAP_TOKENS;
     this.batchSize = opts.batchSize ?? DEFAULT_BATCH_SIZE;
+    this._onProgress = opts.onProgress;
     if (this.chunkOverlapTokens >= this.chunkTokens) {
       throw new Error(
         `chunkOverlapTokens (${this.chunkOverlapTokens}) must be smaller than chunkTokens (${this.chunkTokens})`,
@@ -110,30 +152,92 @@ export class LocalDetector implements Detector {
     }
     if (opts.pipelineInstance) {
       this._pipeline = opts.pipelineInstance as PipelineCallable;
+      // A pre-built pipeline bypasses `load()` entirely; we don't know which
+      // backend it was built with, but the consumer almost certainly does.
+      this.actualDevice = this.device === "auto" ? null : this.device;
     }
   }
 
-  private async load(): Promise<PipelineCallable> {
+  /**
+   * Load the model. Idempotent; concurrent calls share a single load.
+   * With `device: "auto"`, probes `navigator.gpu.requestAdapter()` and
+   * walks the candidate-backend list, falling back from WebGPU to WASM
+   * if construction throws (and reporting both attempts via `onProgress`).
+   */
+  async load(): Promise<PipelineCallable> {
     if (this._pipeline) return this._pipeline;
     if (this._loadPromise) return this._loadPromise;
     this._loadPromise = (async () => {
-      let mod: { pipeline: (task: string, model: string, opts: unknown) => Promise<PipelineCallable> };
-      try {
-        mod = (await import("@huggingface/transformers")) as unknown as typeof mod;
-      } catch (e) {
-        throw new Error(
-          "LocalDetector requires `@huggingface/transformers`. " +
-            "Install with: bun add @huggingface/transformers",
-        );
+      const mod = await loadTransformersJs();
+      const sequence = await this._planDeviceSequence();
+      let lastErr: unknown;
+      for (let i = 0; i < sequence.length; i++) {
+        const dev = sequence[i] ?? "wasm";
+        try {
+          const pipe = await mod.pipeline("token-classification", this.model, {
+            device: dev,
+            dtype: this.dtype,
+            progress_callback: this._onProgress
+              ? (raw: RawProgress) => this._emitProgress(raw, dev)
+              : undefined,
+          });
+          this._pipeline = pipe;
+          this.actualDevice = dev;
+          return pipe;
+        } catch (e) {
+          lastErr = e;
+          // Only fall through to the next candidate when "auto" requested
+          // multiple. Explicit device choices propagate the failure so the
+          // caller knows their constraint couldn't be met.
+          if (i < sequence.length - 1) continue;
+          throw e;
+        }
       }
-      const pipe = await mod.pipeline("token-classification", this.model, {
-        device: this.device,
-        dtype: this.dtype,
-      });
-      this._pipeline = pipe;
-      return pipe;
+      throw lastErr ?? new Error("LocalDetector.load(): no candidate backends");
     })();
     return this._loadPromise;
+  }
+
+  /** Build the ordered list of backends to attempt. */
+  private async _planDeviceSequence(): Promise<string[]> {
+    if (this.device !== "auto") return [this.device];
+    const seq: string[] = [];
+    const nav =
+      typeof navigator !== "undefined"
+        ? (navigator as { gpu?: { requestAdapter: () => Promise<unknown> } })
+        : null;
+    if (nav?.gpu?.requestAdapter) {
+      try {
+        const adapter = await nav.gpu.requestAdapter();
+        if (adapter) seq.push("webgpu");
+      } catch {
+        // Adapter request itself threw — skip WebGPU.
+      }
+    }
+    seq.push("wasm");
+    return seq;
+  }
+
+  /** Translate a raw transformers.js progress callback into our normalized event. */
+  private _emitProgress(raw: RawProgress, device: string): void {
+    if (!this._onProgress) return;
+    const event: LocalDetectorLoadEvent = {
+      phase: (raw.status as LocalDetectorLoadEvent["phase"]) ?? "progress",
+      device,
+    };
+    if (raw.file) event.file = raw.file;
+    if (raw.status === "progress") {
+      if (raw.loaded != null) event.loadedBytes = raw.loaded;
+      if (raw.total != null) event.totalBytes = raw.total;
+      if (raw.progress != null) {
+        // transformers.js reports `progress` as 0-100 for some files and 0-1
+        // for others, and occasionally overshoots if `loaded > total`
+        // mid-stream. Normalize to [0, 1] so consumers can use it directly.
+        const norm = raw.progress > 1 ? raw.progress / 100 : raw.progress;
+        event.fraction = Math.max(0, Math.min(1, norm));
+      }
+    }
+    this._onProgress(event);
   }
 
   async detect(text: string, opts?: { model?: string }): Promise<Span[]> {
@@ -356,4 +460,28 @@ function chunkByChars(
  */
 function normalizeWord(word: string): string {
   return word.replace(/##/g, "").trim();
+}
+
+/** Raw shape transformers.js feeds to `progress_callback`. */
+interface RawProgress {
+  status: string;
+  file?: string;
+  progress?: number;
+  loaded?: number;
+  total?: number;
+}
+
+interface TransformersModule {
+  pipeline: (task: string, model: string, opts: unknown) => Promise<PipelineCallable>;
+}
+
+async function loadTransformersJs(): Promise<TransformersModule> {
+  try {
+    return (await import("@huggingface/transformers")) as unknown as TransformersModule;
+  } catch {
+    throw new Error(
+      "LocalDetector requires `@huggingface/transformers`. " +
+        "Install with: bun add @huggingface/transformers",
+    );
+  }
 }

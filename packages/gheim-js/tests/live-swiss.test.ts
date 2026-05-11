@@ -1,5 +1,5 @@
 /**
- * Real-model integration test for gheim-ch-XXXm (Swiss-tuned) via transformers.js.
+ * Real-model integration test for the published gheim model via transformers.js.
  *
  * Verifies the fine-tuned model end-to-end:
  *   - Loads via @huggingface/transformers (CPU/WASM, the default Node + Bun path)
@@ -7,41 +7,28 @@
  *   - Detects English-shape secrets (API keys) — covers the synthetic gap-fill cells
  *   - Round-trips cleanly through anonymize → deanonymize
  *
- * Gated by GHEIM_RUN_LIVE=1; pick the model via GHEIM_LIVE_MODEL.
- *
- * Run:
- *   GHEIM_RUN_LIVE=1 \
- *   GHEIM_LIVE_MODEL=joelbarmettler/gheim-ch-XXXm \
- *   bun test packages/gheim-js/tests/live-swiss.test.ts
- *
- * If GHEIM_LIVE_MODEL is unset the test is skipped (so CI without the model
- * available doesn't fail). When the bake-off picks a leader, set the env var
- * to its hub id (e.g. joelbarmettler/gheim-ch-550m).
+ * Always runs (no env gate). On first run this downloads ~1 GB of ONNX
+ * weights from the Hub; the workflow caches `~/.cache/huggingface/hub`
+ * across runs.
  */
 import { describe, expect, test } from "bun:test";
 import { Session } from "../src/core/session.ts";
 import { LocalDetector } from "../src/detectors/local.ts";
 import { anonymizeText, deanonymizeText } from "../src/plain.ts";
 
-const LIVE = ["1", "true", "yes"].includes(
-  (process.env.GHEIM_RUN_LIVE ?? "").toLowerCase(),
-);
-const MODEL = process.env.GHEIM_LIVE_MODEL ?? "";
-const enabled = LIVE && MODEL.length > 0;
-const t = enabled ? test : test.skip;
-
+const MODEL = process.env.GHEIM_LIVE_MODEL ?? "joelbarmettler/gheim-ch-560m";
 const TIMEOUT = 600_000; // model load on first call dominates wall time
 
-describe("live-swiss: gheim-ch-XXXm CPU/WASM via transformers.js", () => {
-  t("loads the model on Node/Bun CPU without throwing", async () => {
-    const det = new LocalDetector({ model: MODEL, device: "cpu", dtype: "fp32" });
+describe("live-swiss: published gheim model on CPU/WASM via transformers.js", () => {
+  test("loads the model on Node/Bun CPU without throwing", async () => {
+    const det = new LocalDetector({ model: MODEL, device: "cpu", dtype: "q8" });
     const spans = await det.detect("Hello.");
     // Loading must not throw; spans for a PII-free chunk may be 0 or empty.
     expect(Array.isArray(spans)).toBe(true);
   }, TIMEOUT);
 
-  t("detects a Swiss IBAN with checksum", async () => {
-    const det = new LocalDetector({ model: MODEL, device: "cpu", dtype: "fp32" });
+  test("detects a Swiss IBAN with checksum", async () => {
+    const det = new LocalDetector({ model: MODEL, device: "cpu", dtype: "q8" });
     // Real-format CH IBAN, mod-97-10 valid.
     const text = "Bitte überweisen an IBAN CH9300762011623852957 bis Ende Monat.";
     const spans = await det.detect(text);
@@ -50,24 +37,24 @@ describe("live-swiss: gheim-ch-XXXm CPU/WASM via transformers.js", () => {
     expect(account[0]!.text).toContain("CH9300762011623852957");
   }, TIMEOUT);
 
-  t("detects a Swiss-format address (Strasse + PLZ + Ort)", async () => {
-    const det = new LocalDetector({ model: MODEL, device: "cpu", dtype: "fp32" });
+  test("detects a Swiss-format address (Strasse + PLZ + Ort)", async () => {
+    const det = new LocalDetector({ model: MODEL, device: "cpu", dtype: "q8" });
     const text = "Die Praxis befindet sich an der Werdstrasse 36, 8004 Zürich.";
     const spans = await det.detect(text);
     const addrs = spans.filter((s) => s.label === "private_address");
     expect(addrs.length).toBeGreaterThan(0);
   }, TIMEOUT);
 
-  t("detects a +41 phone number", async () => {
-    const det = new LocalDetector({ model: MODEL, device: "cpu", dtype: "fp32" });
+  test("detects a +41 phone number", async () => {
+    const det = new LocalDetector({ model: MODEL, device: "cpu", dtype: "q8" });
     const text = "Erreichbar unter +41 44 268 12 34 von Montag bis Freitag.";
     const spans = await det.detect(text);
     const phones = spans.filter((s) => s.label === "private_phone");
     expect(phones.length).toBeGreaterThan(0);
   }, TIMEOUT);
 
-  t("detects an API key as secret", async () => {
-    const det = new LocalDetector({ model: MODEL, device: "cpu", dtype: "fp32" });
+  test("detects an API key as secret", async () => {
+    const det = new LocalDetector({ model: MODEL, device: "cpu", dtype: "q8" });
     const text =
       "Hey, please rotate the staging key sk-proj-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfGhIjKl asap.";
     const spans = await det.detect(text);
@@ -75,8 +62,8 @@ describe("live-swiss: gheim-ch-XXXm CPU/WASM via transformers.js", () => {
     expect(secrets.length).toBeGreaterThan(0);
   }, TIMEOUT);
 
-  t("anonymize → deanonymize round trip on a multi-PII Swiss chunk", async () => {
-    const det = new LocalDetector({ model: MODEL, device: "cpu", dtype: "fp32" });
+  test("anonymize → deanonymize round trip on a multi-PII Swiss chunk", async () => {
+    const det = new LocalDetector({ model: MODEL, device: "cpu", dtype: "q8" });
     const session = new Session();
     (session as unknown as { detector: LocalDetector }).detector = det;
 
@@ -86,7 +73,7 @@ describe("live-swiss: gheim-ch-XXXm CPU/WASM via transformers.js", () => {
       "Téléphone: +41 21 555 12 34.";
 
     const redacted = await anonymizeText(text, session);
-    // At least person, email, and address should be redacted to sentinels.
+    // At least person and email should be redacted to sentinels.
     const tagsSeen = new Set(
       Object.keys(session.mapping).map(
         (k) => k.match(/^<([A-Z]+)_/)?.[1] ?? "",

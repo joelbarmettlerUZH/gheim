@@ -1,0 +1,10 @@
+{
+  "name": "gheim-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Workspace root — links the Vue site to the local gheim JS SDK during dev. Publishing happens per-package via the release workflow.",
+  "workspaces": [
+    "packages/gheim-js",
+    "site"
+  ]
+}

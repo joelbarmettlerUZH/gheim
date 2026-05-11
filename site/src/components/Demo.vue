@@ -1,21 +1,27 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
+import { Session, type MergedSpan } from "gheim";
 import { useDetector, type DetectedSpan } from "../composables/useDetector";
-import { substitute } from "../lib/sentinels";
 
-const EXAMPLE = `Sehr geehrte Frau Müller,
+// Verified end-to-end against the published joelbarmettler/gheim-ch-560m
+// model — all seven PII categories below are reliably detected on
+// standalone input. Picked after iterating through several Swiss-letter
+// variants; placing the date at the start of a sentence avoids BPE
+// boundary issues that caused the previous example to mis-tag dates.
+const EXAMPLE = `Hallo Team,
 
-vielen Dank für Ihre Anfrage vom 14. März 2026. Bitte überweisen Sie den
-Restbetrag von CHF 1'480.00 bis spätestens 28. März 2026 auf unser Konto
-bei der Zürcher Kantonalbank: IBAN CH93 0076 2011 6238 5295 7.
+mein Name ist Lukas Brunner. Bitte erreichen Sie mich unter
++41 44 555 12 34 oder lukas.brunner@example.ch. Meine Adresse ist
+Bahnhofstrasse 10, 8001 Zürich.
 
-Für Rückfragen erreichen Sie mich werktags zwischen 9 und 17 Uhr unter
-+41 44 268 12 34 oder per E-Mail an a.mueller@kanzlei-mueller.ch.
+Am 30. Juni 2026 läuft mein Vertrag aus. Bitte überweisen Sie
+CHF 230.00 auf IBAN CH9300762011623852957.
 
-Unsere Praxis befindet sich an der Werdstrasse 36, 8004 Zürich.
+Anbei der Staging-Schlüssel zum Testen:
+sk-proj-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfGhIjKl
 
 Freundliche Grüsse,
-Dr. Andrea Müller`;
+Lukas Brunner`;
 
 const detector = useDetector();
 const input = ref(EXAMPLE);
@@ -63,24 +69,28 @@ onMounted(() => {
   // do not auto-load: the user opts in by clicking "Load model"
 });
 
-const sentinelOutput = computed(() => substitute(input.value, spans.value));
-
 interface Segment {
   text: string;
   label?: string;
 }
 
-// Both the Bars view and the Sentinel view drive off the SAME merged
-// span list (computed in `substitute`) so a single IBAN renders as ONE
-// black bar / ONE <ACCOUNT_1> instead of a dozen fragments per BPE
-// subword. Without this the Vue demo over-reported entity counts and
-// the LLM-side preview was unreadable.
+// Single source of truth: a fresh Session per render (the input may have
+// changed, which invalidates sentinel coalescing). `applySpansDetailed`
+// returns both the redacted text (Sentinel view) and the post-merge spans
+// (Bars view + counts) in one pass — no need to call mergeAdjacent
+// separately.
+const session = computed(() => {
+  const text = input.value;
+  const sess = new Session();
+  const { redacted, merged } = sess.applySpansDetailed(text, spans.value);
+  return { merged, redacted, mapping: sess.mapping };
+});
+
 const segments = computed<Segment[]>(() => {
   const text = input.value;
-  const merged = sentinelOutput.value.merged;
   const out: Segment[] = [];
   let cursor = 0;
-  for (const m of merged) {
+  for (const m of session.value.merged as MergedSpan[]) {
     if (m.start > cursor) out.push({ text: text.slice(cursor, m.start) });
     out.push({ text: text.slice(m.start, m.end), label: m.label });
     cursor = m.end;
@@ -91,7 +101,7 @@ const segments = computed<Segment[]>(() => {
 
 const counts = computed(() => {
   const c: Record<string, number> = {};
-  for (const m of sentinelOutput.value.merged) c[m.label] = (c[m.label] ?? 0) + 1;
+  for (const m of session.value.merged) c[m.label] = (c[m.label] ?? 0) + 1;
   return c;
 });
 
@@ -260,7 +270,7 @@ const labelDisplay: Record<string, string> = {
           <pre
             v-else
             class="demo-text whitespace-pre-wrap break-words m-0"
-            >{{ sentinelOutput.redacted }}</pre>
+            >{{ session.redacted }}</pre>
         </div>
       </div>
 

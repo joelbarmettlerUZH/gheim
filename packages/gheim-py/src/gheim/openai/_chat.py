@@ -55,6 +55,16 @@ def _restore_chat_response(response: Any, session: Session) -> None:
             content = getattr(msg, "content", None)
             if isinstance(content, str):
                 msg.content = session.restore(content)
+            # Reasoning fields (deepseek, o1) — must be restored too, otherwise
+            # dashboards / log sinks reading these fields show "<PERSON_1>".
+            reasoning = getattr(msg, "reasoning", None)
+            if isinstance(reasoning, str):
+                msg.reasoning = session.restore(reasoning)
+            details = getattr(msg, "reasoning_details", None) or []
+            for r in details:
+                txt = getattr(r, "text", None)
+                if isinstance(txt, str):
+                    r.text = session.restore(txt)
             tool_calls = getattr(msg, "tool_calls", None) or []
             for tc in tool_calls:
                 fn = getattr(tc, "function", None)
@@ -73,6 +83,15 @@ def _patch_chat_chunk(chunk: Any, buf: StreamDeanonymizer) -> None:
         content = getattr(delta, "content", None)
         if isinstance(content, str):
             delta.content = buf.feed(content)
+        # Reasoning streams from deepseek/o1-style providers.
+        reasoning = getattr(delta, "reasoning", None)
+        if isinstance(reasoning, str):
+            delta.reasoning = buf.feed(reasoning)
+        details = getattr(delta, "reasoning_details", None) or []
+        for r in details:
+            txt = getattr(r, "text", None)
+            if isinstance(txt, str):
+                r.text = buf.feed(txt)
 
 
 @dataclass

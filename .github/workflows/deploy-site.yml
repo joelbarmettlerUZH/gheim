@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - "site/**"
+      - "packages/gheim-js/**"
+      - "package.json"
+      - "bun.lock"
       - ".github/workflows/deploy-site.yml"
   workflow_dispatch:
 
@@ -21,17 +24,12 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: site
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v6
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: "20"
-          cache: "npm"
-          cache-dependency-path: site/package-lock.json
+          bun-version: latest
 
       - uses: actions/configure-pages@v6
         with:
@@ -39,9 +37,14 @@ jobs:
           # one-click toggle in the repo settings UI.
           enablement: true
 
-      - run: npm ci
+      # Install from the workspace root so the site's `gheim:
+      # workspace:*` dep links to the local `packages/gheim-js`.
+      # Avoids the chicken-and-egg of requiring a published gheim
+      # version on npm before the site can deploy.
+      - run: bun install --frozen-lockfile
 
-      - run: npm run build
+      - run: bun run build
+        working-directory: site
 
       - uses: actions/upload-pages-artifact@v5
         with:
