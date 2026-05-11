@@ -39,11 +39,11 @@ configs:
   - config_name: default
     data_files:
       - split: train
-        path: gheim_pii_balanced_train.jsonl
+        path: train.jsonl
       - split: validation
-        path: gheim_pii_balanced_validation.jsonl
+        path: validation.jsonl
       - split: test
-        path: gheim_pii_balanced_test.jsonl
+        path: test.jsonl
     default: true
 ---
 
