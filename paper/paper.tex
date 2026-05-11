@@ -3,7 +3,19 @@
 
 \usepackage{booktabs}
 \usepackage{multirow}
-\usepackage{url}
+\usepackage{xurl}
+
+% Sigconf is a narrow two-column layout; long identifier-like tokens
+% inside \texttt / \textsf (slashes, hyphens, dots) have no natural
+% breakpoints and cause column overflow. \sloppy plus a large
+% emergency stretch lets TeX find acceptable line breaks; the macros
+% below insert discretionary break points after the typical
+% identifier separators for places where the long token still does
+% not fit (e.g.\ a 50-character file path).
+\sloppy
+\setlength{\emergencystretch}{3em}
+\newcommand*{\Bsl}{\discretionary{/}{}{/}}% breakable slash
+\newcommand*{\Bhy}{\discretionary{-}{}{-}}% breakable hyphen
 
 % Hide the ACM submission boilerplate that has no place in a
 % self-published technical report.
@@ -92,9 +104,9 @@ This work contributes:
         of 0.916 strict-span and 0.958 character-level.
   \item A reproducible evaluation harness that scores both the released
         model on four established external benchmarks
-        (\textsf{ai4privacy/openpii-1m}, ZurichNLP \textsf{swissner},
+        (\textsf{ai4privacy\Bsl openpii\Bhy 1m}, ZurichNLP \textsf{swissner},
         Babelscape \textsf{WikiNeural}~\cite{tedeschi2021wikineural},
-        CoNLL-2003~\cite{tjong2003introduction}) and seven competing
+        CoNLL\Bhy 2003~\cite{tjong2003introduction}) and seven competing
         open detectors on the released test set, with replication
         checks against each baseline's published numbers on its native
         dataset.
@@ -134,17 +146,18 @@ Table~\ref{tab:lang-dist}.
 \centering
 \caption{Per-language chunk distribution.}
 \label{tab:lang-dist}
+\small
 \begin{tabular}{l l r r}
 \toprule
-Code   & Variant                              & Chunks & \% \\
+Code   & Variant                       & Chunks & \% \\
 \midrule
-de\_ch & Swiss German written standard        & 48{,}564 & 28.3 \\
-fr\_ch & Swiss French                         & 48{,}097 & 28.1 \\
-it\_ch & Swiss Italian (Ticino/Grisons)       & 45{,}462 & 26.5 \\
-rm     & Romansh (Rumantsch Grischun + idioms)& 17{,}171 & 10.0 \\
-en     & English (international, Swiss-context)& 12{,}042 & ~7.0 \\
+de\_ch & Swiss German (written std.)   & 48{,}564 & 28.3 \\
+fr\_ch & Swiss French                  & 48{,}097 & 28.1 \\
+it\_ch & Swiss Italian                 & 45{,}462 & 26.5 \\
+rm     & Romansh                       & 17{,}171 & 10.0 \\
+en     & English (Swiss-context)       & 12{,}042 & ~7.0 \\
 \midrule
-\multicolumn{2}{l}{Total}                     & 171{,}336 & 100 \\
+\multicolumn{2}{l}{Total}              & 171{,}336 & 100 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -419,7 +432,7 @@ support (502 spans across all five languages) plus the structural
 similarity of CH-IBAN, EU-IBAN and other non-Swiss numbers. For
 production use both categories are intended to be paired with a
 deterministic regex front-end that applies checksum validation
-(see \texttt{packages/gheim-py/src/gheim/detectors/composite.py}).
+(see \texttt{packages\Bsl gheim\Bhy py\Bsl src\Bsl gheim\Bsl detectors\Bsl composite.py}).
 
 \subsection{Comparison to other systems}
 
@@ -551,15 +564,16 @@ fourth (Isotonic) is discussed below.
 training-distribution dataset, against published numbers.}
 \label{tab:replication}
 \small
+\footnotesize
 \begin{tabular}{l r r r}
 \toprule
-Replication target                          & Their claim & Our repro & $\Delta$ \\
+Replication target                                & Claimed       & Repro             & $\Delta$ \\
 \midrule
-dslim/bert-base-NER on CoNLL-2003           & 0.910       & 0.913     & $+0.003$ \\
-dslim PER on CoNLL-2003                     & ${\sim}$0.96 & 0.957    & $-0.003$ \\
-Davlan-XLMR on WikiNeural avg               & ${\sim}$0.84 & 0.813    & $-0.027$ \\
-spaCy \texttt{de\_core\_news\_lg} on swissner\_de & ${\sim}$0.83 & 0.841 & $+0.011$ \\
-Isotonic distilbert on AI4Privacy           & 0.955       & 0.969$^\dagger$ & $+0.014$ \\
+dslim/bert-base-NER on CoNLL-2003                 & 0.910         & 0.913             & $+0.003$ \\
+dslim PER on CoNLL-2003                           & ${\sim}$0.96  & 0.957             & $-0.003$ \\
+Davlan-XLMR on WikiNeural avg                     & ${\sim}$0.84  & 0.813             & $-0.027$ \\
+spaCy de\_core on swissner\_de                    & ${\sim}$0.83  & 0.841             & $+0.011$ \\
+Isotonic distilbert on AI4Privacy                 & 0.955         & 0.969$^\dagger$   & $+0.014$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -630,8 +644,8 @@ The AI4Privacy family of corpora and fine-tuned checkpoints
 prolific recent open-source effort. Their datasets are templated
 synthetic prose with embedded Faker-generated PII at the million-chunk
 scale across 12+ fine-grained categories and 17+ locale variants,
-and the published distilbert fine-tunes (e.g.\ \textsf{Isotonic/distil-bert\_finetuned\_ai4privacy\_v2})
-are the most-downloaded open PII detectors on the Hugging Face Hub.
+and the published distilbert fine-tunes (e.g.\ \textsf{Isotonic\Bsl distil\Bhy bert\_\allowbreak finetuned\_\allowbreak ai4privacy\_\allowbreak v2})
+are widely-downloaded open PII detectors on the Hugging Face Hub.
 Section~\ref{sec:eval} confirms the published per-token accuracy
 numbers but shows a sharp drop on real Swiss text: when scored under
 strict-span F\textsubscript{1} on \textsf{gheim-ch-pii-171k} the
