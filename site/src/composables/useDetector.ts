@@ -158,10 +158,24 @@ export function useDetector() {
     ) => Promise<RawItem[]>;
     const items = await (p as PipeFn)(text, { aggregation_strategy: "simple" });
 
+    // transformers.js sometimes returns items without char offsets (older
+    // versions, or when the model's tokenizer doesn't expose offset_mapping).
+    // Fall back to a left-to-right substring search like the gheim-js
+    // LocalDetector does, so we always recover a usable (start, end).
     const spans: DetectedSpan[] = [];
+    let cursor = 0;
     for (const it of items) {
-      const start = it.start ?? -1;
-      const end = it.end ?? -1;
+      let start = it.start;
+      let end = it.end;
+      if (start === undefined || end === undefined) {
+        const surface = (it.word ?? "").replace(/##/g, "").trim();
+        if (!surface) continue;
+        const idx = text.indexOf(surface, cursor);
+        if (idx < 0) continue;
+        start = idx;
+        end = idx + surface.length;
+      }
+      cursor = end;
       if (start < 0 || end <= start) continue;
       const label = (it.entity_group ?? it.entity ?? "").replace(/^[BIES]-/, "");
       if (!label || label === "O") continue;
