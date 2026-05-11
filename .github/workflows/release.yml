@@ -113,15 +113,27 @@ jobs:
           bun-version: latest
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # npm trusted publishing requires npm >=11.5; ship a Node version
+          # that bundles a recent enough npm by default.
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
+      - name: Upgrade npm if older than 11.5
+        run: |
+          current=$(npm --version)
+          echo "npm $current"
+          if [ "$(printf '%s\n' "11.5.0" "$current" | sort -V | head -n1)" != "11.5.0" ]; then
+            echo "upgrading npm to >=11.5 for trusted publishing"
+            npm install -g npm@latest
+            npm --version
+          fi
       - run: bun install --frozen-lockfile
       - run: bun run lint
       - run: bun test
       - run: bun run build
-      - env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --provenance --access public
+      # No NODE_AUTH_TOKEN: trusted publishing uses the OIDC token GitHub
+      # mints for the `npm` environment (configured at npmjs.com → package
+      # → Trusted Publishers).
+      - run: npm publish --provenance --access public
 
   release-js:
     name: Tag + release (js)

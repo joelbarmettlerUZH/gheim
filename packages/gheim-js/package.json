@@ -1,6 +1,6 @@
 {
   "name": "gheim",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "PII round-trip for LLM APIs: anonymize before the request, de-anonymize the stream on the way back.",
   "license": "Apache-2.0",
   "author": "Joel Barmettler <joel.barmettler@gmail.com>",
@@ -13,7 +13,17 @@
     "url": "git+https://github.com/joelbarmettlerUZH/gheim.git",
     "directory": "packages/gheim-js"
   },
-  "keywords": ["pii", "privacy", "redaction", "openai", "llm", "anonymization", "ner", "swiss", "transformers"],
+  "keywords": [
+    "pii",
+    "privacy",
+    "redaction",
+    "openai",
+    "llm",
+    "anonymization",
+    "ner",
+    "swiss",
+    "transformers"
+  ],
   "type": "module",
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.js",
@@ -33,7 +43,11 @@
     },
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "rm -rf dist && bun run build:esm && bun run build:cjs && bun run build:types",
     "build:esm": "bun build ./src/index.ts ./src/openai/index.ts --outdir ./dist/esm --target node --format esm --external openai --external @huggingface/transformers",
@@ -58,10 +72,18 @@
     "openai": ">=4.0.0 <6.0.0"
   },
   "peerDependenciesMeta": {
-    "openai": { "optional": true },
-    "@huggingface/transformers": { "optional": true },
-    "libphonenumber-js": { "optional": true },
-    "chrono-node": { "optional": true }
+    "openai": {
+      "optional": true
+    },
+    "@huggingface/transformers": {
+      "optional": true
+    },
+    "libphonenumber-js": {
+      "optional": true
+    },
+    "chrono-node": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=18"
