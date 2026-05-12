@@ -1,8 +1,10 @@
 name: test
 
+# PR gate only. Pushes to main go through release.yml, which runs the
+# same test suite as a publish gate — running both on push duplicates
+# work and produces misleading red Xs on commits whose publish actually
+# went green.
 on:
-  push:
-    branches: [main]
   pull_request:
 
 jobs:
