@@ -60,102 +60,75 @@ body::before {
  * Redaction primitives — the brand visual language
  * =================================================================== */
 
-/* Inline redaction bar over actual text. Used in headlines and demo. */
+/* Inline redaction bar over actual text. Used in headlines and demo.
+ *
+ * Implementation: we paint two background-image gradients on the span
+ * itself rather than positioning ::after pseudo-elements absolutely.
+ * Pseudo-element overlays are inherently fragile when the span wraps
+ * across lines (only the first line's bounding box gets the bar).
+ * `box-decoration-break: clone` makes each wrapped line render its own
+ * pair of backgrounds, so the bar and rail stay aligned per-line.
+ *
+ * The animation slides both backgrounds from 0% to 100% width via a
+ * CSS variable controlled with @property — the bar visibly draws
+ * left → right just like the old transform: scaleX() did, but on a
+ * background-size that wrapping handles correctly.
+ *
+ * Per-category color is encoded via a CSS custom property
+ * (--cat-color) set by the matching [data-cat] selector.
+ */
+@property --redact-fill {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
 .redact {
-  position: relative;
-  display: inline-block;
-  white-space: pre;
-}
-
-.redact::after {
-  content: "";
-  position: absolute;
-  left: -2px;
-  right: -2px;
-  /* Slimmer bar: covers the cap-line through the x-line so descenders
-     and the lower bowls of round letters stay visible — easier to
-     read as a "redaction over text" rather than a full block. */
-  top: 0.30em;
-  bottom: 0.36em;
-  background: var(--color-ink);
-  outline: 2px solid var(--color-paper);
-  outline-offset: -1px;
-  transform-origin: left center;
+  /* default `inline` so the span wraps with the surrounding text */
+  background-image:
+    linear-gradient(var(--color-ink), var(--color-ink)),
+    linear-gradient(var(--cat-color, var(--color-ink)),
+                    var(--cat-color, var(--color-ink)));
+  /* First gradient = the black bar (covers most of the line height).
+     Second gradient = the per-category coloured rail at the bottom. */
+  background-size:
+    var(--redact-fill) calc(100% - 0.66em),
+    var(--redact-fill) 2px;
+  background-position:
+    0 0.30em,    /* bar starts just below the cap-line */
+    0 100%;      /* rail at the very bottom */
+  background-repeat: no-repeat, no-repeat;
+  /* Each wrapped line gets its own pair of backgrounds — without this,
+     the gradients apply to the bounding box of the ENTIRE span and
+     wrap-points get a single bar spanning all lines. */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   border-radius: 1px;
-  z-index: 1;
-  /* Animation: bar slides in left → right */
-  animation: redact-in 0.55s cubic-bezier(0.83, 0, 0.17, 1) forwards;
+  /* Animate the fill */
+  animation: redact-fill 0.55s cubic-bezier(0.83, 0, 0.17, 1) forwards;
 }
 
-.redact[data-static="true"]::after {
+.redact[data-static="true"] {
   animation: none;
-  transform: scaleX(1);
+  --redact-fill: 100%;
 }
 
-@keyframes redact-in {
-  0% {
-    transform: scaleX(0);
-  }
-  100% {
-    transform: scaleX(1);
+@keyframes redact-fill {
+  to {
+    --redact-fill: 100%;
   }
 }
 
-/* Per-category coloured rail under the bar (subtle) */
-.redact[data-cat="private_person"]::before,
-.redact[data-cat="private_email"]::before,
-.redact[data-cat="private_phone"]::before,
-.redact[data-cat="private_address"]::before,
-.redact[data-cat="private_date"]::before,
-.redact[data-cat="private_url"]::before,
-.redact[data-cat="secret"]::before,
-.redact[data-cat="account_number"]::before {
-  content: "";
-  position: absolute;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  height: 2px;
-  z-index: 2;
-  pointer-events: none;
-  animation: redact-rail 0.55s cubic-bezier(0.83, 0, 0.17, 1) 0.05s both;
-}
-
-.redact[data-cat="private_person"]::before {
-  background: var(--color-cat-person);
-}
-.redact[data-cat="private_email"]::before {
-  background: var(--color-cat-email);
-}
-.redact[data-cat="private_phone"]::before {
-  background: var(--color-cat-phone);
-}
-.redact[data-cat="private_address"]::before {
-  background: var(--color-cat-address);
-}
-.redact[data-cat="private_date"]::before {
-  background: var(--color-cat-date);
-}
-.redact[data-cat="private_url"]::before {
-  background: var(--color-cat-url);
-}
-.redact[data-cat="secret"]::before {
-  background: var(--color-cat-secret);
-}
-.redact[data-cat="account_number"]::before {
-  background: var(--color-cat-account);
-}
-
-@keyframes redact-rail {
-  0% {
-    transform: scaleX(0);
-    transform-origin: left;
-  }
-  100% {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
-}
+/* Per-category color is just a CSS variable set per [data-cat]. The
+ * .redact rule above reads --cat-color for the rail gradient. */
+.redact[data-cat="private_person"]   { --cat-color: var(--color-cat-person); }
+.redact[data-cat="private_email"]    { --cat-color: var(--color-cat-email); }
+.redact[data-cat="private_phone"]    { --cat-color: var(--color-cat-phone); }
+.redact[data-cat="private_address"]  { --cat-color: var(--color-cat-address); }
+.redact[data-cat="private_date"]     { --cat-color: var(--color-cat-date); }
+.redact[data-cat="private_url"]      { --cat-color: var(--color-cat-url); }
+.redact[data-cat="secret"]           { --cat-color: var(--color-cat-secret); }
+.redact[data-cat="account_number"]   { --cat-color: var(--color-cat-account); }
 
 /* Sentinel pill shown when toggled to "What the LLM sees" view. */
 .sentinel {
