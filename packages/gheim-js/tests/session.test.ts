@@ -174,4 +174,43 @@ describe("Session duplicate-surface recovery", () => {
     const out = sess.applySpans(text, detected);
     expect(out).toBe("Hi <PERSON_1>.");
   });
+
+  test("merged span list contains the recovered duplicate occurrences", () => {
+    // Regression test: prior to v0.1.6, recovery only patched the
+    // redacted string. UI consumers (bars view) read the merged span
+    // list and only saw the ONE detected span, so the second
+    // occurrence rendered without a redaction overlay.
+    const text =
+      "Hi Team,\nmein Name ist Lukas Brunner.\n" +
+      "Freundliche Grüsse,\nLukas Brunner";
+    const sess = new Session();
+    const detected: Span[] = [
+      { start: 23, end: 36, label: "private_person",
+        text: "Lukas Brunner", score: 0.99 },
+    ];
+    const { redacted, merged } = sess.applySpansDetailed(text, detected);
+    expect(redacted).toContain("<PERSON_1>");
+    expect(merged.length).toBe(2);
+    expect(text.slice(merged[0]!.start, merged[0]!.end)).toBe("Lukas Brunner");
+    expect(text.slice(merged[1]!.start, merged[1]!.end)).toBe("Lukas Brunner");
+    expect(merged[0]!.label).toBe("private_person");
+    expect(merged[1]!.label).toBe("private_person");
+    // Sorted by start.
+    expect(merged[0]!.start).toBeLessThan(merged[1]!.start);
+  });
+
+  test("recovered merged spans don't overlap detector spans", () => {
+    // If the detector already found both occurrences, recovery should
+    // be a no-op on the merged list (no double-counting).
+    const text = "Hi Lukas Brunner. Best, Lukas Brunner.";
+    const sess = new Session();
+    const detected: Span[] = [
+      { start: 3, end: 16, label: "private_person",
+        text: "Lukas Brunner", score: 0.99 },
+      { start: 24, end: 37, label: "private_person",
+        text: "Lukas Brunner", score: 0.99 },
+    ];
+    const { merged } = sess.applySpansDetailed(text, detected);
+    expect(merged.length).toBe(2);
+  });
 });

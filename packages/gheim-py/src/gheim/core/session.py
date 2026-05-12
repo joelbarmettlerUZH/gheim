@@ -204,8 +204,12 @@ class Session:
         # of a name (greeting) but misses a second occurrence in the
         # signature. Once we know "Lukas Brunner" is a person, every
         # remaining occurrence in the text is also a person — coalesces
-        # to the same sentinel by design.
-        redacted = _recover_duplicate_occurrences(redacted, self.mapping)
+        # to the same sentinel by design. Patches BOTH the redacted
+        # string AND the merged span list so UI consumers (bar overlays,
+        # highlighters) see the recovered occurrences too.
+        redacted, merged_tuples = _recover_duplicate_occurrences(
+            text, redacted, merged_tuples, self.mapping,
+        )
 
         merged_spans = [
             MergedSpan(start=s, end=e, label=l) for s, e, l in merged_tuples
@@ -271,29 +275,64 @@ class Session:
 
 
 def _recover_duplicate_occurrences(
-    redacted: str, mapping: dict[str, str],
-) -> str:
-    """Substitute remaining occurrences of each known surface with its sentinel.
+    text: str,
+    redacted: str,
+    merged_tuples: list[tuple[int, int, str]],
+    mapping: dict[str, str],
+) -> tuple[str, list[tuple[int, int, str]]]:
+    """Substitute remaining occurrences of each known surface with its sentinel,
+    AND emit merged-span entries for those occurrences in the original text.
 
     Catches the common case where a name appears in the greeting AND in
     the signature but the model only flagged one occurrence. Coalesces
     to the same sentinel by design.
+
+    Patches BOTH outputs in lockstep:
+      - ``redacted`` gets each remaining occurrence replaced with its sentinel
+      - ``merged_tuples`` gets a new (start, end, label) per remaining
+        occurrence (offsets into the ORIGINAL text), so bar overlays and
+        other span consumers see them too.
 
     Word-boundary safe via Unicode-aware regex: ``Müller.`` matches but
     ``Müllergasse`` doesn't. Surfaces are tried longest-first so a
     "Joel Barmettler" sentinel doesn't get partially shadowed by a
     separate "Joel" sentinel.
     """
-    # Sort longest first to avoid prefix shadowing.
+    # surface -> label: derived from the spans the detector already
+    # emitted, since `mapping` only carries {sentinel -> surface}.
+    surface_to_label: dict[str, str] = {
+        text[s:e]: lbl for s, e, lbl in merged_tuples
+    }
+    covered: list[tuple[int, int]] = [(s, e) for s, e, _ in merged_tuples]
+
+    def _overlaps(s: int, e: int) -> bool:
+        return any(s < ce and e > cs for cs, ce in covered)
+
     items = sorted(
         ((sentinel, surface) for sentinel, surface in mapping.items() if surface),
         key=lambda x: -len(x[1]),
     )
     result = redacted
+    additional: list[tuple[int, int, str]] = []
     for sentinel, surface in items:
         # ``re`` `\w` is unicode-aware on str patterns; surround the
         # surface with negative lookbehind/lookahead for "letter, digit,
         # or underscore" so we don't match inside a longer word.
         pattern = re.compile(rf"(?<!\w){re.escape(surface)}(?!\w)")
+        # 1. patch the redacted string
         result = pattern.sub(sentinel, result)
-    return result
+        # 2. find ORIGINAL-text occurrences and stage merged-span entries
+        label = surface_to_label.get(surface)
+        if label is None:
+            continue
+        for m in pattern.finditer(text):
+            start, end = m.start(), m.end()
+            if _overlaps(start, end):
+                continue
+            additional.append((start, end, label))
+            covered.append((start, end))
+
+    if not additional:
+        return result, merged_tuples
+    augmented = sorted(merged_tuples + additional, key=lambda t: t[0])
+    return result, augmented

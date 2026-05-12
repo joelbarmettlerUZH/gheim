@@ -101,6 +101,42 @@ def test_restore_handles_repeated_sentinels():
     assert s.restore("<PERSON_1> told <PERSON_1>") == "Joel told Joel"
 
 
+def test_apply_spans_detailed_recovers_duplicate_in_merged_list():
+    """Regression test: prior to v0.1.6, duplicate-surface recovery only
+    patched the redacted string. UI consumers (bars view, highlighters)
+    consume `merged` and only saw the ONE detected span, so the second
+    occurrence rendered without a redaction overlay.
+    """
+    s = Session()
+    text = (
+        "Hi Team,\nmein Name ist Lukas Brunner.\n"
+        "Freundliche Grüsse,\nLukas Brunner"
+    )
+    spans = [
+        Span("private_person", start=23, end=36, text="Lukas Brunner"),
+    ]
+    result = s.apply_spans_detailed(text, spans)
+    assert "<PERSON_1>" in result.redacted
+    assert len(result.merged) == 2
+    for m in result.merged:
+        assert text[m.start:m.end] == "Lukas Brunner"
+        assert m.label == "private_person"
+    assert result.merged[0].start < result.merged[1].start
+
+
+def test_apply_spans_detailed_no_double_count_when_detector_caught_all():
+    """If the detector already found both occurrences, recovery should
+    be a no-op on the merged list (no duplicated entries)."""
+    s = Session()
+    text = "Hi Lukas Brunner. Best, Lukas Brunner."
+    spans = [
+        Span("private_person", start=3, end=16, text="Lukas Brunner"),
+        Span("private_person", start=24, end=37, text="Lukas Brunner"),
+    ]
+    result = s.apply_spans_detailed(text, spans)
+    assert len(result.merged) == 2
+
+
 def test_session_roundtrip_json():
     s = Session()
     s.allocate("private_person", "Joel")
