@@ -11,7 +11,14 @@ Public API:
 """
 from .core.session import ApplySpansResult, MergedSpan, Session
 from .core.stream import StreamDeanonymizer
-from .detectors import Detector, LocalDetector, RemoteDetector, Span, default_detector
+from .detectors import (
+    CalibratedDetector,
+    Detector,
+    LocalDetector,
+    RemoteDetector,
+    Span,
+    default_detector,
+)
 from .plain import (
     anonymize,
     anonymize_messages,
@@ -21,10 +28,11 @@ from .plain import (
     deanonymize_text,
 )
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 __all__ = [
     "ApplySpansResult",
+    "CalibratedDetector",
     "Detector",
     "LocalDetector",
     "MergedSpan",

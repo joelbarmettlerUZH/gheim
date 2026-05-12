@@ -91,3 +91,61 @@ describe("live-swiss: published gheim model on CPU/WASM via transformers.js", ()
     expect(restored.includes("<EMAIL_")).toBe(false);
   }, TIMEOUT);
 });
+
+import { CalibratedDetector } from "../src/detectors/calibrated.ts";
+
+describe("live-swiss: CalibratedDetector recovers the documented suppression", () => {
+  // The exact failing input from the probe rounds: v1 + raw model emits
+  // ZERO non-O tokens for "Müller" when an IBAN follows. With the
+  // calibration default (oBias=0.5) the model recovers all three
+  // categories (person, date, account_number).
+  const FAILING = (
+    "Sehr geehrte Frau Müller,\n" +
+    "vielen Dank für Ihre Anfrage vom 14. März 2026.\n" +
+    "IBAN: CH9300762011623852957"
+  );
+
+  test("default oBias=0.5 recovers Müller + date when IBAN follows", async () => {
+    const det = new CalibratedDetector({
+      model: MODEL, device: "cpu", dtype: "q8",
+    });
+    const spans = await det.detect(FAILING);
+    const cats = new Set(spans.map((s) => s.label));
+    expect(cats.has("private_person")).toBe(true);
+    expect(cats.has("private_date")).toBe(true);
+    expect(cats.has("account_number")).toBe(true);
+  }, TIMEOUT);
+
+  test("calibration is monotone: oBias>=0 never removes spans the model would find", async () => {
+    // Contract: subtracting from the O logit before argmax can only
+    // make non-O classes win MORE often, never less. So the set of
+    // detected categories at oBias=0.5 must be a superset of (or equal
+    // to) the set at oBias=0.0. Verifies our O-bias path is implemented
+    // correctly (subtracts from O, not from a wrong class).
+    //
+    // Note: the fp32 suppression bug doesn't always reproduce on the q8
+    // ONNX (quantization noise nudges argmax differently), so we don't
+    // assert specific categories at oBias=0 — only the monotonicity.
+    const detLow = new CalibratedDetector({
+      model: MODEL, device: "cpu", dtype: "q8", oBias: 0,
+    });
+    const detHigh = new CalibratedDetector({
+      model: MODEL, device: "cpu", dtype: "q8", oBias: 0.5,
+    });
+    const lowCats = new Set((await detLow.detect(FAILING)).map((s) => s.label));
+    const highCats = new Set((await detHigh.detect(FAILING)).map((s) => s.label));
+    for (const cat of lowCats) {
+      expect(highCats.has(cat)).toBe(true);
+    }
+  }, TIMEOUT);
+
+  test("no false positives on PII-free German legal text", async () => {
+    const det = new CalibratedDetector({
+      model: MODEL, device: "cpu", dtype: "q8",
+    });
+    const spans = await det.detect(
+      "Das Bundesgericht hat in seinem Entscheid die Argumentation der Vorinstanz bestätigt.",
+    );
+    expect(spans.length).toBe(0);
+  }, TIMEOUT);
+});

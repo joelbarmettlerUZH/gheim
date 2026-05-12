@@ -1,0 +1,392 @@
+/**
+ * Calibrated detector — fixes the v1 model's "single-category mode"
+ * bug at inference time by subtracting a constant `oBias` from the O
+ * class logit before argmax.
+ *
+ * Empirical justification (see eval/calibration_sweep.json): on a
+ * 237-case multi-entity pathology suite the v1 model emits literally
+ * zero non-O tokens for "Müller" / "März" when an IBAN follows them —
+ * but the per-token softmax shows person at 47% vs O at 51%. A small
+ * additive bias on O flips those marginal cases without inducing false
+ * positives on PII-free text.
+ *
+ * Sweet spot: oBias=0.5:
+ *   - pathology full-coverage 81% → 94.5% (+13.5pp)
+ *   - test_v1 strict-F1 0.872 → 0.868 (−0.4pp)
+ *   - ~0.05 extra FP per chunk on real text
+ *
+ * `defaultDetector()` returns this with oBias=0.5, so users get the
+ * better behavior automatically.
+ */
+import type { Detector, Span } from "./base.ts";
+import type { LocalDetectorLoadEvent } from "./local.ts";
+
+const DEFAULT_MODEL = "joelbarmettler/gheim-ch-560m";
+const DEFAULT_CHUNK_TOKENS = 510;
+const DEFAULT_OVERLAP_TOKENS = 32;
+
+/** Constructor options for {@link CalibratedDetector}. */
+export interface CalibratedDetectorOptions {
+  /** HuggingFace model id (must be a token-classification head). */
+  model?: string;
+  /**
+   * Constant subtracted from the O-class logit before argmax. Default
+   * `0.5` is the Pareto-clean point per the full-scale bias sweep
+   * (eval/calibration_sweep.json):
+   *
+   *   - oBias=0.0  uncalibrated (matches the raw model)
+   *   - oBias=0.5  recovers ~95% of multi-entity pathology cases for
+   *               ~0.4pp test_v1 strict-F1 cost
+   *   - oBias=1.0  more aggressive: 96.6% pathology, 1.1pp test_v1 cost
+   *   - oBias=1.5+ trades too much precision; not recommended
+   */
+  oBias?: number;
+  /** Backend selector. See {@link LocalDetectorOptions.device}. */
+  device?: string;
+  /** Quantization dtype: "fp32" | "fp16" | "q8" | "q4" | "auto". */
+  dtype?: string;
+  /** Sliding-window size in model tokens (default 510). */
+  chunkTokens?: number;
+  /** Overlap between consecutive windows (default 32). */
+  chunkOverlapTokens?: number;
+  /** Strip leading/trailing whitespace from each emitted span. Default true. */
+  trimWhitespace?: boolean;
+  /** Optional progress callback during model load (mirrors LocalDetector). */
+  onProgress?: (event: LocalDetectorLoadEvent) => void;
+}
+
+interface TransformersJsModule {
+  AutoTokenizer: { from_pretrained: (id: string, opts?: unknown) => Promise<unknown> };
+  AutoModelForTokenClassification: {
+    from_pretrained: (id: string, opts?: unknown) => Promise<unknown>;
+  };
+}
+
+interface TokenizerCallable {
+  (text: string, opts: {
+    return_tensors?: string;
+    truncation?: boolean;
+    max_length?: number;
+    return_offsets_mapping?: boolean;
+    add_special_tokens?: boolean;
+  }): Promise<TokenizerOutput> | TokenizerOutput;
+}
+
+interface TokenizerOutput {
+  input_ids?: Tensor;
+  attention_mask?: Tensor;
+  // transformers.js v4 returns plain objects with these fields. Note:
+  // offset_mapping is NOT supported (TODO in transformers.js source).
+}
+
+interface Tensor {
+  data: ArrayLike<number> | Int32Array | Float32Array | BigInt64Array;
+  dims: number[];
+  tolist?: () => unknown;
+}
+
+interface ModelCallable {
+  (inputs: Record<string, Tensor>): Promise<{ logits: Tensor }>;
+  config: { id2label: Record<string, string>; label2id: Record<string, number> };
+}
+
+/** Trim leading/trailing whitespace from a [start, end) slice of `text`. */
+function trimSpan(text: string, start: number, end: number): [number, number] {
+  while (start < end && /\s/.test(text[start] ?? "")) start++;
+  while (end > start && /\s/.test(text[end - 1] ?? "")) end--;
+  return [start, end];
+}
+
+/** CalibratedDetector — local model + O-logit bias. */
+export class CalibratedDetector implements Detector {
+  readonly model: string;
+  readonly oBias: number;
+  readonly device: string;
+  readonly dtype: string;
+  readonly chunkTokens: number;
+  readonly chunkOverlapTokens: number;
+  readonly trimWhitespace: boolean;
+  /** Backend actually used after `load()` resolves; `null` before. */
+  actualDevice: string | null = null;
+  private _model: ModelCallable | null = null;
+  private _tokenizer: TokenizerCallable | null = null;
+  private _id2label: Record<number, string> = {};
+  private _oId = 0;
+  private _loadPromise: Promise<void> | null = null;
+  private readonly _onProgress?: (event: LocalDetectorLoadEvent) => void;
+
+  constructor(opts: CalibratedDetectorOptions = {}) {
+    this.model = opts.model ?? DEFAULT_MODEL;
+    this.oBias = opts.oBias ?? 0.5;
+    this.device = opts.device ?? "auto";
+    this.dtype = opts.dtype ?? "fp32";
+    this.chunkTokens = opts.chunkTokens ?? DEFAULT_CHUNK_TOKENS;
+    this.chunkOverlapTokens = opts.chunkOverlapTokens ?? DEFAULT_OVERLAP_TOKENS;
+    this.trimWhitespace = opts.trimWhitespace ?? true;
+    this._onProgress = opts.onProgress;
+    if (this.chunkOverlapTokens >= this.chunkTokens) {
+      throw new Error(
+        `chunkOverlapTokens (${this.chunkOverlapTokens}) must be smaller than ` +
+          `chunkTokens (${this.chunkTokens})`,
+      );
+    }
+  }
+
+  async load(): Promise<void> {
+    if (this._model) return;
+    if (this._loadPromise) return this._loadPromise;
+    this._loadPromise = (async () => {
+      const mod = await loadTransformersJs();
+      // Pick a backend (auto-fallback identical to LocalDetector).
+      let preferredDevice: string = this.device;
+      if (this.device === "auto") {
+        const nav = typeof navigator !== "undefined"
+          ? (navigator as { gpu?: { requestAdapter: () => Promise<unknown> } })
+          : null;
+        preferredDevice = "wasm";
+        if (nav?.gpu?.requestAdapter) {
+          try {
+            const adapter = await nav.gpu.requestAdapter();
+            if (adapter) preferredDevice = "webgpu";
+          } catch {
+            /* keep wasm */
+          }
+        }
+      }
+      const tokenizer = (await mod.AutoTokenizer.from_pretrained(this.model)) as TokenizerCallable;
+      const model = (await mod.AutoModelForTokenClassification.from_pretrained(this.model, {
+        device: preferredDevice,
+        dtype: this.dtype,
+        progress_callback: this._onProgress
+          ? (raw: RawProgress) => this._emitProgress(raw, preferredDevice)
+          : undefined,
+      })) as ModelCallable;
+      this._tokenizer = tokenizer;
+      this._model = model;
+      this._id2label = model.config.id2label as unknown as Record<number, string>;
+      const label2id = model.config.label2id;
+      this._oId = label2id?.["O"] ?? 0;
+      this.actualDevice = preferredDevice;
+    })();
+    return this._loadPromise;
+  }
+
+  async detect(text: string, opts?: { model?: string }): Promise<Span[]> {
+    if (opts?.model && opts.model !== this.model) {
+      throw new Error(
+        `CalibratedDetector was constructed with model='${this.model}'; ` +
+          `per-call model override ('${opts.model}') not supported.`,
+      );
+    }
+    if (!text) return [];
+    await this.load();
+    return this._detectChunked(text);
+  }
+
+  private async _detectChunked(text: string): Promise<Span[]> {
+    // transformers.js's tokenizer doesn't return offset_mapping, so we
+    // can't slice token-windows precisely. Fall back to char-window
+    // chunking with overlap (mirrors LocalDetector's character path).
+    if (text.length <= 1500) {
+      return await this._detectWindow(text, 0);
+    }
+    const stride = 1500 - 200; // ~chunkTokens × ~3 chars/tok with overlap
+    const seen = new Set<string>();
+    const out: Span[] = [];
+    for (let s = 0; s < text.length; s += stride) {
+      const e = Math.min(s + 1500, text.length);
+      const sub = text.slice(s, e);
+      const subSpans = await this._detectWindow(sub, s);
+      for (const sp of subSpans) {
+        const key = `${sp.start}|${sp.end}|${sp.label}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(sp);
+      }
+      if (e >= text.length) break;
+    }
+    out.sort((a, b) => a.start - b.start || a.end - b.end);
+    return out;
+  }
+
+  private async _detectWindow(text: string, charOffset: number): Promise<Span[]> {
+    const tokenizer = this._tokenizer! as unknown as {
+      (texts: string[] | string, opts: unknown): Promise<TokenizerOutput>;
+      decode: (ids: number[], opts: { skip_special_tokens?: boolean }) => string;
+    };
+    const model = this._model!;
+    const enc = await tokenizer([text], {
+      padding: true,
+      truncation: true,
+      max_length: this.chunkTokens + 2,
+    });
+    const inputs: Record<string, Tensor> = {};
+    if (enc.input_ids) inputs["input_ids"] = enc.input_ids;
+    if (enc.attention_mask) inputs["attention_mask"] = enc.attention_mask;
+    const out = await model(inputs);
+    const logits = readLogits(out.logits); // [seq, num_labels]
+    // Apply the O-bias before argmax.
+    if (this.oBias !== 0) {
+      for (let t = 0; t < logits.length; t++) {
+        const row = logits[t];
+        if (row === undefined) continue;
+        const cur = row[this._oId];
+        if (cur !== undefined) {
+          row[this._oId] = cur - this.oBias;
+        }
+      }
+    }
+    // Argmax per token; build (token_id, label) list.
+    const inputIds = readInputIds(enc.input_ids);
+    const tokenLabels: Array<{ id: number; label: string }> = [];
+    for (let t = 0; t < logits.length; t++) {
+      const row = logits[t];
+      const id = inputIds[t];
+      if (!row || id === undefined) continue;
+      let maxIdx = 0;
+      let maxVal = row[0]!;
+      for (let i = 1; i < row.length; i++) {
+        if (row[i]! > maxVal) {
+          maxVal = row[i]!;
+          maxIdx = i;
+        }
+      }
+      tokenLabels.push({ id, label: this._id2label[maxIdx] ?? "O" });
+    }
+    // BIO aggregation: collapse consecutive same-category tokens. For each
+    // collapsed group, decode its tokens to a surface form, then locate
+    // that surface in the original `text` via cursor-tracked substring
+    // search (transformers.js doesn't expose char offsets — same trick
+    // LocalDetector uses for its substring recovery).
+    const spans: Span[] = [];
+    let cursor = 0;
+    let groupIds: number[] = [];
+    let groupCat: string | null = null;
+    const flush = () => {
+      if (groupCat === null || groupIds.length === 0) return;
+      const surface = normalizeDecoded(
+        tokenizer.decode(groupIds, { skip_special_tokens: true }),
+      );
+      groupIds = [];
+      const cat = groupCat;
+      groupCat = null;
+      if (!surface) return;
+      const idx = text.indexOf(surface, cursor);
+      if (idx === -1) return;
+      let s = idx;
+      let e = idx + surface.length;
+      cursor = e;
+      if (this.trimWhitespace) [s, e] = trimSpan(text, s, e);
+      if (s >= e) return;
+      spans.push({
+        start: s + charOffset,
+        end: e + charOffset,
+        label: cat,
+        text: text.slice(s, e),
+        score: 1.0,
+      });
+    };
+    for (const { id, label } of tokenLabels) {
+      const cat = label === "O" ? null : label.split("-", 2)[1] ?? null;
+      if (cat === groupCat && cat !== null) {
+        groupIds.push(id);
+      } else {
+        flush();
+        if (cat !== null) {
+          groupIds.push(id);
+          groupCat = cat;
+        }
+      }
+    }
+    flush();
+    return spans;
+  }
+
+  private _emitProgress(raw: RawProgress, device: string): void {
+    if (!this._onProgress) return;
+    const event: LocalDetectorLoadEvent = {
+      phase: (raw.status as LocalDetectorLoadEvent["phase"]) ?? "progress",
+      device,
+    };
+    if (raw.file) event.file = raw.file;
+    if (raw.status === "progress") {
+      if (raw.loaded != null) event.loadedBytes = raw.loaded;
+      if (raw.total != null) event.totalBytes = raw.total;
+      if (raw.progress != null) {
+        const norm = raw.progress > 1 ? raw.progress / 100 : raw.progress;
+        event.fraction = Math.max(0, Math.min(1, norm));
+      }
+    }
+    this._onProgress(event);
+  }
+}
+
+interface RawProgress {
+  status: string;
+  file?: string;
+  progress?: number;
+  loaded?: number;
+  total?: number;
+}
+
+async function loadTransformersJs(): Promise<TransformersJsModule> {
+  try {
+    return (await import("@huggingface/transformers")) as unknown as TransformersJsModule;
+  } catch {
+    throw new Error(
+      "CalibratedDetector requires `@huggingface/transformers`. " +
+        "Install with: bun add @huggingface/transformers",
+    );
+  }
+}
+
+/** Read a flat input_ids array from a [batch=1, seq] tensor. */
+function readInputIds(tensor: Tensor | undefined): number[] {
+  if (!tensor) return [];
+  if (typeof tensor.tolist === "function") {
+    const list = tensor.tolist();
+    if (Array.isArray(list) && Array.isArray(list[0])) {
+      return (list[0] as unknown[]).map((x) => Number(x));
+    }
+    if (Array.isArray(list)) return (list as unknown[]).map((x) => Number(x));
+  }
+  const dims = tensor.dims;
+  const seq = dims[dims.length - 1] ?? 0;
+  const data = tensor.data;
+  const out: number[] = [];
+  for (let i = 0; i < seq; i++) out.push(Number(data[i]));
+  return out;
+}
+
+/** Strip BPE wordpiece markers and outer whitespace from a decoded surface. */
+function normalizeDecoded(s: string): string {
+  return s.replace(/##/g, "").trim();
+}
+
+/** Read a [seq, num_labels] logits tensor as a number[][]. */
+function readLogits(tensor: Tensor): number[][] {
+  if (typeof tensor.tolist === "function") {
+    const list = tensor.tolist();
+    if (Array.isArray(list) && Array.isArray(list[0]) && Array.isArray((list[0] as unknown[])[0])) {
+      // [batch, seq, num_labels] — take first batch.
+      return (list as unknown as number[][][])[0]!;
+    }
+    if (Array.isArray(list) && Array.isArray(list[0])) {
+      return list as number[][];
+    }
+  }
+  // Fallback: read raw data + dims.
+  const dims = tensor.dims;
+  const seq = dims[dims.length - 2] ?? 0;
+  const cls = dims[dims.length - 1] ?? 0;
+  const data = tensor.data;
+  const out: number[][] = [];
+  for (let t = 0; t < seq; t++) {
+    const row: number[] = [];
+    for (let c = 0; c < cls; c++) {
+      row.push(Number(data[t * cls + c]));
+    }
+    out.push(row);
+  }
+  return out;
+}
