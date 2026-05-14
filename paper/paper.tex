@@ -1,9 +1,18 @@
 \documentclass[sigconf,nonacm]{acmart}
-\settopmatter{printacmref=false, printccs=false, printfolios=false}
+\settopmatter{printacmref=false, printccs=false, printfolios=true}
 
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{xurl}
+% Force wide table* floats to flush before each subsection ends so
+% they don't all batch up at the top of one page.
+\usepackage{placeins}
+\makeatletter
+\AtBeginDocument{%
+  \let\latex@subsection\subsection
+  \renewcommand{\subsection}{\FloatBarrier\latex@subsection}%
+}
+\makeatother
 
 % Sigconf is a narrow two-column layout; long identifier-like tokens
 % inside \texttt / \textsf (slashes, hyphens, dots) have no natural
@@ -143,9 +152,12 @@ The rest of the paper is structured as follows.
 Section~\ref{sec:related} situates the work against prior art.
 Section~\ref{sec:dataset} describes the dataset construction.
 Section~\ref{sec:model} covers model selection and training.
-Section~\ref{sec:eval} reports the evaluation, including the
-methodology-validation cross-checks. Section~\ref{sec:limits} discusses
-limitations and Section~\ref{sec:conclusion} summarises.
+Section~\ref{sec:eval} reports the evaluation.
+Section~\ref{sec:limits} discusses limitations and
+Section~\ref{sec:conclusion} summarises.
+Appendix~\ref{app:replication} reports a methodology-validation pass
+that replicates each external baseline on its own training
+distribution.
 
 % --------------------------------------------------------------------
 \section{Related work}
@@ -592,7 +604,7 @@ F\textsubscript{1} breakdown is in Table~\ref{tab:perlangcat}, with
 per-category and per-language averages in the right-most column and
 bottom row.
 
-\begin{table*}[t]
+\begin{table*}[!tbp]
 \centering
 \caption{Per-language $\times$ per-category char-level
 F\textsubscript{1} on the held-out test split of
@@ -645,7 +657,7 @@ n/a in the table; the meaningful number for those is the
 \texttt{private\_person} cell (Table~\ref{tab:directionA}, last two
 columns).
 
-\begin{table*}[t]
+\begin{table*}[!tbp]
 \centering
 \caption{Direction A: other models on the \textsf{gheim-ch-pii-171k}
 test split. Strict and char F\textsubscript{1} for both the overall
@@ -708,7 +720,7 @@ model that was originally trained on each benchmark's distribution
 \textsf{gheim-ch-560m}'s cross-domain transfer to a same-distribution
 specialist.
 
-\begin{table*}[t]
+\begin{table*}[!tbp]
 \centering
 \caption{Direction B: \textsf{gheim-ch-560m} PER F\textsubscript{1} on
 four external benchmarks, anchored against a specialist model trained
@@ -752,45 +764,12 @@ even though every PII character is correctly masked. On Swiss news
 Romansh), per-language person-character F\textsubscript{1} is
 0.864 (de), 0.870 (fr), 0.835 (it), 0.795 (rm).
 
-\subsection{Methodology validation}
-
-To check that the harness above is sound rather than an unfair
-implementation, we replicated each external system on the dataset
-on which it was trained and compared our reproduction to the system's
-own published F\textsubscript{1} (Table~\ref{tab:replication}).
-Three of four reproductions match within $\pm$0.03; the
-fourth (Isotonic) is discussed below.
-
-\begin{table}[h]
-\centering
-\caption{Methodology validation: each baseline scored on its own
-training-distribution dataset, against published numbers.}
-\label{tab:replication}
-\small
-\footnotesize
-\begin{tabular}{l r r r}
-\toprule
-Replication target                                & Claimed       & Repro             & $\Delta$ \\
-\midrule
-dslim/bert-base-NER on CoNLL-2003                 & 0.910         & 0.913             & $+0.003$ \\
-dslim PER on CoNLL-2003                           & ${\sim}$0.96  & 0.957             & $-0.003$ \\
-Davlan-XLMR on WikiNeural avg                     & ${\sim}$0.84  & 0.813             & $-0.027$ \\
-spaCy de\_core on swissner\_de                    & ${\sim}$0.83  & 0.841             & $+0.011$ \\
-Isotonic distilbert on AI4Privacy                 & 0.955         & 0.969$^\dagger$   & $+0.014$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-$^\dagger$The fourth row required investigation. Isotonic's claimed
-F\textsubscript{1} of 0.955 initially reproduced as 0.78 strict-span
-F\textsubscript{1} on the same data, an apparent 17-pp gap. The
-difference traces to the metric: Isotonic's reported number is
-\emph{per-token classification accuracy} (which includes the dominant
-\texttt{O} class and is much higher than per-span F\textsubscript{1}).
-Reproducing Isotonic's metric exactly (per-token accuracy including
-\texttt{O}) yields 0.969, matching their 0.955 within sampling noise.
-Our strict-span F\textsubscript{1} of 0.78 on the same data is the
-correct NER-literature comparison.
+A methodology check that replicates each baseline on its own
+training-distribution dataset and compares the reproduction to its
+published number is reported in Appendix~\ref{app:replication}.
+Three of four reproductions match within $\pm$0.03; the fourth
+(Isotonic) is a metric mismatch (per-token accuracy versus
+strict-span F\textsubscript{1}) rather than a harness bug.
 
 % --------------------------------------------------------------------
 \section{Limitations}
@@ -885,5 +864,49 @@ classifier layered on top.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{references}
+
+\appendix
+
+\section{Methodology validation: replicating each baseline on its own training distribution}
+\label{app:replication}
+
+To check that the harness in Section~\ref{sec:eval} is sound rather
+than an unfair implementation, we replicated each external system on
+the dataset on which it was trained and compared our reproduction to
+the system's own published F\textsubscript{1}
+(Table~\ref{tab:replication}). Three of four reproductions match
+within $\pm$0.03; the fourth (Isotonic) is a metric mismatch
+discussed below.
+
+\begin{table}[h]
+\centering
+\caption{Each baseline scored on its own training-distribution
+dataset, against published numbers.}
+\label{tab:replication}
+\small
+\footnotesize
+\begin{tabular}{l r r r}
+\toprule
+Replication target                                & Claimed       & Repro             & $\Delta$ \\
+\midrule
+dslim/bert-base-NER on CoNLL-2003                 & 0.910         & 0.913             & $+0.003$ \\
+dslim PER on CoNLL-2003                           & ${\sim}$0.96  & 0.957             & $-0.003$ \\
+Davlan-XLMR on WikiNeural avg                     & ${\sim}$0.84  & 0.813             & $-0.027$ \\
+spaCy de\_core on swissner\_de                    & ${\sim}$0.83  & 0.841             & $+0.011$ \\
+Isotonic distilbert on AI4Privacy                 & 0.955         & 0.969$^\dagger$   & $+0.014$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+$^\dagger$The fourth row required investigation. Isotonic's claimed
+F\textsubscript{1} of 0.955 initially reproduced as 0.78 strict-span
+F\textsubscript{1} on the same data, an apparent 17-pp gap. The
+difference traces to the metric: Isotonic's reported number is
+\emph{per-token classification accuracy} (which includes the dominant
+\texttt{O} class and is much higher than per-span F\textsubscript{1}).
+Reproducing Isotonic's metric exactly (per-token accuracy including
+\texttt{O}) yields 0.969, matching their 0.955 within sampling noise.
+Our strict-span F\textsubscript{1} of 0.78 on the same data is the
+correct NER-literature comparison.
 
 \end{document}
