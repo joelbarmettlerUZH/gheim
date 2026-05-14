@@ -354,31 +354,58 @@ Category               & Examples \\
 
 \subsection{Curation pipeline}
 
-The dataset is the output of a seven-phase pipeline. Real-text chunks
-are passed through (i) language detection, (ii) primary annotation by
-Gemma 4 26B-A4B via structured-output JSON-schema decoding,
-(iii) augmentation by a regex catalogue with checksum validators
-(ISO 13616 mod-97 for IBAN, EAN-13 mod-10 for AHV, ISO 7064 mod-11
-for VAT-CHE, Luhn for credit cards), with the regex annotator taking
-priority on overlap. The annotated chunks are then balanced by
-per-document, per-value and per-cell caps to limit document-level
-concentration and value memorisation, then split at the document level
-into train, validation and test stratified by (language $\times$ source).
+\paragraph{Labelling.} Real-text content is labelled by the Gemma 4
+26B-A4B instruction-tuned model, run as a 4-bit AWQ quantisation
+(\texttt{cyankiwi/gemma\Bhy 4\Bhy 26B\Bhy A4B\Bhy it\Bhy AWQ\Bhy 4bit})
+via vLLM with structured-output JSON-schema decoding so that the
+output is directly parseable as span lists. The labeller was applied
+to the full Apertus pretrain corpora (approximately 4.5 million
+chunks across the five languages, around 14 hours of GPU wall time
+on a 2$\times$RTX 4090 setup).
 
-A separate synthetic gap-fill layer is appended to populate cells where
-real-Swiss-text coverage was insufficient. A slot-fill verifier
-pre-generates payload values (Faker\_CH names, addresses and phones;
-checksum-validated CH-IBAN, AHV and VAT-CHE; common secret formats),
-then prompts Gemma to embed those exact values verbatim into natural
-multilingual prose (developer chat, customer-record notes, incident
-reports). The verifier accepts a chunk only if every payload value
-appears as an exact substring in the model output. Rejection rate
-was approximately 2~\% of generations. 24,900 of these synthetic
-chunks are placed in the training split (22,500), validation (1,200)
-and test (1,200), with deterministic seeded placement and disjoint
-chunk IDs across splits. The remaining 146,436 chunks are real-text.
-Every record carries a \texttt{synthetic} boolean field so consumers
-can filter to real-only or synthetic-only as required.
+\paragraph{Regex augmentation.} A separate pass re-scans the same
+Apertus corpora with a regex catalogue gated by checksum validators
+(ISO 13616 mod-97 for IBAN, EAN-13 mod-10 for AHV, ISO 7064 mod-11
+for VAT-CHE, Luhn for credit cards). This is an independent scan
+rather than a post-filter on Gemma's output, so it can pick up
+structured PII in chunks that Gemma rejected or missed. Its output
+is merged with the Gemma annotations; on per-chunk overlap the regex
+annotator wins.
+
+\paragraph{Balancing.} The merged set of approximately 317k
+candidate chunks is passed through a four-phase balancer to limit
+document concentration, value memorisation and per-language class
+imbalance. The cap numbers were chosen from a prior pass of
+frequency analysis over the unbalanced output. Phase A caps each
+source document to 30 chunks. Phase B caps each (language, category,
+normalised value) tuple to 30 chunks, so a single recurring CH-IBAN
+or person name cannot dominate its cell. Phase C applies per-cell
+quotas tiered by language abundance: 8{,}000 chunks for each
+(de/fr/it) $\times$ (person, date, address, URL, phone) cell, 3{,}000
+for de/fr/it $\times$ \{email, account\_number\}, 2{,}000 for any
+Romansh cell, 1{,}500 for any English cell; \texttt{secret} is left
+uncapped because it is rare even in the source corpus. Phase D
+injects negative chunks (chunks with no detected PII) at 10\,\% of
+positives per language so the model trains on enough out-of-class
+context. The four phases together bring the 317k candidate chunks
+down to the 146,436 real-text chunks released in the dataset
+(approximately 46\,\% kept).
+
+\paragraph{Synthetic gap-fill.} A separate synthetic layer is
+appended to populate cells where real-Swiss-text coverage was
+insufficient. A slot-fill verifier pre-generates payload values
+(Faker\_CH names, addresses and phones; checksum-validated CH-IBAN,
+AHV and VAT-CHE; common secret formats), then prompts Gemma to embed
+those exact values verbatim into natural multilingual prose
+(developer chat, customer-record notes, incident reports). The
+verifier accepts a chunk only if every payload value appears as an
+exact substring in the model output; rejection rates were a few
+percent per run. 24,900 of these synthetic chunks are placed in the
+training split (22,500), validation (1,200) and test (1,200), with
+deterministic seeded placement and disjoint chunk IDs across splits.
+The remaining 146,436 chunks are real-text. Every record carries a
+\texttt{synthetic} boolean field so consumers can filter to
+real-only or synthetic-only as required.
 
 \subsection{Splits and held-out integrity}
 
@@ -433,9 +460,11 @@ hyperparameter sweep over (learning rate, layer-wise LR decay) at
 one epoch, after which the winning configuration per base was trained
 for three full epochs and selected by best validation F\textsubscript{1}.
 A third candidate, \textsf{openai/privacy-filter}, was deferred:
-the Olmo-MoE ONNX export is not currently stable in
-\textsf{optimum}~\cite{onnxruntime}, which would constrain
-JavaScript-side portability of the released model.
+the released model is required to ship as an ONNX export so that
+the in-browser demo at \href{https://gheim.ch}{gheim.ch} can run
+via \textsf{transformers.js}, and the Olmo-MoE architecture is not
+currently stable in \textsf{optimum}'s~\cite{onnxruntime} ONNX
+export path.
 
 \begin{table}[h]
 \centering
