@@ -433,34 +433,51 @@ a human ground truth.
 To put a number on the residual disagreement we ran a four-way
 re-labelling audit. A stratified 580-chunk sample (drawn from the
 val and test splits, not the training pool) was re-annotated by
-four independent LLM subagents using a different prompt and a
-different seed for each, and the four labellings were combined
-into a per-span majority vote (a span is in the consensus iff
-${\geq}2$ of 4 subagents agreed on it). The released dataset's
-labels reach an F\textsubscript{1} of \textbf{0.48} against that
-majority vote, with high per-category variance: structured
-categories where the surface form carries the signal score well
-(\texttt{private\_phone} 0.95, \texttt{private\_url} 0.86,
-\texttt{private\_email} 0.71), while categories whose label
-depends on a policy interpretation score poorly
-(\texttt{private\_address} 0.12, \texttt{private\_person} 0.36,
-\texttt{private\_date} 0.43). Inspection of the
+four named 2026-era LLMs accessed via OpenRouter ---
+\textsf{moonshotai/kimi\Bhy k2.6}, \textsf{deepseek/deepseek\Bhy v4\Bhy pro},
+\textsf{minimax/minimax\Bhy m2.7} and \textsf{z\Bhy ai/glm\Bhy 5.1} ---
+each given the same per-language prompt the dataset's own labeller
+uses, with \texttt{temperature=0} and \texttt{seed=0} so the run is
+reproducible from a checkout. The four per-model labellings are
+combined into a per-span majority vote (a span is in the consensus
+iff ${\geq}2$ of 4 models agree on it). The released dataset's
+labels reach an F\textsubscript{1} of \textbf{0.71} against that
+majority vote (precision 0.747, recall 0.680, $n=580$ chunks,
+1{,}349 gold spans). Per-category breakdown shows the expected
+spread: structured categories where the surface form carries the
+signal score high (\texttt{private\_phone} 0.87,
+\texttt{private\_email} 0.86, \texttt{private\_url} 0.78),
+free-text categories with policy room score lower
+(\texttt{private\_date} 0.72, \texttt{private\_person} 0.70),
+and the categories whose definition depends most on the
+recall-oriented labelling policy score lowest
+(\texttt{account\_number} 0.52, \texttt{private\_address} 0.43;
+\texttt{secret} 0.67 on only 4 spans). Inspection of the
 \texttt{private\_person} disagreements shows the gap is dominated
 by policy interpretation rather than random annotator error: the
-modal subagent decision is to omit publicly-listed officials,
-authors of court rulings, and witness names, while the
-recall-oriented dataset policy includes them. \texttt{private\_date}
-disagreements are mostly subagents extracting fewer dates from
-multi-date documents (court hearings, parliamentary records).
-The 0.48 audit number is therefore best read as a measure of
-\emph{how aggressively the dataset labels relative to a more
-conservative subagent consensus}, not as a label-noise floor in
-the random-error sense; the model's headline 0.916 strict
-F\textsubscript{1} should be read against this with that caveat.
-The smaller \texttt{p2} pilot audit (n=176, single Qwen
-re-annotation) gave F\textsubscript{1}=0.66 on a similar setup
-and was used during dataset development as a coarse quality
-gate; it is not the four-way number quoted above.
+audit models tend to omit publicly-listed officials, authors of
+court rulings, and witness names, while the dataset's
+recall-oriented policy includes them.
+
+For comparison, the four audit models also disagree among themselves.
+Per-model F\textsubscript{1} against the dataset's labels (no
+voting) ranges from 0.42 (\textsf{kimi\Bhy k2.6}, the most
+conservative) to 0.73 (\textsf{deepseek\Bhy v4\Bhy pro}, the most
+policy-aligned). This range bounds what any single audit run
+could plausibly produce, and motivates the majority-vote consensus
+as the more stable reference. The raw per-model labellings, the
+consensus, and the scoring script are committed under
+\texttt{data/p7\_audit\_*.jsonl} so the 0.71 number is reproducible
+from the released sample.
+
+The 0.71 audit number is best read as a measure of \emph{how
+aggressively the dataset labels relative to a four-model
+consensus}, not as a label-noise floor in the random-error sense;
+the model's headline 0.916 strict F\textsubscript{1} should be read
+against this with that caveat. An earlier P2 pilot audit (n=176,
+single Qwen re-annotation) gave F\textsubscript{1}=0.66 and was
+used during dataset development as a coarse quality gate; the 0.71
+number above is the reproducible, multi-model successor.
 
 % --------------------------------------------------------------------
 \section{Model: gheim-ch-560m}
@@ -731,11 +748,12 @@ than a harness bug.
         fasttext detector used in data preparation labels GSW as
         standard German.
   \item \textbf{Annotations are machine-generated.} The dataset
-        was not human-annotated; the four-way subagent audit in
-        Section~\ref{sec:labelnoise} (F\textsubscript{1}~0.48
-        overall, with policy-interpretation disagreements
-        dominating the gap) is the only quantitative
-        labelling-policy reference we can quote.
+        was not human-annotated; the four-LLM OpenRouter audit in
+        Section~\ref{sec:labelnoise} (F\textsubscript{1}~0.71
+        overall against the majority-of-four consensus, with
+        policy-interpretation disagreements dominating the gap)
+        is the only quantitative labelling-policy reference we
+        can quote.
   \item \textbf{Re-identification is not in scope.} The model is
         intended for redaction. It is not designed to identify or
         link entities to real persons and does not return

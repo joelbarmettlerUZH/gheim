@@ -32,4 +32,9 @@ htmlcov/
 
 # Exceptions: data provenance / audit READMEs that explain what's in /data/.
 !/data/*.md
+# Exceptions: P7 OpenRouter audit raw outputs and scoring report — these are
+# the reproducibility evidence for the label-noise audit number cited in
+# the paper §3.5 (~900 KB total; see p7_audit_openrouter.py + p7_audit_score.py).
+!/data/p7_audit_*.jsonl
+!/data/p7_audit_report.json
 packages/gheim-js/package-lock.json
