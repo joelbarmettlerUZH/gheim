@@ -479,6 +479,53 @@ single Qwen re-annotation) gave F\textsubscript{1}=0.66 and was
 used during dataset development as a coarse quality gate; the 0.71
 number above is the reproducible, multi-model successor.
 
+\paragraph{What drives the gap.} A natural worry is that the 0.71
+F\textsubscript{1} is largely span-boundary noise (commas, titles,
+the ``Dr.\ Müller'' vs ``Müller'' fragmentation that NER scoring is
+notoriously sensitive to). It is not. Re-scoring with a fuzzy
+match that treats any same-label substring overlap as a match
+yields F\textsubscript{1}=0.73 --- only \textbf{1.7 pp} of the gap
+is boundary noise. The remaining 28 pp falls into three concrete
+patterns, each pointing at a specific dataset-quality follow-up
+for a future revision:
+\begin{itemize}
+  \item \textbf{Regex-layer false positives in
+        \texttt{account\_number}} (52 dataset-only spans). The
+        regex-mining pass picked up numeric tables in court
+        documents and parliamentary statistics --- e.g.\
+        ``2011 2011 2011 1-3 1-3 1'', ``1892 101 14123 1519'' ---
+        as IBAN/AHV-shaped, but they are not PII. All four audit
+        models reject them. \emph{This is a dataset bug a v2
+        cleanup pass should fix} (e.g.\ require column-context
+        before flagging IBAN-shaped numerics).
+  \item \textbf{Recall-aggressive labelling of court roles}
+        (101 \texttt{private\_person} dataset-only,
+        104 \texttt{private\_address} dataset-only). The dataset
+        labels witnesses, judges, court reporters, and named
+        places-of-origin in legal opinions; the audit models
+        follow the prompt's ``do not tag generic roles'' rule
+        more strictly. This is a real policy choice the dataset
+        makes by design, but a v2 could expose it as an opt-in
+        flag rather than the default.
+  \item \textbf{Under-recall of names in commercial-register
+        text} (156 \texttt{private\_person} consensus-only). The
+        audit models consistently flag managing directors and
+        board members in Swiss commercial-register listings
+        (e.g.\ ``Reto Rubeli'', ``Fabienne Rubeli-Riedo'',
+        ``Karim Lassueur'') that the dataset's labelling pass
+        missed in long contact-block listings. \emph{This is a
+        recall gap a v2 should fix} by re-labelling the
+        commercial-register subset with a prompt that
+        emphasises this format.
+\end{itemize}
+The artefacts that produced these numbers (raw per-model
+labellings, consensus, classification breakdown, example chunks)
+are committed under \texttt{data/p7\_audit\_*.jsonl},
+\texttt{data/p7\_audit\_report.json} and
+\texttt{data/p7\_audit\_analysis.json}, and the scripts that
+produced them are at
+\texttt{training/src/gheim\_training/data/p7\_audit\_*.py}.
+
 % --------------------------------------------------------------------
 \section{Model: gheim-ch-560m}
 \label{sec:model}
@@ -812,7 +859,16 @@ not part of this release. The dataset's recall-oriented labelling
 policy flags publicly-listed institutional entities (e.g.\ a court
 switchboard phone) as PII; applications that require stricter
 precision would benefit from a downstream public-vs-private entity
-classifier layered on top.
+classifier layered on top. The label-noise audit in
+Section~\ref{sec:labelnoise} also pointed at three concrete
+dataset-cleanup tasks for a v2 revision: (a) re-filtering the
+regex-layer \texttt{account\_number} hits to require column-context
+before flagging IBAN/AHV-shaped numerics, (b) optionally exposing
+the recall-aggressive policy on court-document roles as an opt-in
+flag rather than the default, and (c) re-labelling the
+commercial-register subset with a prompt that emphasises the
+contact-block format so director and board-member names stop being
+under-recalled.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{references}

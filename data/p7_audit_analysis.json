@@ -1,0 +1,649 @@
+{
+  "_meta": {
+    "models": [
+      "moonshotai/kimi-k2.6",
+      "deepseek/deepseek-v4-pro",
+      "minimax/minimax-m2.7",
+      "z-ai/glm-5.1"
+    ],
+    "n_chunks": 580,
+    "scoring": "value-string equality (casefold) + label match",
+    "fuzzy_match_rule": "same label + substring overlap either direction"
+  },
+  "f1": {
+    "strict": {
+      "tp": 920,
+      "fp": 322,
+      "fn": 429,
+      "f1": 0.7101505210343497
+    },
+    "fuzzy": {
+      "tp": 943,
+      "fp": 303,
+      "fn": 406,
+      "f1": 0.7267822736030828
+    },
+    "boundary_noise_pp": 1.66
+  },
+  "totals": {
+    "real": 682,
+    "boundary": 69,
+    "cat_swap": 0
+  },
+  "per_category_real": {
+    "account_number": {
+      "dataset_over": 52,
+      "consensus_over": 0
+    },
+    "private_address": {
+      "dataset_over": 104,
+      "consensus_over": 19
+    },
+    "private_date": {
+      "dataset_over": 62,
+      "consensus_over": 74
+    },
+    "private_email": {
+      "dataset_over": 13,
+      "consensus_over": 12
+    },
+    "private_person": {
+      "dataset_over": 101,
+      "consensus_over": 156
+    },
+    "private_phone": {
+      "dataset_over": 19,
+      "consensus_over": 13
+    },
+    "private_url": {
+      "dataset_over": 45,
+      "consensus_over": 10
+    },
+    "secret": {
+      "dataset_over": 2,
+      "consensus_over": 0
+    }
+  },
+  "per_category_boundary": {
+    "private_address": {
+      "dataset_over": 3,
+      "consensus_over": 6
+    },
+    "private_date": {
+      "dataset_over": 13,
+      "consensus_over": 18
+    },
+    "private_person": {
+      "dataset_over": 7,
+      "consensus_over": 6
+    },
+    "private_phone": {
+      "dataset_over": 1,
+      "consensus_over": 2
+    },
+    "private_url": {
+      "dataset_over": 7,
+      "consensus_over": 6
+    }
+  },
+  "examples": {
+    "account_number__dataset_over": [
+      {
+        "value": "2011 2011 2011 1-3 1-3 1",
+        "context": "... 1-12 1-12 20‘966 20‘966 20‘966 H.___ H.___ H.___ 2011 2011 2011 1-3 1-3 1-3 5‘100 5‘100",
+        "language": "de_ch"
+      },
+      {
+        "value": "1894 159 4407 52468",
+        "context": "...4025 1916 1892 101 14123 1519 1893 172 28190 1207 1894 159 4407 52468 Der Ausgang war den Arbeitern dort nicht günstige...",
+        "language": "de_ch"
+      },
+      {
+        "value": "1892 101 14123 1519",
+        "context": "...ilnehmer Betroffene Geschäfte 1891 104 14025 1916 1892 101 14123 1519 1893 172 28190 1207 1894 159 4407 52468 Der Ausga...",
+        "language": "de_ch"
+      },
+      {
+        "value": "2003 2002 2013 2012",
+        "context": "...12 1857). 2013 2012 2007 2006 2013 2012 2013 2012 2003 2002 2013 2012 2013 2012 2013 2012 # Art. 70 LAgr Art. 70 LAgr #...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "00 00000 01272 00061",
+        "context": "... référence enregistré par la banque était erroné (00 00000 01272 00061 01010 01565 au lieu de 00 00000 01272 00061 10003...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "1989 1990 1991 1992",
+        "context": "...odes fiscales 1991-1992 1993-1994 Année de calcul 1989 1990 1991 1992 Année de calcul 1989 1990 1991 1992 Total des rep...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "1991-1992 1993-1994",
+        "context": "Périodes fiscales 1991-1992 1993-1994 Année de calcul 1989 1990 1991 1992 Année de calc...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "22 968 00000 445 27 22",
+        "context": "...00 445 79 75 968 00000 445 79 75 968 00000 445 27 22 968 00000 445 27 22 968 00000 444 88 48 968 00000 444 88 48 968 00000...",
+        "language": "fr_ch"
+      }
+    ],
+    "private_address__consensus_over": [
+      {
+        "value": "holzikofenweg 36\n3003 bern",
+        "context": "...er Migrationsbewegungen. https://www.sem.admin.ch Holzikofenweg 36 3003 Bern +41 58 462 56 56 Staatssekretariat für Wirtschaft...",
+        "language": "de_ch"
+      },
+      {
+        "value": "bex",
+        "context": "...e 1987, Emile Vittoz a informé la Municipalité de Bex que son domicile légal restait à Préverenges, mai...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "genève",
+        "context": "...e requérant, un ressortissant albanais résidant à Genève, arriva en Suisse il y a 24 ans avec sa femme et ...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "bellinzona",
+        "context": "...persone iscritte o modifiche: Marone, Claudio, da Bellinzona, in Muralto, presidente, con firma collettiva a d...",
+        "language": "it_ch"
+      },
+      {
+        "value": "muralto",
+        "context": "...e o modifiche: Marone, Claudio, da Bellinzona, in Muralto, presidente, con firma collettiva a due [finora: ...",
+        "language": "it_ch"
+      },
+      {
+        "value": "in muralto",
+        "context": "...itte o modifiche: Marone, Claudio, da Bellinzona, in Muralto, presidente, con firma collettiva a due [finora: ...",
+        "language": "it_ch"
+      },
+      {
+        "value": "barcellona",
+        "context": "...: [email protected] Pedro Javier González, nato a Barcellona, è uno dei più versatili chitarristi e compositor...",
+        "language": "it_ch"
+      },
+      {
+        "value": "loestrasse 26, 7001 coira",
+        "context": "...n Fontana, Promozione della cultura dei Grigioni, Loestrasse 26, 7001 Coira, tel. 081 254 16 02, e-mail: armon.fontana@afk.gr...",
+        "language": "it_ch"
+      }
+    ],
+    "private_address__dataset_over": [
+      {
+        "value": "petershauser strasse 36",
+        "context": "...r, zu Fuss auf dem Heimweg. Auf Höhe des Anwesens Petershauser Strasse 36 verspürte ein 25-Jähriger aus der Gruppe plötzlic...",
+        "language": "de_ch"
+      },
+      {
+        "value": "stampfenbachstrasse 42, 8006 zürich",
+        "context": "Schleifer Stampfenbachstrasse 42, 8006 Zürich Sachverhalt: 1. 1.1 X.___, geboren 1967, war ab 1...",
+        "language": "de_ch"
+      },
+      {
+        "value": "industriestrasse 45, 4147 aesch",
+        "context": "...e Aesch Kontakt Freie Evangelische Gemeinde Aesch Industriestrasse 45, 4147 Aesch Telefon 061 751 85 75 (Pfarrer Reinhard Möller) f...",
+        "language": "de_ch"
+      },
+      {
+        "value": "steinhausen",
+        "context": "...as Odermatt, Kantonsrat Alternative – die Grünen, Steinhausen",
+        "language": "de_ch"
+      },
+      {
+        "value": "erasmusplatz 12",
+        "context": "... fussballbegeisterte Leute. Wir zeigen bei uns am Erasmusplatz 12 Fussballspiele live und führen regelmässig Verans...",
+        "language": "de_ch"
+      },
+      {
+        "value": "utzenstorf",
+        "context": "Jakob Steiner 18.3.1796 - 1.4.1863, Bern Der aus Utzenstorf (Kanton Bern) stammende Autodidakt hatte an der S...",
+        "language": "de_ch"
+      },
+      {
+        "value": "bäumleingasse 1, 4051 basel",
+        "context": "...n Appellationsgericht Basel-Stadt, der Präsident, Bäumleingasse 1, 4051 Basel. Gegenstand Strafverfahren, Beschwerde gegen die ...",
+        "language": "de_ch"
+      },
+      {
+        "value": "leonhardstrasse 2",
+        "context": "...en dem Hof Nord und Süd bewaart der Garten an der Leonhardstrasse 2 seinen Charakter und seine Eigenständigkeit. Das ...",
+        "language": "de_ch"
+      }
+    ],
+    "private_date__consensus_over": [
+      {
+        "value": "13. januar 2014",
+        "context": "...-Rente auszurichten. \"1. Es sei die Verfügung vom 13. Januar 2014 aufzuheben und dem Beschwer deführer sei weiterhi...",
+        "language": "de_ch"
+      },
+      {
+        "value": "22nd april 2010",
+        "context": "...ens wurde vom Gericht erklärt und im SHAB auf dem 22nd April 2010. R - Moda, Aeberhard wurde im Jahr 2011 aus dem H...",
+        "language": "de_ch"
+      },
+      {
+        "value": "märz 2016",
+        "context": "März 2016 E. 4.3). Art. 42 BGG Art. 168 StPO 7.3. Der Besch...",
+        "language": "de_ch"
+      },
+      {
+        "value": "18. juni 2010",
+        "context": "...e von Schuldbetreibungs- und Konkursverfahren vom 18. Juni 2010 (VeÜ-ZSSV) sind zu erfüllen. Demnach sind alle Do...",
+        "language": "de_ch"
+      },
+      {
+        "value": "17. märz 2020",
+        "context": "...0. April 2020 sistiert. Der Bundesrat hat auf den 17. März 2020 ausserordentliche Massnahmen zur Verhütung und Be...",
+        "language": "de_ch"
+      },
+      {
+        "value": "20. april 2020",
+        "context": "... hat die Strafkammer das Verfahren bis mindestens 20. April 2020 sistiert. Der Bundesrat hat auf den 17. März 2020...",
+        "language": "de_ch"
+      },
+      {
+        "value": "12 décembre 2021",
+        "context": "...ort oder nach Vereinbarung Délai de postulation : 12 décembre 2021 La HES-SO//FR adopte une politique de recrutement...",
+        "language": "de_ch"
+      },
+      {
+        "value": "september 2019",
+        "context": "...20Ethics%20Letter%20Updated%20signed%20pdf.pdf Im September 2019, als Kadlec ASPR war und die Kontrolle über die n...",
+        "language": "de_ch"
+      }
+    ],
+    "private_date__dataset_over": [
+      {
+        "value": "2 5. märz 2020",
+        "context": "...Gasser Küffer Gerichtsschreiber Kübler Urteil vom 2 5. März 2020 in Sachen X.___ Beschwerdeführer vertreten durch ...",
+        "language": "de_ch"
+      },
+      {
+        "value": "1942",
+        "context": "...e rasch eine effiziente Arbeitsleistung erreicht. 1942 konnte Johann Staub das Haus an der Hegibachstras...",
+        "language": "de_ch"
+      },
+      {
+        "value": "15. november 2007",
+        "context": "...rer Reiter Gerichtssekretärin Hartmann Urteil vom 15. November 2007 in Sachen L.___ Beschwerdeführerin vertreten durc...",
+        "language": "de_ch"
+      },
+      {
+        "value": "11.",
+        "context": "...ahmebefehl der Staatsanwaltschaft Innerschwyz vom 11.",
+        "language": "de_ch"
+      },
+      {
+        "value": "1 0. märz 2020",
+        "context": "...erichtsschreiberin Neuenschwander-Erni Urteil vom 1 0. März 2020 in Sachen X.___ Beschwerdeführer vertreten durch ...",
+        "language": "de_ch"
+      },
+      {
+        "value": "7. januar 2008",
+        "context": "...mero-Käser Gerichtssekretärin Lienhard Urteil vom 7. Januar 2008 in Sachen B.___ Beschwerdeführer vertreten durch ...",
+        "language": "de_ch"
+      },
+      {
+        "value": "15. januar",
+        "context": "...TMZ“ ist Haggerty in den frühen Morgenstunden des 15. Januar in einem Spital in Los Angeles gestorben. Er habe...",
+        "language": "de_ch"
+      },
+      {
+        "value": "30. november 2016",
+        "context": "...srichterin Käch Gerichtsschreiber Volz Urteil vom 30. November 2016 in Sachen X.___ Beschwerdeführer vertreten durch ...",
+        "language": "de_ch"
+      }
+    ],
+    "private_email__consensus_over": [
+      {
+        "value": "info[at]windconnections.ch",
+        "context": "...em Thema haben, kontaktieren Sie uns bitte unter: info[at]windconnections.ch Copyright © 2023 Wind Connections, Erlenbach, Swi...",
+        "language": "de_ch"
+      },
+      {
+        "value": "<email-pii>",
+        "context": "...rsité et de la Ville de Neuchâtel, 032 718 23 39, <email-pii>",
+        "language": "fr_ch"
+      },
+      {
+        "value": "<email-pii>",
+        "context": "...Office fédéral de la justice, T +41 58 465 32 09, <email-pii> Pour le droit fiscal Patrick Teuscher, responsabl...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "<email-pii>",
+        "context": "...tions du travail, SECO, tél. +41 (0)31 322 38 40, <email-pii> Antje Baertschi, SECO, Communication, tél. +41 (0...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "<email-pii>",
+        "context": "...e de la communication du DEFR Tél. 058 462 20 07, <email-pii> Auteur: Département fédéral de l'économie, de la ...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "sjon82(a)yahoo.com",
+        "context": "... Violon Stéphanie Park Tél : 078 808 54 80 Mail : sjon82(a)yahoo.com Née aux Etats-Unis, Stéphanie Park est diplômée d...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "<email-pii>",
+        "context": "... dati: eAmt GmbH Brügglistrasse 7a 8852 Altendorf <email-pii> CHE-210.634.957 2 Quali dati personali trattiamo ...",
+        "language": "it_ch"
+      },
+      {
+        "value": "<email-pii>",
+        "context": "...egirezza e sanadad, tel. +41 81 257 25 01, e-mail <email-pii> - Martin Bühler, manader da l'Uffizi da militar e...",
+        "language": "rm"
+      }
+    ],
+    "private_email__dataset_over": [
+      {
+        "value": "j.____@____.ch",
+        "context": "...eichender Zusammenhang zwischen dem E-Mail-Konto \"J.____@____.ch\" und dem gegen den Beschwerdeführer geführten Str...",
+        "language": "de_ch"
+      },
+      {
+        "value": "j.____@____.ch",
+        "context": "...geltend, sowohl auf seinem privaten E-Mail-Konto \"J.____@____.ch\" als auch in den Apps \"WhatsApp\", \"Nachrichten\" u...",
+        "language": "de_ch"
+      },
+      {
+        "value": "j.____@____.ch",
+        "context": "...mit dem Einwand, die Inhalte des E-Mail-Accounts \"J.____@____.ch\" seien, wenn nicht vollständig, so doch zumindest...",
+        "language": "de_ch"
+      },
+      {
+        "value": "d______@hotmail.com",
+        "context": "...___ 1985, correspondant à l'adresse de messagerie D______@hotmail.com et au raccordement +41_1______, identifié par la ...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "a______@______.com",
+        "context": "...7 de \"[ prénom de A______ ] [ prénom de A______ ] A______@______.com \" à une adresse non spécifiée, avec le contenu su...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "b______@______.com",
+        "context": "...on nom avaient été envoyés à A______, notamment \" B______@______.com \". Il était interpellé par le fait que A______ re...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "redazione(at)simplyscience.ch",
+        "context": "... sono pregati di contattarci prima di iscriversi (redazione(at)simplyscience.ch). Cosa si può vincere? Premio principale: la clas...",
+        "language": "it_ch"
+      },
+      {
+        "value": "info @ait-schweiz.ch",
+        "context": "...AG Industriepark 6246 Altishofen +41 58 252 20 00 info @ait-schweiz.ch Sicurezza e protezione dei vostri dati personali ...",
+        "language": "it_ch"
+      }
+    ],
+    "private_person__consensus_over": [
+      {
+        "value": "reto rubeli",
+        "context": "...rzeit sind die Personen mit Entscheidungsbefugnis Reto Rubeli (Gesellschafter, Präsident und Geschäftsführer) u...",
+        "language": "de_ch"
+      },
+      {
+        "value": "fabienne rubeli-riedo",
+        "context": "...esellschafter, Präsident und Geschäftsführer) und Fabienne Rubeli-Riedo (Geschäftsführerin).",
+        "language": "de_ch"
+      },
+      {
+        "value": "zarko gajic",
+        "context": "...arus Nord, im Kanton Glarus, die im Jahr 2016 von Zarko Gajic (Geschäftsführer und Gesellschafter) gegründet wu...",
+        "language": "de_ch"
+      },
+      {
+        "value": "raquel alves de oliveira duarte",
+        "context": "...rzeit sind die Personen mit Entscheidungsbefugnis Raquel Alves de Oliveira Duarte (Mitglied des Verwaltungsrates) und Angelo De Fig...",
+        "language": "de_ch"
+      },
+      {
+        "value": "angelo de figueiredo",
+        "context": "...iveira Duarte (Mitglied des Verwaltungsrates) und Angelo De Figueiredo (Direktor).",
+        "language": "de_ch"
+      },
+      {
+        "value": "françois roullet",
+        "context": "...z in Genève, im Kanton Genf, die im Jahr 2001 von François Roullet (Mitglied des Verwaltungsrates) gegründet wurde. ...",
+        "language": "de_ch"
+      },
+      {
+        "value": "karim lassueur",
+        "context": "...hr 2016 von François Ferrero (Gesellschafter) und Karim Lassueur (Geschäftsführer und Gesellschafter) gegründet wu...",
+        "language": "de_ch"
+      },
+      {
+        "value": "françois ferrero",
+        "context": "...n Crissier, im Kanton Waadt, die im Jahr 2016 von François Ferrero (Gesellschafter) und Karim Lassueur (Geschäftsfüh...",
+        "language": "de_ch"
+      }
+    ],
+    "private_person__dataset_over": [
+      {
+        "value": "reinhard möller",
+        "context": "...sse 45, 4147 Aesch Telefon 061 751 85 75 (Pfarrer Reinhard Möller) fegaesch.ch Geschichte Die «Freie Evangelische G...",
+        "language": "de_ch"
+      },
+      {
+        "value": "vogel",
+        "context": "...V.2019.00034 V. Kammer Sozialversicherungsrichter Vogel, Vorsitzender Sozialversicherungsrichterin Philip...",
+        "language": "de_ch"
+      },
+      {
+        "value": "philipp",
+        "context": "... Vogel, Vorsitzender Sozialversicherungsrichterin Philipp Ersatzrichterin Gasser Küffer Gerichtsschreiber K...",
+        "language": "de_ch"
+      },
+      {
+        "value": "kübler",
+        "context": "...p Ersatzrichterin Gasser Küffer Gerichtsschreiber Kübler Urteil vom 2 5. März 2020 in Sachen X.___ Beschwe...",
+        "language": "de_ch"
+      },
+      {
+        "value": "gasser küffer",
+        "context": "...ialversicherungsrichterin Philipp Ersatzrichterin Gasser Küffer Gerichtsschreiber Kübler Urteil vom 2 5. März 202...",
+        "language": "de_ch"
+      },
+      {
+        "value": "didi offensiv",
+        "context": "... FCB use. Lueg vrbi und erlääb 130 Joor FCB! ---- Didi Offensiv ist eine Bar im Restaurant zum Erasmus von fussba...",
+        "language": "de_ch"
+      },
+      {
+        "value": "merkli",
+        "context": "...lich-rechtliche Abteilung Besetzung Bundesrichter Merkli, Präsident, Gerichtsschreiber Pfäffli. Verfahrens...",
+        "language": "de_ch"
+      },
+      {
+        "value": "grünig",
+        "context": "...ons Zürich I. Kammer Sozialversicherungsrichterin Grünig, Vorsitzende Sozialversicherungsrichter Meyer Ers...",
+        "language": "de_ch"
+      }
+    ],
+    "private_phone__consensus_over": [
+      {
+        "value": "+33(0)478-220-000",
+        "context": "...takt: Thierry Ehrmann, <email-pii> Pressekontakt: +33(0)478-220-000 Original-Content von: Artmarket.com übermittelt d...",
+        "language": "de_ch"
+      },
+      {
+        "value": "021/321'29'35",
+        "context": "...are gratuito per la recensione contattando: tel.: 021/321'29'35, e-mail: <email-pii> Richard Müller et al., \"Cann...",
+        "language": "it_ch"
+      },
+      {
+        "value": "0228/3694814",
+        "context": "...t: www.plausus.de   Email: info@plausus.de   Tel. 0228/3694814    Fax. 0228/3694815    Die Vervielfältigung dies...",
+        "language": "rm"
+      },
+      {
+        "value": "0228/3694815",
+        "context": "...mail: info@plausus.de   Tel. 0228/3694814    Fax. 0228/3694815    Die Vervielfältigung dieses Textes ist nicht g...",
+        "language": "rm"
+      },
+      {
+        "value": "0228/3694814",
+        "context": "...t: www.plausus.de   Email: info@plausus.de   Tel. 0228/3694814    Fax. 0228/3694815    Die Vervielfältigung dies...",
+        "language": "rm"
+      },
+      {
+        "value": "0228/3694815",
+        "context": "...mail: info@plausus.de   Tel. 0228/3694814    Fax. 0228/3694815    Die Vervielfältigung dieses Textes ist nicht g...",
+        "language": "rm"
+      },
+      {
+        "value": "0228/3694814",
+        "context": "...t: www.plausus.de   Email: info@plausus.de   Tel. 0228/3694814    Fax. 0228/3694815    Die Vervielfältigung dies...",
+        "language": "rm"
+      },
+      {
+        "value": "0228/3694815",
+        "context": "...mail: info@plausus.de   Tel. 0228/3694814    Fax. 0228/3694815    Die Vervielfältigung dieses Textes ist nicht g...",
+        "language": "rm"
+      }
+    ],
+    "private_phone__dataset_over": [
+      {
+        "value": "061 751 85 75",
+        "context": "...nde Aesch Industriestrasse 45, 4147 Aesch Telefon 061 751 85 75 (Pfarrer Reinhard Möller) fegaesch.ch Geschichte ...",
+        "language": "de_ch"
+      },
+      {
+        "value": "034 429 92 83",
+        "context": "...5, Postfach 1570, 3401 Burgdorf Telefon Zentrale: 034 429 92 83 Fax Zentrale: 034 429 92 04 2017. Alle Rechte vor...",
+        "language": "de_ch"
+      },
+      {
+        "value": "034 429 92 04",
+        "context": "...orf Telefon Zentrale: 034 429 92 83 Fax Zentrale: 034 429 92 04 2017. Alle Rechte vorbehalten. Bitte lesen Sie di...",
+        "language": "de_ch"
+      },
+      {
+        "value": "+41 (0)44 877 62 22",
+        "context": "... Center AG Richtistrasse 15 CH-8304 Wallisellen T +41 (0)44 877 62 22 www.safetycenter.ch <email-pii>",
+        "language": "de_ch"
+      },
+      {
+        "value": "+41 (0)31 322 31 53",
+        "context": "...nformation EDA Bundeshaus West CH-3003 Bern Tel.: +41 (0)31 322 31 53 Fax: +41 (0)31 324 90 47 E-Mail: <email-pii>",
+        "language": "de_ch"
+      },
+      {
+        "value": "+41 (0)31 324 90 47",
+        "context": "... West CH-3003 Bern Tel.: +41 (0)31 322 31 53 Fax: +41 (0)31 324 90 47 E-Mail: <email-pii>",
+        "language": "de_ch"
+      },
+      {
+        "value": "031 322 40 20",
+        "context": "...ante de la cheffe de la Communication, SECO, tél. 031 322 40 20 Auteur Conseil fédéral https://www.admin.ch/gov/f...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "031 323 52 75",
+        "context": "...Baertschi, cheffe de la Communication, SECO, tél. 031 323 52 75 Marie Avet, suppléante de la cheffe de la Communi...",
+        "language": "fr_ch"
+      }
+    ],
+    "private_url__consensus_over": [
+      {
+        "value": "www.tdg.ch",
+        "context": "...isposer à leur guise de leur 2ème pilier (Source: www.tdg.ch). Pour toutes questions à ce sujet: 022 787 07 70...",
+        "language": "fr_ch"
+      },
+      {
+        "value": "www.presseportal.ch",
+        "context": "..._2_ital .htm ots Originaltext: SFA/ISPA Internet: www.presseportal.ch Contatto: Janine Messerli addetta ISPA ai media T...",
+        "language": "it_ch"
+      },
+      {
+        "value": "www.plausus.de",
+        "context": "...Stuch – Kasernenstr. 56 – 53111 Turitg  Internet: www.plausus.de   Email: info@plausus.de   Tel. 0228/3694814    F...",
+        "language": "rm"
+      },
+      {
+        "value": "www.plausus.de",
+        "context": "...Stuch – Kasernenstr. 56 – 53111 Turitg  Internet: www.plausus.de   Email: info@plausus.de   Tel. 0228/3694814    F...",
+        "language": "rm"
+      },
+      {
+        "value": "www.florae.ch",
+        "context": "...ign sadrizar ad Ingrid Jansen, contact@florae.ch, www.florae.ch. Igl unviern e passo: Egn mascùn near tavàn visit...",
+        "language": "rm"
+      },
+      {
+        "value": "www.plausus.de",
+        "context": "...Stuch – Kasernenstr. 56 – 53111 Turitg  Internet: www.plausus.de   Email: info@plausus.de   Tel. 0228/3694814    F...",
+        "language": "rm"
+      },
+      {
+        "value": "www.strassen.gr.ch",
+        "context": "www.strassen.gr.ch Infurmaziuns: - Peter Stirnimann, responsabel per...",
+        "language": "rm"
+      },
+      {
+        "value": "www.tochtertag.ch",
+        "context": "...post naziunal da coordinaziun, tel. 044 271 44 90 www.tochtertag.ch . Sin questa pagina d'internet pon ins empustar u...",
+        "language": "rm"
+      }
+    ],
+    "private_url__dataset_over": [
+      {
+        "value": "fegaesch.ch",
+        "context": "...h Telefon 061 751 85 75 (Pfarrer Reinhard Möller) fegaesch.ch Geschichte Die «Freie Evangelische Gemeinde Aesch...",
+        "language": "de_ch"
+      },
+      {
+        "value": "www.cmartists.com",
+        "context": "...le, Región Metropolitana de Santiago, Chile Links www.cmartists.com (Englisch) Maximiano Valdés Maximiano Valdés (* 1...",
+        "language": "de_ch"
+      },
+      {
+        "value": "194.150.xxx.xxx",
+        "context": "...RCPT TO:<mail.adresse@domäne.ch>: host domäne.ch [194.150.xxx.xxx]: 550 Mailbox quota exceeded ------ This is a cop...",
+        "language": "de_ch"
+      },
+      {
+        "value": "https://www.parlament.ch/de/ratsbetrieb/suche-curia-vista/geschaeft?affairid=20234328",
+        "context": "...ngen ein entsprechendes Postulat (</span><a href=\"https://www.parlament.ch/de/ratsbetrieb/suche-curia-vista/geschaeft?AffairId=20234328\"><span style=\"background-color:rgb(128,118,65);co...",
+        "language": "de_ch"
+      },
+      {
+        "value": "https://www.parlament.ch/de/organe/kommissionen/sachbereichskommissionen/kommissionen-rk",
+        "context": "...admin.ch\">rk.caj@parl.admin.ch</a></p><p><a href=\"https://www.parlament.ch/de/organe/kommissionen/sachbereichskommissionen/kommissionen-rk\">Kommission für Rechtsfragen (RK)</a></p>",
+        "language": "de_ch"
+      },
+      {
+        "value": "winterthur-glossar.ch",
+        "context": "Zusammen mit Heinz Bächinger hatte er 2006 das winterthur-glossar.ch ins Leben gerufen. Urs Widmer wurde am 20. Dezemb...",
+        "language": "de_ch"
+      },
+      {
+        "value": "web.mozello.com",
+        "context": "...-Adresse für Ihre WWW-Domain, da Ihre Website auf web.mozello.com gehostet wird. Wenn Sie nicht wissen, wie dies ge...",
+        "language": "de_ch"
+      },
+      {
+        "value": "https://youtu.be/29lxbpjrs-o",
+        "context": "...us-ix-1999-2013 - L“Obs – Das Museum der Zukunft: https://youtu.be/29LXBPJrs-o - www.facebook.com/la.demeure.du.chaos.theabodeof...",
+        "language": "de_ch"
+      }
+    ],
+    "secret__dataset_over": [
+      {
+        "value": "c35tb–ws6st–txbrk–tttjt–jjh6h",
+        "context": "...n, könnt ihr auch einfach hier den Code kopieren: C35TB–WS6ST–TXBRK–TTTJT–JJH6H.",
+        "language": "de_ch"
+      },
+      {
+        "value": "rule4482.7",
+        "context": "...l computer vegnan premess. Kontakt: 081 257 26 41 RULE4482.7 Um dich für diesen Job zu bewerben, besuche bitte...",
+        "language": "rm"
+      }
+    ]
+  }
+}

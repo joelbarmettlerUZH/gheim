@@ -37,4 +37,5 @@ htmlcov/
 # the paper §3.5 (~900 KB total; see p7_audit_openrouter.py + p7_audit_score.py).
 !/data/p7_audit_*.jsonl
 !/data/p7_audit_report.json
+!/data/p7_audit_analysis.json
 packages/gheim-js/package-lock.json
