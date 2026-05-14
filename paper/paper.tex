@@ -24,7 +24,7 @@
 \renewcommand{\footnotetextcopyrightpermission}[1]{}
 \pagestyle{plain}
 
-\title{gheim: A Swiss-Tuned PII Detector and Companion Dataset for the Four Official Languages of Switzerland and English}
+\title{gheim-ch-pii-171k and gheim-ch-560m: An Open Swiss-Language PII Dataset and NER Model. Technical report.}
 \author{Joel Barmettler}
 \affiliation{%
   \institution{Independent}
@@ -44,15 +44,19 @@ Romansh) and English, and \textsf{gheim-ch-560m}, a 560M-parameter
 combines real Swiss text from court rulings, federal parliament records,
 Swiss-filtered web text and a Romansh corpus with an LLM-generated
 synthetic gap-fill layer that covers cells where the real-text corpus
-was too sparse for training and evaluation. The model attains a
-strict-span F\textsubscript{1} of 0.916 on a held-out test split,
-outperforming the next-strongest open contestant
-(\textsf{openai/privacy-filter} zero-shot) by 47 percentage points
-on the same Swiss test set, and reaching 0.89--0.96 person-NER
-F\textsubscript{1} on four widely-used external benchmarks. The dataset
-ships under CC BY 4.0; the model under Apache 2.0; both are available
-on the Hugging Face Hub. Reproducible eval scripts and checkpoints are
-on GitHub.
+was too sparse for training and evaluation. As a generalization signal,
+\textsf{gheim-ch-560m} attains 0.89--0.96 person-NER F\textsubscript{1}
+on four widely-used external benchmarks
+(\textsf{ai4privacy/openpii-1m}, ZurichNLP \textsf{swissner},
+Babelscape \textsf{WikiNeural}, CoNLL-2003), without ever seeing
+training data from any of them. On the in-distribution held-out test
+split it attains a strict-span F\textsubscript{1} of 0.916; among
+public detectors run zero-shot on the same Swiss test set, the
+strongest is \textsf{openai/privacy-filter} at 0.44.
+The dataset ships under CC BY 4.0; the model under Apache 2.0; both
+are available on the Hugging Face Hub. Reproducible eval scripts and
+checkpoints are on GitHub. This is an engineering report on a
+publicly-released artifact; no new method or architecture is proposed.
 \end{abstract}
 
 \maketitle
@@ -89,7 +93,7 @@ Swiss documents (CH-IBAN, AHV, VAT-CHE), and only one
 (SwissNER~\cite{vamvas2023swissner}) provides a Romansh evaluation
 slice.
 
-This work contributes:
+This report documents three publicly-released artifacts:
 
 \begin{enumerate}
   \item \textsf{gheim-ch-pii-171k}, a multilingual PII NER dataset of
@@ -102,7 +106,7 @@ This work contributes:
         model fine-tuned from \textsf{xlm-roberta-large}~\cite{conneau2020unsupervised}
         on the dataset, attaining a held-out test F\textsubscript{1}
         of 0.916 strict-span and 0.958 character-level.
-  \item A reproducible evaluation harness that scores both the released
+  \item A reproducible evaluation harness that scores the released
         model on four established external benchmarks
         (\textsf{ai4privacy\Bsl openpii\Bhy 1m}, ZurichNLP \textsf{swissner},
         Babelscape \textsf{WikiNeural}~\cite{tedeschi2021wikineural},
@@ -112,13 +116,36 @@ This work contributes:
         dataset.
 \end{enumerate}
 
+\subsection{Scope}
+\label{sec:scope}
+
+This is a technical report on a deployed artifact, not a research
+contribution. We do not propose new model architectures, training
+methods, evaluation metrics, or annotation schemes. The model is
+\textsf{xlm-roberta-large}~\cite{conneau2020unsupervised} fine-tuned
+with stock AdamW~\cite{loshchilov2019decoupled} and a small
+hyperparameter sweep; the label space is byte-identical to
+\textsf{openai/privacy-filter}~\cite{openai2025privacyfilter}; the
+real-text corpora are taken as-is from the Apertus pretrain
+release~\cite{apertus2025} and downstream sources; the dataset
+construction pattern (LLM annotation followed by checksum-validated
+regex augmentation and template-based gap-fill) is by now standard
+practice. The contribution is the assembled artifact: a
+publicly-released Swiss-language PII dataset that includes Romansh,
+a strong out-of-the-box checkpoint for the same niche, and a
+reproducible evaluation that puts both into context against the open
+alternatives. The report documents what the dataset contains, how
+the model was trained, what its measured behaviour is on multiple
+test sets, and what its known limitations are, so downstream users
+can judge whether to deploy it.
+
 The rest of the paper is structured as follows.
 Section~\ref{sec:related} situates the work against prior art.
 Section~\ref{sec:dataset} describes the dataset construction.
 Section~\ref{sec:model} covers model selection and training.
 Section~\ref{sec:eval} reports the evaluation, including the
 methodology-validation cross-checks. Section~\ref{sec:limits} discusses
-limitations and Section~\ref{sec:conclusion} concludes.
+limitations and Section~\ref{sec:conclusion} summarises.
 
 % --------------------------------------------------------------------
 \section{Related work}
@@ -126,17 +153,17 @@ limitations and Section~\ref{sec:conclusion} concludes.
 
 \subsection{PII detection and de-identification}
 
-The dominant industrial open-source PII detector is Microsoft
-Presidio~\cite{microsoft2023presidio}: a per-language spaCy NER
+Microsoft Presidio~\cite{microsoft2023presidio} is a widely-used
+industrial open-source PII detector: a per-language spaCy NER
 engine combined with checksum-validated regex recognisers for
-structured formats (IBAN, credit card, SSN, etc.). Presidio's
-strength is its large built-in catalogue and easy extension; its
-weakness on Swiss text is reproducible from the per-spaCy NER
+structured formats (IBAN, credit card, SSN, etc.). Its built-in
+catalogue is large and the framework is easy to extend; its weakness
+on Swiss text is inherited from the per-language spaCy NER
 backbone (Section~\ref{sec:eval}, Table~\ref{tab:directionA}).
 
-The AI4Privacy family of corpora and fine-tuned checkpoints
-~\cite{ai4privacy2024openpii,ai4privacy2024pii200k} is the most
-prolific recent open-source effort. Their datasets are templated
+The AI4Privacy family of corpora and fine-tuned
+checkpoints~\cite{ai4privacy2024openpii,ai4privacy2024pii200k} is a
+high-volume recent open-source effort. Their datasets are templated
 synthetic prose with embedded Faker-generated PII at the million-chunk
 scale across 12+ fine-grained categories and 17+ locale variants,
 and the published distilbert fine-tunes (e.g.\ \textsf{Isotonic\Bsl distil\Bhy bert\_\allowbreak finetuned\_\allowbreak ai4privacy\_\allowbreak v2})
@@ -160,29 +187,29 @@ model can reuse the pretrained classifier-head weights.
 
 \subsection{Multilingual NER}
 
-\textsf{XLM-RoBERTa}~\cite{conneau2020unsupervised} is the de-facto
+\textsf{XLM-RoBERTa}~\cite{conneau2020unsupervised} is a common
 starting point for multilingual token-classification and is the base
-of \textsf{gheim-ch-560m}. The Davlan family of fine-tunes
-~\cite{davlan2022xlmrnerhrl} are trained on PER/ORG/LOC across many
-European languages and provide our generalist baseline.
+of \textsf{gheim-ch-560m}. The Davlan family of
+fine-tunes~\cite{davlan2022xlmrnerhrl} are trained on PER/ORG/LOC
+across many European languages and provide our generalist baseline.
 WikiNeural~\cite{tedeschi2021wikineural} provides large-scale
 silver-data multilingual NER training and evaluation across nine
 European languages and is one of our cross-domain external
-benchmarks. The classic CoNLL-2003 shared
-task~\cite{tjong2003introduction} remains the reference English NER
+benchmarks. The CoNLL-2003 shared
+task~\cite{tjong2003introduction} is a long-running English NER
 benchmark and is also part of our cross-domain evaluation. The BIOES
 tag scheme used throughout follows the design analysis of
 \citet{ratinov2009design}.
 
 \subsection{Swiss-NLP and the Apertus stack}
 
-\textsf{SwissBERT}~\cite{vamvas2023swissbert} is the prior
-state-of-the-art encoder pretrained on Swiss text covering all four
-official languages, including Romansh. We considered SwissBERT as a
-base in the bake-off (Section~\ref{sec:model}, Table~\ref{tab:bakeoff})
-and selected XLM-R-large by 0.8 pp validation F\textsubscript{1};
-SwissBERT remains a competitive alternative when ${\sim}$300M
-parameters is the deployment ceiling. Its companion test
+\textsf{SwissBERT}~\cite{vamvas2023swissbert} is an encoder
+pretrained on Swiss text covering all four official languages,
+including Romansh. We considered SwissBERT as a base in the bake-off
+(Section~\ref{sec:model}, Table~\ref{tab:bakeoff}) and selected
+XLM-R-large by 0.8 pp validation F\textsubscript{1}; SwissBERT is a
+competitive alternative when ${\sim}$300M parameters is the
+deployment ceiling. Its companion test
 set, \textsf{SwissNER}~\cite{vamvas2023swissner}, is the only public
 Swiss-news NER set that includes Romansh and is one of our
 cross-domain external benchmarks. The Romansh evaluation in particular
@@ -289,12 +316,20 @@ eight PII categories listed in Table~\ref{tab:cats}, each encoded in a
 BIOES tag scheme~\cite{ratinov2009design} (Begin, Inside, Outside, End,
 Single), giving 33 classes overall (one outside class plus four BIOES
 positions for each of the eight categories). The byte-identical label
-mapping is deliberate: it lets a fine-tune started from
-\textsf{openai/privacy-filter}'s checkpoint reuse the pretrained
-classifier-head weights without remapping. The \texttt{private\_}
-prefix is historical; all eight cells are applied with a recall-oriented
-labelling policy and may flag publicly-listed institutional entities
-(e.g.\ a court switchboard phone number).
+mapping was chosen for compatibility: it lets a fine-tune started
+from \textsf{openai/privacy-filter}'s checkpoint reuse the pretrained
+classifier-head weights without remapping, and it lets downstream
+consumers swap the two checkpoints in place. The cost is that the
+upstream taxonomy's choices are inherited as-is, including ones we
+would have made differently. \texttt{account\_number} lumps four
+structurally distinct formats (CH-IBAN, AHV/AVS, VAT-CHE, credit
+cards) into one cell, so the model cannot signal which kind it
+detected; \texttt{secret} is broad enough to catch any high-entropy
+token that looks key-shaped; there are no \texttt{organization} or
+\texttt{location} cells, which some downstream tasks would want. The
+\texttt{private\_} prefix is historical; all eight cells are applied
+with a recall-oriented labelling policy and may flag publicly-listed
+institutional entities (e.g.\ a court switchboard phone number).
 
 \begin{table}[h]
 \centering
@@ -354,16 +389,33 @@ in train. Synthetic chunks are placed deterministically (random seed
 17). Final split sizes are 139,641 / 15,834 / 15,861 chunks for
 train / validation / test.
 
-\subsection{Label noise}
+\subsection{Label-noise audit}
+\label{sec:labelnoise}
 
-Annotations are machine-generated; no third-party human annotators
-were contracted. As an upper bound on label noise we ran four
-independent subagent re-labellings on a stratified 176-chunk sample
-and compared the dataset to the four-way majority vote, yielding an
-F\textsubscript{1} of 0.66. Inspection of disagreements indicates the
-gap is dominated by policy-interpretation differences (e.g.\ whether
-to label the publicly-listed switchboard number of a court as PII)
-rather than random error.
+The dataset's labels are machine-generated. No third-party human
+annotators were contracted, and no subset carries human gold labels.
+Every model F\textsubscript{1} reported in Section~\ref{sec:eval} is
+therefore a measure of agreement between the trained model and its
+machine-generated labelling source, not a measure of agreement with
+a human ground truth.
+
+To put a number on the residual disagreement we ran a four-way
+re-labelling audit. A stratified 176-chunk sample was held back from
+training, re-annotated by four independent LLM subagents using a
+different prompt and a different seed for each, and the four
+labellings combined into a per-span majority vote. The released
+dataset's labels reach an F\textsubscript{1} of \textbf{0.66} against
+that majority vote. Inspection of the disagreements shows the gap is
+dominated by policy-interpretation differences (the most common case
+is whether the publicly-listed switchboard phone number of a court
+counts as personal information; the recall-oriented policy used for
+the dataset says yes, the modal subagent said no) rather than
+random annotator error or category confusion. The 0.66 audit is the
+best label-quality ceiling we can quote for this dataset, and the
+model's headline 0.916 strict F\textsubscript{1} should be read with
+that ceiling in mind: the model is matching the dataset's own
+labelling policy with high fidelity, which is not the same as
+matching a human's idea of what counts as PII.
 
 % --------------------------------------------------------------------
 \section{Model: gheim-ch-560m}
@@ -490,7 +542,16 @@ met. Reporting both metrics lets the reader judge which is appropriate
 for their use case: strict for literature comparability, char for
 deployment.
 
-\subsection{Headline performance}
+\subsection{In-distribution performance}
+
+The numbers in this subsection and the next come from a held-out
+test split drawn from the same Apertus source corpora as the
+training data, with strict document-level disjointness between
+splits but the same sampling distribution. They are an
+in-distribution upper bound rather than a generalization signal;
+the cross-domain numbers in Section~\ref{sec:crossdomain} are the
+more meaningful evidence that the model transfers to data drawn
+from a different distribution.
 
 On the held-out test split of \textsf{gheim-ch-pii-171k} (15,861
 chunks), \textsf{gheim-ch-560m} attains a strict-span F\textsubscript{1}
@@ -532,8 +593,8 @@ Avg.\                       & 0.954  & 0.953  & 0.972  & 0.923 & 0.981 & 0.958 \
 
 Structured categories with strong surface signals
 (\texttt{secret}, \texttt{email}, \texttt{phone}, \texttt{URL}) hold
-above 0.95 in every language; \texttt{account\_number} carries almost
-all of the per-language variance. The Romansh \texttt{account\_number}
+above 0.95 in every language; \texttt{account\_number} accounts for
+most of the per-language variance. The Romansh \texttt{account\_number}
 cell is the only one below 0.5: only 91 of its 117 gold spans across
 the test set are RM IBANs (the rest are synthetic-injected chunks),
 and the model under-recalls them in mixed-language contexts. Address
@@ -578,24 +639,35 @@ spaCy \texttt{de/fr/it\_core\_news\_lg}                          & n/a   & n/a  
 \end{tabular}
 \end{table*}
 
-The released model leads every other system on every cell that is
-directly comparable. The two metrics tell the same story: strict
-F\textsubscript{1} shows a 47-pp lead over the strongest contestant
-(\textsf{openai/privacy-filter}), char F\textsubscript{1} shows a 35-pp
-lead. The gap between the two metrics is largest for systems whose
-schema differs most from ours: \textsf{Isotonic/distilbert\_finetuned\_ai4privacy\_v2}
-gains $+35$ pp under char F\textsubscript{1} because its fine-grained
-schema (FIRSTNAME, LASTNAME, MIDDLENAME, PREFIX, $\ldots$) collapses
-under our 8-category remap and produces highly fragmented spans;
+Of the seven public detectors we measured on Swiss text in this
+configuration, \textsf{gheim-ch-560m} is the strongest on every cell
+that is directly comparable. The comparison is asymmetric:
+\textsf{gheim-ch-560m} is in-distribution on this test set (the
+training data was drawn from the same corpora) and the seven
+contestants are all run zero-shot, so the absolute gap is partly a
+domain-fit effect, not only a model-quality difference. With that
+caveat noted, the two metrics tell the same ranking story: under
+strict F\textsubscript{1} the next-strongest entry is
+\textsf{openai/privacy-filter} at 0.44, under char F\textsubscript{1}
+at 0.61. The gap between the two metrics is largest for systems whose
+schema differs most from ours:
+\textsf{Isotonic/distilbert\_finetuned\_ai4privacy\_v2} gains $+35$ pp
+under char F\textsubscript{1} because its fine-grained schema
+(FIRSTNAME, LASTNAME, MIDDLENAME, PREFIX, $\ldots$) collapses under
+our 8-category remap and produces highly fragmented spans;
 \textsf{openai/privacy-filter} gains $+17$ pp because the Olmo
 tokeniser emits subword boundaries that do not align with the gold
 span ends.
 
-Among the contestants, gheim is also the only entry with native
-Romansh support; spaCy has no Romansh or English pipelines in this
-configuration, and \textsf{dslim/bert-base-NER} is English-only.
+Among the contestants, \textsf{gheim-ch-560m} is also the only entry
+with native Romansh support; spaCy has no Romansh or English
+pipelines in this configuration, and \textsf{dslim/bert-base-NER} is
+English-only. Section~\ref{sec:crossdomain} reports the same model
+on each contestant's training distribution for the reverse
+comparison.
 
 \subsection{Cross-domain evaluation}
+\label{sec:crossdomain}
 
 The released model was scored on four established external benchmarks
 (Table~\ref{tab:directionB}). For pure-NER datasets (\textsf{swissner},
@@ -638,11 +710,10 @@ $^\S$spaCy de\_core's overall F\textsubscript{1} on the German slice
 of \textsf{swissner} (spaCy ships per-language pipelines and has no
 single multilingual model that covers the whole set).
 
-Read row by row: \textsf{gheim-ch-560m} matches or exceeds three of
-the four specialists despite being run zero-shot and without ever
-seeing training data from those benchmarks; only on CoNLL-2003 does
-the English-only specialist remain ahead, by 7~pp char and
-$7$~pp strict. The notable strict-vs.-char gap on \textsf{openpii-1m}
+Row by row, \textsf{gheim-ch-560m} matches or exceeds three of the
+four specialists despite being run zero-shot and without ever seeing
+training data from those benchmarks; only on CoNLL-2003 does the
+English-only specialist remain ahead, by 7~pp char and 7~pp strict. The notable strict-vs.-char gap on \textsf{openpii-1m}
 (0.776 strict, 0.920 char) is entirely a schema artefact:
 \textsf{openpii-1m} splits each person into separate
 \texttt{GIVENNAME} and \texttt{SURNAME} gold spans, which fragment
@@ -718,38 +789,70 @@ correct NER-literature comparison.
   \item \textbf{Swiss German dialect (GSW) is not measured.} The
         fasttext detector used in data preparation labels GSW as
         standard German.
-  \item \textbf{Annotations are machine-generated.} The dataset was
-        not human-annotated; the F\textsubscript{1} of 0.66 against
-        a four-way subagent re-labelling is reported as an
-        upper bound on label noise rather than as a quality claim.
+  \item \textbf{Annotations are machine-generated.} The dataset
+        was not human-annotated; the audit number in
+        Section~\ref{sec:labelnoise} (F\textsubscript{1}~0.66
+        against a four-way subagent re-labelling) is the
+        closest thing to a labelling-policy ceiling we can quote.
   \item \textbf{Re-identification is not in scope.} The model is
         intended for redaction. It is not designed to identify or
         link entities to real persons and does not return
         entity-linked identifiers.
 \end{itemize}
 
+\paragraph{Inference-time suppression and the calibrated decoder.}
+A failure mode visible only on deploy probes, not in the test-set
+metrics: on a small fraction of inputs the raw model emits zero
+non-O tokens for an entire chunk, even when the chunk contains
+clear PII. The pattern reproduces consistently when a low-confidence
+person mention is immediately followed by a structurally distinctive
+token (e.g.\ a CH-IBAN), which appears to nudge the per-token
+argmax over the entire span toward the dominant \texttt{O} class.
+The released SDKs ship a thin wrapper that subtracts a small
+constant bias from the \texttt{O}-class logit before argmax
+(\texttt{CalibratedDetector}, default bias 0.5). On the failing
+probe set this recovers approximately 95\% of the suppression
+cases; on the in-distribution test split it costs approximately
+0.4 pp strict F\textsubscript{1}. The wrapper is the default
+detector in both the Python and JavaScript SDKs. The published
+checkpoint exhibits a known inference-time failure mode that the
+test-set numbers do not expose; the wrapper trades a small amount
+of in-distribution F\textsubscript{1} for a noticeable improvement
+on the failure mode without requiring retraining.
+
 % --------------------------------------------------------------------
-\section{Conclusion}
+\section{Summary}
 \label{sec:conclusion}
 
-We released \textsf{gheim-ch-pii-171k} and \textsf{gheim-ch-560m},
-a Swiss-tuned PII NER dataset and model targeting a deployment
-context (LLM-API anonymisation round-trip) that the existing open
-detectors handle poorly on Swiss text. The model leads every public
-contestant by 35-pp on the same Swiss test set under either reported
-metric and stays within $[0.89, 0.96]$ person-NER F\textsubscript{1}
-across four cross-domain external benchmarks. The companion dataset
-is released under CC BY 4.0; the model under Apache 2.0; both are
-on the Hugging Face Hub. The full evaluation harness, the per-system
-JSONs, and the reproducible build of the comparison tables are at
+This report described \textsf{gheim-ch-pii-171k} and
+\textsf{gheim-ch-560m}, a Swiss-tuned PII NER dataset and model
+targeting LLM-API anonymisation round-tripping, a deployment
+context that existing open detectors handle poorly on Swiss text.
+On the in-distribution test split the model attains a strict-span
+F\textsubscript{1} of 0.916; among the seven public detectors we
+measured zero-shot on the same set the strongest is at 0.44. As an
+out-of-distribution generalization signal the model attains
+person-NER F\textsubscript{1} between 0.89 and 0.96 across four
+external benchmarks (\textsf{ai4privacy/openpii-1m},
+\textsf{swissner}, \textsf{WikiNeural}, CoNLL-2003) without ever
+seeing training data from any of them. The dataset is released under
+CC BY 4.0; the model under Apache 2.0; both are on the Hugging Face
+Hub. The full evaluation harness, the per-system JSON outputs, and
+the reproducible build of the comparison tables are at
 \url{https://github.com/joelbarmettlerUZH/gheim}.
 
-\paragraph{Future work.} A privately-tuned variant covering spoken
-GSW, dialectal Romansh and additional account-number formats; a
-distilled student model in the 100M-parameter range for
-edge-side deployment; and a public-versus-private-entity
-post-classifier to relax the recall-oriented labelling policy when
-applications require stricter precision.
+\paragraph{Known follow-on work.} The dataset has no coverage of
+spoken Swiss German (the fasttext language identifier labels GSW as
+standard German) and only one Romansh register (Rumantsch Grischun);
+both gaps would require additional source corpora rather than
+pipeline changes. The model's released checkpoint is 560M
+parameters, larger than is convenient for edge or browser
+deployment; a smaller distilled variant would be useful but is
+not part of this release. The dataset's recall-oriented labelling
+policy flags publicly-listed institutional entities (e.g.\ a court
+switchboard phone) as PII; applications that require stricter
+precision would benefit from a downstream public-vs-private entity
+classifier layered on top.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{references}
