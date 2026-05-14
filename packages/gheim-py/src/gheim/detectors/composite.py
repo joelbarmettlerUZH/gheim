@@ -32,6 +32,7 @@ the same eval harness with no plumbing changes.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Annotated, Any, Protocol
 
@@ -110,30 +111,85 @@ def _vat_che_ok(s: str) -> bool:
     return check == expected
 
 
-# (label, regex, validator-or-None). Validators kick in only if the
-# regex matches — if the validator says no, the match is silently
-# discarded and the model gets the chance to label it instead.
-_REGEXES: list[tuple[str, re.Pattern[str], ChecksumFn | None]] = [
-    ("private_email", re.compile(r"\b[\w._%+\-]+@[\w.\-]+\.[A-Za-z]{2,}\b"), None),
-    ("private_url", re.compile(r"https?://[^\s)>\]]+"), None),
+ContextFilterFn = Callable[[str, int, int], bool]
+"""``(text, start, end) -> True if the match should be REJECTED``.
+
+Context filters run after the format regex matches and after the
+checksum (if any) has passed. They get the surrounding text so they
+can tell e.g.\\ a credit card from a numeric-table row whose digits
+happen to Luhn-pass by chance (~10% of random 16-digit strings do).
+``None`` means no context check, i.e.\\ the regex's checksum is
+trusted on its own.
+"""
+
+
+def _in_numeric_table(text: str, start: int, end: int) -> bool:
+    """True if the match is surrounded by other standalone numeric
+    tokens, i.e.\\ it looks like a row in a stat / parliamentary table
+    rather than a real account number.
+
+    Why this exists: the credit-card regex `\\b(?:\\d[\\s\\-]?){15,16}\\d\\b`
+    is intentionally lax (Visa / Mastercard / Amex / Diner's all need
+    to fit). Combined with Luhn's 10\\% accidental pass rate, that
+    means random tabulated stats from court documents and
+    parliamentary records get matched as credit cards. Concrete v1
+    casualties caught by the P7 four-LLM audit:
+    `'2011 2011 2011 1-3 1-3 1'`, `'1892 101 14123 1519'`,
+    `'1894 159 4407 52468'` — all from Apertus court / parliament
+    tables. None are PII.
+
+    Skip the table check if the surrounding text contains a
+    credit-card vocabulary word (`Karte`, `card`, `Visa`, `CVV`, …) —
+    those signal that the digits really are a card number even when
+    presented in a tabular context.
+    """
+    pre_window = text[max(0, start - 80):start].lower()
+    cc_context = ("karte", "card", "kreditkarte", "visa", "mastercard",
+                  "amex", "cvv", "kontonummer", "pan ", "credit ")
+    if any(w in pre_window for w in cc_context):
+        return False
+    around = text[max(0, start - 30):start] + " " + text[end:end + 30]
+    # Standalone numeric tokens (not embedded in IDs/words).
+    nums = re.findall(r"(?<!\w)\d+(?!\w)", around)
+    return len(nums) >= 3
+
+
+# Each entry: (label, regex, validator, context_filter, subtype). The
+# subtype is a string tag that identifies which sub-pattern matched
+# (e.g. "iban_ch" vs "ahv" vs "credit_card") — useful for downstream
+# provenance / dataset-build code that wants to know which deterministic
+# rule fired, even though all four collapse to ``account_number`` in
+# the published 8-class label space. ``None`` subtype means the label
+# itself is the only identifier worth keeping.
+_REGEXES: list[tuple[
+    str,
+    re.Pattern[str],
+    ChecksumFn | None,
+    ContextFilterFn | None,
+    str | None,
+]] = [
+    ("private_email", re.compile(r"\b[\w._%+\-]+@[\w.\-]+\.[A-Za-z]{2,}\b"), None, None, None),
+    ("private_url", re.compile(r"https?://[^\s)>\]]+"), None, None, None),
     ("private_phone", re.compile(
         r"(?:\+41|0041|\b0)\s?(?:\(0\)\s?)?\d{2}[\s\-/.]?\d{3}[\s\-/.]?\d{2}[\s\-/.]?\d{2}\b"
-    ), None),
-    ("account_number", re.compile(r"\bCH\d{2}(?:[\s\-]?\d){17}\b"), _iban_ch_ok),
-    ("account_number", re.compile(r"\b756\.\d{4}\.\d{4}\.\d{2}\b"), _ahv_ok),
-    ("account_number", re.compile(r"\b756\d{10}\b"), _ahv_ok),
+    ), None, None, "swiss_phone"),
+    ("account_number", re.compile(r"\bCH\d{2}(?:[\s\-]?\d){17}\b"), _iban_ch_ok, None, "iban_ch"),
+    ("account_number", re.compile(r"\b756\.\d{4}\.\d{4}\.\d{2}\b"), _ahv_ok, None, "ahv"),
+    ("account_number", re.compile(r"\b756\d{10}\b"), _ahv_ok, None, "ahv"),
     ("account_number", re.compile(
         r"\bCHE-\d{3}\.\d{3}\.\d{3}(?:\s+(?:MWST|TVA|IVA))?\b"
-    ), _vat_che_ok),
-    ("account_number", re.compile(r"\b(?:\d[\s\-]?){15,16}\d\b"), _luhn_ok),
+    ), _vat_che_ok, None, "vat_che"),
+    # Credit cards: Luhn + numeric-table-context filter.
+    ("account_number", re.compile(r"\b(?:\d[\s\-]?){15,16}\d\b"),
+     _luhn_ok, _in_numeric_table, "credit_card"),
     # Dates: require day + month + 4-digit year. M/YYYY rejected.
     ("private_date", re.compile(
         r"\b(?:\d{1,2}[./]\d{1,2}[./]\d{4}"
         r"|\d{4}[./\-]\d{1,2}[./\-]\d{1,2})\b"
-    ), None),
-    ("secret", re.compile(r"\bsk-(?:proj-)?[A-Za-z0-9_\-]{20,}\b"), None),
-    ("secret", re.compile(r"\bghp_[A-Za-z0-9]{36}\b"), None),
-    ("secret", re.compile(r"\bAKIA[A-Z0-9]{16}\b"), None),
+    ), None, None, None),
+    ("secret", re.compile(r"\bsk-(?:proj-)?[A-Za-z0-9_\-]{20,}\b"), None, None, "openai_key"),
+    ("secret", re.compile(r"\bghp_[A-Za-z0-9]{36}\b"), None, None, "github_pat"),
+    ("secret", re.compile(r"\bAKIA[A-Z0-9]{16}\b"), None, None, "aws_access_key"),
 ]
 
 
@@ -144,11 +200,14 @@ def _trim_url(text: str, start: int, end: int) -> tuple[int, int]:
     return start, end
 
 
-def _find_regex_spans(text: str) -> list[Span]:
-    """Apply all regexes (with validators) and return non-overlapping
-    Span list, greedy by start offset, longer-on-tie."""
-    candidates: list[Span] = []
-    for label, pat, validator in _REGEXES:
+def _find_regex_spans_with_subtype(text: str) -> list[tuple[Span, str | None]]:
+    """Like :func:`_find_regex_spans` but also tags each span with the
+    subtype of the rule that fired (e.g. ``"iban_ch"``, ``"ahv"``,
+    ``"credit_card"``). Used by the v2 dataset-build pipeline that
+    records per-span provenance; the runtime detector uses the
+    subtype-less wrapper :func:`_find_regex_spans`."""
+    candidates: list[tuple[Span, str | None]] = []
+    for label, pat, validator, context_filter, subtype in _REGEXES:
         for m in pat.finditer(text):
             start, end = m.start(), m.end()
             if label == "private_url":
@@ -158,17 +217,31 @@ def _find_regex_spans(text: str) -> list[Span]:
                 continue
             if validator is not None and not validator(value):
                 continue  # checksum failed — let the model decide
-            candidates.append(Span(start=start, end=end, label=label,
-                                   text=value, score=1.0))
-    candidates.sort(key=lambda s: (s.start, -(s.end - s.start)))
-    out: list[Span] = []
+            if context_filter is not None and context_filter(text, start, end):
+                continue  # surrounding context says this is not really PII
+            candidates.append((
+                Span(start=start, end=end, label=label, text=value, score=1.0),
+                subtype,
+            ))
+    candidates.sort(key=lambda x: (x[0].start, -(x[0].end - x[0].start)))
+    out: list[tuple[Span, str | None]] = []
     last_end = -1
-    for sp in candidates:
+    for sp, sub in candidates:
         if sp.start < last_end:
             continue
-        out.append(sp)
+        out.append((sp, sub))
         last_end = sp.end
     return out
+
+
+def _find_regex_spans(text: str) -> list[Span]:
+    """Apply all regexes (with validators + context filters) and return
+    non-overlapping Span list, greedy by start offset, longer-on-tie.
+
+    Subtype information (which specific rule fired) is dropped here;
+    callers that need it should use :func:`_find_regex_spans_with_subtype`.
+    """
+    return [sp for sp, _ in _find_regex_spans_with_subtype(text)]
 
 
 def _mask_spans(text: str, spans: list[Span]) -> str:

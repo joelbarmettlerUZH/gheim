@@ -96,6 +96,34 @@ def test_find_regex_spans_drops_invalid_iban() -> None:
     assert not any(s.label == "account_number" for s in spans)
 
 
+def test_find_regex_spans_drops_credit_card_in_numeric_table() -> None:
+    """Credit-card regex matches a 15-16 digit run + Luhn passes ~10% of
+    random strings by chance, so numeric tables in court / parliamentary
+    documents get tagged as account_number even though they are stat
+    rows. The context filter rejects matches surrounded by ≥3 standalone
+    numeric tokens. Concrete v1 casualties:
+      - '2011 2011 2011 1-3 1-3 1' (court table)
+      - '1892 101 14123 1519' (parliamentary statistics)
+    """
+    text = (
+        "Tabelle: 20966 20966 20966 H.___ H.___ H.___ "
+        "2011 2011 2011 1-3 1-3 1-3 5100 5100"
+    )
+    spans = _find_regex_spans(text)
+    assert not any(s.label == "account_number" for s in spans)
+
+
+def test_find_regex_spans_credit_card_with_card_context_passes() -> None:
+    """The context filter exempts matches preceded by credit-card
+    vocabulary (Karte, card, Visa, ...) so a real card in a transaction
+    list still gets flagged even if other digits are nearby."""
+    text = "Karte 4111 1111 1111 1111 belastet am 2024-01-15."
+    spans = _find_regex_spans(text)
+    cc_spans = [s for s in spans if s.label == "account_number"]
+    assert len(cc_spans) == 1
+    assert cc_spans[0].text == "4111 1111 1111 1111"
+
+
 def test_find_regex_spans_keeps_valid_iban() -> None:
     text = "Real IBAN: CH9300762011623852957 here."
     spans = _find_regex_spans(text)
