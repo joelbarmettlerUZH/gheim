@@ -105,6 +105,14 @@ def _label_batch(client: QwenClient, batch: list[tuple[str, str, str]],
         build_messages(text, language=lang)  # type: ignore[arg-type]
         for _, text, lang in batch
     ]
+    # Note on Qwen3 thinking mode: the default chat template ends with
+    # `<|im_start|>assistant\n<think>\n`, so the model emits a full
+    # chain-of-thought before the JSON. We deliberately leave thinking
+    # ENABLED — the per-batch wall time is ~10× higher than non-thinking
+    # but the labelling quality is markedly better, especially on the
+    # commercial-register format where the v1 Gemma pass under-recalled.
+    # If a faster-but-coarser pass is ever needed, pass
+    # ``enable_thinking=False`` to apply_chat_template here.
     rendered = [
         client._tok.apply_chat_template(
             msgs, tokenize=False, add_generation_prompt=True,
