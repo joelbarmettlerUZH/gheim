@@ -431,22 +431,36 @@ machine-generated labelling source, not a measure of agreement with
 a human ground truth.
 
 To put a number on the residual disagreement we ran a four-way
-re-labelling audit. A stratified 176-chunk sample was held back from
-training, re-annotated by four independent LLM subagents using a
-different prompt and a different seed for each, and the four
-labellings combined into a per-span majority vote. The released
-dataset's labels reach an F\textsubscript{1} of \textbf{0.66} against
-that majority vote. Inspection of the disagreements shows the gap is
-dominated by policy-interpretation differences (the most common case
-is whether the publicly-listed switchboard phone number of a court
-counts as personal information; the recall-oriented policy used for
-the dataset says yes, the modal subagent said no) rather than
-random annotator error or category confusion. The 0.66 audit is the
-best label-quality ceiling we can quote for this dataset, and the
-model's headline 0.916 strict F\textsubscript{1} should be read with
-that ceiling in mind: the model is matching the dataset's own
-labelling policy with high fidelity, which is not the same as
-matching a human's idea of what counts as PII.
+re-labelling audit. A stratified 580-chunk sample (drawn from the
+val and test splits, not the training pool) was re-annotated by
+four independent LLM subagents using a different prompt and a
+different seed for each, and the four labellings were combined
+into a per-span majority vote (a span is in the consensus iff
+${\geq}2$ of 4 subagents agreed on it). The released dataset's
+labels reach an F\textsubscript{1} of \textbf{0.48} against that
+majority vote, with high per-category variance: structured
+categories where the surface form carries the signal score well
+(\texttt{private\_phone} 0.95, \texttt{private\_url} 0.86,
+\texttt{private\_email} 0.71), while categories whose label
+depends on a policy interpretation score poorly
+(\texttt{private\_address} 0.12, \texttt{private\_person} 0.36,
+\texttt{private\_date} 0.43). Inspection of the
+\texttt{private\_person} disagreements shows the gap is dominated
+by policy interpretation rather than random annotator error: the
+modal subagent decision is to omit publicly-listed officials,
+authors of court rulings, and witness names, while the
+recall-oriented dataset policy includes them. \texttt{private\_date}
+disagreements are mostly subagents extracting fewer dates from
+multi-date documents (court hearings, parliamentary records).
+The 0.48 audit number is therefore best read as a measure of
+\emph{how aggressively the dataset labels relative to a more
+conservative subagent consensus}, not as a label-noise floor in
+the random-error sense; the model's headline 0.916 strict
+F\textsubscript{1} should be read against this with that caveat.
+The smaller \texttt{p2} pilot audit (n=176, single Qwen
+re-annotation) gave F\textsubscript{1}=0.66 on a similar setup
+and was used during dataset development as a coarse quality
+gate; it is not the four-way number quoted above.
 
 % --------------------------------------------------------------------
 \section{Model: gheim-ch-560m}
@@ -517,7 +531,7 @@ Learning rate         & 5e-5 \\
 LR scheduler          & Cosine, 5\% warmup \\
 Layer-wise LR decay   & 1.0 (off) \\
 Effective batch size  & 128 (per-device 64 $\times$ 2 GPUs DDP) \\
-Epochs                & 3; best at epoch 2.50 \\
+Epochs                & 3 max; best at step 2{,}500 of 3{,}603 (epoch 2.08) \\
 Max sequence length   & 512 \\
 Precision             & bf16 \\
 Hardware              & 2 $\times$ NVIDIA RTX 4090 \\
@@ -531,14 +545,23 @@ validation split. The held-out test split was scored exactly once on
 the selected checkpoint to produce the headline numbers in
 Section~\ref{sec:eval}.
 
-\subsection{Deployment formats}
+\subsection{Deployment formats and SDKs}
 
 The model ships in two formats. Server-side users load
 \texttt{model.safetensors} (fp32 PyTorch, 2.2 GB) via
 \textsf{transformers}~\cite{wolf2020transformers}; in-browser users load
 \texttt{onnx/model\_quantized.onnx} (int8 dynamic-quantised ONNX,
 552 MB) via \textsf{transformers.js}~\cite{transformersjs} on WebGPU
-or WebAssembly. The int8 export reproduces 99.4\% of the fp32 strict
+or WebAssembly. Two thin SDKs wrap the model for the
+LLM-anonymisation round-trip use case: \textsf{gheim} on PyPI
+(Python) and \textsf{gheim} on npm (TypeScript / JavaScript). Both
+expose the same primitives (anonymise text or chat messages,
+de-anonymise the streamed response, and a session object that
+preserves the sentinel mapping across calls), and both default to
+the calibrated decoder discussed in Section~\ref{sec:limits}. A
+live in-browser demo at \href{https://gheim.ch}{gheim.ch} runs the
+ONNX model through the JS SDK end-to-end, with no server-side
+inference. The int8 export reproduces 99.4\% of the fp32 strict
 F\textsubscript{1} (0.909 vs 0.916, $-$0.7 pp). Per-category strict
 F\textsubscript{1} deltas range from $+0.002$ on \texttt{secret} to
 $-0.053$ on \texttt{account\_number}, with the loss concentrated in
@@ -671,7 +694,7 @@ into two adjacent \texttt{private\_person} spans under our remap
 even though every PII character is correctly masked. On Swiss news
 (\textsf{swissner}, the only Swiss-news NER set that includes
 Romansh), per-language person-character F\textsubscript{1} is
-0.864 (de), 0.870 (fr), 0.835 (it), 0.795 (rm).
+0.884 (de), 0.862 (fr), 0.810 (it), 0.795 (rm).
 
 A methodology check that replicates each baseline on its own
 training-distribution dataset and compares the reproduction to its
@@ -708,10 +731,11 @@ than a harness bug.
         fasttext detector used in data preparation labels GSW as
         standard German.
   \item \textbf{Annotations are machine-generated.} The dataset
-        was not human-annotated; the audit number in
-        Section~\ref{sec:labelnoise} (F\textsubscript{1}~0.66
-        against a four-way subagent re-labelling) is the
-        closest thing to a labelling-policy ceiling we can quote.
+        was not human-annotated; the four-way subagent audit in
+        Section~\ref{sec:labelnoise} (F\textsubscript{1}~0.48
+        overall, with policy-interpretation disagreements
+        dominating the gap) is the only quantitative
+        labelling-policy reference we can quote.
   \item \textbf{Re-identification is not in scope.} The model is
         intended for redaction. It is not designed to identify or
         link entities to real persons and does not return
