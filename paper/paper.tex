@@ -4,15 +4,6 @@
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{xurl}
-% Force wide table* floats to flush before each subsection ends so
-% they don't all batch up at the top of one page.
-\usepackage{placeins}
-\makeatletter
-\AtBeginDocument{%
-  \let\latex@subsection\subsection
-  \renewcommand{\subsection}{\FloatBarrier\latex@subsection}%
-}
-\makeatother
 
 % Sigconf is a narrow two-column layout; long identifier-like tokens
 % inside \texttt / \textsf (slashes, hyphens, dots) have no natural
@@ -155,9 +146,10 @@ Section~\ref{sec:model} covers model selection and training.
 Section~\ref{sec:eval} reports the evaluation.
 Section~\ref{sec:limits} discusses limitations and
 Section~\ref{sec:conclusion} summarises.
-Appendix~\ref{app:replication} reports a methodology-validation pass
-that replicates each external baseline on its own training
-distribution.
+Appendix~\ref{app:results} collects the four full result tables
+(per-language $\times$ per-category breakdown, comparison to other
+detectors, cross-domain transfer, and a methodology-validation pass
+on each external baseline).
 
 % --------------------------------------------------------------------
 \section{Related work}
@@ -599,38 +591,9 @@ chunks), \textsf{gheim-ch-560m} attains a strict-span F\textsubscript{1}
 of 0.916 (precision 0.907, recall 0.926) and a char F\textsubscript{1}
 of 0.958. The validation/test gap is 0.002, consistent with no
 observable overfitting to the validation set used for checkpoint
-selection. The per-language $\times$ per-category char
-F\textsubscript{1} breakdown is in Table~\ref{tab:perlangcat}, with
-per-category and per-language averages in the right-most column and
-bottom row.
-
-\begin{table*}[!tbp]
-\centering
-\caption{Per-language $\times$ per-category char-level
-F\textsubscript{1} on the held-out test split of
-\textsf{gheim-ch-pii-171k} under \textsf{gheim-ch-560m}.
-The right-most column gives the per-category average
-(over languages, gold-weighted); the bottom row gives the
-per-language average (over categories).}
-\label{tab:perlangcat}
-\small
-\begin{tabular}{l r r r r r @{\hspace{1em}} r}
-\toprule
-Category                    & de\_ch & fr\_ch & it\_ch & rm    & en    & Avg.\ \\
-\midrule
-\texttt{account\_number}    & 0.932  & 0.717  & 0.660  & 0.169 & 0.994 & 0.765 \\
-\texttt{private\_address}   & 0.890  & 0.870  & 0.915  & 0.825 & 0.973 & 0.889 \\
-\texttt{private\_date}      & 0.943  & 0.934  & 0.952  & 0.888 & 0.909 & 0.939 \\
-\texttt{private\_email}     & 0.988  & 0.994  & 0.999  & 0.992 & 0.999 & 0.994 \\
-\texttt{private\_person}    & 0.938  & 0.948  & 0.962  & 0.897 & 0.951 & 0.944 \\
-\texttt{private\_phone}     & 0.989  & 0.985  & 0.993  & 0.995 & 0.997 & 0.990 \\
-\texttt{private\_url}       & 0.992  & 0.994  & 0.994  & 0.958 & 0.980 & 0.992 \\
-\texttt{secret}             & 0.999  & 1.000  & 0.999  & 1.000 & 1.000 & 1.000 \\
-\midrule
-Avg.\                       & 0.954  & 0.953  & 0.972  & 0.923 & 0.981 & 0.958 \\
-\bottomrule
-\end{tabular}
-\end{table*}
+selection. The full per-language $\times$ per-category char
+F\textsubscript{1} breakdown is in
+Table~\ref{tab:perlangcat} (Appendix~\ref{app:results}).
 
 Structured categories with strong surface signals
 (\texttt{secret}, \texttt{email}, \texttt{phone}, \texttt{URL}) hold
@@ -649,36 +612,12 @@ checksum validation (see
 \subsection{Comparison to other systems}
 
 Seven other open PII / NER systems were scored on the same test split
-under the same harness. Results are in Table~\ref{tab:directionA}.
+under the same harness; the full result table is in
+Table~\ref{tab:directionA} (Appendix~\ref{app:results}).
 PER-only models (Davlan, dslim, spaCy) emit only person mentions and
-no other PII categories; their overall F\textsubscript{1} on our
-8-category schema is therefore artificially low and is reported as
-n/a in the table; the meaningful number for those is the
-\texttt{private\_person} cell (Table~\ref{tab:directionA}, last two
-columns).
-
-\begin{table*}[!tbp]
-\centering
-\caption{Direction A: other models on the \textsf{gheim-ch-pii-171k}
-test split. Strict and char F\textsubscript{1} for both the overall
-8-category metric and the \texttt{private\_person} cell.}
-\label{tab:directionA}
-\small
-\begin{tabular}{l r r r r}
-\toprule
-Model                                                            & Strict F1 & Char F1 & PER strict & PER char \\
-\midrule
-\textbf{\textsf{joelbarmettler/gheim-ch-560m}}                  & \textbf{0.916} & \textbf{0.958} & \textbf{0.915} & \textbf{0.944} \\
-\textsf{openai/privacy-filter} (1.4B MoE, zero-shot)             & 0.443 & 0.610 & 0.406 & 0.561 \\
-Microsoft Presidio (multi-lang config)                           & 0.434 & 0.562 & 0.442 & 0.521 \\
-\textsf{Davlan/xlm-roberta-base-ner-hrl}                         & n/a   & n/a   & 0.645 & 0.728 \\
-\textsf{Davlan/distilbert-base-multilingual-cased-ner-hrl}       & n/a   & n/a   & 0.619 & 0.771 \\
-spaCy \texttt{de/fr/it\_core\_news\_lg}                          & n/a   & n/a   & 0.505 & 0.621 \\
-\textsf{dslim/bert-base-NER} (English slice)                     & n/a   & n/a   & 0.512 & 0.770 \\
-\textsf{Isotonic/distilbert\_finetuned\_ai4privacy\_v2}          & 0.157 & 0.508 & 0.264 & 0.507 \\
-\bottomrule
-\end{tabular}
-\end{table*}
+no other PII categories, so their overall 8-category
+F\textsubscript{1} is reported as n/a; the meaningful number for
+those is the \texttt{private\_person} cell.
 
 Of the seven public detectors we measured on Swiss text in this
 configuration, \textsf{gheim-ch-560m} is the strongest on every cell
@@ -711,45 +650,15 @@ comparison.
 \label{sec:crossdomain}
 
 The released model was scored on four established external benchmarks
-(Table~\ref{tab:directionB}). For pure-NER datasets (\textsf{swissner},
-CoNLL-2003, WikiNeural) only PER maps to a \textsf{gheim} category;
-the meaningful number is therefore the PER cell. To anchor the
-gheim cells, the table also reports the F\textsubscript{1} of a
-model that was originally trained on each benchmark's distribution
-(reproduced through our harness), so the reader can compare
-\textsf{gheim-ch-560m}'s cross-domain transfer to a same-distribution
-specialist.
-
-\begin{table*}[!tbp]
-\centering
-\caption{Direction B: \textsf{gheim-ch-560m} PER F\textsubscript{1} on
-four external benchmarks, anchored against a specialist model trained
-or claimed-state-of-the-art on each benchmark's native distribution.
-gheim is run zero-shot; native baselines are reproduced through the
-same harness.}
-\label{tab:directionB}
-\small
-\begin{tabular}{l r r r l r}
-\toprule
-External benchmark                                & $n$       & gheim PER strict & gheim PER char & Native baseline                              & Native F\textsubscript{1} \\
-\midrule
-\textsf{ai4privacy/pii-masking-openpii-1m}        & 8{,}000   & 0.776            & 0.920          & \textsf{Isotonic\Bsl distilbert\_ai4privacy} & 0.78$^\dagger$  \\
-Babelscape \textsf{WikiNeural}                    & 8{,}000   & 0.919            & 0.960          & \textsf{Davlan\Bsl xlm\Bhy r\Bhy base\Bhy ner\Bhy hrl} & 0.813$^\ddagger$ \\
-ZurichNLP \textsf{swissner}                       & 800       & 0.903            & 0.946          & spaCy \texttt{de\_core\_news\_lg}            & 0.841$^\S$      \\
-CoNLL-2003                                        & 3{,}453   & 0.887            & 0.936          & \textsf{dslim/bert-base-NER}                 & 0.957           \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-$^\dagger$Isotonic's strict-span F\textsubscript{1} on its own
-training distribution; per-token accuracy across all categories
-(the metric Isotonic itself reports) is 0.969 in our reproduction
-versus 0.955 claimed.
-$^\ddagger$Davlan-XLMR's overall multilingual avg from our
-reproduction (claimed ${\sim}$0.84).
-$^\S$spaCy de\_core's overall F\textsubscript{1} on the German slice
-of \textsf{swissner} (spaCy ships per-language pipelines and has no
-single multilingual model that covers the whole set).
+(\textsf{ai4privacy/openpii-1m}, Babelscape \textsf{WikiNeural},
+ZurichNLP \textsf{swissner}, CoNLL-2003); the full result table is
+in Table~\ref{tab:directionB}
+(Appendix~\ref{app:results}). For pure-NER datasets
+(\textsf{swissner}, CoNLL-2003, WikiNeural) only PER maps to a
+\textsf{gheim} category, so the meaningful number is the PER cell.
+To anchor the gheim cells, the table reports alongside each row the
+F\textsubscript{1} of a model originally trained on that benchmark's
+distribution (reproduced through our harness).
 
 Row by row, \textsf{gheim-ch-560m} matches or exceeds three of the
 four specialists despite being run zero-shot and without ever seeing
@@ -766,10 +675,11 @@ Romansh), per-language person-character F\textsubscript{1} is
 
 A methodology check that replicates each baseline on its own
 training-distribution dataset and compares the reproduction to its
-published number is reported in Appendix~\ref{app:replication}.
-Three of four reproductions match within $\pm$0.03; the fourth
-(Isotonic) is a metric mismatch (per-token accuracy versus
-strict-span F\textsubscript{1}) rather than a harness bug.
+published number is reported in Appendix~\ref{app:results}
+(Table~\ref{tab:replication}). Three of four reproductions match
+within $\pm$0.03; the fourth (Isotonic) is a metric mismatch
+(per-token accuracy versus strict-span F\textsubscript{1}) rather
+than a harness bug.
 
 % --------------------------------------------------------------------
 \section{Limitations}
@@ -867,7 +777,136 @@ classifier layered on top.
 
 \appendix
 
-\section{Methodology validation: replicating each baseline on its own training distribution}
+\section{Detailed evaluation results}
+\label{app:results}
+
+This appendix contains the four full result tables referenced from
+Section~\ref{sec:eval}: the in-distribution per-language $\times$
+per-category breakdown for \textsf{gheim-ch-560m}; the comparison to
+seven other public detectors on the same test split; the cross-domain
+transfer numbers on four external benchmarks; and a methodology
+check that re-runs each external baseline on its own training
+distribution. The prose in Section~\ref{sec:eval} summarises what
+these tables show; the tables themselves are kept out of the main
+narrative so each can be inspected at full width.
+
+\subsection{In-distribution per-language $\times$ per-category}
+\label{app:perlangcat}
+
+Table~\ref{tab:perlangcat} gives the per-language $\times$ per-category
+char-level F\textsubscript{1} on the held-out test split of
+\textsf{gheim-ch-pii-171k}. Structured categories with strong surface
+signals (\texttt{secret}, \texttt{email}, \texttt{phone},
+\texttt{URL}) hold above 0.95 in every language;
+\texttt{account\_number} carries most of the per-language variance,
+with the Romansh cell as the only one below 0.5.
+
+\begin{table*}[!htbp]
+\centering
+\caption{Per-language $\times$ per-category char-level
+F\textsubscript{1} on the held-out test split of
+\textsf{gheim-ch-pii-171k} under \textsf{gheim-ch-560m}.
+The right-most column gives the per-category average
+(over languages, gold-weighted); the bottom row gives the
+per-language average (over categories).}
+\label{tab:perlangcat}
+\small
+\begin{tabular}{l r r r r r @{\hspace{1em}} r}
+\toprule
+Category                    & de\_ch & fr\_ch & it\_ch & rm    & en    & Avg.\ \\
+\midrule
+\texttt{account\_number}    & 0.932  & 0.717  & 0.660  & 0.169 & 0.994 & 0.765 \\
+\texttt{private\_address}   & 0.890  & 0.870  & 0.915  & 0.825 & 0.973 & 0.889 \\
+\texttt{private\_date}      & 0.943  & 0.934  & 0.952  & 0.888 & 0.909 & 0.939 \\
+\texttt{private\_email}     & 0.988  & 0.994  & 0.999  & 0.992 & 0.999 & 0.994 \\
+\texttt{private\_person}    & 0.938  & 0.948  & 0.962  & 0.897 & 0.951 & 0.944 \\
+\texttt{private\_phone}     & 0.989  & 0.985  & 0.993  & 0.995 & 0.997 & 0.990 \\
+\texttt{private\_url}       & 0.992  & 0.994  & 0.994  & 0.958 & 0.980 & 0.992 \\
+\texttt{secret}             & 0.999  & 1.000  & 0.999  & 1.000 & 1.000 & 1.000 \\
+\midrule
+Avg.\                       & 0.954  & 0.953  & 0.972  & 0.923 & 0.981 & 0.958 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Comparison to other detectors}
+\label{app:directionA}
+
+Table~\ref{tab:directionA} reports seven other open PII / NER systems
+on the \textsf{gheim-ch-pii-171k} test split under the same harness.
+Both the overall 8-category metric and the \texttt{private\_person}
+cell are shown for each system; PER-only systems have n/a for the
+overall metric since they cannot emit the other seven categories.
+The comparison is in-distribution for \textsf{gheim-ch-560m} and
+zero-shot for the seven contestants; see
+Section~\ref{sec:crossdomain} for the reverse direction.
+
+\begin{table*}[!htbp]
+\centering
+\caption{Other models on the \textsf{gheim-ch-pii-171k} test split.
+Strict and char F\textsubscript{1} for both the overall 8-category
+metric and the \texttt{private\_person} cell.}
+\label{tab:directionA}
+\small
+\begin{tabular}{l r r r r}
+\toprule
+Model                                                            & Strict F1 & Char F1 & PER strict & PER char \\
+\midrule
+\textbf{\textsf{joelbarmettler/gheim-ch-560m}}                  & \textbf{0.916} & \textbf{0.958} & \textbf{0.915} & \textbf{0.944} \\
+\textsf{openai/privacy-filter} (1.4B MoE, zero-shot)             & 0.443 & 0.610 & 0.406 & 0.561 \\
+Microsoft Presidio (multi-lang config)                           & 0.434 & 0.562 & 0.442 & 0.521 \\
+\textsf{Davlan/xlm-roberta-base-ner-hrl}                         & n/a   & n/a   & 0.645 & 0.728 \\
+\textsf{Davlan/distilbert-base-multilingual-cased-ner-hrl}       & n/a   & n/a   & 0.619 & 0.771 \\
+spaCy \texttt{de/fr/it\_core\_news\_lg}                          & n/a   & n/a   & 0.505 & 0.621 \\
+\textsf{dslim/bert-base-NER} (English slice)                     & n/a   & n/a   & 0.512 & 0.770 \\
+\textsf{Isotonic/distilbert\_finetuned\_ai4privacy\_v2}          & 0.157 & 0.508 & 0.264 & 0.507 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Cross-domain transfer}
+\label{app:directionB}
+
+Table~\ref{tab:directionB} reports \textsf{gheim-ch-560m} PER
+F\textsubscript{1} on four external benchmarks the model has never
+seen. To anchor each row, the same column reports a model trained
+on (or claimed-state-of-the-art on) that benchmark's native
+distribution, reproduced through our harness. The footnotes give
+the specific metric / slice each native number is computed on.
+
+\begin{table*}[!htbp]
+\centering
+\caption{\textsf{gheim-ch-560m} PER F\textsubscript{1} on four
+external benchmarks, anchored against a specialist model trained or
+claimed-state-of-the-art on each benchmark's native distribution.
+\textsf{gheim-ch-560m} is run zero-shot; native baselines are
+reproduced through the same harness.}
+\label{tab:directionB}
+\small
+\begin{tabular}{l r r r l r}
+\toprule
+External benchmark                                & $n$       & gheim PER strict & gheim PER char & Native baseline                              & Native F\textsubscript{1} \\
+\midrule
+\textsf{ai4privacy/pii-masking-openpii-1m}        & 8{,}000   & 0.776            & 0.920          & \textsf{Isotonic\Bsl distilbert\_ai4privacy} & 0.78$^\dagger$  \\
+Babelscape \textsf{WikiNeural}                    & 8{,}000   & 0.919            & 0.960          & \textsf{Davlan\Bsl xlm\Bhy r\Bhy base\Bhy ner\Bhy hrl} & 0.813$^\ddagger$ \\
+ZurichNLP \textsf{swissner}                       & 800       & 0.903            & 0.946          & spaCy \texttt{de\_core\_news\_lg}            & 0.841$^\S$      \\
+CoNLL-2003                                        & 3{,}453   & 0.887            & 0.936          & \textsf{dslim/bert-base-NER}                 & 0.957           \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\noindent$^\dagger$Isotonic's strict-span F\textsubscript{1} on its own
+training distribution; per-token accuracy across all categories
+(the metric Isotonic itself reports) is 0.969 in our reproduction
+versus 0.955 claimed.
+$^\ddagger$Davlan-XLMR's overall multilingual avg from our
+reproduction (claimed ${\sim}$0.84).
+$^\S$spaCy de\_core's overall F\textsubscript{1} on the German slice
+of \textsf{swissner} (spaCy ships per-language pipelines and has no
+single multilingual model that covers the whole set).
+
+\clearpage
+\subsection{Methodology validation: replicating each baseline on its own training distribution}
 \label{app:replication}
 
 To check that the harness in Section~\ref{sec:eval} is sound rather
@@ -878,7 +917,7 @@ the system's own published F\textsubscript{1}
 within $\pm$0.03; the fourth (Isotonic) is a metric mismatch
 discussed below.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \caption{Each baseline scored on its own training-distribution
 dataset, against published numbers.}
@@ -898,7 +937,7 @@ Isotonic distilbert on AI4Privacy                 & 0.955         & 0.969$^\dagg
 \end{tabular}
 \end{table}
 
-$^\dagger$The fourth row required investigation. Isotonic's claimed
+\noindent$^\dagger$Isotonic's claimed
 F\textsubscript{1} of 0.955 initially reproduced as 0.78 strict-span
 F\textsubscript{1} on the same data, an apparent 17-pp gap. The
 difference traces to the metric: Isotonic's reported number is
