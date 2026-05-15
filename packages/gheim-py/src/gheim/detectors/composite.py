@@ -123,10 +123,27 @@ trusted on its own.
 """
 
 
+def _looks_like_numeric_list(value: str) -> bool:
+    """True if ``value`` looks like a list of separate small integers
+    (a salary scale, page numbers, a year range) that the credit-card
+    regex matched because the whole row is 15-17 digits.
+
+    Concrete v1.5 casualty caught by the P7 audit:
+    ``"18 19 20 21 22 23 24 25"`` — a French salary-scale row in a
+    court-decision table. Eight 2-digit tokens, all separated by single
+    spaces, monotonic — visibly NOT a credit card.
+    """
+    tokens = re.findall(r"\d+", value)
+    if len(tokens) < 6:
+        return False
+    # Most tokens are 1-3 digits — indicates list, not a CC chunk.
+    short_tokens = sum(1 for t in tokens if len(t) <= 3)
+    return short_tokens >= len(tokens) - 1
+
+
 def _in_numeric_table(text: str, start: int, end: int) -> bool:
-    """True if the match is surrounded by other standalone numeric
-    tokens, i.e.\\ it looks like a row in a stat / parliamentary table
-    rather than a real account number.
+    """True if the credit-card-shaped match is actually noise: a
+    numeric-table row, a salary scale, or an IMEI.
 
     Why this exists: the credit-card regex `\\b(?:\\d[\\s\\-]?){15,16}\\d\\b`
     is intentionally lax (Visa / Mastercard / Amex / Diner's all need
@@ -135,23 +152,81 @@ def _in_numeric_table(text: str, start: int, end: int) -> bool:
     parliamentary records get matched as credit cards. Concrete v1
     casualties caught by the P7 four-LLM audit:
     `'2011 2011 2011 1-3 1-3 1'`, `'1892 101 14123 1519'`,
-    `'1894 159 4407 52468'` — all from Apertus court / parliament
-    tables. None are PII.
+    `'1894 159 4407 52468'`. v1.5 audit added two more:
+    `'18 19 20 21 22 23 24 25'` (salary scale) and
+    `'3533301011754332'` (IMEI of a phone).
 
-    Skip the table check if the surrounding text contains a
-    credit-card vocabulary word (`Karte`, `card`, `Visa`, `CVV`, …) —
-    those signal that the digits really are a card number even when
-    presented in a tabular context.
+    Three escape hatches keep real cards through:
+    1. Vocabulary words near the match (``Karte``, ``card``, ``Visa``,
+       ``CVV``, etc.) — signals an actual credit card even in tables.
+    2. The match itself is NOT a list of small integers.
+    3. The surrounding window is NOT mostly numeric tokens.
+    4. The match is NOT in IMEI / DOI / identifier context.
     """
+    value = text[start:end]
     pre_window = text[max(0, start - 80):start].lower()
+    post_window = text[end:end + 30].lower()
+
     cc_context = ("karte", "card", "kreditkarte", "visa", "mastercard",
                   "amex", "cvv", "kontonummer", "pan ", "credit ")
     if any(w in pre_window for w in cc_context):
-        return False
-    around = text[max(0, start - 30):start] + " " + text[end:end + 30]
-    # Standalone numeric tokens (not embedded in IDs/words).
+        return False  # real card vocabulary nearby — keep
+
+    # IMEI / device-id context: explicit "imei", "serial", "seriennummer"
+    # words within ~80 chars before the match — almost certainly a
+    # device identifier, not a payment card.
+    id_context = ("imei", "serial", "seriennummer", "doi:", "doi ",
+                  "issn", "isbn", "patent")
+    if any(w in pre_window for w in id_context):
+        return True
+
+    # The match itself looks like a list of small integers (salary
+    # scales, page numbers, year ranges).
+    if _looks_like_numeric_list(value):
+        return True
+
+    # The surrounding window is mostly numeric tokens — likely a
+    # statistics row.
+    around = text[max(0, start - 30):start] + " " + post_window
     nums = re.findall(r"(?<!\w)\d+(?!\w)", around)
     return len(nums) >= 3
+
+
+_DOI_PREFIX_RE = re.compile(r"\b10\.\d{4,5}/")
+"""Real DOIs start with the 10.NNNN/ registrant prefix, never with a
+4-digit year + dot. This regex distinguishes ``10.1249/01.MSS...``
+(real DOI) from ``10.02.2022`` (Swiss date)."""
+
+
+def _is_implausible_swiss_phone(text: str, start: int, end: int) -> bool:
+    """True if the Swiss-phone match doesn't look like a real phone.
+
+    The phone regex's ``\\b0`` alternative also matches any 10-digit
+    run starting with 0 — fine for Swiss landlines that start with 0,
+    but it also fires inside DOI / accession identifiers. Concrete v1.5
+    casualty: ``'0000121945'`` extracted from
+    ``'DOI: 10.1249/01.MSS.0000121945.36635.61'``.
+
+    Reject the match if:
+    - it has 4 or more leading zeros (no real Swiss phone does), OR
+    - the surrounding text contains explicit identifier vocabulary
+      (DOI, ISSN, ISBN, patent) or a real DOI prefix (``10.NNNN/``).
+
+    Important: do NOT reject on bare ``10.`` substring; that would
+    catch any Swiss date written ``DD.MM.YYYY`` (e.g.\\ ``10.02.2022``)
+    which often appears next to a real phone in contact blocks.
+    """
+    value = text[start:end]
+    digits = re.sub(r"\D", "", value)
+    if digits.startswith("0000"):
+        return True
+    pre_window = text[max(0, start - 80):start].lower()
+    id_context = ("doi:", "doi ", "issn", "isbn", "patent")
+    if any(w in pre_window for w in id_context):
+        return True
+    if _DOI_PREFIX_RE.search(pre_window):
+        return True
+    return False
 
 
 # Each entry: (label, regex, validator, context_filter, subtype). The
@@ -172,7 +247,7 @@ _REGEXES: list[tuple[
     ("private_url", re.compile(r"https?://[^\s)>\]]+"), None, None, None),
     ("private_phone", re.compile(
         r"(?:\+41|0041|\b0)\s?(?:\(0\)\s?)?\d{2}[\s\-/.]?\d{3}[\s\-/.]?\d{2}[\s\-/.]?\d{2}\b"
-    ), None, None, "swiss_phone"),
+    ), None, _is_implausible_swiss_phone, "swiss_phone"),
     ("account_number", re.compile(r"\bCH\d{2}(?:[\s\-]?\d){17}\b"), _iban_ch_ok, None, "iban_ch"),
     ("account_number", re.compile(r"\b756\.\d{4}\.\d{4}\.\d{2}\b"), _ahv_ok, None, "ahv"),
     ("account_number", re.compile(r"\b756\d{10}\b"), _ahv_ok, None, "ahv"),

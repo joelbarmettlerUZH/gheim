@@ -124,6 +124,64 @@ def test_find_regex_spans_credit_card_with_card_context_passes() -> None:
     assert cc_spans[0].text == "4111 1111 1111 1111"
 
 
+def test_find_regex_spans_drops_credit_card_numeric_list() -> None:
+    """A list of small monotonic integers (salary scale, page numbers,
+    year range) is ≥15 digits when concatenated and may pass Luhn by
+    chance. Caught by the v1.5 audit:
+    ``'18 19 20 21 22 23 24 25'`` from a French court-decision salary
+    scale row."""
+    text = (
+        "c) Echelon demandé (classe 8) 18 19 20 21 22 23 24 25 "
+        "d) Montant annuel à 100% (fr.)"
+    )
+    spans = _find_regex_spans(text)
+    assert not any(s.label == "account_number" for s in spans)
+
+
+def test_find_regex_spans_drops_imei_with_context() -> None:
+    """An IMEI passes Luhn by design (it's a Luhn checksum).
+    The credit-card context filter rejects matches preceded by
+    'IMEI', 'serial', 'Seriennummer'. v1.5 audit casualty:
+    ``'3533301011754332'`` from ``'Samsung Galaxy A7 (IMEI 3533301011754332)'``."""
+    text = "portable Samsung Galaxy A7 (IMEI 3533301011754332), avec fourre"
+    spans = _find_regex_spans(text)
+    assert not any(s.label == "account_number" for s in spans)
+
+
+def test_find_regex_spans_drops_phone_inside_doi() -> None:
+    """The Swiss-phone regex's `\\b0` alternative matches any 10-digit
+    run starting with 0, so DOI / accession identifiers like
+    ``DOI: 10.1249/01.MSS.0000121945.36635.61`` get tagged as phones.
+    The context filter rejects matches inside DOI / ISSN / ISBN
+    surroundings AND matches with 4+ leading zeros (no real Swiss
+    phone has those)."""
+    text = "Med Sci Sports Exerc 2004. DOI: 10.1249/01.MSS.0000121945.36635.61 Ref."
+    spans = _find_regex_spans(text)
+    assert not any(s.label == "private_phone" for s in spans)
+
+
+def test_find_regex_spans_keeps_real_swiss_phone() -> None:
+    """Sanity: regular Swiss phone numbers still come through."""
+    text = "Telefon Zentrale: 034 429 92 83 Fax: 034 429 92 04."
+    spans = _find_regex_spans(text)
+    phones = [s for s in spans if s.label == "private_phone"]
+    assert len(phones) == 2
+
+
+def test_find_regex_spans_keeps_phone_near_swiss_date() -> None:
+    """The DOI filter must NOT trigger on Swiss dates written DD.MM.YYYY.
+    Real phones often appear right next to such dates in contact-block
+    layouts ('Mise à jour 10.02.2022 +41 58 465 33 33'). Initial v1.6
+    patch used a bare '10.' substring check which incorrectly fired
+    here; the fix scopes the DOI check to the real DOI prefix
+    pattern 10.NNNN/."""
+    text = "Mise à jour 10.02.2022 +41 800 24-7-365 / +41 58 465 33 33 Appel."
+    spans = _find_regex_spans(text)
+    phones = [s for s in spans if s.label == "private_phone"]
+    phone_texts = [s.text for s in phones]
+    assert "+41 58 465 33 33" in phone_texts
+
+
 def test_find_regex_spans_keeps_valid_iban() -> None:
     text = "Real IBAN: CH9300762011623852957 here."
     spans = _find_regex_spans(text)
