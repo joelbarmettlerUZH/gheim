@@ -28,8 +28,13 @@ DEFAULT_MODEL = "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-FP8"
 class NemotronClient:
     model_id: str = DEFAULT_MODEL
     tensor_parallel_size: int = 2
-    gpu_memory_utilization: float = 0.85
-    max_model_len: int = 8192
+    # Nemotron FP8 weights = 17 GiB per GPU after TP=2 split. CUDA
+    # graphs add ~2.3 GiB more, which leaves negative headroom for KV
+    # cache at the default 0.85. Push to 0.92 and drop max_model_len
+    # below 8192 (our chunks are <2500 tokens including system prompt
+    # + few-shot, so a 4096 ceiling is plenty and recovers ~2 GiB).
+    gpu_memory_utilization: float = 0.92
+    max_model_len: int = 4096
     _llm: Any = None
     _tok: Any = None
 
@@ -38,13 +43,19 @@ class NemotronClient:
             return
         from transformers import AutoTokenizer
         from vllm import LLM
-        self._tok = AutoTokenizer.from_pretrained(self.model_id)
+        # Nemotron repos ship custom modeling code (multimodal "Omni"
+        # adapter shims, even though we only use the text path) which
+        # HF won't load without trust_remote_code=True.
+        self._tok = AutoTokenizer.from_pretrained(
+            self.model_id, trust_remote_code=True,
+        )
         self._llm = LLM(
             model=self.model_id,
             tensor_parallel_size=self.tensor_parallel_size,
             gpu_memory_utilization=self.gpu_memory_utilization,
             max_model_len=self.max_model_len,
             dtype="auto",
+            trust_remote_code=True,
         )
 
     def chat_messages(

@@ -58,8 +58,10 @@ from .client import DEFAULT_MODEL, NemotronClient
 DEFAULT_IN = Path("data/layer5v4_lang_fix.jsonl")
 DEFAULT_OUT = Path("data/layer5v4_nemotron.jsonl")
 DEFAULT_BATCH = 256
-DEFAULT_MAX_NEW_TOKENS = 1024  # bumped vs Qwen — reasoning model emits
-                                # more thinking tokens before the JSON
+DEFAULT_MAX_NEW_TOKENS = 512  # thinking is disabled at the chat-template
+                               # level, so the model goes straight to JSON
+                               # output. 512 tokens covers ~50 spans of
+                               # JSON, plenty for a 400-800 char chunk.
 
 
 def _already_done(path: Path) -> set[str]:
@@ -111,9 +113,22 @@ def _label_batch(client: NemotronClient, batch: list[tuple[str, str, str]],
         build_messages(text, language=lang)  # type: ignore[arg-type]
         for _, text, lang in batch
     ]
+    # Nemotron's default chat template ends with `<think>\n` (same as
+    # Qwen3 family). With thinking enabled the model produces ~500
+    # tokens of reasoning before any JSON — at our 16-chunk smoke
+    # rate that worked out to 0.2 chunks/s, i.e. ~133 days for the
+    # full 2.3M corpus. Not viable.
+    #
+    # For Qwen we accepted the slowdown because the chain-of-thought
+    # noticeably improved labelling quality. For Nemotron's third
+    # signal we explicitly trade quality for tractable wall-time:
+    # disabling thinking lets the model emit JSON immediately and
+    # gets us 30-50× throughput. Majority-vote across Gemma + Qwen
+    # + Nemotron absorbs any per-labeller quality variance.
     rendered = [
         client._tok.apply_chat_template(
             msgs, tokenize=False, add_generation_prompt=True,
+            enable_thinking=False,
         )
         for msgs in msgs_per_chunk
     ]
