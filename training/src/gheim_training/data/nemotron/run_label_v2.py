@@ -99,13 +99,18 @@ def _stream_inputs(path: Path, skip: set[str]):
 
 def _label_batch(client: NemotronClient, batch: list[tuple[str, str, str]],
                  max_new_tokens: int) -> list[dict]:
-    """One vLLM call for ``len(batch)`` chunks. Note: we do NOT pass
-    ``StructuredOutputsParams(json=SCHEMA)`` here — vLLM's xgrammar
-    backend is not yet stable on Nemotron's tokenizer at the time of
-    writing. Instead we ask the model to emit JSON via the prompt
-    rules and verify the output downstream the same way the Gemma
-    labeller does (drop spans that don't appear verbatim in the
-    chunk text)."""
+    """One vLLM call for ``len(batch)`` chunks.
+
+    We tried enabling xgrammar via
+    ``StructuredOutputsParams(json=SCHEMA)`` (the same short-circuit
+    the Gemma labeller uses, where it gave a ~10x speedup) but on
+    Nemotron the FSM-state overhead in vLLM's xgrammar backend
+    actually slowed us down (~8.2 chunks/s with xgrammar vs ~9.2/s
+    without). Suspect: Nemotron's tokenizer vocab is much larger
+    than Gemma's, so the per-token grammar mask is dominant.
+
+    Free decoding + downstream verify_and_locate is what wins here.
+    """
     from vllm import SamplingParams
 
     client._load()
