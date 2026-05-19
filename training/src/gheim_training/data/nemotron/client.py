@@ -56,6 +56,17 @@ class NemotronClient:
             max_model_len=self.max_model_len,
             dtype="auto",
             trust_remote_code=True,
+            # The per-language Gemma prompt is ~2000 input tokens of
+            # system + few-shot demos, IDENTICAL for every chunk
+            # within a language. Prefix caching makes vLLM compute
+            # the prefill KV once per unique prefix and reuse it for
+            # every subsequent request that starts with the same
+            # tokens. Combined with sorting batches by language
+            # (see run_label_v2._stream_inputs), this should turn the
+            # ~2000-token prefill into a hit instead of recompute,
+            # which is the dominant cost when output sequences are
+            # short (50-200 tokens of JSON).
+            enable_prefix_caching=True,
         )
 
     def chat_messages(

@@ -81,6 +81,19 @@ def _already_done(path: Path) -> set[str]:
 
 
 def _stream_inputs(path: Path, skip: set[str]):
+    """Yield (id, text, language) for chunks not yet labelled,
+    GROUPED BY LANGUAGE so consecutive batches share the same
+    ~2000-token Gemma prompt prefix and vLLM's prefix cache hits.
+
+    Without grouping, the cache thrashes (5 languages cycle through
+    each batch, every chunk evicts the prior prefix). With grouping,
+    we pay the prefill cost once per language for the whole run.
+
+    Loading the full id+lang index into RAM is fine: 2.3M records ×
+    ~80 bytes/record ≈ 184 MB, negligible.
+    """
+    # Pass 1: index by language so we can iterate in language order.
+    by_lang: dict[str, list[tuple[str, str, str]]] = {}
     with path.open() as f:
         for line in f:
             line = line.strip()
@@ -94,7 +107,11 @@ def _stream_inputs(path: Path, skip: set[str]):
             if not text:
                 continue
             lang = rec.get("language", "de_ch")
-            yield cid, text, lang
+            by_lang.setdefault(lang, []).append((cid, text, lang))
+    # Pass 2: yield language-by-language. Order languages by size
+    # descending so the biggest cache-hit wins compound first.
+    for lang in sorted(by_lang, key=lambda l: -len(by_lang[l])):
+        yield from by_lang[lang]
 
 
 def _label_batch(client: NemotronClient, batch: list[tuple[str, str, str]],
