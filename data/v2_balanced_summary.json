@@ -1,0 +1,55 @@
+{
+  "_meta": {
+    "seed": 20260522,
+    "confidence_floor": 0.5,
+    "per_doc_cap": 30,
+    "per_value_cap": 30,
+    "negatives_fraction": 0.1
+  },
+  "n_chunks": 171478,
+  "n_positives": 155891,
+  "n_negatives": 15587,
+  "by_language": {
+    "de_ch": 68784,
+    "it_ch": 34661,
+    "rm": 12006,
+    "fr_ch": 53686,
+    "en": 2341
+  },
+  "by_lang_source": {
+    "de_ch__entscheidsuche": 13657,
+    "it_ch__romansh": 2503,
+    "it_ch__entscheidsuche": 6065,
+    "rm__romansh": 11233,
+    "fr_ch__entscheidsuche": 12960,
+    "fr_ch__fineweb": 12550,
+    "it_ch__fineweb": 9850,
+    "de_ch__fineweb": 24098,
+    "de_ch__romansh": 586,
+    "en__fineweb": 2236,
+    "en__entscheidsuche": 12,
+    "en__romansh": 29,
+    "fr_ch__romansh": 13,
+    "rm__entscheidsuche": 1,
+    "it_ch__curia_vista": 12761,
+    "fr_ch__curia_vista": 24060,
+    "de_ch__curia_vista": 26353,
+    "en__curia_vista": 9,
+    "rm__fineweb": 661,
+    "de_ch__synthetic_l1": 3999,
+    "it_ch__synthetic_l1": 3366,
+    "fr_ch__synthetic_l1": 3999,
+    "fr_ch__synthetic_l9": 104,
+    "en__synthetic_l9": 55,
+    "it_ch__synthetic_l9": 116,
+    "rm__synthetic_l9": 111,
+    "de_ch__synthetic_l9": 91
+  },
+  "signal_strength_dist": {
+    "4": 22758,
+    "3": 165040,
+    "2": 213680,
+    "1": 60145
+  },
+  "total_surviving_spans": 461623
+}

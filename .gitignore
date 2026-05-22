@@ -38,7 +38,9 @@ htmlcov/
 !/data/p7_audit_*.jsonl
 !/data/p7_audit_report.json
 !/data/p7_audit_analysis.json
-# v2 audit + frequency reports (small JSONs that anchor paper §3.5/§4 numbers)
+# v2 audit + frequency + balancer summary (small JSONs that anchor
+# paper §3.5/§4 numbers and document the balancer config).
 !/data/v2_p7_audit_report.json
 !/data/v2_freq_report.json
+!/data/v2_balanced_summary.json
 packages/gheim-js/package-lock.json

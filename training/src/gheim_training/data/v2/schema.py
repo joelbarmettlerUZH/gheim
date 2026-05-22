@@ -53,9 +53,17 @@ V2_PIPELINE_VERSION = "gheim-pii-v2.0"
 # (Kimi/DeepSeek-V4-Pro/MiniMax/GLM) used for label-noise scoring only
 # — it never contributes to the dataset's published labels (see merge.py
 # where audit is excluded from the confidence denominator).
-V2_SIGNALS: tuple[str, ...] = ("audit", "gemma", "nemotron", "qwen", "regex")
+# "synthetic" identifies spans from template-generated chunks
+# (Layer 1 Faker_CH+Geonames Swiss addresses, Layer 9 Gemma slot-fill
+# gap-fill); these bypass the LLM-agreement merge entirely because the
+# (start, end, label) is deterministic from the template that produced
+# the chunk, so confidence is always 1.0 and the signal tuple is
+# ("synthetic",) alone.
+V2_SIGNALS: tuple[str, ...] = (
+    "audit", "gemma", "nemotron", "qwen", "regex", "synthetic",
+)
 
-V2Signal = Literal["audit", "gemma", "nemotron", "qwen", "regex"]
+V2Signal = Literal["audit", "gemma", "nemotron", "qwen", "regex", "synthetic"]
 
 
 @dataclass(frozen=True, slots=True)
