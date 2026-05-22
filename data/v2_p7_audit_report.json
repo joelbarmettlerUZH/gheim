@@ -1,0 +1,250 @@
+{
+  "_meta": {
+    "v1_baseline_f1": 0.71,
+    "n_chunks": 580,
+    "audit_models": [
+      "moonshotai/kimi-k2.6",
+      "deepseek/deepseek-v4-pro",
+      "minimax/minimax-m2.7",
+      "z-ai/glm-5.1"
+    ],
+    "consensus_rule": "≥2-of-4 LLM majority vote (value, label)"
+  },
+  "overall": {
+    "tp": 958,
+    "fp": 641,
+    "fn": 284,
+    "f1": 0.6744104188665963,
+    "delta_pp_vs_v1": -3.5589581133403714
+  },
+  "per_cell": {
+    "de_ch__account_number": {
+      "tp": 15,
+      "fp": 0,
+      "fn": 0,
+      "f1": 1.0
+    },
+    "de_ch__private_address": {
+      "tp": 16,
+      "fp": 52,
+      "fn": 1,
+      "f1": 0.3764705882352941
+    },
+    "de_ch__private_date": {
+      "tp": 30,
+      "fp": 25,
+      "fn": 12,
+      "f1": 0.6185567010309277
+    },
+    "de_ch__private_email": {
+      "tp": 13,
+      "fp": 9,
+      "fn": 1,
+      "f1": 0.7222222222222223
+    },
+    "de_ch__private_person": {
+      "tp": 76,
+      "fp": 64,
+      "fn": 22,
+      "f1": 0.638655462184874
+    },
+    "de_ch__private_phone": {
+      "tp": 19,
+      "fp": 6,
+      "fn": 1,
+      "f1": 0.8444444444444444
+    },
+    "de_ch__private_url": {
+      "tp": 16,
+      "fp": 12,
+      "fn": 1,
+      "f1": 0.7111111111111111
+    },
+    "de_ch__secret": {
+      "tp": 2,
+      "fp": 1,
+      "fn": 0,
+      "f1": 0.8
+    },
+    "fr_ch__account_number": {
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "f1": 1.0
+    },
+    "fr_ch__private_address": {
+      "tp": 15,
+      "fp": 45,
+      "fn": 2,
+      "f1": 0.38961038961038963
+    },
+    "fr_ch__private_date": {
+      "tp": 50,
+      "fp": 40,
+      "fn": 32,
+      "f1": 0.5813953488372093
+    },
+    "fr_ch__private_email": {
+      "tp": 16,
+      "fp": 4,
+      "fn": 5,
+      "f1": 0.7804878048780488
+    },
+    "fr_ch__private_person": {
+      "tp": 48,
+      "fp": 68,
+      "fn": 24,
+      "f1": 0.5106382978723404
+    },
+    "fr_ch__private_phone": {
+      "tp": 28,
+      "fp": 3,
+      "fn": 1,
+      "f1": 0.9333333333333333
+    },
+    "fr_ch__private_url": {
+      "tp": 24,
+      "fp": 6,
+      "fn": 3,
+      "f1": 0.8421052631578948
+    },
+    "fr_ch__secret": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "f1": 0.0
+    },
+    "it_ch__account_number": {
+      "tp": 7,
+      "fp": 11,
+      "fn": 0,
+      "f1": 0.56
+    },
+    "it_ch__private_address": {
+      "tp": 11,
+      "fp": 47,
+      "fn": 6,
+      "f1": 0.29333333333333333
+    },
+    "it_ch__private_date": {
+      "tp": 102,
+      "fp": 23,
+      "fn": 8,
+      "f1": 0.8680851063829788
+    },
+    "it_ch__private_email": {
+      "tp": 14,
+      "fp": 6,
+      "fn": 0,
+      "f1": 0.8235294117647058
+    },
+    "it_ch__private_person": {
+      "tp": 95,
+      "fp": 15,
+      "fn": 21,
+      "f1": 0.84070796460177
+    },
+    "it_ch__private_phone": {
+      "tp": 26,
+      "fp": 10,
+      "fn": 1,
+      "f1": 0.8253968253968254
+    },
+    "it_ch__private_url": {
+      "tp": 47,
+      "fp": 9,
+      "fn": 2,
+      "f1": 0.8952380952380952
+    },
+    "rm__account_number": {
+      "tp": 1,
+      "fp": 2,
+      "fn": 0,
+      "f1": 0.5
+    },
+    "rm__private_address": {
+      "tp": 11,
+      "fp": 52,
+      "fn": 6,
+      "f1": 0.275
+    },
+    "rm__private_date": {
+      "tp": 32,
+      "fp": 32,
+      "fn": 9,
+      "f1": 0.6095238095238096
+    },
+    "rm__private_email": {
+      "tp": 20,
+      "fp": 4,
+      "fn": 2,
+      "f1": 0.8695652173913043
+    },
+    "rm__private_person": {
+      "tp": 80,
+      "fp": 13,
+      "fn": 26,
+      "f1": 0.8040201005025127
+    },
+    "rm__private_phone": {
+      "tp": 32,
+      "fp": 3,
+      "fn": 6,
+      "f1": 0.8767123287671234
+    },
+    "rm__private_url": {
+      "tp": 23,
+      "fp": 2,
+      "fn": 7,
+      "f1": 0.8363636363636363
+    },
+    "rm__secret": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "f1": 0.0
+    },
+    "en__account_number": {
+      "tp": 0,
+      "fp": 4,
+      "fn": 0,
+      "f1": 0.0
+    },
+    "en__private_address": {
+      "tp": 4,
+      "fp": 6,
+      "fn": 5,
+      "f1": 0.4210526315789474
+    },
+    "en__private_date": {
+      "tp": 14,
+      "fp": 14,
+      "fn": 12,
+      "f1": 0.5185185185185186
+    },
+    "en__private_email": {
+      "tp": 2,
+      "fp": 4,
+      "fn": 3,
+      "f1": 0.3636363636363636
+    },
+    "en__private_person": {
+      "tp": 35,
+      "fp": 18,
+      "fn": 56,
+      "f1": 0.4861111111111111
+    },
+    "en__private_phone": {
+      "tp": 16,
+      "fp": 3,
+      "fn": 6,
+      "f1": 0.7804878048780488
+    },
+    "en__private_url": {
+      "tp": 13,
+      "fp": 26,
+      "fn": 3,
+      "f1": 0.4727272727272727
+    }
+  }
+}
