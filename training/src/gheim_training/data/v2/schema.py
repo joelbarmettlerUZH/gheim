@@ -49,10 +49,13 @@ V2_PIPELINE_VERSION = "gheim-pii-v2.0"
 
 # Canonical signal names. Any v2 span MUST list its signals as a subset
 # of these, in deterministic alphabetical order so identical inputs
-# produce identical JSON.
-V2_SIGNALS: tuple[str, ...] = ("audit", "gemma", "qwen", "regex")
+# produce identical JSON. "audit" is the four-LLM OpenRouter consensus
+# (Kimi/DeepSeek-V4-Pro/MiniMax/GLM) used for label-noise scoring only
+# — it never contributes to the dataset's published labels (see merge.py
+# where audit is excluded from the confidence denominator).
+V2_SIGNALS: tuple[str, ...] = ("audit", "gemma", "nemotron", "qwen", "regex")
 
-V2Signal = Literal["audit", "gemma", "qwen", "regex"]
+V2Signal = Literal["audit", "gemma", "nemotron", "qwen", "regex"]
 
 
 @dataclass(frozen=True, slots=True)

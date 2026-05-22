@@ -69,21 +69,23 @@ def merge_signals(
     *,
     gemma: Iterable[_RawSpan] = (),
     qwen: Iterable[_RawSpan] = (),
+    nemotron: Iterable[_RawSpan] = (),
     regex: Iterable[_RawSpan] = (),
     audit: Iterable[_RawSpan] = (),
-    n_candidate_signals: int = 3,
+    n_candidate_signals: int = 4,
 ) -> list[V2Span]:
-    """Merge spans from up to four sources into the v2 span list.
+    """Merge spans from up to five sources into the v2 span list.
 
     ``n_candidate_signals`` is how many signals were actually run on
-    this chunk (typically 3 = gemma + qwen + regex; the audit signal is
-    sample-only and not counted toward confidence). It is used as the
-    denominator of the per-span confidence so that 1.0 means "every
-    candidate signal agreed".
+    this chunk. Default 4 = gemma + qwen + nemotron + regex (the v2
+    build). The audit signal is sample-only (only present on the
+    580-chunk P7 audit subset) and is excluded from the confidence
+    denominator. Confidence 1.0 = every candidate labeller agreed.
     """
     inputs: dict[V2Signal, list[_RawSpan]] = {
         "gemma": list(gemma),
         "qwen": list(qwen),
+        "nemotron": list(nemotron),
         "regex": list(regex),
         "audit": list(audit),
     }

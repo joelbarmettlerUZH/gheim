@@ -90,8 +90,25 @@ def test_from_value_pair_returns_none_for_hallucinated_value():
 
 # ------------------------------------------------------------------ merge_signals
 
-def test_merge_unanimous_three_signals():
-    """All three labellers agree on a span → confidence 1.0."""
+def test_merge_unanimous_all_signals():
+    """All four labellers agree on a span → confidence 1.0."""
+    text = "Alice's IBAN is CH9300762011623852957."
+    s_gemma = [_RawSpan(16, 37, "account_number", "CH9300762011623852957")]
+    s_qwen = [_RawSpan(16, 37, "account_number", "CH9300762011623852957")]
+    s_nemo = [_RawSpan(16, 37, "account_number", "CH9300762011623852957")]
+    s_regex = [_RawSpan(16, 37, "account_number", "CH9300762011623852957",
+                        regex_subtype="iban_ch")]
+    out = merge_signals(text, gemma=s_gemma, qwen=s_qwen, nemotron=s_nemo,
+                        regex=s_regex)
+    assert len(out) == 1
+    assert out[0].signals == ("gemma", "nemotron", "qwen", "regex")
+    assert out[0].confidence == 1.0
+    assert out[0].regex_subtype == "iban_ch"
+
+
+def test_merge_three_of_four_signals():
+    """Three of four labellers agree → confidence 3/4 with default
+    n_candidate_signals=4."""
     text = "Alice's IBAN is CH9300762011623852957."
     s_gemma = [_RawSpan(16, 37, "account_number", "CH9300762011623852957")]
     s_qwen = [_RawSpan(16, 37, "account_number", "CH9300762011623852957")]
@@ -100,18 +117,20 @@ def test_merge_unanimous_three_signals():
     out = merge_signals(text, gemma=s_gemma, qwen=s_qwen, regex=s_regex)
     assert len(out) == 1
     assert out[0].signals == ("gemma", "qwen", "regex")
-    assert out[0].confidence == 1.0
-    assert out[0].regex_subtype == "iban_ch"
+    assert out[0].confidence == 0.75
 
 
 def test_merge_partial_agreement():
-    """Only Gemma flags a person → confidence 1/3, single signal."""
+    """Only Gemma flags a person → confidence 1/4 with default
+    n_candidate_signals=4. The chunk-level
+    n_candidate_signals parameter can be lowered (e.g. to 3) when a
+    labeller didn't run on this chunk — see assemble.py."""
     text = "Hi Alice."
     s_gemma = [_RawSpan(3, 8, "private_person", "Alice")]
-    out = merge_signals(text, gemma=s_gemma, qwen=[], regex=[])
+    out = merge_signals(text, gemma=s_gemma)
     assert len(out) == 1
     assert out[0].signals == ("gemma",)
-    assert out[0].confidence == pytest.approx(1 / 3)
+    assert out[0].confidence == pytest.approx(1 / 4)
 
 
 def test_merge_longer_span_wins_boundary():
@@ -141,7 +160,8 @@ def test_merge_audit_alone_does_not_emit_span():
 
 def test_merge_audit_increments_signal_set_but_not_confidence():
     """When the audit also flags a span gemma found, audit is added to
-    signals but confidence still divides by n_candidate_signals (=3)."""
+    signals but confidence still divides by n_candidate_signals (=4
+    with the v2 default)."""
     text = "Hi Alice."
     s_gemma = [_RawSpan(3, 8, "private_person", "Alice")]
     audit = [_RawSpan(3, 8, "private_person", "Alice")]
@@ -149,7 +169,7 @@ def test_merge_audit_increments_signal_set_but_not_confidence():
     assert len(out) == 1
     assert "audit" in out[0].signals
     assert "gemma" in out[0].signals
-    assert out[0].confidence == pytest.approx(1 / 3)  # audit excluded from denom
+    assert out[0].confidence == pytest.approx(1 / 4)  # audit excluded from denom
 
 
 def test_merge_preserves_regex_subtype_through_merge():
