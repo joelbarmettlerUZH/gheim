@@ -34,7 +34,11 @@ class NemotronClient:
     # below 8192 (our chunks are <2500 tokens including system prompt
     # + few-shot, so a 4096 ceiling is plenty and recovers ~2 GiB).
     gpu_memory_utilization: float = 0.92
-    max_model_len: int = 4096
+    # 4096 was too tight: one outlier chunk in the 2.3M corpus had a
+    # tokenized prompt of 4097 tokens (vLLM raises VLLMValidationError
+    # rather than truncate). 8192 gives a 2x safety margin while still
+    # leaving plenty of room for KV cache at gpu_memory_utilization=0.92.
+    max_model_len: int = 8192
     _llm: Any = None
     _tok: Any = None
 
