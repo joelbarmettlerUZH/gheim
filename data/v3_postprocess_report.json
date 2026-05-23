@@ -1,0 +1,47 @@
+{
+  "_meta": {
+    "in_path": "data/v2_assembled.jsonl",
+    "out_path": "data/v3_assembled.jsonl",
+    "n_candidate_signals": 4,
+    "place_set_size": 4229
+  },
+  "n_chunks": 2311827,
+  "n_chunks_changed": 13340,
+  "spans_before": 7168162,
+  "spans_after": 7160632,
+  "gazetteer_demotions": 9051,
+  "gazetteer_demotions_by_language": {
+    "rm": 3843,
+    "fr_ch": 762,
+    "de_ch": 3846,
+    "it_ch": 596,
+    "en": 4
+  },
+  "label_conflict_resolutions": 7487,
+  "label_conflict_pairs": {
+    "private_address__private_person": 3533,
+    "private_date__private_person": 1376,
+    "account_number__private_date": 883,
+    "private_person__private_url": 742,
+    "private_email__private_person": 215,
+    "private_email__private_url": 149,
+    "private_date__private_url": 85,
+    "private_address__private_date": 78,
+    "account_number__private_person": 68,
+    "account_number__private_phone": 67,
+    "private_person__secret": 63,
+    "account_number__private_url": 55,
+    "account_number__secret": 36,
+    "private_address__private_url": 31,
+    "private_date__private_phone": 29,
+    "private_date__secret": 21,
+    "account_number__private_address": 18,
+    "private_person__private_phone": 13,
+    "private_url__secret": 9,
+    "private_phone__private_url": 5,
+    "private_address__private_email": 4,
+    "private_email__secret": 3,
+    "account_number__private_email": 2,
+    "private_address__secret": 2
+  }
+}

@@ -49,4 +49,6 @@ htmlcov/
 !/eval/v3_probe_v1.json
 !/eval/v3_cross_v1_on_v2test.json
 !/eval/v3_cross_v2_on_v1test.json
+# v3 labelling post-process report (anchors the gazetteer/overlap-fix numbers)
+!/data/v3_postprocess_report.json
 packages/gheim-js/package-lock.json
