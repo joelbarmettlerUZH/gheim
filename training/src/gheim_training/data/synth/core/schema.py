@@ -1,6 +1,6 @@
 """V3 synthetic chunk emission format.
 
-Every v3 synthetic generator emits chunks in the Layer-1 JSONL shape:
+Every synthetic generator emits chunks in the Layer-1 JSONL shape:
 
     {
       "id": "<unique id>",
@@ -12,12 +12,12 @@ Every v3 synthetic generator emits chunks in the Layer-1 JSONL shape:
       "meta": {...},  # arbitrary
     }
 
-This is the same shape the V2-9 balancer's ``_load_synthetic_metadata``
+This is the same shape the the pipeline balancer's ``_load_synthetic_metadata``
 expects (treats the synthetic layer like Layer 1 / Layer 9), so the
-balancer needs zero changes to consume v3 outputs.
+balancer needs zero changes to consume these outputs.
 
 The schema is intentionally permissive (no labelers / no signals — that's
-v2's per-span provenance; for synthetic, the chunk is its own ground
+the labelling pipeline's per-span provenance; for synthetic, the chunk is its own ground
 truth with confidence implicitly 1.0).
 """
 from __future__ import annotations

@@ -1,7 +1,7 @@
 """Surface-form noise: realistic corruption applied to a fraction of chunks.
 
 Production text has OCR artifacts, broken capitalisation, markdown
-wrapping, non-breaking spaces, HTML entities, etc. v2's synthetic
+wrapping, non-breaking spaces, HTML entities, etc. Previous-iteration synthetic
 chunks are *too clean* — every email is perfectly formatted. The model
 overfits to that and falls apart on real messy input.
 

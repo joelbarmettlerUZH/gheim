@@ -79,7 +79,7 @@ classes of failure persist after v3 training.
 
 Run
 ---
-    uv run python -m gheim_training.eval.probe_v3 --model checkpoints/gheim-ch-v3
+    uv run python -m gheim_training.eval.probe --model checkpoints/gheim-ch-v3
 """
 from __future__ import annotations
 

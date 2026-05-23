@@ -17,7 +17,7 @@ The output schema parallels the Qwen runner's:
 
 So the v2 build's ``merge_signals`` step picks up Nemotron spans the
 same way it picks up Qwen spans, and the per-span ``signals`` field
-in the published v2 dataset will list every labeller (gemma, qwen,
+in the published the dataset will list every labeller (gemma, qwen,
 nemotron, regex) that flagged each span.
 
 Order of operations

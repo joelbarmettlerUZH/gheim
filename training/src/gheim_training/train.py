@@ -95,13 +95,13 @@ def _build_llrd_param_groups(
 
 
 def _example_from_hf_record(rec: dict) -> Example:
-    """Build a v1 ``Example`` from either a v1- or v2-shaped HF record.
+    """Build a training-canonical ``Example`` from an HF record.
 
-    v2 records carry extra per-span metadata (``value``, ``signals``,
+    HF records carry extra per-span metadata (``value``, ``signals``,
     ``confidence``, ``regex_subtype``) which the BIOES encoder doesn't
-    use. Project explicitly to v1 ``Span`` fields rather than ``Span(**s)``
+    use. Project explicitly to ``Span(start, end, label)`` rather than ``Span(**s)``
     so the extras don't crash construction. Likewise ``subset`` is the
-    v2 alias for the v1 ``source`` field — fall back to it when present.
+    alias for the ``source`` field — fall back to it when present.
     """
     return Example(
         text=rec["text"],

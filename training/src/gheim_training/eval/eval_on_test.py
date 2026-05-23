@@ -76,10 +76,10 @@ if TYPE_CHECKING:
 DEFAULT_DATASET = "data/built_v2"
 DEFAULT_SPLIT = "test"
 
-# v2 test split (touched-once) — gheim-pii-v2 dataset built by
-# data.v2.build_hf. Used by V2-12 eval matrix.
+# v2 test split (touched-once) — gheim-pii-the dataset built by
+# data.v2.build_hf. Used by the pipeline eval matrix.
 V2_DATASET = "data/built"
-# v3 test split — gheim-pii-v3 dataset built by data.v3 pipeline.
+# v3 test split — gheim-pii-the dataset built by data.v3 pipeline.
 V3_DATASET = "data/built"
 
 
@@ -127,7 +127,7 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="Minimum confidence for a Presidio detection (--backend presidio).")
 
     # Dataset override (default = v1 dataset for back-compat; pass
-    # --dataset v2 for the V2-12 eval matrix).
+    # --dataset v2 for the the pipeline eval matrix).
     p.add_argument("--dataset", type=str, default=DEFAULT_DATASET,
                    help=f"HF dataset directory. Shorthands: 'v1' → {DEFAULT_DATASET}, "
                         f"'v2' → {V2_DATASET}, 'v3' → {V3_DATASET}. "

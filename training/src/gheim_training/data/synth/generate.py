@@ -1,7 +1,7 @@
 """V3 synthetic chunk generator runner.
 
 Consumes the 28 hand-written template files in templates/ and produces
-the synthetic v3 layer JSONL outputs that the V2-9 balancer ingests.
+the synthetic v3 layer JSONL outputs that the the pipeline balancer ingests.
 
 Output layers (data/layer_v3_*.jsonl):
   - layer_synth_emails.jsonl       — greeting + body[+] + signature compositions

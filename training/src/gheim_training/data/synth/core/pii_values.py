@@ -1,6 +1,6 @@
 """Format-diverse PII value generators.
 
-The v2 synthetic generators (synth_name_patterns, synth_rm_secrets) used
+The first synthetic generators (synth_name_patterns, synth_rm_secrets) used
 one format per PII type — every date was `30. Juni 2026`, every phone
 was Faker's default `+41 44 555 12 34`. The model learned those specific
 formats and missed the others.

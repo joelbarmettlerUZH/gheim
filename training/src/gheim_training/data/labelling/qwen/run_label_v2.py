@@ -1,4 +1,4 @@
-"""V2-3: re-label the existing v1 chunks with Qwen 3.6 35B-A3B.
+"""the pipeline: re-label the existing v1 chunks with Qwen 3.6 35B-A3B.
 
 Reads the canonical Gemma-labelled corpus
 (``data/layer5v4_lang_fix.jsonl``, ~2.3M chunks) and applies the same

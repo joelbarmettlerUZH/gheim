@@ -1,4 +1,4 @@
-"""V2-4: re-label commercial-register chunks with a format-aware prompt.
+"""the pipeline: re-label commercial-register chunks with a format-aware prompt.
 
 The standard v1 Gemma pass under-recalls director and board-member
 names in Swiss commercial-register listings (the P7 audit found 156

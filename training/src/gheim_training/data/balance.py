@@ -1,32 +1,33 @@
-"""V2-9: balance + dedup + synthetic injection.
+"""Balance + dedup + synthetic injection into the publishable dataset.
 
 Produces ``data/balanced.jsonl`` from:
 
-- ``data/assembled.jsonl`` — LLM+regex labelled corpus (~2.3M chunks,
-  output of ``assemble.py``);
-- ``data/layer1.jsonl`` — 50k synthetic Swiss-address chunks
-  (Faker_CH + Geonames-CH templates, all 8 categories);
-- ``data/layer9.jsonl`` — 880 Gemma slot-filled gap-fill chunks
-  spanning all five languages incl. RM + EN.
+- ``data/assembled.jsonl`` — LLM+regex labelled real-text corpus
+  (~2.3M chunks, output of ``labelling/assemble.py``);
+- 50k template-generated documents (KYC/HR/banking/medical) and gap-fill
+  chunks under ``data/layer*.jsonl``;
+- ~64k composer-rendered synthetic chunks (emails / docs / short-form
+  narrative / form layouts / common-word disambiguation pairs /
+  adversarial negatives) produced by ``synth/generate.py``.
 
 Five phases run in order:
 
-  E. Signal floor — drop spans with ``confidence < 0.5``
-     (i.e. single-labeller spans where no other model agreed).
-  A. Per-doc cap = 30 chunks per source document.
-  B. Per-(language, category, normalised-value) cap = 30 spans per
-     entity (prevents the most frequent names/addresses from dominating).
-  C. Per-(language, source, category) cell cap — tiered (see CELL_CAPS).
-  D. Negatives — sample 10% per language from chunks that ended Phase B+C
-     with zero surviving spans.
+  E. Signal floor — drop spans with ``confidence < 0.5`` (single
+     labeller, no other model agreed).
+  A. Per-document cap = 30 chunks per source document. Synthetic sources
+     bypass (they have no document structure; per-template diversity is
+     bounded by Phase C cell caps instead).
+  B. Per-(language, category, normalised value) cap — cell-aware (see
+     ``_per_value_cap``): 30 for strong cells, 60 for medium, 100-200
+     for data-thin cells (RM, EN). Synthetic sources have their own
+     dedup namespace so they don't compete with real-text for budget.
+  C. Per-(language, source, category) cell cap — tiered to balance
+     across the corpus while preserving the natural source mix.
+  D. Negatives — two-tier admission: (1) ALL adversarial-negative
+     chunks are always admitted; (2) random sampling at 10%/lang from
+     the remaining empty-span pool for naturalistic negatives.
 
-Synthetic chunks (Layers 1 + 9) bypass the merge phase but pass through
-Phase B (entity dedup) and Phase C (cell caps under
-``subset="synthetic_l1"`` / ``"synthetic_l9"``) so name-pool repetition
-in Layer 1 still gets capped and template overfitting is bounded by
-``doc_id := template_id``.
-
-Output schema is :class:`V2Example` — every span carries its full
+Output schema is :class:`LabelledExample` — every span carries its full
 ``signals`` tuple and ``regex_subtype`` so downstream consumers can see
 exactly which labellers agreed on each entity.
 
@@ -42,20 +43,19 @@ from collections import Counter, defaultdict
 from collections.abc import Iterator
 from pathlib import Path
 
-from .schema import V2Example, V2Span, write_jsonl
+from .schema import LabelledExample, LabelledSpan, write_jsonl
 
-ASSEMBLED_PATH = Path("data/assembled.jsonl")  # v3-3 produced this from v2_assembled
+ASSEMBLED_PATH = Path("data/assembled.jsonl")
 LAYER1_PATH = Path("data/layer1.jsonl")
 LAYER9_PATH = Path("data/layer9.jsonl")
 RM_SECRETS_PATH = Path("data/layer_rm_secrets.jsonl")
 NAME_PATTERNS_PATH = Path("data/layer_name_patterns.jsonl")
-# v3 synthetic layers (V3-2)
-V3_EMAILS_PATH = Path("data/layer_synth_emails.jsonl")
-V3_DOCS_PATH = Path("data/layer_synth_docs.jsonl")
-V3_SHORT_FORM_PATH = Path("data/layer_synth_short_form.jsonl")
-V3_FORMS_PATH = Path("data/layer_synth_forms.jsonl")
-V3_COMMON_WORD_PATH = Path("data/layer_synth_common_word.jsonl")
-V3_ADVERSARIAL_PATH = Path("data/layer_synth_adversarial.jsonl")
+SYNTH_EMAILS_PATH = Path("data/layer_synth_emails.jsonl")
+SYNTH_DOCS_PATH = Path("data/layer_synth_docs.jsonl")
+SYNTH_SHORT_FORM_PATH = Path("data/layer_synth_short_form.jsonl")
+SYNTH_FORMS_PATH = Path("data/layer_synth_forms.jsonl")
+SYNTH_COMMON_WORD_PATH = Path("data/layer_synth_common_word.jsonl")
+SYNTH_ADVERSARIAL_PATH = Path("data/layer_synth_adversarial.jsonl")
 OUT_PATH = Path("data/balanced.jsonl")
 
 LANGS = ("de_ch", "fr_ch", "it_ch", "rm", "en")
@@ -67,7 +67,6 @@ REAL_SOURCES = ("fineweb", "entscheidsuche", "curia_vista", "romansh")
 SYNTHETIC_SOURCES = (
     "synthetic_l1", "synthetic_l9", "synthetic_rm_secrets",
     "synthetic_name_patterns",
-    # v3 layers
     "synthetic_emails", "synthetic_docs", "synthetic_short_form",
     "synthetic_forms", "synthetic_common_word",
     "synthetic_adversarial",
@@ -87,7 +86,7 @@ SEED = 20260522
 def _per_value_cap(lang: str, cat: str, subset: str) -> int:
     """Per-(lang, cat, value) cap for Phase B.
 
-    Cell-aware tuning based on v2.0 eval results (eval/v2_test_per_lang_cat.json):
+    Cell-aware tuning based on the predecessor build eval results (eval/v2_test_per_lang_cat.json):
     cells where the trained model underperformed get more headroom so the
     next training run sees additional context variations of the same
     entity. Strong cells stay at the default 30 to keep the dataset from
@@ -120,7 +119,7 @@ def _per_value_cap(lang: str, cat: str, subset: str) -> int:
 
 def _cell_cap(lang: str, source: str, cat: str) -> int:
     """Per-(lang × source × cat) cap for Phase C. Caps scaled for the
-    150-250k-total target the user set in V2-9 review.
+    150-250k-total target the user set in the pipeline review.
 
     Notes:
     - English bottlenecks at ~940 chunks total in the corpus, regardless
@@ -137,7 +136,7 @@ def _cell_cap(lang: str, source: str, cat: str) -> int:
                 "private_url", "private_phone",
             )
             # de_ch × person, fr_ch × date were the two ≥0.88-but-<0.93
-            # weak cells in v2.0 → bump person/address/date specifically
+            # weak cells in the predecessor build → bump person/address/date specifically
             # to 24k while keeping url/phone at 18k.
             weak_for_swiss = ("private_person", "private_address",
                               "private_date")
@@ -156,7 +155,7 @@ def _cell_cap(lang: str, source: str, cat: str) -> int:
             return 600  # RM is overwhelmingly from `romansh`, almost none here
     if source == "romansh":
         if lang == "rm":
-            # rm × person/address were the v2.0 weak cells (F1 0.84/0.80)
+            # rm × person/address were the the predecessor build weak cells (F1 0.84/0.80)
             # — bump from 10k → 16k for more name + address variation.
             if cat in ("private_person", "private_address"):
                 return 16_000
@@ -174,10 +173,10 @@ def _cell_cap(lang: str, source: str, cat: str) -> int:
         # 800 chunks, ~1.2 spans/chunk, dominated by secret (800 spans).
         # cap=800 keeps all (rm × synthetic_rm_secrets × secret) and lets
         # the few co-occurring person/phone spans through. Closes the
-        # (rm × secret) cell which was 1-span in v2.0.
+        # (rm × secret) cell which was 1-span in the predecessor build.
         return 800
     if source == "synthetic_name_patterns":
-        # ~2.7k chunks across 4 langs targeting v2.0 edge-case failures
+        # ~2.7k chunks across 4 langs targeting the predecessor build edge-case failures
         # (bare first names in greetings, bare last names in narrative,
         # signature lines, title abbreviations, common-word surnames).
         # Cap high — these are precisely the patterns the model is
@@ -185,7 +184,7 @@ def _cell_cap(lang: str, source: str, cat: str) -> int:
         return 1_500
     # v3 synthetic layers — generated by data.v3.generate from 631
     # hand-written templates. Let through generously since they
-    # target the specific failure patterns v2.2 still misses.
+    # target the specific failure patterns the predecessor build still misses.
     if source == "synthetic_emails":
         # 31k chunks (greet+body+sig compositions, all 5 langs).
         # Cap per (lang × cat) so emails don't dominate any single cell.
@@ -544,22 +543,22 @@ def _stream_assembled_records() -> Iterator[dict]:
 
 
 def _emit_real_chunk(d: dict,
-                     surviving: set[tuple[int, int]]) -> V2Example:
-    """Reconstruct a V2Example from an assembled record, keeping only
+                     surviving: set[tuple[int, int]]) -> LabelledExample:
+    """Reconstruct a LabelledExample from an assembled record, keeping only
     spans whose (start, end) is in ``surviving``. The signals field
-    carries the labeller agreement set through verbatim, per V2-9 design.
+    carries the labeller agreement set through verbatim, per the pipeline design.
     """
     spans = []
     for sp in d.get("spans", []):
         if (sp["start"], sp["end"]) not in surviving:
             continue
-        spans.append(V2Span(
+        spans.append(LabelledSpan(
             start=sp["start"], end=sp["end"], label=sp["label"],
             value=sp["value"], signals=tuple(sp["signals"]),
             confidence=sp["confidence"],
             regex_subtype=sp.get("regex_subtype"),
         ))
-    return V2Example(
+    return LabelledExample(
         id=d["id"], text=d["text"], language=d["language"],
         subset=d["subset"], doc_id=d.get("doc_id") or d["id"],
         spans=spans,
@@ -571,7 +570,7 @@ def _emit_real_chunk(d: dict,
 def _emit_synthetic_chunks(path: Path, subset: str,
                            admitted: set[str],
                            surviving: dict[str, set[tuple[int, int]]],
-                           ) -> Iterator[V2Example]:
+                           ) -> Iterator[LabelledExample]:
     with path.open() as f:
         for i, line in enumerate(f):
             line = line.strip()
@@ -588,11 +587,11 @@ def _emit_synthetic_chunks(path: Path, subset: str,
                 if (sp["start"], sp["end"]) not in surv:
                     continue
                 val = text[sp["start"]:sp["end"]]
-                spans.append(V2Span(
+                spans.append(LabelledSpan(
                     start=sp["start"], end=sp["end"], label=sp["label"],
                     value=val, signals=("synthetic",), confidence=1.0,
                 ))
-            yield V2Example(
+            yield LabelledExample(
                 id=cid, text=text, language=d["language"],
                 subset=subset,
                 doc_id=d.get("template_id") or cid,
@@ -608,7 +607,7 @@ def _emit_synthetic_chunks(path: Path, subset: str,
 
 def main() -> None:
     rng = random.Random(SEED)
-    print(f"V2-9 balance — seed={SEED}, floor={CONFIDENCE_FLOOR}, "
+    print(f"the pipeline balance — seed={SEED}, floor={CONFIDENCE_FLOOR}, "
           f"per-doc={PER_DOC_CAP}, per-value={PER_VALUE_CAP}, "
           f"negatives={int(NEGATIVES_FRACTION * 100)}%/lang")
     print()
@@ -632,38 +631,38 @@ def main() -> None:
     )
     print(f"  name_patterns: {len(syn_name_patterns):,} chunks")
     # v3 synthetic layers
-    print(f"[Pass 1] Loading {V3_EMAILS_PATH} …")
-    syn_v3_emails = _load_synthetic_metadata(
-        V3_EMAILS_PATH, "synthetic_emails",
+    print(f"[Pass 1] Loading {SYNTH_EMAILS_PATH} …")
+    syn_emails = _load_synthetic_metadata(
+        SYNTH_EMAILS_PATH, "synthetic_emails",
     )
-    print(f"  v3 emails: {len(syn_v3_emails):,} chunks")
-    print(f"[Pass 1] Loading {V3_DOCS_PATH} …")
-    syn_v3_docs = _load_synthetic_metadata(V3_DOCS_PATH, "synthetic_docs")
-    print(f"  v3 docs: {len(syn_v3_docs):,} chunks")
-    print(f"[Pass 1] Loading {V3_SHORT_FORM_PATH} …")
-    syn_v3_short_form = _load_synthetic_metadata(
-        V3_SHORT_FORM_PATH, "synthetic_short_form",
+    print(f"  v3 emails: {len(syn_emails):,} chunks")
+    print(f"[Pass 1] Loading {SYNTH_DOCS_PATH} …")
+    syn_docs = _load_synthetic_metadata(SYNTH_DOCS_PATH, "synthetic_docs")
+    print(f"  v3 docs: {len(syn_docs):,} chunks")
+    print(f"[Pass 1] Loading {SYNTH_SHORT_FORM_PATH} …")
+    syn_short_form = _load_synthetic_metadata(
+        SYNTH_SHORT_FORM_PATH, "synthetic_short_form",
     )
-    print(f"  v3 short_form: {len(syn_v3_short_form):,} chunks")
-    print(f"[Pass 1] Loading {V3_FORMS_PATH} …")
-    syn_v3_forms = _load_synthetic_metadata(V3_FORMS_PATH, "synthetic_forms")
-    print(f"  v3 forms: {len(syn_v3_forms):,} chunks")
-    print(f"[Pass 1] Loading {V3_COMMON_WORD_PATH} …")
-    syn_v3_common_word = _load_synthetic_metadata(
-        V3_COMMON_WORD_PATH, "synthetic_common_word",
+    print(f"  v3 short_form: {len(syn_short_form):,} chunks")
+    print(f"[Pass 1] Loading {SYNTH_FORMS_PATH} …")
+    syn_forms = _load_synthetic_metadata(SYNTH_FORMS_PATH, "synthetic_forms")
+    print(f"  v3 forms: {len(syn_forms):,} chunks")
+    print(f"[Pass 1] Loading {SYNTH_COMMON_WORD_PATH} …")
+    syn_common_word = _load_synthetic_metadata(
+        SYNTH_COMMON_WORD_PATH, "synthetic_common_word",
     )
-    print(f"  v3 common_word: {len(syn_v3_common_word):,} chunks")
-    print(f"[Pass 1] Loading {V3_ADVERSARIAL_PATH} …")
-    syn_v3_adversarial = _load_synthetic_metadata(
-        V3_ADVERSARIAL_PATH, "synthetic_adversarial",
+    print(f"  v3 common_word: {len(syn_common_word):,} chunks")
+    print(f"[Pass 1] Loading {SYNTH_ADVERSARIAL_PATH} …")
+    syn_adversarial = _load_synthetic_metadata(
+        SYNTH_ADVERSARIAL_PATH, "synthetic_adversarial",
     )
-    print(f"  v3 adversarial: {len(syn_v3_adversarial):,} chunks")
+    print(f"  v3 adversarial: {len(syn_adversarial):,} chunks")
     print()
 
     all_chunks = (
         real + syn_l1 + syn_l9 + syn_rm_secrets + syn_name_patterns
-        + syn_v3_emails + syn_v3_docs + syn_v3_short_form
-        + syn_v3_forms + syn_v3_common_word + syn_v3_adversarial
+        + syn_emails + syn_docs + syn_short_form
+        + syn_forms + syn_common_word + syn_adversarial
     )
     print(f"Combined pool: {len(all_chunks):,} chunks")
     print()
@@ -698,26 +697,26 @@ def main() -> None:
     syn_name_patterns_ids = {
         c.id for c in syn_name_patterns if c.id in admitted_all
     }
-    syn_v3_ids = {
-        "synthetic_emails": {c.id for c in syn_v3_emails if c.id in admitted_all},
-        "synthetic_docs": {c.id for c in syn_v3_docs if c.id in admitted_all},
-        "synthetic_short_form": {c.id for c in syn_v3_short_form if c.id in admitted_all},
-        "synthetic_forms": {c.id for c in syn_v3_forms if c.id in admitted_all},
-        "synthetic_common_word": {c.id for c in syn_v3_common_word if c.id in admitted_all},
-        "synthetic_adversarial": {c.id for c in syn_v3_adversarial if c.id in admitted_all},
+    syn_ids = {
+        "synthetic_emails": {c.id for c in syn_emails if c.id in admitted_all},
+        "synthetic_docs": {c.id for c in syn_docs if c.id in admitted_all},
+        "synthetic_short_form": {c.id for c in syn_short_form if c.id in admitted_all},
+        "synthetic_forms": {c.id for c in syn_forms if c.id in admitted_all},
+        "synthetic_common_word": {c.id for c in syn_common_word if c.id in admitted_all},
+        "synthetic_adversarial": {c.id for c in syn_adversarial if c.id in admitted_all},
     }
     print(f"[Pass 2] Writing {OUT_PATH} …")
     print(f"  real: {len(real_ids):,}  l1: {len(syn_l1_ids):,}  "
           f"l9: {len(syn_l9_ids):,}  rm_secrets: {len(syn_rm_secrets_ids):,}  "
           f"name_patterns: {len(syn_name_patterns_ids):,}")
-    print(f"  v3 emails: {len(syn_v3_ids['synthetic_emails']):,}  "
-          f"docs: {len(syn_v3_ids['synthetic_docs']):,}  "
-          f"short_form: {len(syn_v3_ids['synthetic_short_form']):,}  "
-          f"forms: {len(syn_v3_ids['synthetic_forms']):,}  "
-          f"common_word: {len(syn_v3_ids['synthetic_common_word']):,}  "
-          f"adversarial: {len(syn_v3_ids['synthetic_adversarial']):,}")
+    print(f"  v3 emails: {len(syn_ids['synthetic_emails']):,}  "
+          f"docs: {len(syn_ids['synthetic_docs']):,}  "
+          f"short_form: {len(syn_ids['synthetic_short_form']):,}  "
+          f"forms: {len(syn_ids['synthetic_forms']):,}  "
+          f"common_word: {len(syn_ids['synthetic_common_word']):,}  "
+          f"adversarial: {len(syn_ids['synthetic_adversarial']):,}")
 
-    def _generate() -> Iterator[V2Example]:
+    def _generate() -> Iterator[LabelledExample]:
         for d in _stream_assembled_records():
             cid = d["id"]
             if cid not in real_ids:
@@ -739,16 +738,16 @@ def main() -> None:
         )
         # v3 synthetic layers
         v3_paths = {
-            "synthetic_emails": V3_EMAILS_PATH,
-            "synthetic_docs": V3_DOCS_PATH,
-            "synthetic_short_form": V3_SHORT_FORM_PATH,
-            "synthetic_forms": V3_FORMS_PATH,
-            "synthetic_common_word": V3_COMMON_WORD_PATH,
-            "synthetic_adversarial": V3_ADVERSARIAL_PATH,
+            "synthetic_emails": SYNTH_EMAILS_PATH,
+            "synthetic_docs": SYNTH_DOCS_PATH,
+            "synthetic_short_form": SYNTH_SHORT_FORM_PATH,
+            "synthetic_forms": SYNTH_FORMS_PATH,
+            "synthetic_common_word": SYNTH_COMMON_WORD_PATH,
+            "synthetic_adversarial": SYNTH_ADVERSARIAL_PATH,
         }
         for source_name, path in v3_paths.items():
             yield from _emit_synthetic_chunks(
-                path, source_name, syn_v3_ids[source_name], surviving,
+                path, source_name, syn_ids[source_name], surviving,
             )
 
     n = write_jsonl(OUT_PATH, _generate())
@@ -757,7 +756,7 @@ def main() -> None:
 
     # ---- Final report ----
     print("=" * 60)
-    print("V2-9 balance summary")
+    print("the pipeline balance summary")
     print("=" * 60)
     print(f"Output: {OUT_PATH}  ({n:,} chunks)")
     print()
@@ -784,8 +783,8 @@ def main() -> None:
     # add synthetic to per-(lang,source) counts
     for synth_pool in (
         syn_l1, syn_l9, syn_rm_secrets, syn_name_patterns,
-        syn_v3_emails, syn_v3_docs, syn_v3_short_form,
-        syn_v3_forms, syn_v3_common_word, syn_v3_adversarial,
+        syn_emails, syn_docs, syn_short_form,
+        syn_forms, syn_common_word, syn_adversarial,
     ):
         for c in synth_pool:
             if c.id in admitted_all:

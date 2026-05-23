@@ -1,18 +1,22 @@
-"""Merge per-source PII span lists into v2 spans with provenance.
+"""Merge per-labeller PII span lists into per-span-provenance LabelledSpans.
 
-The v2 build has up to four signals per chunk:
+Each chunk in the labelled corpus has up to five signals:
 
-- ``gemma``  — the original v1 LLM labeller (cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit)
-- ``qwen``   — the v2 second LLM labeller (cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit)
-- ``regex``  — the deterministic regex catalogue (with checksums + the new
-               column-context filter introduced in v2-1)
-- ``audit``  — optional, only present on chunks the four-LLM OpenRouter
-               audit covered (the n=580 sample)
+- ``gemma``     — Gemma 4 26B-A4B-it (4-bit AWQ): primary multilingual LLM labeller
+- ``qwen``      — Qwen 3.6 35B-A3B (4-bit AWQ): second-opinion LLM labeller
+- ``nemotron``  — Nemotron 3 Nano Omni 30B-A3B (FP8): third-opinion LLM labeller
+- ``regex``     — deterministic regex catalogue with checksum validators
+                  (IBAN-mod-97, AHV-EAN-13, VAT ISO 7064, Luhn) and
+                  context filters
+- ``audit``     — sample-only signal: four-LLM OpenRouter consensus
+                  (Kimi/DeepSeek-V4-Pro/MiniMax/GLM) run on 580 chunks
+                  for label-noise estimation; never contributes to the
+                  published labels
 
 For each chunk this module collapses the per-source span lists into a
-single deduplicated v2 span list. Two spans are considered "the same
+single deduplicated span list. Two spans are considered "the same
 entity" when they share the same casefolded value AND the same label.
-The resulting v2 span carries:
+The resulting LabelledSpan carries:
 
 - the longest observed (start, end) — preserves boundary detail when
   one source caught more context than another (e.g. ``"Müller"`` vs
@@ -22,45 +26,37 @@ The resulting v2 span carries:
 - the ``regex_subtype`` if regex contributed, else ``None``.
 
 Why this design (rather than IoU-based span matching): LLM labellers
-return ``value`` strings, not character offsets. The dataset's existing
-``_verify_and_locate`` helper resolves them by ``str.find``, which
-yields the first occurrence. Using value+label as the merge key avoids
-double-counting the same surface form when two labellers found
-different occurrences of the same string within the chunk.
+return ``value`` strings, not character offsets. We resolve them by
+``str.find``, which yields the first occurrence. Using (value, label)
+as the merge key avoids double-counting the same surface form when two
+labellers found different occurrences of the same string within the
+chunk.
 
-v3 additions
-------------
+Two unconditional post-merge cleanups run after the source-fusion step:
 
-The v2 merge groups by (value, label), so two spans with the SAME
-value but DIFFERENT labels (e.g. "Maienfeld" tagged as address by
-gemma+qwen and as person by nemotron) survive as two separate output
-spans. The bake-off audit surfaced 449 chunks (0.23% of v2_balanced)
-where this produced exact (start, end) collisions with conflicting
-labels — most commonly Swiss place names mislabelled as person by
-Nemotron, dates labelled as person by one of the LLMs, and overlapping
-URL boundaries.
+1. `_apply_swiss_place_gazetteer` — when a span is labelled
+   ``private_person`` but its value is a known Swiss city/town (from
+   the Geonames-CH gazetteer), demote it to ``private_address``.
+   This closes a real labeller-disagreement class where Nemotron tags
+   Maienfeld / Coira / Samedan as person while Gemma + Qwen tag them
+   as address.
 
-v3 adds two post-merge fixes:
+2. `_resolve_label_conflicts` — after the gazetteer step, two spans
+   may share exact (start, end). If labels MATCH, merge their signals
+   into one span with the union (confidence recomputed from the union
+   size). If labels DIFFER, pick the span with more non-audit signals
+   (tie-break: alphabetically earlier label).
 
-1. `_apply_swiss_place_gazetteer`: when a span is labelled private_person
-   but its value is a known Swiss city/town, demote it to private_address.
-   Pulls the gazetteer from Geonames-CH (the same source as the synthetic
-   address generator). Closes the "Maienfeld → person" misclass class.
-
-2. `_resolve_label_conflicts`: after the gazetteer step, two spans may
-   share exact (start, end). If their labels MATCH, merge their signals
-   into one span with the union. If labels DIFFER, pick the span with
-   more non-audit signals (tie-break: alphabetically earlier label).
-
-These run AFTER the standard merge_signals dedup, so the existing v2
-test suite is unaffected unless callers opt-in via apply_v3_fixes=True.
+Together these reduce the corpus from ~7.17M spans (raw merge) to
+~7.16M (1% cleanup) while resolving 9k Swiss-place-name mislabels and
+7.5k label-conflict pairs.
 """
 from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass
 
-from .schema import V2_SIGNALS, V2Signal, V2Span
+from .schema import SIGNALS, Signal, LabelledSpan
 
 
 @dataclass(frozen=True, slots=True)
@@ -100,23 +96,22 @@ def merge_signals(
     regex: Iterable[_RawSpan] = (),
     audit: Iterable[_RawSpan] = (),
     n_candidate_signals: int = 4,
-    apply_v3_fixes: bool = False,
-) -> list[V2Span]:
-    """Merge spans from up to five sources into the v2 span list.
+) -> list[LabelledSpan]:
+    """Merge spans from up to five sources into the dataset span list.
 
     ``n_candidate_signals`` is how many signals were actually run on
-    this chunk. Default 4 = gemma + qwen + nemotron + regex (the v2
-    build). The audit signal is sample-only (only present on the
-    580-chunk P7 audit subset) and is excluded from the confidence
-    denominator. Confidence 1.0 = every candidate labeller agreed.
+    this chunk (typically 4 = gemma + qwen + nemotron + regex). The
+    audit signal is sample-only (covered just the 580-chunk OpenRouter
+    audit subset) and is excluded from the confidence denominator.
+    Confidence 1.0 = every candidate labeller agreed.
 
-    When ``apply_v3_fixes=True``, additionally runs:
+    After the source-fusion step, two cleanups run unconditionally
+    (closes the "address vs person mislabel" + "duplicate (start,end)
+    with different labels" issues — see module docstring):
     - Swiss place-name gazetteer demotion (person → address)
-    - label-conflict resolution by majority signal count
-
-    See module docstring for rationale.
+    - Label-conflict resolution by majority signal count
     """
-    inputs: dict[V2Signal, list[_RawSpan]] = {
+    inputs: dict[Signal, list[_RawSpan]] = {
         "gemma": list(gemma),
         "qwen": list(qwen),
         "nemotron": list(nemotron),
@@ -152,7 +147,7 @@ def merge_signals(
             if sp.regex_subtype is not None and entry["regex_subtype"] is None:
                 entry["regex_subtype"] = sp.regex_subtype
 
-    out: list[V2Span] = []
+    out: list[LabelledSpan] = []
     for entry in grouped.values():
         signals = tuple(sorted(entry["signals"]))
         # Audit signal does NOT count toward confidence — it's sample-only.
@@ -162,7 +157,7 @@ def merge_signals(
             # Audit-only span (no labeller signal). Skip — these are
             # rare and represent disagreement, not consensus.
             continue
-        out.append(V2Span(
+        out.append(LabelledSpan(
             start=entry["start"],
             end=entry["end"],
             label=entry["label"],
@@ -172,14 +167,13 @@ def merge_signals(
             regex_subtype=entry["regex_subtype"],
         ))
     out.sort(key=lambda s: (s.start, s.end))
-    if apply_v3_fixes:
-        out = _apply_swiss_place_gazetteer(out)
-        out = _resolve_label_conflicts(out, n_candidate_signals)
+    out = _apply_swiss_place_gazetteer(out)
+    out = _resolve_label_conflicts(out, n_candidate_signals)
     return out
 
 
 # ---------------------------------------------------------------------------
-# v3 post-merge fixes
+# Post-merge cleanup
 # ---------------------------------------------------------------------------
 
 import functools
@@ -193,22 +187,22 @@ def _swiss_place_names() -> frozenset[str]:
     return frozenset(p.city.casefold().strip() for p in all_places())
 
 
-def _apply_swiss_place_gazetteer(spans: list[V2Span]) -> list[V2Span]:
+def _apply_swiss_place_gazetteer(spans: list[LabelledSpan]) -> list[LabelledSpan]:
     """Demote private_person spans whose value is a known Swiss city to
     private_address. Preserves signals, confidence, and offsets.
 
     Common case this fixes: Nemotron labels "Maienfeld", "Coira",
-    "Samedan" as person; gemma+qwen label them as address. With v3
+    "Samedan" as person; gemma+qwen label them as address. With this
     fixes on, the person label is suppressed (replaced with address)
     and downstream label-conflict resolution merges the signals into
     a single, correctly-typed address span.
     """
     place_set = _swiss_place_names()
-    out: list[V2Span] = []
+    out: list[LabelledSpan] = []
     for sp in spans:
         if (sp.label == "private_person"
                 and sp.value.casefold().strip() in place_set):
-            out.append(V2Span(
+            out.append(LabelledSpan(
                 start=sp.start, end=sp.end,
                 label="private_address",
                 value=sp.value, signals=sp.signals,
@@ -219,8 +213,8 @@ def _apply_swiss_place_gazetteer(spans: list[V2Span]) -> list[V2Span]:
     return out
 
 
-def _resolve_label_conflicts(spans: list[V2Span],
-                             n_candidate_signals: int = 4) -> list[V2Span]:
+def _resolve_label_conflicts(spans: list[LabelledSpan],
+                             n_candidate_signals: int = 4) -> list[LabelledSpan]:
     """Group spans by exact (start, end). If a group has multiple spans:
 
     - All same label → merge their signals (union), RECOMPUTE confidence
@@ -229,16 +223,16 @@ def _resolve_label_conflicts(spans: list[V2Span],
     - Different labels → pick winning label by non-audit signal count;
       tie-break by alphabetically earlier label. Discard the loser.
     """
-    by_pos: dict[tuple[int, int], list[V2Span]] = {}
+    by_pos: dict[tuple[int, int], list[LabelledSpan]] = {}
     for sp in spans:
         by_pos.setdefault((sp.start, sp.end), []).append(sp)
-    out: list[V2Span] = []
+    out: list[LabelledSpan] = []
     for (s, e), group in by_pos.items():
         if len(group) == 1:
             out.append(group[0])
             continue
         # Group by label within the position group
-        by_label: dict[str, list[V2Span]] = {}
+        by_label: dict[str, list[LabelledSpan]] = {}
         for sp in group:
             by_label.setdefault(sp.label, []).append(sp)
         # If only one label remains (gazetteer-merge case), union all signals
@@ -252,14 +246,14 @@ def _resolve_label_conflicts(spans: list[V2Span],
                 None,
             )
             value = label_group[0].value
-            out.append(V2Span(
+            out.append(LabelledSpan(
                 start=s, end=e, label=label, value=value,
                 signals=merged_signals, confidence=new_conf,
                 regex_subtype=regex_subtype,
             ))
             continue
         # Multiple labels at same position — pick winner by signal count.
-        def _key(sp: V2Span) -> tuple[int, str]:
+        def _key(sp: LabelledSpan) -> tuple[int, str]:
             non_audit = [x for x in sp.signals if x != "audit"]
             return (-len(non_audit), sp.label)  # most signals first, then alpha
         winner = sorted(group, key=_key)[0]

@@ -64,7 +64,7 @@ def full_name(language: str, rng: random.Random | None = None) -> str:
 # ============================================================ COMMON_WORD
 
 # German surnames that are ALSO everyday common nouns. These are the
-# surnames that v2.2 misclassifies as their common-noun meaning when
+# surnames that the predecessor build misclassifies as their common-noun meaning when
 # not explicitly disambiguated by context. Hand-curated from Swiss
 # surname-frequency data + my own knowledge of common DE polysemy.
 #
@@ -129,7 +129,7 @@ COMMON_WORD_LASTNAMES_IT: tuple[str, ...] = (
 def common_word_lastname(language: str,
                          rng: random.Random | None = None) -> str:
     """Pick a common-word surname for the given language. These are
-    the surnames v2.2 mislabels as common nouns; v3 trains the model
+    the surnames the predecessor build mislabels as common nouns; v3 trains the model
     on positive (= person) + negative (= common noun) pairs on the
     same surface form."""
     rng = rng or random

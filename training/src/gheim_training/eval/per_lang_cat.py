@@ -23,7 +23,7 @@ Usage::
 
     uv run python -m gheim_training.eval.per_lang_cat \\
         --model checkpoints/stage2_xlmr \\
-        --dataset-dir data/built_v2 --split test \\
+        --dataset-dir data/built --split test \\
         --out eval/per_lang_cat_gheim.json
 """
 from __future__ import annotations

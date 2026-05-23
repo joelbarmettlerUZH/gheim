@@ -17,7 +17,7 @@ templates rendered with Faker_CH first/last/full names.
 
 Six template families, all four target languages (de/fr/it/rm), one
 each for the explicit failure patterns above. Total ~5000-7000 chunks
-written to ``data/layer_name_patterns.jsonl`` and consumed by the V2-9
+written to ``data/layer_name_patterns.jsonl`` and consumed by the the pipeline
 balancer as the source ``synthetic_name_patterns``.
 
 Run

@@ -1,10 +1,10 @@
-"""V2-7: re-audit the v2 dataset's labels against the existing 4-LLM
+"""the pipeline: re-audit the the dataset's labels against the existing 4-LLM
 OpenRouter consensus.
 
 The v1 P7 audit (paper §3.5) measured F1=0.71 between the dataset's
 v1 labels and a majority-of-4 consensus across Kimi-K2.6,
 DeepSeek-V4-Pro, MiniMax-M2.7, and GLM-5.1 on the same 580-chunk
-sample. This script re-runs that comparison for the v2 dataset,
+sample. This script re-runs that comparison for the the dataset,
 producing a directly-comparable number.
 
 Re-uses the cached OpenRouter outputs (``data/p7_audit_<model>.jsonl``)
@@ -12,7 +12,7 @@ so there's zero new API spend.
 
 For each chunk in the 580-chunk audit set:
 
-1. Load the v2 labels for that chunk. We avoid running the full
+1. Load the merged labels for that chunk. We avoid running the full
    ``assemble.py`` over 2.3M chunks just for 580 audit chunks; instead
    we merge inline from gemma/qwen/nemotron/regex per chunk, same
    logic as ``assemble.merge_signals``.
@@ -20,7 +20,7 @@ For each chunk in the 580-chunk audit set:
 2. Build the 4-LLM ≥2-of-4 majority consensus from the cached
    ``data/p7_audit_*.jsonl`` outputs.
 
-3. Score v2 labels vs consensus using the same value-string + label
+3. Score merged labels vs consensus using the same value-string + label
    key match as v1's p7_audit_score (so the F1 number is directly
    comparable).
 
@@ -96,11 +96,11 @@ def _consensus_4llm(p7_models: dict[str, dict[str, dict]],
     return {k for k, v in votes.items() if v >= 2}
 
 
-def _v2_keys(text: str,
+def _merged_keys(text: str,
              gemma_claims: list[dict],
              qwen_claims: list[dict],
              nemo_claims: list[dict]) -> set[tuple[str, str]]:
-    """Build the v2-merged span key set for one chunk by running
+    """Build the merged span key set for one chunk by running
     merge_signals with whichever labellers covered it."""
     gemma_spans = _to_raw_spans(text, gemma_claims)
     qwen_spans = _to_raw_spans(text, qwen_claims)
@@ -145,7 +145,7 @@ def main() -> None:
         for m in P7_AUDIT_MODELS
     }
 
-    print("Scoring v2 labels vs 4-LLM consensus…", flush=True)
+    print("Scoring merged labels vs 4-LLM consensus…", flush=True)
     cell_tp: Counter[tuple[str, str]] = Counter()
     cell_fp: Counter[tuple[str, str]] = Counter()
     cell_fn: Counter[tuple[str, str]] = Counter()

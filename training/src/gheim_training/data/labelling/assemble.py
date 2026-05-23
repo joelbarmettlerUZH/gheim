@@ -1,4 +1,4 @@
-"""V2-6: assemble the v2 dataset from four signal sources.
+"""the pipeline: assemble the the dataset from four signal sources.
 
 Inputs (one record per chunk in each file, indexed by ``id``):
 
@@ -17,9 +17,9 @@ For each chunk this script:
    ``regex_subtype`` per match (iban_ch / ahv / vat_che / credit_card /
    swiss_phone / openai_key / github_pat / aws_access_key).
 3. Calls :func:`merge_signals` to collapse the four signal lists into
-   a deduplicated ``V2Span`` list with per-span ``signals`` + ``confidence``
+   a deduplicated ``LabelledSpan`` list with per-span ``signals`` + ``confidence``
    + ``regex_subtype``.
-4. Writes one ``V2Example`` per chunk to ``data/assembled.jsonl``,
+4. Writes one ``LabelledExample`` per chunk to ``data/assembled.jsonl``,
    tracking which labellers actually saw the chunk.
 
 Memory: the two LLM files (~2-3 GiB each) are indexed into RAM at
@@ -41,7 +41,7 @@ from pathlib import Path
 from gheim.detectors.composite import _find_regex_spans_with_subtype
 
 from .merge import _RawSpan, from_value_pair, merge_signals
-from .schema import V2Example, V2Span, write_jsonl
+from .schema import LabelledExample, LabelledSpan, write_jsonl
 
 DEFAULT_GEMMA = Path("data/layer5v4.jsonl")
 DEFAULT_QWEN = Path("data/layer5v4_qwen.jsonl")
@@ -92,7 +92,7 @@ def assemble(
     *,
     limit: int | None = None,
 ) -> dict:
-    """Build the v2 dataset and return a summary dict."""
+    """Build the the dataset and return a summary dict."""
     print(f"Indexing Qwen ({qwen_path})…", flush=True)
     qwen_index = _load_spans_index(qwen_path, "qwen_spans")
     print(f"  {len(qwen_index):,} chunks indexed", flush=True)
@@ -101,14 +101,14 @@ def assemble(
     nemotron_index = _load_spans_index(nemotron_path, "nemotron_spans")
     print(f"  {len(nemotron_index):,} chunks indexed", flush=True)
 
-    # Track which labellers actually saw each chunk so the V2Example
+    # Track which labellers actually saw each chunk so the LabelledExample
     # records the correct n_candidate_signals (3 if Nemotron didn't
     # cover this chunk, otherwise 4 — see merge_signals).
     n_chunks = 0
     n_skipped_no_qwen = 0
     n_skipped_no_nemotron = 0
     span_counts = {"gemma": 0, "qwen": 0, "nemotron": 0, "regex": 0}
-    out: list[V2Example] = []
+    out: list[LabelledExample] = []
 
     t0 = time.monotonic()
     with gemma_path.open() as f:
@@ -170,7 +170,7 @@ def assemble(
                 n_candidate_signals=n_signals,
             )
 
-            ex = V2Example(
+            ex = LabelledExample(
                 id=cid,
                 text=text,
                 language=rec.get("language", "?"),

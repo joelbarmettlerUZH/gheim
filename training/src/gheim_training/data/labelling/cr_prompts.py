@@ -9,7 +9,7 @@ Differs from the standard per-language Gemma prompt in two ways:
    format rather than prose.
 2. **Few-shot examples are commercial-register listings**: directors,
    board members, signatories with role suffixes — the exact format
-   the v1 Gemma pass under-recalled.
+   the initial Gemma pass under-recalled.
 
 The output schema is identical to the standard prompt so the existing
 parse + verify pipeline (``gheim_training.data.labelling.gemma.labeler``) works

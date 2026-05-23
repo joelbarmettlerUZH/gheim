@@ -27,13 +27,13 @@ Schema (one record per labelled chunk):
         },
         ...
       ],
-      "build_pipeline": "gheim-pii-v2.0",
+      "build_pipeline": "gheim-pii-1.0",
       "labelers": ["gemma-4-26B-A4B-it-AWQ-4bit",
                    "Qwen3.6-35B-A3B-AWQ-4bit",
                    "regex+checksum:gheim.detectors.composite._find_regex_spans"],
     }
 
-The schema is enforced by :class:`V2Span` and :class:`V2Example`.
+The schema is enforced by :class:`LabelledSpan` and :class:`LabelledExample`.
 """
 from __future__ import annotations
 
@@ -45,7 +45,7 @@ from typing import Annotated, Literal
 
 from ..label_space import CATEGORIES
 
-V2_PIPELINE_VERSION = "gheim-pii-v2.0"
+PIPELINE_VERSION = "gheim-pii-1.0"
 
 # Canonical signal names. Any v2 span MUST list its signals as a subset
 # of these, in deterministic alphabetical order so identical inputs
@@ -59,15 +59,15 @@ V2_PIPELINE_VERSION = "gheim-pii-v2.0"
 # (start, end, label) is deterministic from the template that produced
 # the chunk, so confidence is always 1.0 and the signal tuple is
 # ("synthetic",) alone.
-V2_SIGNALS: tuple[str, ...] = (
+SIGNALS: tuple[str, ...] = (
     "audit", "gemma", "nemotron", "qwen", "regex", "synthetic",
 )
 
-V2Signal = Literal["audit", "gemma", "nemotron", "qwen", "regex", "synthetic"]
+Signal = Literal["audit", "gemma", "nemotron", "qwen", "regex", "synthetic"]
 
 
 @dataclass(frozen=True, slots=True)
-class V2Span:
+class LabelledSpan:
     """A character-offset PII span with per-span provenance.
 
     ``signals`` is which labellers flagged this (value, label) pair on
@@ -88,7 +88,7 @@ class V2Span:
     signals: Annotated[
         tuple[str, ...],
         "Sorted tuple of labellers that flagged this span. "
-        "Subset of V2_SIGNALS.",
+        "Subset of SIGNALS.",
     ]
     confidence: Annotated[
         float,
@@ -110,9 +110,9 @@ class V2Span:
         if not self.signals:
             raise ValueError(f"v2 span must have at least one signal: {self}")
         for s in self.signals:
-            if s not in V2_SIGNALS:
+            if s not in SIGNALS:
                 raise ValueError(
-                    f"unknown signal {s!r}; expected one of {V2_SIGNALS}"
+                    f"unknown signal {s!r}; expected one of {SIGNALS}"
                 )
         if list(self.signals) != sorted(self.signals):
             raise ValueError(
@@ -125,16 +125,16 @@ class V2Span:
 
 
 @dataclass(slots=True)
-class V2Example:
-    """One labelled chunk in the v2 dataset."""
+class LabelledExample:
+    """One labelled chunk in the the dataset."""
 
     id: str
     text: str
     language: str
     subset: str
     doc_id: str
-    spans: list[V2Span]
-    build_pipeline: str = V2_PIPELINE_VERSION
+    spans: list[LabelledSpan]
+    build_pipeline: str = PIPELINE_VERSION
     labelers: list[str] = field(default_factory=list)
     meta: dict = field(default_factory=dict)
 
@@ -145,11 +145,11 @@ class V2Example:
         return json.dumps(d, ensure_ascii=False)
 
     @classmethod
-    def from_json(cls, s: str) -> V2Example:
+    def from_json(cls, s: str) -> LabelledExample:
         d = json.loads(s)
         spans_raw = d.pop("spans", [])
         spans = [
-            V2Span(
+            LabelledSpan(
                 start=sp["start"],
                 end=sp["end"],
                 label=sp["label"],
@@ -163,7 +163,7 @@ class V2Example:
         return cls(spans=spans, **d)
 
 
-def write_jsonl(path: Path, examples: Iterable[V2Example]) -> int:
+def write_jsonl(path: Path, examples: Iterable[LabelledExample]) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
     n = 0
     with path.open("w", encoding="utf-8") as f:
@@ -174,10 +174,10 @@ def write_jsonl(path: Path, examples: Iterable[V2Example]) -> int:
     return n
 
 
-def read_jsonl(path: Path) -> Iterator[V2Example]:
+def read_jsonl(path: Path) -> Iterator[LabelledExample]:
     with path.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
-            yield V2Example.from_json(line)
+            yield LabelledExample.from_json(line)

@@ -13,7 +13,7 @@ Two backends produce different intermediate representations:
 
 The output JSON shape is the same in both cases so ``report.py`` can
 treat the files uniformly. The shape is documented at the top of
-``eval_on_ours.py``.
+``eval_on_test.py``.
 """
 from __future__ import annotations
 

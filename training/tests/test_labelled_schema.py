@@ -1,16 +1,16 @@
-"""Tests for the v2 dataset schema and merge logic."""
+"""Tests for the the dataset schema and merge logic."""
 from __future__ import annotations
 
 import pytest
 
 from gheim_training.data.labelling.merge import _RawSpan, from_value_pair, merge_signals
-from gheim_training.data.labelling.schema import V2_PIPELINE_VERSION, V2Example, V2Span
+from gheim_training.data.labelling.schema import PIPELINE_VERSION, LabelledExample, LabelledSpan
 
 
-# --------------------------------------------------------------------- V2Span
+# --------------------------------------------------------------------- LabelledSpan
 
 def test_v2span_construction_minimal():
-    sp = V2Span(start=0, end=5, label="private_person", value="Alice",
+    sp = LabelledSpan(start=0, end=5, label="private_person", value="Alice",
                 signals=("gemma",), confidence=1 / 3)
     assert sp.signals == ("gemma",)
     assert sp.regex_subtype is None
@@ -18,47 +18,47 @@ def test_v2span_construction_minimal():
 
 def test_v2span_rejects_unknown_label():
     with pytest.raises(ValueError, match="unknown category"):
-        V2Span(start=0, end=5, label="not_a_label", value="x",
+        LabelledSpan(start=0, end=5, label="not_a_label", value="x",
                signals=("gemma",), confidence=0.5)
 
 
 def test_v2span_rejects_unsorted_signals():
     with pytest.raises(ValueError, match="sorted alphabetically"):
-        V2Span(start=0, end=5, label="private_person", value="x",
+        LabelledSpan(start=0, end=5, label="private_person", value="x",
                signals=("regex", "gemma"), confidence=0.66)
 
 
 def test_v2span_rejects_empty_signals():
     with pytest.raises(ValueError, match="at least one signal"):
-        V2Span(start=0, end=5, label="private_person", value="x",
+        LabelledSpan(start=0, end=5, label="private_person", value="x",
                signals=(), confidence=0.5)
 
 
 def test_v2span_rejects_unknown_signal():
     with pytest.raises(ValueError, match="unknown signal"):
-        V2Span(start=0, end=5, label="private_person", value="x",
+        LabelledSpan(start=0, end=5, label="private_person", value="x",
                signals=("rumor",), confidence=0.5)
 
 
 def test_v2span_rejects_invalid_offsets():
     with pytest.raises(ValueError, match="invalid span"):
-        V2Span(start=5, end=5, label="private_person", value="",
+        LabelledSpan(start=5, end=5, label="private_person", value="",
                signals=("gemma",), confidence=0.33)
 
 
 # ------------------------------------------------------------------- Roundtrip
 
 def test_v2example_roundtrip_json():
-    ex = V2Example(
+    ex = LabelledExample(
         id="chunk_001",
         text="Hello Alice, your IBAN is CH9300762011623852957.",
         language="en",
         subset="fineweb",
         doc_id="doc_001",
         spans=[
-            V2Span(start=6, end=11, label="private_person", value="Alice",
+            LabelledSpan(start=6, end=11, label="private_person", value="Alice",
                    signals=("gemma", "qwen"), confidence=2 / 3),
-            V2Span(start=26, end=47, label="account_number",
+            LabelledSpan(start=26, end=47, label="account_number",
                    value="CH9300762011623852957",
                    signals=("gemma", "qwen", "regex"), confidence=1.0,
                    regex_subtype="iban_ch"),
@@ -66,12 +66,12 @@ def test_v2example_roundtrip_json():
         labelers=["gemma-4-26B-A4B-it-AWQ-4bit", "Qwen3.6-35B-A3B-AWQ-4bit"],
     )
     s = ex.to_json()
-    restored = V2Example.from_json(s)
+    restored = LabelledExample.from_json(s)
     assert restored.id == ex.id
     assert len(restored.spans) == 2
     assert restored.spans[0].signals == ("gemma", "qwen")
     assert restored.spans[1].regex_subtype == "iban_ch"
-    assert restored.build_pipeline == V2_PIPELINE_VERSION
+    assert restored.build_pipeline == PIPELINE_VERSION
 
 
 # ------------------------------------------------------------------ from_value_pair

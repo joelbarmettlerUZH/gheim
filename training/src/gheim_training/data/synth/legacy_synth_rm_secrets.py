@@ -20,7 +20,7 @@ Approach is pure-template, not LLM-generated:
 
 Output is Layer 9 schema:
 ``{text, spans, language, source, template_id, meta}``
-written to ``data/layer_rm_secrets.jsonl``. The V2-9 balancer treats it
+written to ``data/layer_rm_secrets.jsonl``. The the pipeline balancer treats it
 as a third synthetic source (``synthetic_rm_secrets``) so the per-cell
 caps apply normally.
 

@@ -198,7 +198,7 @@ def _build_matrix() -> dict[str, Any]:
         "direction_a_other_models_on_our_test": a,
         "direction_b_gheim_on_external_datasets": b,
         "notes": [
-            "Direction A: scored on data/built_v2/test (the held-out test split).",
+            "Direction A: scored on data/built/test (the held-out test split).",
             "Direction B: gheim run on external benchmarks; per-dataset converters "
             "remap labels into our 8-cat schema before scoring.",
             "strict_span uses seqeval-token-level for HF/ONNX backends and "

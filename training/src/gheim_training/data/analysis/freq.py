@@ -1,7 +1,7 @@
-"""V2-8: frequency analysis on the merged v2 span universe.
+"""the pipeline: frequency analysis on the merged v2 span universe.
 
 Reads ``data/assembled.jsonl`` and reports the distributions
-that drive the V2-9 balancer:
+that drive the the pipeline balancer:
 
 1. **Span counts per (language × category × confidence-tier)**.
    Confidence tiers:
@@ -23,7 +23,7 @@ that drive the V2-9 balancer:
 Output
 ------
 - stdout: human-readable tables for sanity-checking
-- ``data/freq_report.json``: machine-readable input for the V2-9
+- ``data/freq_report.json``: machine-readable input for the the pipeline
   balancer
 
 Run
@@ -36,7 +36,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from .schema import V2Example, V2_SIGNALS
+from .schema import LabelledExample, SIGNALS
 
 DEFAULT_IN = Path("data/assembled.jsonl")
 DEFAULT_OUT = Path("data/freq_report.json")
@@ -61,7 +61,7 @@ def main() -> None:
     cell: dict[tuple[str, str, str], int] = Counter()
     n_signals_dist: Counter[int] = Counter()
     per_labeller_per_cat: dict[str, Counter[str]] = {
-        s: Counter() for s in V2_SIGNALS
+        s: Counter() for s in SIGNALS
     }
     n_chunks = 0
     n_negative_per_lang: Counter[str] = Counter()
@@ -76,7 +76,7 @@ def main() -> None:
             line = line.strip()
             if not line:
                 continue
-            ex = V2Example.from_json(line)
+            ex = LabelledExample.from_json(line)
             n_chunks += 1
             chunks_per_lang[ex.language] += 1
             spans = ex.spans
@@ -139,7 +139,7 @@ def main() -> None:
 
     print("Per-labeller coverage matrix (spans flagged by labeller × category):")
     print(f"  {'labeller':<12} " + " ".join(f"{c:<20}" for c in CATS))
-    for lbl in V2_SIGNALS:
+    for lbl in SIGNALS:
         if lbl == "audit":
             continue  # audit not present on the main corpus
         row = [f"{per_labeller_per_cat[lbl][c]:<20,}" for c in CATS]
@@ -170,7 +170,7 @@ def main() -> None:
         },
         "per_labeller_per_cat": {
             lbl: dict(per_labeller_per_cat[lbl])
-            for lbl in V2_SIGNALS if lbl != "audit"
+            for lbl in SIGNALS if lbl != "audit"
         },
         "per_language": {
             la: {"chunks": chunks_per_lang[la], "negatives": n_negative_per_lang[la]}

@@ -23,7 +23,7 @@ Per-record fields kept:
 - ``spans``               — list of v2 spans (full schema: start, end, label,
                             value, signals, confidence, regex_subtype)
 - ``labelers``            — model identifiers that produced this chunk's labels
-- ``build_pipeline``      — V2_PIPELINE_VERSION the chunk was built with
+- ``build_pipeline``      — PIPELINE_VERSION the chunk was built with
 - ``template_id``         — synthetic template id (or empty string) for
                             v1 train.py compat
 

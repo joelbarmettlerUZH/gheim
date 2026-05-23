@@ -1,4 +1,4 @@
-"""V2-10: stratified document-level train/val/test split of v2_balanced.
+"""the pipeline: stratified document-level train/val/test split of v2_balanced.
 
 Reads ``data/balanced.jsonl`` and writes three split files plus a
 summary JSON. Targets 80/10/10 by chunk count, stratified by
@@ -39,7 +39,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from .balance import SEED, SYNTHETIC_SOURCES
-from .schema import V2Example, read_jsonl, write_jsonl
+from .schema import LabelledExample, read_jsonl, write_jsonl
 
 IN_PATH = Path("data/balanced.jsonl")  # was v2_balanced; now reads v3 output
 OUT_TRAIN = Path("data/balanced_train.jsonl")
@@ -57,7 +57,7 @@ CATS = (
 )
 
 
-def _group_key(ex: V2Example) -> tuple[str, str, str]:
+def _group_key(ex: LabelledExample) -> tuple[str, str, str]:
     """Return the (lang, source, group_id) tuple used as a split unit.
 
     For synthetic sources the group is the chunk itself; for real text
@@ -70,7 +70,7 @@ def _group_key(ex: V2Example) -> tuple[str, str, str]:
 
 
 def _assign_groups_to_splits(
-    stratum_groups: list[tuple[str, list[V2Example]]],
+    stratum_groups: list[tuple[str, list[LabelledExample]]],
     rng: random.Random,
 ) -> tuple[set[str], set[str], set[str]]:
     """Greedily assign groups within one (lang, source) stratum to
@@ -102,14 +102,14 @@ def _assign_groups_to_splits(
 def main() -> None:
     rng = random.Random(SEED)
 
-    print(f"V2-10 split — seed={SEED}, target=80/10/10 by chunk count, "
+    print(f"the pipeline split — seed={SEED}, target=80/10/10 by chunk count, "
           f"stratify=(language × source)")
     print()
 
     print(f"Loading {IN_PATH} …")
     # Group chunks by (lang, source, group_id) where group_id is doc_id
     # for real-text and chunk_id for synthetic.
-    groups: dict[tuple[str, str], dict[str, list[V2Example]]] = defaultdict(
+    groups: dict[tuple[str, str], dict[str, list[LabelledExample]]] = defaultdict(
         lambda: defaultdict(list),
     )
     n_chunks = 0
@@ -145,9 +145,9 @@ def main() -> None:
     print()
 
     # Emit the three files in one pass over the input.
-    train_buf: list[V2Example] = []
-    val_buf: list[V2Example] = []
-    test_buf: list[V2Example] = []
+    train_buf: list[LabelledExample] = []
+    val_buf: list[LabelledExample] = []
+    test_buf: list[LabelledExample] = []
     for ex in read_jsonl(IN_PATH):
         lang, src, gid = _group_key(ex)
         if gid in train_gids[(lang, src)]:
@@ -165,7 +165,7 @@ def main() -> None:
     print()
 
     # ---- Coverage sanity check ----
-    def _per_lang_cat(buf: list[V2Example]) -> Counter[tuple[str, str]]:
+    def _per_lang_cat(buf: list[LabelledExample]) -> Counter[tuple[str, str]]:
         out: Counter[tuple[str, str]] = Counter()
         for ex in buf:
             for sp in ex.spans:
@@ -204,10 +204,10 @@ def main() -> None:
     print()
 
     # ---- Per-split language + source distributions ----
-    def _per_lang(buf: list[V2Example]) -> Counter[str]:
+    def _per_lang(buf: list[LabelledExample]) -> Counter[str]:
         return Counter(ex.language for ex in buf)
 
-    def _per_src(buf: list[V2Example]) -> Counter[str]:
+    def _per_src(buf: list[LabelledExample]) -> Counter[str]:
         return Counter(ex.subset for ex in buf)
 
     summary = {
