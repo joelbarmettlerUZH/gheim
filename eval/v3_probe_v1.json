@@ -1,0 +1,6537 @@
+{
+  "model": "joelbarmettler/gheim-ch-560m",
+  "n_cases": 212,
+  "overall": {
+    "PASS": 185,
+    "PASS_NEG": 13,
+    "FAIL_NEG": 4,
+    "PARTIAL": 8,
+    "FAIL": 2
+  },
+  "per_tag": {
+    "greet_first": {
+      "PASS": 21
+    },
+    "greet_first_var": {
+      "PASS": 6
+    },
+    "narr_first": {
+      "PASS": 10
+    },
+    "narr_last": {
+      "PASS": 8,
+      "FAIL": 2
+    },
+    "sig_first": {
+      "PASS": 9
+    },
+    "sig_full": {
+      "PASS": 5
+    },
+    "title_full": {
+      "PASS": 9
+    },
+    "title_abbrev": {
+      "PASS": 13
+    },
+    "title_firstlast": {
+      "PASS": 4
+    },
+    "multitle": {
+      "PASS": 1
+    },
+    "last_first_fmt": {
+      "PASS": 4
+    },
+    "initials": {
+      "PASS": 5
+    },
+    "compound_name": {
+      "PASS": 4
+    },
+    "common_word_sur": {
+      "PASS": 8
+    },
+    "adv_neg_person": {
+      "PASS_NEG": 7
+    },
+    "date_dot": {
+      "PASS": 5
+    },
+    "date_slash": {
+      "PASS": 3
+    },
+    "date_spelled": {
+      "PASS": 6
+    },
+    "date_iso": {
+      "PASS": 4
+    },
+    "date_modifier": {
+      "PASS": 3
+    },
+    "adv_neg_date": {
+      "PASS_NEG": 3
+    },
+    "addr_full": {
+      "PASS": 5
+    },
+    "addr_street_only": {
+      "PASS": 2
+    },
+    "addr_with_canton": {
+      "PASS": 3
+    },
+    "addr_city_only": {
+      "PASS": 4
+    },
+    "adv_neg_addr": {
+      "PASS_NEG": 3
+    },
+    "email_std": {
+      "PASS": 5
+    },
+    "email_special": {
+      "PASS": 2
+    },
+    "adv_neg_email": {
+      "FAIL_NEG": 2
+    },
+    "phone_intl": {
+      "PASS": 5
+    },
+    "phone_national": {
+      "PASS": 4
+    },
+    "phone_compact": {
+      "PASS": 1
+    },
+    "adv_neg_phone": {
+      "FAIL_NEG": 1
+    },
+    "url_bare": {
+      "PASS": 3
+    },
+    "url_full": {
+      "PASS": 2
+    },
+    "iban_spaced": {
+      "PASS": 5
+    },
+    "iban_unspaced": {
+      "PASS": 1
+    },
+    "ahv": {
+      "PASS": 3
+    },
+    "vat_che": {
+      "PASS": 2
+    },
+    "credit_card": {
+      "PASS": 1
+    },
+    "secret_openai": {
+      "PARTIAL": 4,
+      "PASS": 1
+    },
+    "secret_github": {
+      "PASS": 2
+    },
+    "secret_aws": {
+      "PASS": 2
+    },
+    "secret_env_file": {
+      "PASS": 2
+    },
+    "multi_email": {
+      "PARTIAL": 4
+    },
+    "adv_neg_url": {
+      "PASS": 1
+    },
+    "adv_neg_account": {
+      "FAIL_NEG": 1
+    },
+    "multi_form": {
+      "PASS": 1
+    }
+  },
+  "per_lang_tag": {
+    "de_ch__greet_first": {
+      "PASS": 6
+    },
+    "de_ch__greet_first_var": {
+      "PASS": 4
+    },
+    "de_ch__narr_first": {
+      "PASS": 3
+    },
+    "de_ch__narr_last": {
+      "PASS": 3
+    },
+    "de_ch__sig_first": {
+      "PASS": 3
+    },
+    "de_ch__sig_full": {
+      "PASS": 2
+    },
+    "de_ch__title_full": {
+      "PASS": 3
+    },
+    "de_ch__title_abbrev": {
+      "PASS": 4
+    },
+    "de_ch__title_firstlast": {
+      "PASS": 1
+    },
+    "de_ch__multitle": {
+      "PASS": 1
+    },
+    "de_ch__last_first_fmt": {
+      "PASS": 2
+    },
+    "de_ch__initials": {
+      "PASS": 2
+    },
+    "de_ch__compound_name": {
+      "PASS": 2
+    },
+    "de_ch__common_word_sur": {
+      "PASS": 6
+    },
+    "de_ch__adv_neg_person": {
+      "PASS_NEG": 5
+    },
+    "de_ch__date_dot": {
+      "PASS": 2
+    },
+    "de_ch__date_slash": {
+      "PASS": 1
+    },
+    "de_ch__date_spelled": {
+      "PASS": 2
+    },
+    "de_ch__date_iso": {
+      "PASS": 1
+    },
+    "de_ch__date_modifier": {
+      "PASS": 2
+    },
+    "de_ch__adv_neg_date": {
+      "PASS_NEG": 2
+    },
+    "de_ch__addr_full": {
+      "PASS": 2
+    },
+    "de_ch__addr_street_only": {
+      "PASS": 1
+    },
+    "de_ch__addr_with_canton": {
+      "PASS": 1
+    },
+    "de_ch__addr_city_only": {
+      "PASS": 1
+    },
+    "de_ch__adv_neg_addr": {
+      "PASS_NEG": 2
+    },
+    "de_ch__email_std": {
+      "PASS": 1
+    },
+    "de_ch__email_special": {
+      "PASS": 1
+    },
+    "de_ch__adv_neg_email": {
+      "FAIL_NEG": 2
+    },
+    "de_ch__phone_intl": {
+      "PASS": 1
+    },
+    "de_ch__phone_national": {
+      "PASS": 1
+    },
+    "de_ch__phone_compact": {
+      "PASS": 1
+    },
+    "de_ch__adv_neg_phone": {
+      "FAIL_NEG": 1
+    },
+    "de_ch__url_bare": {
+      "PASS": 1
+    },
+    "de_ch__url_full": {
+      "PASS": 1
+    },
+    "de_ch__iban_spaced": {
+      "PASS": 1
+    },
+    "de_ch__iban_unspaced": {
+      "PASS": 1
+    },
+    "de_ch__ahv": {
+      "PASS": 1
+    },
+    "de_ch__vat_che": {
+      "PASS": 1
+    },
+    "de_ch__credit_card": {
+      "PASS": 1
+    },
+    "de_ch__secret_openai": {
+      "PARTIAL": 1
+    },
+    "de_ch__secret_github": {
+      "PASS": 2
+    },
+    "de_ch__secret_aws": {
+      "PASS": 2
+    },
+    "de_ch__secret_env_file": {
+      "PASS": 1
+    },
+    "de_ch__multi_email": {
+      "PARTIAL": 1
+    },
+    "fr_ch__greet_first": {
+      "PASS": 5
+    },
+    "fr_ch__greet_first_var": {
+      "PASS": 2
+    },
+    "fr_ch__narr_first": {
+      "PASS": 2
+    },
+    "fr_ch__narr_last": {
+      "PASS": 2
+    },
+    "fr_ch__sig_first": {
+      "PASS": 2
+    },
+    "fr_ch__sig_full": {
+      "PASS": 1
+    },
+    "fr_ch__title_full": {
+      "PASS": 2
+    },
+    "fr_ch__title_abbrev": {
+      "PASS": 3
+    },
+    "fr_ch__title_firstlast": {
+      "PASS": 1
+    },
+    "fr_ch__last_first_fmt": {
+      "PASS": 1
+    },
+    "fr_ch__initials": {
+      "PASS": 1
+    },
+    "fr_ch__compound_name": {
+      "PASS": 1
+    },
+    "fr_ch__date_dot": {
+      "PASS": 1
+    },
+    "fr_ch__date_slash": {
+      "PASS": 1
+    },
+    "fr_ch__date_spelled": {
+      "PASS": 2
+    },
+    "fr_ch__date_iso": {
+      "PASS": 1
+    },
+    "fr_ch__adv_neg_date": {
+      "PASS_NEG": 1
+    },
+    "fr_ch__addr_full": {
+      "PASS": 1
+    },
+    "fr_ch__addr_street_only": {
+      "PASS": 1
+    },
+    "fr_ch__addr_with_canton": {
+      "PASS": 1
+    },
+    "fr_ch__addr_city_only": {
+      "PASS": 1
+    },
+    "fr_ch__adv_neg_addr": {
+      "PASS_NEG": 1
+    },
+    "fr_ch__email_std": {
+      "PASS": 1
+    },
+    "fr_ch__email_special": {
+      "PASS": 1
+    },
+    "fr_ch__phone_intl": {
+      "PASS": 1
+    },
+    "fr_ch__phone_national": {
+      "PASS": 1
+    },
+    "fr_ch__url_bare": {
+      "PASS": 1
+    },
+    "fr_ch__url_full": {
+      "PASS": 1
+    },
+    "fr_ch__iban_spaced": {
+      "PASS": 1
+    },
+    "fr_ch__ahv": {
+      "PASS": 1
+    },
+    "fr_ch__vat_che": {
+      "PASS": 1
+    },
+    "fr_ch__secret_openai": {
+      "PARTIAL": 1
+    },
+    "fr_ch__multi_email": {
+      "PARTIAL": 1
+    },
+    "it_ch__greet_first": {
+      "PASS": 4
+    },
+    "it_ch__narr_first": {
+      "PASS": 2
+    },
+    "it_ch__narr_last": {
+      "PASS": 2
+    },
+    "it_ch__sig_first": {
+      "PASS": 2
+    },
+    "it_ch__sig_full": {
+      "PASS": 1
+    },
+    "it_ch__title_full": {
+      "PASS": 2
+    },
+    "it_ch__title_abbrev": {
+      "PASS": 3
+    },
+    "it_ch__title_firstlast": {
+      "PASS": 1
+    },
+    "it_ch__last_first_fmt": {
+      "PASS": 1
+    },
+    "it_ch__initials": {
+      "PASS": 1
+    },
+    "it_ch__compound_name": {
+      "PASS": 1
+    },
+    "it_ch__date_dot": {
+      "PASS": 1
+    },
+    "it_ch__date_slash": {
+      "PASS": 1
+    },
+    "it_ch__date_spelled": {
+      "PASS": 1
+    },
+    "it_ch__date_iso": {
+      "PASS": 1
+    },
+    "it_ch__addr_full": {
+      "PASS": 1
+    },
+    "it_ch__addr_with_canton": {
+      "PASS": 1
+    },
+    "it_ch__addr_city_only": {
+      "PASS": 1
+    },
+    "it_ch__email_std": {
+      "PASS": 1
+    },
+    "it_ch__phone_intl": {
+      "PASS": 1
+    },
+    "it_ch__phone_national": {
+      "PASS": 1
+    },
+    "it_ch__url_bare": {
+      "PASS": 1
+    },
+    "it_ch__iban_spaced": {
+      "PASS": 1
+    },
+    "it_ch__ahv": {
+      "PASS": 1
+    },
+    "it_ch__secret_openai": {
+      "PARTIAL": 1
+    },
+    "it_ch__multi_email": {
+      "PARTIAL": 1
+    },
+    "rm__greet_first": {
+      "PASS": 3
+    },
+    "rm__narr_first": {
+      "PASS": 2
+    },
+    "rm__narr_last": {
+      "FAIL": 2
+    },
+    "rm__sig_first": {
+      "PASS": 1
+    },
+    "rm__title_full": {
+      "PASS": 2
+    },
+    "rm__title_abbrev": {
+      "PASS": 2
+    },
+    "rm__date_dot": {
+      "PASS": 1
+    },
+    "rm__date_spelled": {
+      "PASS": 1
+    },
+    "rm__addr_full": {
+      "PASS": 1
+    },
+    "rm__email_std": {
+      "PASS": 1
+    },
+    "rm__phone_intl": {
+      "PASS": 1
+    },
+    "rm__iban_spaced": {
+      "PASS": 1
+    },
+    "rm__secret_openai": {
+      "PASS": 1
+    },
+    "rm__secret_env_file": {
+      "PASS": 1
+    },
+    "en__greet_first": {
+      "PASS": 3
+    },
+    "en__narr_first": {
+      "PASS": 1
+    },
+    "en__narr_last": {
+      "PASS": 1
+    },
+    "en__sig_first": {
+      "PASS": 1
+    },
+    "en__sig_full": {
+      "PASS": 1
+    },
+    "en__title_abbrev": {
+      "PASS": 1
+    },
+    "en__title_firstlast": {
+      "PASS": 1
+    },
+    "en__date_iso": {
+      "PASS": 1
+    },
+    "en__email_std": {
+      "PASS": 1
+    },
+    "en__phone_intl": {
+      "PASS": 1
+    },
+    "en__iban_spaced": {
+      "PASS": 1
+    },
+    "en__secret_openai": {
+      "PARTIAL": 1
+    },
+    "en__multi_email": {
+      "PARTIAL": 1
+    },
+    "fr_ch__adv_neg_person": {
+      "PASS_NEG": 1
+    },
+    "it_ch__adv_neg_person": {
+      "PASS_NEG": 1
+    },
+    "de_ch__adv_neg_url": {
+      "PASS": 1
+    },
+    "de_ch__adv_neg_account": {
+      "FAIL_NEG": 1
+    },
+    "fr_ch__common_word_sur": {
+      "PASS": 1
+    },
+    "it_ch__common_word_sur": {
+      "PASS": 1
+    },
+    "rm__initials": {
+      "PASS": 1
+    },
+    "rm__addr_city_only": {
+      "PASS": 1
+    },
+    "rm__phone_national": {
+      "PASS": 1
+    },
+    "rm__date_modifier": {
+      "PASS": 1
+    },
+    "de_ch__multi_form": {
+      "PASS": 1
+    }
+  },
+  "per_case": [
+    {
+      "case_id": "de_greet_first_1",
+      "language": "de_ch",
+      "pattern_tag": "greet_first",
+      "text": "Hallo Marius, danke für deine Nachricht.",
+      "expected": [
+        [
+          6,
+          12,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          12,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_greet_first_2",
+      "language": "de_ch",
+      "pattern_tag": "greet_first",
+      "text": "Liebe Anna, ich melde mich nächste Woche.",
+      "expected": [
+        [
+          6,
+          10,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          10,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_greet_first_3",
+      "language": "de_ch",
+      "pattern_tag": "greet_first",
+      "text": "Hi Lukas, kurze Rückfrage:",
+      "expected": [
+        [
+          3,
+          8,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          3,
+          8,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_greet_first_4",
+      "language": "de_ch",
+      "pattern_tag": "greet_first",
+      "text": "Guten Tag Sophie, anbei der Vertrag.",
+      "expected": [
+        [
+          10,
+          16,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          10,
+          16,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_greet_first_5",
+      "language": "de_ch",
+      "pattern_tag": "greet_first",
+      "text": "Servus Tobias!",
+      "expected": [
+        [
+          7,
+          13,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          13,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_greet_first_6",
+      "language": "de_ch",
+      "pattern_tag": "greet_first",
+      "text": "Lieber Benedikt, vielen Dank.",
+      "expected": [
+        [
+          7,
+          15,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          15,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_greet_first_var_1",
+      "language": "de_ch",
+      "pattern_tag": "greet_first_var",
+      "text": "Hallo, Marius — kannst du das prüfen?",
+      "expected": [
+        [
+          7,
+          13,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          13,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_greet_first_var_2",
+      "language": "de_ch",
+      "pattern_tag": "greet_first_var",
+      "text": "Hallo!\nAnna,\nkurz zur Lieferung:",
+      "expected": [
+        [
+          7,
+          11,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          11,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_greet_first_var_3",
+      "language": "de_ch",
+      "pattern_tag": "greet_first_var",
+      "text": "Hallöchen Lia, danke fürs Mitdenken!",
+      "expected": [
+        [
+          10,
+          13,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          10,
+          13,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_greet_first_var_4",
+      "language": "de_ch",
+      "pattern_tag": "greet_first_var",
+      "text": "Grüezi Herr Bürki, hier die Unterlagen.",
+      "expected": [
+        [
+          7,
+          17,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          12,
+          17,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_narr_first_1",
+      "language": "de_ch",
+      "pattern_tag": "narr_first",
+      "text": "Anna meinte gestern, dass die Lieferung morgen kommt.",
+      "expected": [
+        [
+          0,
+          4,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          4,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_narr_first_2",
+      "language": "de_ch",
+      "pattern_tag": "narr_first",
+      "text": "Laut Sophia ist der Termin auf nächsten Dienstag verschoben.",
+      "expected": [
+        [
+          5,
+          11,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          11,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_narr_first_3",
+      "language": "de_ch",
+      "pattern_tag": "narr_first",
+      "text": "Ich habe Tobias gebeten, das Dokument durchzusehen.",
+      "expected": [
+        [
+          9,
+          15,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          9,
+          15,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_narr_last_1",
+      "language": "de_ch",
+      "pattern_tag": "narr_last",
+      "text": "Müller hat heute Morgen eine ausführliche Stellungnahme geschrieben.",
+      "expected": [
+        [
+          0,
+          6,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          6,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_narr_last_2",
+      "language": "de_ch",
+      "pattern_tag": "narr_last",
+      "text": "Die Beschwerde wurde von Bürgi eingereicht.",
+      "expected": [
+        [
+          25,
+          30,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          25,
+          30,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_narr_last_3",
+      "language": "de_ch",
+      "pattern_tag": "narr_last",
+      "text": "Laut Aussage von Schmid liegt der Fehler beim Lieferanten.",
+      "expected": [
+        [
+          17,
+          23,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          17,
+          23,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_sig_first_1",
+      "language": "de_ch",
+      "pattern_tag": "sig_first",
+      "text": "Vielen Dank für die Bearbeitung.\n\nLiebe Grüsse,\nMarius",
+      "expected": [
+        [
+          48,
+          54,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          48,
+          54,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_sig_first_2",
+      "language": "de_ch",
+      "pattern_tag": "sig_first",
+      "text": "Bei Fragen melde dich.\n\nGruss\nAnna",
+      "expected": [
+        [
+          30,
+          34,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          30,
+          34,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_sig_first_3",
+      "language": "de_ch",
+      "pattern_tag": "sig_first",
+      "text": "Ich freue mich auf deine Rückmeldung.\n\nBeste Grüsse\nLukas",
+      "expected": [
+        [
+          52,
+          57,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          52,
+          57,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_sig_full_1",
+      "language": "de_ch",
+      "pattern_tag": "sig_full",
+      "text": "Freundliche Grüsse,\nLukas Brunner",
+      "expected": [
+        [
+          20,
+          33,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          20,
+          33,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_sig_full_2",
+      "language": "de_ch",
+      "pattern_tag": "sig_full",
+      "text": "Mit freundlichen Grüssen\nAnna-Lena Müller-Schmid",
+      "expected": [
+        [
+          25,
+          48,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          25,
+          48,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_title_full_1",
+      "language": "de_ch",
+      "pattern_tag": "title_full",
+      "text": "Sehr geehrter Herr Müller, anbei das gewünschte Dokument.",
+      "expected": [
+        [
+          14,
+          25,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          19,
+          25,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_title_full_2",
+      "language": "de_ch",
+      "pattern_tag": "title_full",
+      "text": "Sehr geehrte Frau Dubois, vielen Dank für Ihre Anfrage.",
+      "expected": [
+        [
+          13,
+          24,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          18,
+          24,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_title_full_3",
+      "language": "de_ch",
+      "pattern_tag": "title_full",
+      "text": "Sehr geehrter Herr Bundesrat Berset, wir bedanken uns.",
+      "expected": [
+        [
+          14,
+          35,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          29,
+          35,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_title_abbrev_1",
+      "language": "de_ch",
+      "pattern_tag": "title_abbrev",
+      "text": "Hr. Müller hat mich heute Morgen kontaktiert.",
+      "expected": [
+        [
+          0,
+          10,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          4,
+          10,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_title_abbrev_2",
+      "language": "de_ch",
+      "pattern_tag": "title_abbrev",
+      "text": "Dr. Schmidt hat den Befund bestätigt.",
+      "expected": [
+        [
+          0,
+          11,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          4,
+          11,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_title_abbrev_3",
+      "language": "de_ch",
+      "pattern_tag": "title_abbrev",
+      "text": "Prof. Bürgi leitet die Sitzung am Donnerstag.",
+      "expected": [
+        [
+          0,
+          11,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          11,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_title_abbrev_4",
+      "language": "de_ch",
+      "pattern_tag": "title_abbrev",
+      "text": "Fr. Schneider ist diese Woche im Homeoffice.",
+      "expected": [
+        [
+          0,
+          13,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          13,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_title_firstlast_1",
+      "language": "de_ch",
+      "pattern_tag": "title_firstlast",
+      "text": "Dr. Anna Müller hat den Bericht verfasst.",
+      "expected": [
+        [
+          0,
+          15,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          4,
+          15,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_multitle_1",
+      "language": "de_ch",
+      "pattern_tag": "multitle",
+      "text": "Dr. med. Anna Müller, MBA, übernimmt die Klinikleitung.",
+      "expected": [
+        [
+          0,
+          20,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          9,
+          20,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_last_first_fmt_1",
+      "language": "de_ch",
+      "pattern_tag": "last_first_fmt",
+      "text": "Unterschrift: MÜLLER, Anna",
+      "expected": [
+        [
+          14,
+          26,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          14,
+          26,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_last_first_fmt_2",
+      "language": "de_ch",
+      "pattern_tag": "last_first_fmt",
+      "text": "Kontaktperson: Schmid, Lukas",
+      "expected": [
+        [
+          15,
+          28,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          15,
+          28,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_initials_1",
+      "language": "de_ch",
+      "pattern_tag": "initials",
+      "text": "A. Müller hat den Brief unterschrieben.",
+      "expected": [
+        [
+          0,
+          9,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          9,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_initials_2",
+      "language": "de_ch",
+      "pattern_tag": "initials",
+      "text": "Hr. M. Müller hat mich heute kontaktiert.",
+      "expected": [
+        [
+          0,
+          13,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          4,
+          13,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_compound_1",
+      "language": "de_ch",
+      "pattern_tag": "compound_name",
+      "text": "Hans-Peter Bürgi-Stocker hat das Protokoll unterzeichnet.",
+      "expected": [
+        [
+          0,
+          24,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          24,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_compound_2",
+      "language": "de_ch",
+      "pattern_tag": "compound_name",
+      "text": "Marie-Theres von Wartburg ist die neue Direktorin.",
+      "expected": [
+        [
+          0,
+          25,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          25,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_commonword_1",
+      "language": "de_ch",
+      "pattern_tag": "common_word_sur",
+      "text": "Herr Bach hat das Konzert dirigiert.",
+      "expected": [
+        [
+          0,
+          9,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          9,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_commonword_2",
+      "language": "de_ch",
+      "pattern_tag": "common_word_sur",
+      "text": "Frau Berg ist die neue Schulleiterin.",
+      "expected": [
+        [
+          0,
+          9,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          9,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_commonword_3",
+      "language": "de_ch",
+      "pattern_tag": "common_word_sur",
+      "text": "Dr. Stein hat den Bericht verfasst.",
+      "expected": [
+        [
+          0,
+          9,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          3,
+          "private_person"
+        ],
+        [
+          4,
+          9,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 2,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_commonword_4",
+      "language": "de_ch",
+      "pattern_tag": "common_word_sur",
+      "text": "Hr. König unterstützt das Projekt finanziell.",
+      "expected": [
+        [
+          0,
+          9,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          4,
+          9,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_commonword_5",
+      "language": "de_ch",
+      "pattern_tag": "common_word_sur",
+      "text": "Frau Fischer hat den Vertrag heute unterschrieben.",
+      "expected": [
+        [
+          0,
+          12,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          12,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_commonword_6",
+      "language": "de_ch",
+      "pattern_tag": "common_word_sur",
+      "text": "Wie Wolf bereits sagte, ist die Sitzung verschoben.",
+      "expected": [
+        [
+          4,
+          8,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          4,
+          8,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_adv_neg_person_1",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_person",
+      "text": "Am Bach steht ein alter Baum.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "de_adv_neg_person_2",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_person",
+      "text": "Der Berg ist 2400m hoch.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "de_adv_neg_person_3",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_person",
+      "text": "Das Wasser im See ist heute klar.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "de_adv_neg_person_4",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_person",
+      "text": "Der Sommer war dieses Jahr besonders trocken.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "de_date_dot_1",
+      "language": "de_ch",
+      "pattern_tag": "date_dot",
+      "text": "Der Termin ist am 30.06.2026 um 14:00.",
+      "expected": [
+        [
+          18,
+          28,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          18,
+          28,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_date_dot_2",
+      "language": "de_ch",
+      "pattern_tag": "date_dot",
+      "text": "Geboren am 12.03.1985 in Bern.",
+      "expected": [
+        [
+          11,
+          21,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          11,
+          21,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_date_slash_1",
+      "language": "de_ch",
+      "pattern_tag": "date_slash",
+      "text": "Datum: 30/06/2026",
+      "expected": [
+        [
+          7,
+          17,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          17,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_date_spelled_1",
+      "language": "de_ch",
+      "pattern_tag": "date_spelled",
+      "text": "Am 30. Juni 2026 läuft mein Vertrag aus.",
+      "expected": [
+        [
+          3,
+          16,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          3,
+          16,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_date_spelled_2",
+      "language": "de_ch",
+      "pattern_tag": "date_spelled",
+      "text": "Der 1. August ist ein Feiertag.",
+      "expected": [
+        [
+          4,
+          13,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          4,
+          13,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_date_iso_1",
+      "language": "de_ch",
+      "pattern_tag": "date_iso",
+      "text": "Letzte Änderung: 2026-06-30T14:00:00Z",
+      "expected": [
+        [
+          17,
+          27,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          17,
+          37,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_date_modifier_1",
+      "language": "de_ch",
+      "pattern_tag": "date_modifier",
+      "text": "Anmeldung bis Freitag, den 5. Mai erforderlich.",
+      "expected": [
+        [
+          14,
+          33,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          27,
+          33,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_date_modifier_2",
+      "language": "de_ch",
+      "pattern_tag": "date_modifier",
+      "text": "Gültig ab 1.1.2027 (neue Regelung).",
+      "expected": [
+        [
+          10,
+          18,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          10,
+          18,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_adv_neg_date_1",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_date",
+      "text": "Zimmer 30.06 ist heute frei.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "de_adv_neg_date_2",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_date",
+      "text": "Version 1.2.3 wird nächste Woche veröffentlicht.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "de_addr_full_1",
+      "language": "de_ch",
+      "pattern_tag": "addr_full",
+      "text": "Bitte senden Sie die Unterlagen an Bahnhofstrasse 10, 8001 Zürich.",
+      "expected": [
+        [
+          35,
+          65,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          35,
+          65,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_addr_full_2",
+      "language": "de_ch",
+      "pattern_tag": "addr_full",
+      "text": "Adresse: Limmatquai 22, 8001 Zürich, Schweiz",
+      "expected": [
+        [
+          9,
+          35,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          9,
+          35,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_addr_street_1",
+      "language": "de_ch",
+      "pattern_tag": "addr_street_only",
+      "text": "Treffpunkt: Bahnhofstrasse 10",
+      "expected": [
+        [
+          12,
+          29,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          12,
+          29,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_addr_canton_1",
+      "language": "de_ch",
+      "pattern_tag": "addr_with_canton",
+      "text": "Hauptsitz: Industriestrasse 5, 3008 Bern BE",
+      "expected": [
+        [
+          11,
+          43,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          11,
+          43,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_addr_city_1",
+      "language": "de_ch",
+      "pattern_tag": "addr_city_only",
+      "text": "Lukas wohnt seit drei Jahren in Winterthur.",
+      "expected": [
+        [
+          0,
+          5,
+          "private_person"
+        ],
+        [
+          32,
+          42,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          5,
+          "private_person"
+        ],
+        [
+          32,
+          42,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 2,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 2,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_adv_neg_addr_1",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_addr",
+      "text": "Zürich ist eine schöne Stadt.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "de_email_std_1",
+      "language": "de_ch",
+      "pattern_tag": "email_std",
+      "text": "Bei Fragen schreibe an lukas.brunner@example.ch.",
+      "expected": [
+        [
+          23,
+          47,
+          "private_email"
+        ]
+      ],
+      "pred": [
+        [
+          23,
+          47,
+          "private_email"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_email_special_1",
+      "language": "de_ch",
+      "pattern_tag": "email_special",
+      "text": "Antwort an anna.müller+billing@firma-ag.ch erwartet.",
+      "expected": [
+        [
+          11,
+          42,
+          "private_email"
+        ]
+      ],
+      "pred": [
+        [
+          11,
+          42,
+          "private_email"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_adv_neg_email_1",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_email",
+      "text": "Beispiel: ersetze max.mustermann@example.com mit deiner Adresse.",
+      "expected": [],
+      "pred": [
+        [
+          18,
+          44,
+          "private_email"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 1,
+      "soft_fn": 0,
+      "verdict": "FAIL_NEG"
+    },
+    {
+      "case_id": "de_phone_intl_1",
+      "language": "de_ch",
+      "pattern_tag": "phone_intl",
+      "text": "Telefon: +41 44 555 12 34",
+      "expected": [
+        [
+          9,
+          25,
+          "private_phone"
+        ]
+      ],
+      "pred": [
+        [
+          9,
+          25,
+          "private_phone"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_phone_national_1",
+      "language": "de_ch",
+      "pattern_tag": "phone_national",
+      "text": "Erreichbar unter 044 555 12 34 ab 9 Uhr.",
+      "expected": [
+        [
+          17,
+          30,
+          "private_phone"
+        ]
+      ],
+      "pred": [
+        [
+          17,
+          30,
+          "private_phone"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_phone_compact_1",
+      "language": "de_ch",
+      "pattern_tag": "phone_compact",
+      "text": "Notfall-Nummer: +41445551234",
+      "expected": [
+        [
+          16,
+          28,
+          "private_phone"
+        ]
+      ],
+      "pred": [
+        [
+          16,
+          28,
+          "private_phone"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_adv_neg_phone_1",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_phone",
+      "text": "Bestellnummer: 044 555 1234 (intern).",
+      "expected": [],
+      "pred": [
+        [
+          15,
+          27,
+          "private_phone"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 1,
+      "soft_fn": 0,
+      "verdict": "FAIL_NEG"
+    },
+    {
+      "case_id": "de_url_bare_1",
+      "language": "de_ch",
+      "pattern_tag": "url_bare",
+      "text": "Weitere Informationen unter example.ch.",
+      "expected": [
+        [
+          28,
+          38,
+          "private_url"
+        ]
+      ],
+      "pred": [
+        [
+          28,
+          38,
+          "private_url"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_url_full_1",
+      "language": "de_ch",
+      "pattern_tag": "url_full",
+      "text": "Login: https://app.example.ch/dashboard?ref=email",
+      "expected": [
+        [
+          7,
+          49,
+          "private_url"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          49,
+          "private_url"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_iban_spaced_1",
+      "language": "de_ch",
+      "pattern_tag": "iban_spaced",
+      "text": "Bitte überweisen auf IBAN CH93 0076 2011 6238 5295 7.",
+      "expected": [
+        [
+          26,
+          52,
+          "account_number"
+        ]
+      ],
+      "pred": [
+        [
+          26,
+          53,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_iban_unspaced_1",
+      "language": "de_ch",
+      "pattern_tag": "iban_unspaced",
+      "text": "Konto-IBAN: CH9300762011623852957",
+      "expected": [
+        [
+          12,
+          33,
+          "account_number"
+        ]
+      ],
+      "pred": [
+        [
+          12,
+          33,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_ahv_1",
+      "language": "de_ch",
+      "pattern_tag": "ahv",
+      "text": "AHV-Nummer: 756.9217.0769.85",
+      "expected": [
+        [
+          12,
+          28,
+          "account_number"
+        ]
+      ],
+      "pred": [
+        [
+          12,
+          28,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_vat_1",
+      "language": "de_ch",
+      "pattern_tag": "vat_che",
+      "text": "UID: CHE-123.456.789 MWST",
+      "expected": [
+        [
+          5,
+          20,
+          "account_number"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          25,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_cc_1",
+      "language": "de_ch",
+      "pattern_tag": "credit_card",
+      "text": "Kreditkarte: 4111 1111 1111 1111 (Visa)",
+      "expected": [
+        [
+          13,
+          32,
+          "account_number"
+        ]
+      ],
+      "pred": [
+        [
+          13,
+          32,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_secret_openai_1",
+      "language": "de_ch",
+      "pattern_tag": "secret_openai",
+      "text": "OPENAI_API_KEY=sk-proj-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfGhIjKl",
+      "expected": [
+        [
+          15,
+          71,
+          "secret"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          1,
+          "secret"
+        ],
+        [
+          15,
+          48,
+          "secret"
+        ],
+        [
+          48,
+          49,
+          "private_url"
+        ],
+        [
+          49,
+          53,
+          "secret"
+        ],
+        [
+          53,
+          59,
+          "private_url"
+        ],
+        [
+          59,
+          71,
+          "secret"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 6,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 3,
+      "soft_fn": 0,
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "de_secret_github_1",
+      "language": "de_ch",
+      "pattern_tag": "secret_github",
+      "text": "git push mit Token ghp_aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789",
+      "expected": [
+        [
+          19,
+          59,
+          "secret"
+        ]
+      ],
+      "pred": [
+        [
+          19,
+          49,
+          "secret"
+        ],
+        [
+          49,
+          59,
+          "secret"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 2,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_secret_aws_1",
+      "language": "de_ch",
+      "pattern_tag": "secret_aws",
+      "text": "AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE",
+      "expected": [
+        [
+          18,
+          38,
+          "secret"
+        ]
+      ],
+      "pred": [
+        [
+          18,
+          33,
+          "secret"
+        ],
+        [
+          35,
+          38,
+          "secret"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 2,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_secret_env_1",
+      "language": "de_ch",
+      "pattern_tag": "secret_env_file",
+      "text": "# .env\nDB_PASSWORD=Sup3rSecret!2026\nLOG_LEVEL=debug",
+      "expected": [
+        [
+          19,
+          35,
+          "secret"
+        ]
+      ],
+      "pred": [
+        [
+          19,
+          35,
+          "secret"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_multi_email_1",
+      "language": "de_ch",
+      "pattern_tag": "multi_email",
+      "text": "Hallo Team,\n\nmein Name ist Lukas Brunner. Bitte erreichen Sie mich unter +41 44 555 12 34 oder lukas.brunner@example.ch. Meine Adresse ist Bahnhofstrasse 10, 8001 Zürich.\n\nAm 30. Juni 2026 läuft mein Vertrag aus. Bitte überweisen Sie CHF 230.00 auf IBAN CH9300762011623852957.\n\nFreundliche Grüsse,\nLukas Brunner",
+      "expected": [
+        [
+          27,
+          40,
+          "private_person"
+        ],
+        [
+          73,
+          89,
+          "private_phone"
+        ],
+        [
+          95,
+          119,
+          "private_email"
+        ],
+        [
+          139,
+          169,
+          "private_address"
+        ],
+        [
+          175,
+          188,
+          "private_date"
+        ],
+        [
+          254,
+          275,
+          "account_number"
+        ],
+        [
+          298,
+          311,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          27,
+          40,
+          "private_person"
+        ],
+        [
+          73,
+          89,
+          "private_phone"
+        ],
+        [
+          95,
+          119,
+          "private_email"
+        ],
+        [
+          139,
+          169,
+          "private_address"
+        ],
+        [
+          175,
+          188,
+          "private_date"
+        ],
+        [
+          254,
+          275,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 6,
+      "exact_fp": 0,
+      "exact_fn": 1,
+      "soft_tp": 6,
+      "soft_fp": 0,
+      "soft_fn": 1,
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "fr_greet_first_1",
+      "language": "fr_ch",
+      "pattern_tag": "greet_first",
+      "text": "Bonjour Jean, merci de votre message.",
+      "expected": [
+        [
+          8,
+          12,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          8,
+          12,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_greet_first_2",
+      "language": "fr_ch",
+      "pattern_tag": "greet_first",
+      "text": "Salut Sophie, ça va ?",
+      "expected": [
+        [
+          6,
+          12,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          12,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_greet_first_3",
+      "language": "fr_ch",
+      "pattern_tag": "greet_first",
+      "text": "Cher Antoine, je vous écris au sujet de…",
+      "expected": [
+        [
+          5,
+          12,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          12,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_greet_first_4",
+      "language": "fr_ch",
+      "pattern_tag": "greet_first",
+      "text": "Chère Mélanie, voici les pièces jointes.",
+      "expected": [
+        [
+          6,
+          13,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          13,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_greet_first_5",
+      "language": "fr_ch",
+      "pattern_tag": "greet_first",
+      "text": "Coucou Léa, dis-moi quand tu es libre.",
+      "expected": [
+        [
+          7,
+          10,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          10,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_greet_first_var_1",
+      "language": "fr_ch",
+      "pattern_tag": "greet_first_var",
+      "text": "Bonjour,\nJean,\nmerci pour votre retour rapide.",
+      "expected": [
+        [
+          9,
+          13,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          9,
+          13,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_greet_first_var_2",
+      "language": "fr_ch",
+      "pattern_tag": "greet_first_var",
+      "text": "Salut! Pierre, peux-tu m'aider ?",
+      "expected": [
+        [
+          7,
+          13,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          13,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_narr_first_1",
+      "language": "fr_ch",
+      "pattern_tag": "narr_first",
+      "text": "Jean a confirmé hier que le contrat sera signé demain.",
+      "expected": [
+        [
+          0,
+          4,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          4,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_narr_first_2",
+      "language": "fr_ch",
+      "pattern_tag": "narr_first",
+      "text": "D'après Mélanie, la réunion est reportée à mardi.",
+      "expected": [
+        [
+          8,
+          15,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          8,
+          15,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_narr_last_1",
+      "language": "fr_ch",
+      "pattern_tag": "narr_last",
+      "text": "Dupont a signé le protocole ce matin.",
+      "expected": [
+        [
+          0,
+          6,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          6,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_narr_last_2",
+      "language": "fr_ch",
+      "pattern_tag": "narr_last",
+      "text": "La plainte a été déposée par Fonjallaz.",
+      "expected": [
+        [
+          29,
+          38,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          29,
+          38,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_sig_first_1",
+      "language": "fr_ch",
+      "pattern_tag": "sig_first",
+      "text": "Merci d'avance pour votre retour.\n\nCordialement,\nMélanie",
+      "expected": [
+        [
+          49,
+          56,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          49,
+          56,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_sig_first_2",
+      "language": "fr_ch",
+      "pattern_tag": "sig_first",
+      "text": "À votre disposition.\n\nBien à vous,\nSylvie",
+      "expected": [
+        [
+          35,
+          41,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          35,
+          41,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_sig_full_1",
+      "language": "fr_ch",
+      "pattern_tag": "sig_full",
+      "text": "Cordialement,\nJean-Marc Dubois-Perret",
+      "expected": [
+        [
+          14,
+          37,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          14,
+          37,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_title_full_1",
+      "language": "fr_ch",
+      "pattern_tag": "title_full",
+      "text": "Cher Monsieur Dupont, je vous remercie de votre courrier.",
+      "expected": [
+        [
+          5,
+          20,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          14,
+          20,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_title_full_2",
+      "language": "fr_ch",
+      "pattern_tag": "title_full",
+      "text": "Chère Madame Müller, veuillez trouver ci-joint le devis.",
+      "expected": [
+        [
+          6,
+          19,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          13,
+          19,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_title_abbrev_1",
+      "language": "fr_ch",
+      "pattern_tag": "title_abbrev",
+      "text": "M. Droz a confirmé sa présence à la réunion.",
+      "expected": [
+        [
+          0,
+          7,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          7,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_title_abbrev_2",
+      "language": "fr_ch",
+      "pattern_tag": "title_abbrev",
+      "text": "Mme Paccot sera absente jusqu'à vendredi.",
+      "expected": [
+        [
+          0,
+          10,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          10,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_title_abbrev_3",
+      "language": "fr_ch",
+      "pattern_tag": "title_abbrev",
+      "text": "Dr Bernard a signé le rapport médical.",
+      "expected": [
+        [
+          0,
+          10,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          3,
+          10,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_title_firstlast_1",
+      "language": "fr_ch",
+      "pattern_tag": "title_firstlast",
+      "text": "Dr Anne Dubois a publié l'étude.",
+      "expected": [
+        [
+          0,
+          14,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          3,
+          14,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_last_first_fmt_1",
+      "language": "fr_ch",
+      "pattern_tag": "last_first_fmt",
+      "text": "Signataire: DUPONT, Jean",
+      "expected": [
+        [
+          12,
+          24,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          12,
+          24,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_initials_1",
+      "language": "fr_ch",
+      "pattern_tag": "initials",
+      "text": "J. Dupont a confirmé par e-mail.",
+      "expected": [
+        [
+          0,
+          9,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          9,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_compound_1",
+      "language": "fr_ch",
+      "pattern_tag": "compound_name",
+      "text": "Marie-Claire Dubois-Perret a accepté la proposition.",
+      "expected": [
+        [
+          0,
+          26,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          26,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_date_dot_1",
+      "language": "fr_ch",
+      "pattern_tag": "date_dot",
+      "text": "Échéance: 30.06.2026",
+      "expected": [
+        [
+          10,
+          20,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          10,
+          20,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_date_slash_1",
+      "language": "fr_ch",
+      "pattern_tag": "date_slash",
+      "text": "Date de naissance: 12/03/1985",
+      "expected": [
+        [
+          19,
+          29,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          19,
+          29,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_date_spelled_1",
+      "language": "fr_ch",
+      "pattern_tag": "date_spelled",
+      "text": "Le contrat expire le 30 juin 2026.",
+      "expected": [
+        [
+          21,
+          33,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          21,
+          33,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_date_spelled_2",
+      "language": "fr_ch",
+      "pattern_tag": "date_spelled",
+      "text": "Veuillez confirmer avant le 5 mai.",
+      "expected": [
+        [
+          28,
+          33,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          28,
+          29,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_date_iso_1",
+      "language": "fr_ch",
+      "pattern_tag": "date_iso",
+      "text": "Dernière modification : 2026-06-30",
+      "expected": [
+        [
+          24,
+          34,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          24,
+          34,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_adv_neg_date_1",
+      "language": "fr_ch",
+      "pattern_tag": "adv_neg_date",
+      "text": "Version 2.1.4 publiée la semaine prochaine.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "fr_addr_full_1",
+      "language": "fr_ch",
+      "pattern_tag": "addr_full",
+      "text": "Envoyer à Rue du Mont-Blanc 15, 1201 Genève.",
+      "expected": [
+        [
+          10,
+          43,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          10,
+          43,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_addr_street_1",
+      "language": "fr_ch",
+      "pattern_tag": "addr_street_only",
+      "text": "Rendez-vous: Avenue de la Gare 22",
+      "expected": [
+        [
+          13,
+          33,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          13,
+          33,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_addr_canton_1",
+      "language": "fr_ch",
+      "pattern_tag": "addr_with_canton",
+      "text": "Siège: Place de la Riponne 5, 1005 Lausanne VD",
+      "expected": [
+        [
+          7,
+          46,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          46,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_addr_city_1",
+      "language": "fr_ch",
+      "pattern_tag": "addr_city_only",
+      "text": "Jean habite à Lausanne depuis trois ans.",
+      "expected": [
+        [
+          0,
+          4,
+          "private_person"
+        ],
+        [
+          14,
+          22,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          4,
+          "private_person"
+        ],
+        [
+          14,
+          22,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 2,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 2,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_adv_neg_addr_1",
+      "language": "fr_ch",
+      "pattern_tag": "adv_neg_addr",
+      "text": "Lausanne est une belle ville universitaire.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "fr_email_std_1",
+      "language": "fr_ch",
+      "pattern_tag": "email_std",
+      "text": "Pour toute question, écrivez à jean.dupont@example.ch.",
+      "expected": [
+        [
+          31,
+          53,
+          "private_email"
+        ]
+      ],
+      "pred": [
+        [
+          31,
+          53,
+          "private_email"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_email_special_1",
+      "language": "fr_ch",
+      "pattern_tag": "email_special",
+      "text": "Réponse à anne.müller+notif@société-sa.ch attendue.",
+      "expected": [
+        [
+          10,
+          41,
+          "private_email"
+        ]
+      ],
+      "pred": [
+        [
+          10,
+          41,
+          "private_email"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_phone_intl_1",
+      "language": "fr_ch",
+      "pattern_tag": "phone_intl",
+      "text": "Téléphone: +41 22 555 12 34",
+      "expected": [
+        [
+          11,
+          27,
+          "private_phone"
+        ]
+      ],
+      "pred": [
+        [
+          11,
+          27,
+          "private_phone"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_phone_national_1",
+      "language": "fr_ch",
+      "pattern_tag": "phone_national",
+      "text": "Joignable au 022 555 12 34 dès 9h.",
+      "expected": [
+        [
+          13,
+          26,
+          "private_phone"
+        ]
+      ],
+      "pred": [
+        [
+          13,
+          26,
+          "private_phone"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_url_bare_1",
+      "language": "fr_ch",
+      "pattern_tag": "url_bare",
+      "text": "Plus d'informations sur example.ch.",
+      "expected": [
+        [
+          24,
+          34,
+          "private_url"
+        ]
+      ],
+      "pred": [
+        [
+          24,
+          34,
+          "private_url"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_url_full_1",
+      "language": "fr_ch",
+      "pattern_tag": "url_full",
+      "text": "Connexion : https://app.example.ch/portal?lang=fr",
+      "expected": [
+        [
+          12,
+          49,
+          "private_url"
+        ]
+      ],
+      "pred": [
+        [
+          12,
+          49,
+          "private_url"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_iban_spaced_1",
+      "language": "fr_ch",
+      "pattern_tag": "iban_spaced",
+      "text": "IBAN: CH93 0076 2011 6238 5295 7",
+      "expected": [
+        [
+          6,
+          32,
+          "account_number"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          32,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_ahv_1",
+      "language": "fr_ch",
+      "pattern_tag": "ahv",
+      "text": "Numéro AVS: 756.9217.0769.85",
+      "expected": [
+        [
+          12,
+          28,
+          "account_number"
+        ]
+      ],
+      "pred": [
+        [
+          12,
+          28,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_vat_1",
+      "language": "fr_ch",
+      "pattern_tag": "vat_che",
+      "text": "IDE: CHE-123.456.789 TVA",
+      "expected": [
+        [
+          5,
+          20,
+          "account_number"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          24,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "fr_secret_openai_1",
+      "language": "fr_ch",
+      "pattern_tag": "secret_openai",
+      "text": "OPENAI_API_KEY=sk-proj-XyZ1234567890abcDeFgHiJkLmNoPqRsTuVwXyZ0123456",
+      "expected": [
+        [
+          15,
+          69,
+          "secret"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          1,
+          "secret"
+        ],
+        [
+          15,
+          69,
+          "secret"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 1,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 1,
+      "soft_fn": 0,
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "fr_multi_email_1",
+      "language": "fr_ch",
+      "pattern_tag": "multi_email",
+      "text": "Bonjour Marie,\n\nVoici les coordonnées que vous m'avez demandées : Jean Dubois, téléphone +41 22 555 12 34, e-mail jean.dubois@example.ch, adresse Rue du Mont-Blanc 15, 1201 Genève.\n\nCordialement,\nMarie Dupont",
+      "expected": [
+        [
+          8,
+          13,
+          "private_person"
+        ],
+        [
+          66,
+          77,
+          "private_person"
+        ],
+        [
+          89,
+          105,
+          "private_phone"
+        ],
+        [
+          114,
+          136,
+          "private_email"
+        ],
+        [
+          146,
+          179,
+          "private_address"
+        ],
+        [
+          196,
+          208,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          66,
+          77,
+          "private_person"
+        ],
+        [
+          89,
+          105,
+          "private_phone"
+        ],
+        [
+          114,
+          136,
+          "private_email"
+        ],
+        [
+          146,
+          179,
+          "private_address"
+        ],
+        [
+          196,
+          208,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 5,
+      "exact_fp": 0,
+      "exact_fn": 1,
+      "soft_tp": 5,
+      "soft_fp": 0,
+      "soft_fn": 1,
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "it_greet_first_1",
+      "language": "it_ch",
+      "pattern_tag": "greet_first",
+      "text": "Ciao Marco, grazie del tuo messaggio.",
+      "expected": [
+        [
+          5,
+          10,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          10,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_greet_first_2",
+      "language": "it_ch",
+      "pattern_tag": "greet_first",
+      "text": "Caro Giuseppe, ti allego il documento.",
+      "expected": [
+        [
+          5,
+          13,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          13,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_greet_first_3",
+      "language": "it_ch",
+      "pattern_tag": "greet_first",
+      "text": "Cara Francesca, grazie per la risposta.",
+      "expected": [
+        [
+          5,
+          14,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          14,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_greet_first_4",
+      "language": "it_ch",
+      "pattern_tag": "greet_first",
+      "text": "Buongiorno Laura, ho ricevuto la tua nota.",
+      "expected": [
+        [
+          11,
+          16,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          11,
+          16,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_narr_first_1",
+      "language": "it_ch",
+      "pattern_tag": "narr_first",
+      "text": "Marco ha confermato ieri che il contratto sarà firmato domani.",
+      "expected": [
+        [
+          0,
+          5,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          5,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_narr_first_2",
+      "language": "it_ch",
+      "pattern_tag": "narr_first",
+      "text": "Secondo Laura, la riunione è rinviata a martedì.",
+      "expected": [
+        [
+          8,
+          13,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          8,
+          13,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_narr_last_1",
+      "language": "it_ch",
+      "pattern_tag": "narr_last",
+      "text": "Rossi ha presentato il rapporto alla riunione di ieri.",
+      "expected": [
+        [
+          0,
+          5,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          5,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_narr_last_2",
+      "language": "it_ch",
+      "pattern_tag": "narr_last",
+      "text": "Il reclamo è stato presentato da Bianchi.",
+      "expected": [
+        [
+          33,
+          40,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          33,
+          40,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_sig_first_1",
+      "language": "it_ch",
+      "pattern_tag": "sig_first",
+      "text": "Grazie in anticipo per il riscontro.\n\nCordiali saluti,\nFrancesca",
+      "expected": [
+        [
+          55,
+          64,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          55,
+          64,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_sig_first_2",
+      "language": "it_ch",
+      "pattern_tag": "sig_first",
+      "text": "Resto a disposizione.\n\nSaluti,\nGiuseppe",
+      "expected": [
+        [
+          31,
+          39,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          31,
+          39,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_sig_full_1",
+      "language": "it_ch",
+      "pattern_tag": "sig_full",
+      "text": "Cordiali saluti,\nGiuseppe-Maria Rossi-Bianchi",
+      "expected": [
+        [
+          17,
+          45,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          17,
+          45,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_title_full_1",
+      "language": "it_ch",
+      "pattern_tag": "title_full",
+      "text": "Egregio Signor Rossi, La ringrazio per la lettera.",
+      "expected": [
+        [
+          8,
+          20,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          15,
+          20,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_title_full_2",
+      "language": "it_ch",
+      "pattern_tag": "title_full",
+      "text": "Gentile Signora Müller, in allegato il preventivo.",
+      "expected": [
+        [
+          8,
+          22,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          16,
+          22,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_title_abbrev_1",
+      "language": "it_ch",
+      "pattern_tag": "title_abbrev",
+      "text": "Sig. Rossi ha confermato la sua presenza.",
+      "expected": [
+        [
+          0,
+          10,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          10,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_title_abbrev_2",
+      "language": "it_ch",
+      "pattern_tag": "title_abbrev",
+      "text": "Sig.ra Bianchi sarà assente fino a venerdì.",
+      "expected": [
+        [
+          0,
+          14,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          14,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_title_abbrev_3",
+      "language": "it_ch",
+      "pattern_tag": "title_abbrev",
+      "text": "Dott. Esposito ha firmato il rapporto.",
+      "expected": [
+        [
+          0,
+          14,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          14,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_title_firstlast_1",
+      "language": "it_ch",
+      "pattern_tag": "title_firstlast",
+      "text": "Dott.ssa Anna Rossi ha guidato lo studio.",
+      "expected": [
+        [
+          0,
+          19,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          9,
+          19,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_last_first_fmt_1",
+      "language": "it_ch",
+      "pattern_tag": "last_first_fmt",
+      "text": "Firma: ROSSI, Marco",
+      "expected": [
+        [
+          7,
+          19,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          19,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_initials_1",
+      "language": "it_ch",
+      "pattern_tag": "initials",
+      "text": "M. Rossi ha confermato per email.",
+      "expected": [
+        [
+          0,
+          8,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          8,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_compound_1",
+      "language": "it_ch",
+      "pattern_tag": "compound_name",
+      "text": "Maria-Chiara Rossi-Bianchi ha vinto la causa.",
+      "expected": [
+        [
+          0,
+          26,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          26,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_date_dot_1",
+      "language": "it_ch",
+      "pattern_tag": "date_dot",
+      "text": "Scadenza: 30.06.2026",
+      "expected": [
+        [
+          10,
+          20,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          10,
+          20,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_date_slash_1",
+      "language": "it_ch",
+      "pattern_tag": "date_slash",
+      "text": "Data di nascita: 12/03/1985",
+      "expected": [
+        [
+          17,
+          27,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          17,
+          27,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_date_spelled_1",
+      "language": "it_ch",
+      "pattern_tag": "date_spelled",
+      "text": "Il contratto scade il 30 giugno 2026.",
+      "expected": [
+        [
+          22,
+          36,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          22,
+          36,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_date_iso_1",
+      "language": "it_ch",
+      "pattern_tag": "date_iso",
+      "text": "Ultima modifica: 2026-06-30",
+      "expected": [
+        [
+          17,
+          27,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          17,
+          27,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_addr_full_1",
+      "language": "it_ch",
+      "pattern_tag": "addr_full",
+      "text": "Spedire a Via Nassa 12, 6900 Lugano.",
+      "expected": [
+        [
+          10,
+          35,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          10,
+          35,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_addr_canton_1",
+      "language": "it_ch",
+      "pattern_tag": "addr_with_canton",
+      "text": "Sede: Piazza Riforma 1, 6900 Lugano TI",
+      "expected": [
+        [
+          6,
+          38,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          38,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_addr_city_1",
+      "language": "it_ch",
+      "pattern_tag": "addr_city_only",
+      "text": "Marco abita a Bellinzona da tre anni.",
+      "expected": [
+        [
+          0,
+          5,
+          "private_person"
+        ],
+        [
+          14,
+          24,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          5,
+          "private_person"
+        ],
+        [
+          14,
+          24,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 2,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 2,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_email_std_1",
+      "language": "it_ch",
+      "pattern_tag": "email_std",
+      "text": "Per domande, scrivete a marco.rossi@example.ch.",
+      "expected": [
+        [
+          24,
+          46,
+          "private_email"
+        ]
+      ],
+      "pred": [
+        [
+          24,
+          46,
+          "private_email"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_phone_intl_1",
+      "language": "it_ch",
+      "pattern_tag": "phone_intl",
+      "text": "Telefono: +41 91 555 12 34",
+      "expected": [
+        [
+          10,
+          26,
+          "private_phone"
+        ]
+      ],
+      "pred": [
+        [
+          10,
+          26,
+          "private_phone"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_phone_national_1",
+      "language": "it_ch",
+      "pattern_tag": "phone_national",
+      "text": "Raggiungibile al 091 555 12 34.",
+      "expected": [
+        [
+          17,
+          30,
+          "private_phone"
+        ]
+      ],
+      "pred": [
+        [
+          17,
+          31,
+          "private_phone"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_url_bare_1",
+      "language": "it_ch",
+      "pattern_tag": "url_bare",
+      "text": "Maggiori informazioni su example.ch.",
+      "expected": [
+        [
+          25,
+          35,
+          "private_url"
+        ]
+      ],
+      "pred": [
+        [
+          25,
+          35,
+          "private_url"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_iban_spaced_1",
+      "language": "it_ch",
+      "pattern_tag": "iban_spaced",
+      "text": "IBAN: CH93 0076 2011 6238 5295 7",
+      "expected": [
+        [
+          6,
+          32,
+          "account_number"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          32,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_ahv_1",
+      "language": "it_ch",
+      "pattern_tag": "ahv",
+      "text": "Numero AVS: 756.9217.0769.85",
+      "expected": [
+        [
+          12,
+          28,
+          "account_number"
+        ]
+      ],
+      "pred": [
+        [
+          12,
+          28,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_secret_openai_1",
+      "language": "it_ch",
+      "pattern_tag": "secret_openai",
+      "text": "OPENAI_API_KEY=sk-proj-QwErTyUiOpAsDfGhJkLzXcVbNm0123456789QwErTyUiOp",
+      "expected": [
+        [
+          15,
+          69,
+          "secret"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          1,
+          "secret"
+        ],
+        [
+          15,
+          49,
+          "secret"
+        ],
+        [
+          49,
+          53,
+          "secret"
+        ],
+        [
+          53,
+          56,
+          "private_url"
+        ],
+        [
+          56,
+          69,
+          "secret"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 5,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 2,
+      "soft_fn": 0,
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "it_multi_email_1",
+      "language": "it_ch",
+      "pattern_tag": "multi_email",
+      "text": "Ciao Marco,\n\nti scrivo per confermare i miei dati: Anna Bianchi, telefono +41 91 555 12 34, e-mail anna.bianchi@example.ch, indirizzo Via Nassa 12, 6900 Lugano.\n\nCordiali saluti,\nAnna",
+      "expected": [
+        [
+          5,
+          10,
+          "private_person"
+        ],
+        [
+          51,
+          63,
+          "private_person"
+        ],
+        [
+          74,
+          90,
+          "private_phone"
+        ],
+        [
+          99,
+          122,
+          "private_email"
+        ],
+        [
+          134,
+          159,
+          "private_address"
+        ],
+        [
+          179,
+          183,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          10,
+          "private_person"
+        ],
+        [
+          51,
+          63,
+          "private_person"
+        ],
+        [
+          74,
+          90,
+          "private_phone"
+        ],
+        [
+          99,
+          122,
+          "private_email"
+        ],
+        [
+          134,
+          159,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 5,
+      "exact_fp": 0,
+      "exact_fn": 1,
+      "soft_tp": 5,
+      "soft_fp": 0,
+      "soft_fn": 1,
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "rm_greet_first_1",
+      "language": "rm",
+      "pattern_tag": "greet_first",
+      "text": "Hai Selina, grazia per tia communicaziun.",
+      "expected": [
+        [
+          4,
+          10,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          4,
+          10,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_greet_first_2",
+      "language": "rm",
+      "pattern_tag": "greet_first",
+      "text": "Char Curdin, ti agiat per la rispusta.",
+      "expected": [
+        [
+          5,
+          11,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          11,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_greet_first_3",
+      "language": "rm",
+      "pattern_tag": "greet_first",
+      "text": "Bun di Andri, en agiunta chattas igl document.",
+      "expected": [
+        [
+          7,
+          12,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          12,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_narr_first_1",
+      "language": "rm",
+      "pattern_tag": "narr_first",
+      "text": "Ladina ha confermau che la furniziun arriva damaun.",
+      "expected": [
+        [
+          0,
+          6,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          6,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_narr_first_2",
+      "language": "rm",
+      "pattern_tag": "narr_first",
+      "text": "Tenor Reto, la sesida vegn spustada a mardi.",
+      "expected": [
+        [
+          6,
+          10,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          10,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_narr_last_1",
+      "language": "rm",
+      "pattern_tag": "narr_last",
+      "text": "Caduff ha suttascrit il protocoll quest mintga.",
+      "expected": [
+        [
+          0,
+          6,
+          "private_person"
+        ]
+      ],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 1,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 1,
+      "verdict": "FAIL"
+    },
+    {
+      "case_id": "rm_narr_last_2",
+      "language": "rm",
+      "pattern_tag": "narr_last",
+      "text": "La reclamaziun ei vegnida inoltrada da Camenisch.",
+      "expected": [
+        [
+          39,
+          48,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          39,
+          48,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 0,
+      "soft_fp": 1,
+      "soft_fn": 1,
+      "verdict": "FAIL"
+    },
+    {
+      "case_id": "rm_sig_first_1",
+      "language": "rm",
+      "pattern_tag": "sig_first",
+      "text": "Grazia per Vossa attenziun.\n\nCordials salids,\nCurdin",
+      "expected": [
+        [
+          46,
+          52,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          46,
+          52,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_title_full_1",
+      "language": "rm",
+      "pattern_tag": "title_full",
+      "text": "Stimà Sgnr. Caduff, grazia per Vossa cuminonza.",
+      "expected": [
+        [
+          6,
+          18,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          12,
+          18,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_title_full_2",
+      "language": "rm",
+      "pattern_tag": "title_full",
+      "text": "Stimada Sgnra. Tschuor, en agiunta chattas il document.",
+      "expected": [
+        [
+          8,
+          22,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          13,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_title_abbrev_1",
+      "language": "rm",
+      "pattern_tag": "title_abbrev",
+      "text": "Sgnr. Caduff ha confermau sia preschientscha.",
+      "expected": [
+        [
+          0,
+          12,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          12,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_title_abbrev_2",
+      "language": "rm",
+      "pattern_tag": "title_abbrev",
+      "text": "Sgnra. Capeder ei absenta entro venderdi.",
+      "expected": [
+        [
+          0,
+          14,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          14,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_date_dot_1",
+      "language": "rm",
+      "pattern_tag": "date_dot",
+      "text": "Termin: 30.06.2026 ad las 14:00.",
+      "expected": [
+        [
+          8,
+          18,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          8,
+          18,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_date_spelled_1",
+      "language": "rm",
+      "pattern_tag": "date_spelled",
+      "text": "Igl contract finescha als 30 da zercladur 2026.",
+      "expected": [
+        [
+          26,
+          46,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          26,
+          46,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_addr_full_1",
+      "language": "rm",
+      "pattern_tag": "addr_full",
+      "text": "Mandar a Via Centrala 7, 7500 St. Murezzan.",
+      "expected": [
+        [
+          9,
+          42,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          9,
+          42,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_email_std_1",
+      "language": "rm",
+      "pattern_tag": "email_std",
+      "text": "Per dumondas scriver ad andri.caduff@example.ch.",
+      "expected": [
+        [
+          24,
+          47,
+          "private_email"
+        ]
+      ],
+      "pred": [
+        [
+          24,
+          47,
+          "private_email"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_phone_intl_1",
+      "language": "rm",
+      "pattern_tag": "phone_intl",
+      "text": "Telefon: +41 81 555 12 34",
+      "expected": [
+        [
+          9,
+          25,
+          "private_phone"
+        ]
+      ],
+      "pred": [
+        [
+          9,
+          25,
+          "private_phone"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_iban_1",
+      "language": "rm",
+      "pattern_tag": "iban_spaced",
+      "text": "IBAN: CH93 0076 2011 6238 5295 7",
+      "expected": [
+        [
+          6,
+          32,
+          "account_number"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          32,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_secret_openai_1",
+      "language": "rm",
+      "pattern_tag": "secret_openai",
+      "text": "Igl token API: sk-proj-AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPp0123456789",
+      "expected": [
+        [
+          15,
+          65,
+          "secret"
+        ]
+      ],
+      "pred": [
+        [
+          15,
+          55,
+          "secret"
+        ],
+        [
+          55,
+          65,
+          "secret"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 2,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_secret_env_1",
+      "language": "rm",
+      "pattern_tag": "secret_env_file",
+      "text": "# .env\nDB_PASSWORD=PassPrivat2026!\n# tegnair segira",
+      "expected": [
+        [
+          19,
+          34,
+          "secret"
+        ]
+      ],
+      "pred": [
+        [
+          19,
+          33,
+          "secret"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_greet_first_1",
+      "language": "en",
+      "pattern_tag": "greet_first",
+      "text": "Hi John, thanks for your message.",
+      "expected": [
+        [
+          3,
+          7,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          3,
+          7,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_greet_first_2",
+      "language": "en",
+      "pattern_tag": "greet_first",
+      "text": "Hello Sarah, please find attached the contract.",
+      "expected": [
+        [
+          6,
+          11,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          11,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_greet_first_3",
+      "language": "en",
+      "pattern_tag": "greet_first",
+      "text": "Dear Michael, I confirm our meeting on Tuesday.",
+      "expected": [
+        [
+          5,
+          12,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          5,
+          12,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_narr_first_1",
+      "language": "en",
+      "pattern_tag": "narr_first",
+      "text": "Sarah confirmed yesterday that the delivery will arrive tomorrow.",
+      "expected": [
+        [
+          0,
+          5,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          5,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_narr_last_1",
+      "language": "en",
+      "pattern_tag": "narr_last",
+      "text": "Smith signed the protocol this morning.",
+      "expected": [
+        [
+          0,
+          5,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          5,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_sig_first_1",
+      "language": "en",
+      "pattern_tag": "sig_first",
+      "text": "Looking forward to your reply.\n\nBest regards,\nMichael",
+      "expected": [
+        [
+          46,
+          53,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          46,
+          53,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_sig_full_1",
+      "language": "en",
+      "pattern_tag": "sig_full",
+      "text": "Kind regards,\nMichael Brown",
+      "expected": [
+        [
+          14,
+          27,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          14,
+          27,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_title_abbrev_1",
+      "language": "en",
+      "pattern_tag": "title_abbrev",
+      "text": "Dr. Smith confirmed the diagnosis.",
+      "expected": [
+        [
+          0,
+          9,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          4,
+          9,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_title_firstlast_1",
+      "language": "en",
+      "pattern_tag": "title_firstlast",
+      "text": "Prof. Anna Mueller leads the research group.",
+      "expected": [
+        [
+          0,
+          18,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          10,
+          "private_person"
+        ],
+        [
+          11,
+          18,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 2,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_date_iso_1",
+      "language": "en",
+      "pattern_tag": "date_iso",
+      "text": "Last updated: 2026-06-30",
+      "expected": [
+        [
+          14,
+          24,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          14,
+          24,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_email_std_1",
+      "language": "en",
+      "pattern_tag": "email_std",
+      "text": "Please contact john.smith@example.ch for details.",
+      "expected": [
+        [
+          15,
+          36,
+          "private_email"
+        ]
+      ],
+      "pred": [
+        [
+          15,
+          36,
+          "private_email"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_phone_intl_1",
+      "language": "en",
+      "pattern_tag": "phone_intl",
+      "text": "Phone: +41 44 555 12 34",
+      "expected": [
+        [
+          7,
+          23,
+          "private_phone"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          23,
+          "private_phone"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_iban_1",
+      "language": "en",
+      "pattern_tag": "iban_spaced",
+      "text": "IBAN: CH93 0076 2011 6238 5295 7",
+      "expected": [
+        [
+          6,
+          32,
+          "account_number"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          32,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "en_secret_openai_1",
+      "language": "en",
+      "pattern_tag": "secret_openai",
+      "text": "OPENAI_API_KEY=sk-proj-ZzYyXxWwVvUuTtSs1234567890ZzYyXxWwVvUuTtSs0123",
+      "expected": [
+        [
+          15,
+          69,
+          "secret"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          1,
+          "secret"
+        ],
+        [
+          0,
+          3,
+          "private_url"
+        ],
+        [
+          15,
+          17,
+          "secret"
+        ],
+        [
+          17,
+          18,
+          "private_url"
+        ],
+        [
+          18,
+          22,
+          "secret"
+        ],
+        [
+          22,
+          23,
+          "private_url"
+        ],
+        [
+          23,
+          38,
+          "secret"
+        ],
+        [
+          38,
+          49,
+          "private_url"
+        ],
+        [
+          49,
+          60,
+          "secret"
+        ],
+        [
+          60,
+          61,
+          "private_url"
+        ],
+        [
+          61,
+          69,
+          "secret"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 11,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 6,
+      "soft_fn": 0,
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "en_multi_email_1",
+      "language": "en",
+      "pattern_tag": "multi_email",
+      "text": "Hi Anna,\n\nMy contact details: John Smith, phone +41 44 555 12 34, email john.smith@example.ch, address Bahnhofstrasse 10, 8001 Zurich.\n\nBest regards,\nJohn Smith",
+      "expected": [
+        [
+          3,
+          7,
+          "private_person"
+        ],
+        [
+          30,
+          40,
+          "private_person"
+        ],
+        [
+          48,
+          64,
+          "private_phone"
+        ],
+        [
+          72,
+          93,
+          "private_email"
+        ],
+        [
+          103,
+          133,
+          "private_address"
+        ],
+        [
+          150,
+          160,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          3,
+          7,
+          "private_person"
+        ],
+        [
+          30,
+          40,
+          "private_person"
+        ],
+        [
+          48,
+          64,
+          "private_phone"
+        ],
+        [
+          72,
+          93,
+          "private_email"
+        ],
+        [
+          103,
+          133,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 5,
+      "exact_fp": 0,
+      "exact_fn": 1,
+      "soft_tp": 5,
+      "soft_fp": 0,
+      "soft_fn": 1,
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "de_adv_neg_person_5",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_person",
+      "text": "Der Berger Bauer hat heute den Markt besucht.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "de_adv_neg_addr_2",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_addr",
+      "text": "Die Stadt Bern hat ein neues Stadion gebaut.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "fr_adv_neg_person_1",
+      "language": "fr_ch",
+      "pattern_tag": "adv_neg_person",
+      "text": "Le boulanger du quartier ouvre à 6h.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "it_adv_neg_person_1",
+      "language": "it_ch",
+      "pattern_tag": "adv_neg_person",
+      "text": "Il panettiere apre alle 6 del mattino.",
+      "expected": [],
+      "pred": [],
+      "exact_tp": 0,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS_NEG"
+    },
+    {
+      "case_id": "de_adv_neg_email_2",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_email",
+      "text": "API-Beispiel: POST /users mit body { email: 'demo@example.com' }",
+      "expected": [],
+      "pred": [
+        [
+          45,
+          61,
+          "private_email"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 1,
+      "soft_fn": 0,
+      "verdict": "FAIL_NEG"
+    },
+    {
+      "case_id": "de_adv_neg_url_1",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_url",
+      "text": "Siehe RFC 5321 (https://tools.ietf.org/html/rfc5321) für Details.",
+      "expected": [
+        [
+          16,
+          51,
+          "private_url"
+        ]
+      ],
+      "pred": [
+        [
+          16,
+          52,
+          "private_url"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_adv_neg_account_1",
+      "language": "de_ch",
+      "pattern_tag": "adv_neg_account",
+      "text": "Bestellnummer ist CH-2026-00001234 (Pseudo-IBAN-Format).",
+      "expected": [],
+      "pred": [
+        [
+          18,
+          34,
+          "account_number"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 0,
+      "soft_tp": 0,
+      "soft_fp": 1,
+      "soft_fn": 0,
+      "verdict": "FAIL_NEG"
+    },
+    {
+      "case_id": "fr_commonword_1",
+      "language": "fr_ch",
+      "pattern_tag": "common_word_sur",
+      "text": "Monsieur Roche a dirigé l'enquête.",
+      "expected": [
+        [
+          0,
+          14,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          9,
+          14,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "it_commonword_1",
+      "language": "it_ch",
+      "pattern_tag": "common_word_sur",
+      "text": "Signor Monte ha guidato il progetto.",
+      "expected": [
+        [
+          0,
+          12,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          7,
+          12,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_initials_1",
+      "language": "rm",
+      "pattern_tag": "initials",
+      "text": "A. Caduff ha suttascrit il document.",
+      "expected": [
+        [
+          0,
+          9,
+          "private_person"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          9,
+          "private_person"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_addr_city_1",
+      "language": "rm",
+      "pattern_tag": "addr_city_only",
+      "text": "Curdin abita a Cuera dapi trais onns.",
+      "expected": [
+        [
+          0,
+          6,
+          "private_person"
+        ],
+        [
+          15,
+          20,
+          "private_address"
+        ]
+      ],
+      "pred": [
+        [
+          0,
+          6,
+          "private_person"
+        ],
+        [
+          15,
+          20,
+          "private_address"
+        ]
+      ],
+      "exact_tp": 2,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 2,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_phone_national_1",
+      "language": "rm",
+      "pattern_tag": "phone_national",
+      "text": "Cuntactai a 081 555 12 34 da las 9 era.",
+      "expected": [
+        [
+          12,
+          25,
+          "private_phone"
+        ]
+      ],
+      "pred": [
+        [
+          12,
+          25,
+          "private_phone"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "rm_date_modifier_1",
+      "language": "rm",
+      "pattern_tag": "date_modifier",
+      "text": "Validitad fin venderdi, ils 5 da matg.",
+      "expected": [
+        [
+          14,
+          37,
+          "private_date"
+        ]
+      ],
+      "pred": [
+        [
+          28,
+          37,
+          "private_date"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 1,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_secret_aws_2",
+      "language": "de_ch",
+      "pattern_tag": "secret_aws",
+      "text": "AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+      "expected": [
+        [
+          22,
+          62,
+          "secret"
+        ]
+      ],
+      "pred": [
+        [
+          22,
+          35,
+          "secret"
+        ],
+        [
+          36,
+          62,
+          "secret"
+        ]
+      ],
+      "exact_tp": 0,
+      "exact_fp": 2,
+      "exact_fn": 1,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_secret_github_2",
+      "language": "de_ch",
+      "pattern_tag": "secret_github",
+      "text": "Auth: github_pat_11ABCDEF0_aBcDeFgHiJkLmNoPqRsTuVwXyZ0123",
+      "expected": [
+        [
+          6,
+          57,
+          "secret"
+        ]
+      ],
+      "pred": [
+        [
+          6,
+          57,
+          "secret"
+        ]
+      ],
+      "exact_tp": 1,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 1,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    },
+    {
+      "case_id": "de_multi_form_1",
+      "language": "de_ch",
+      "pattern_tag": "multi_form",
+      "text": "Formular zur Anmeldung\nName: Anna Müller\nGeburtsdatum: 12.03.1985\nAHV-Nr: 756.9217.0769.85\nAdresse: Bahnhofstrasse 10, 8001 Zürich\nTelefon: +41 44 555 12 34\nE-Mail: anna.mueller@example.ch",
+      "expected": [
+        [
+          29,
+          40,
+          "private_person"
+        ],
+        [
+          55,
+          65,
+          "private_date"
+        ],
+        [
+          74,
+          90,
+          "account_number"
+        ],
+        [
+          100,
+          130,
+          "private_address"
+        ],
+        [
+          140,
+          156,
+          "private_phone"
+        ],
+        [
+          165,
+          188,
+          "private_email"
+        ]
+      ],
+      "pred": [
+        [
+          29,
+          40,
+          "private_person"
+        ],
+        [
+          55,
+          65,
+          "private_date"
+        ],
+        [
+          74,
+          90,
+          "account_number"
+        ],
+        [
+          100,
+          130,
+          "private_address"
+        ],
+        [
+          140,
+          156,
+          "private_phone"
+        ],
+        [
+          165,
+          188,
+          "private_email"
+        ]
+      ],
+      "exact_tp": 6,
+      "exact_fp": 0,
+      "exact_fn": 0,
+      "soft_tp": 6,
+      "soft_fp": 0,
+      "soft_fn": 0,
+      "verdict": "PASS"
+    }
+  ]
+}
