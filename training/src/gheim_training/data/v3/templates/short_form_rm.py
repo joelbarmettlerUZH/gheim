@@ -1,0 +1,48 @@
+"""Romansh short-form narrative fragments. Hand-written, 20 entries.
+Cognate-heavy prose, no native review available. NOT email greetings/
+signatures — mid-document narrative, note-style, or conversational
+snippets where names appear in non-greeting positions."""
+from ..core import Fragment
+
+TEMPLATES: list[Fragment] = [
+    Fragment("sf_rm_01", "rm",
+             "[[PII:full]] ha suttascrit il protocoll questa damaun."),
+    Fragment("sf_rm_02", "rm",
+             "Tenor [[PII:last]], l'encunter cumenza a las 14.00."),
+    Fragment("sf_rm_03", "rm",
+             "Has ti vis [[PII:first]] oz? El ma tschertgava dapi ier."),
+    Fragment("sf_rm_04", "rm",
+             "Hai telefonà a [[PII:first]] ier saira, nagina risposta."),
+    Fragment("sf_rm_05", "rm",
+             "Il rapport menziuna curt [[PII:full]] tranter ils perits audids."),
+    Fragment("sf_rm_06", "rm",
+             "«Nus discutain tut las opziuns», ha ditg [[PII:title_last]] davant la pressa."),
+    Fragment("sf_rm_07", "rm",
+             "[[PII:title_first_last]], directura dapi 2020, ha confermau la fusiun a Cuira."),
+    Fragment("sf_rm_08", "rm",
+             "Notizia per [[PII:first]]: per plaschair telefonar al client avant mezdi."),
+    Fragment("sf_rm_09", "rm",
+             "Hai retschavì [[PII:first]] sin il martgà — ella va bain."),
+    Fragment("sf_rm_10", "rm",
+             "Il nov biro da [[PII:full]] sa chatta uss a l'indriz [[PII:address]]."),
+    Fragment("sf_rm_11", "rm",
+             "Anniversari da [[PII:first]] il [[PII:date]] — pensar a la turta."),
+    Fragment("sf_rm_12", "rm",
+             "Il commissari [[PII:last]] refusa per il mument da commentar la chaussa."),
+    Fragment("sf_rm_13", "rm",
+             "Per dumondas logisticas, contactai [[PII:full]] al numer [[PII:phone]]."),
+    Fragment("sf_rm_14", "rm",
+             "Sesida dal cussegl postpunida: [[PII:title_last]] ei en viadi fin il [[PII:date]]."),
+    Fragment("sf_rm_15", "rm",
+             "Ensemen cun [[PII:first]] damaun a las 8, café da la staziun."),
+    Fragment("sf_rm_16", "rm",
+             "Il dossier da [[PII:full]] ([[PII:email]]) spetga anc validaziun giuridica."),
+    Fragment("sf_rm_17", "rm",
+             "Trais students — tranter quels [[PII:first]] — han survegnì la menziun fitg bun."),
+    Fragment("sf_rm_18", "rm",
+             "Pajaments mandads oz sin il conto [[PII:iban]] a num da [[PII:full]]."),
+    Fragment("sf_rm_19", "rm",
+             "Tschaina tar [[PII:first]] venderdi, n'emblidar betg il vin."),
+    Fragment("sf_rm_20", "rm",
+             "Indriz da consegna: [[PII:address]], a l'attenziun da [[PII:last]]."),
+]
