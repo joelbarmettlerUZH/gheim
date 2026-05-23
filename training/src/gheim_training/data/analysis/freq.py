@@ -36,7 +36,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from .schema import LabelledExample, SIGNALS
+from ..labelling.schema import LabelledExample, SIGNALS
 
 DEFAULT_IN = Path("data/assembled.jsonl")
 DEFAULT_OUT = Path("data/freq_report.json")

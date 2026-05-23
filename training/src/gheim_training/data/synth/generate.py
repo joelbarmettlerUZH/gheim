@@ -1,18 +1,26 @@
-"""V3 synthetic chunk generator runner.
+"""Synthetic chunk generator.
 
-Consumes the 28 hand-written template files in templates/ and produces
-the synthetic v3 layer JSONL outputs that the the pipeline balancer ingests.
+Consumes the hand-written template files in ``templates/`` and produces
+synthetic layer JSONL outputs that the balancer ingests.
 
-Output layers (data/layer_v3_*.jsonl):
-  - layer_synth_emails.jsonl       — greeting + body[+] + signature compositions
-  - layer_synth_docs.jsonl         — DE legal/medical/bank/HR document templates
-  - layer_synth_short_form.jsonl   — standalone narrative fragments
-  - layer_synth_forms.jsonl        — form/list/CSV-style high-density chunks
-  - layer_synth_common_word.jsonl  — common-word surname pos+neg pairs
-  - layer_synth_adversarial.jsonl  — adversarial-negative chunks (no PII)
+Output layers (under ``data/``):
+  - ``layer_synth_emails.jsonl``        — greeting + body[+] + signature
+                                          composer-rendered emails (all 5 langs)
+  - ``layer_synth_docs.jsonl``          — DE legal/medical/bank/HR document
+                                          templates (high-density, ~7 spans/doc)
+  - ``layer_synth_multilang_docs.jsonl``— KYC/HR/bank/medical/secret-leak/
+                                          doctor-note documents (de/fr/it)
+  - ``layer_synth_short_form.jsonl``    — standalone narrative fragments
+  - ``layer_synth_forms.jsonl``         — DE structured layouts
+                                          (CSV / vCard / YAML / etc.)
+  - ``layer_synth_common_word.jsonl``   — common-word surname pos+neg pairs
+                                          (Bach as person vs Bach as creek)
+  - ``layer_synth_adversarial.jsonl``   — adversarial-negative chunks (no PII)
+  - ``layer_synth_rm_secrets.jsonl``    — RM-context secret slots
 
-Each chunk goes through optional noise overlay (15% probability) so the
-training mix includes realistic surface-form corruption.
+15% of chunks get random noise overlay (NBSP / broken caps / no_space /
+markdown / HTML entity / stray punct / OCR swap) so the training mix
+includes realistic surface-form corruption.
 
 Run
 ---
@@ -22,10 +30,11 @@ from __future__ import annotations
 
 import argparse
 import random
+import uuid
 from pathlib import Path
 
 from .core import (
-    Chunk, CompositionStyle, Span, Fragment,
+    Chunk, CompositionStyle, Fragment, Span,
     compose_email, maybe_apply_noise, render_standalone,
     spans_from_values, write_jsonl,
 )
@@ -42,11 +51,13 @@ EMAIL_VOLUME_PER_LANG = {
     "rm": 3_000,
     "en": 2_000,
 }
-DOC_RENDERS_PER_TEMPLATE = 250  # × 51 DE doc templates = ~12.7k doc chunks
-SHORT_FORM_RENDERS_PER_TEMPLATE = 80  # × 115 short-form templates = ~9.2k
-FORM_RENDERS_PER_TEMPLATE = 200  # × 20 form templates = 4k
+DOC_RENDERS_PER_TEMPLATE = 250         # × 51 DE doc templates = ~12.7k
+MULTILANG_DOC_RENDERS_PER_TEMPLATE = 1_400  # × 18 templates = 25.2k (replaces old Layer 1)
+SHORT_FORM_RENDERS_PER_TEMPLATE = 80   # × 115 short-form templates = ~9.2k
+FORM_RENDERS_PER_TEMPLATE = 200        # × 20 form templates = 4k
 COMMON_WORD_RENDERS_PER_TEMPLATE = 60  # × 80 pos+neg = 4.8k
 ADVERSARIAL_RENDERS_PER_TEMPLATE = 80  # × 35 = 2.8k
+RM_SECRETS_RENDERS_PER_TEMPLATE = 40   # × 20 templates = 800
 
 NOISE_PROBABILITY = 0.15
 SEED = 20260524
@@ -80,11 +91,10 @@ def _gen_emails_for_lang(lang: str, n_chunks: int,
                          rng: random.Random) -> list[Chunk]:
     """Compose ``n_chunks`` multi-paragraph email chunks by sampling
     one greeting + one body + one signature for the given language."""
-    # Template files use bare lang codes (de, fr, it, rm, en).
-    de_lang = {"de_ch": "de", "fr_ch": "fr", "it_ch": "it",
-               "rm": "rm", "en": "en"}[lang]
-    greetings = _load(f"greetings_{de_lang}")
-    signatures = _load(f"signatures_{de_lang}")
+    bare = {"de_ch": "de", "fr_ch": "fr", "it_ch": "it",
+            "rm": "rm", "en": "en"}[lang]
+    greetings = _load(f"greetings_{bare}")
+    signatures = _load(f"signatures_{bare}")
 
     # Pick body modules for this language. DE has commerce/banking/HR;
     # others have the generic "_general" pool.
@@ -93,14 +103,13 @@ def _gen_emails_for_lang(lang: str, n_chunks: int,
                   _load("bodies_de_banking") +
                   _load("bodies_de_hr"))
     else:
-        bodies = _load(f"bodies_{de_lang}_general")
+        bodies = _load(f"bodies_{bare}_general")
 
     if not greetings or not bodies or not signatures:
         return []
 
     out: list[Chunk] = []
     for _ in range(n_chunks):
-        # Pick 1-2 bodies per email (most emails are 1 body; ~20% have 2)
         n_bodies = 2 if rng.random() < 0.20 else 1
         body_sample = rng.sample(bodies, k=min(n_bodies, len(bodies)))
         chunk = compose_email(
@@ -116,46 +125,15 @@ def _gen_emails_for_lang(lang: str, n_chunks: int,
     return out
 
 
-def _gen_docs(rng: random.Random) -> list[Chunk]:
-    """DE legal/medical/bank/HR document templates, rendered standalone
-    DOC_RENDERS_PER_TEMPLATE times each."""
-    all_docs = (_load("docs_de_legal") + _load("docs_de_medical") +
-                _load("docs_de_bank") + _load("docs_de_hr"))
+def _gen_standalone_layer(templates: list[Fragment], source: str,
+                          n_renders_per_template: int,
+                          rng: random.Random) -> list[Chunk]:
+    """Render each template ``n_renders_per_template`` times standalone."""
     out: list[Chunk] = []
-    for tpl in all_docs:
-        for _ in range(DOC_RENDERS_PER_TEMPLATE):
-            chunk = render_standalone(tpl, source="synthetic_docs", rng=rng)
-            chunk = maybe_apply_noise(chunk, probability=NOISE_PROBABILITY,
-                                      rng=rng)
-            out.append(chunk)
-    return out
-
-
-def _gen_short_form(rng: random.Random) -> list[Chunk]:
-    """Standalone narrative fragments across all 5 languages."""
-    all_sf = (_load("short_form_de") + _load("short_form_fr") +
-              _load("short_form_it") + _load("short_form_rm") +
-              _load("short_form_en"))
-    out: list[Chunk] = []
-    for tpl in all_sf:
-        for _ in range(SHORT_FORM_RENDERS_PER_TEMPLATE):
-            chunk = render_standalone(tpl, source="synthetic_short_form",
-                                      rng=rng)
-            chunk = maybe_apply_noise(chunk, probability=NOISE_PROBABILITY,
-                                      rng=rng)
-            out.append(chunk)
-    return out
-
-
-def _gen_forms(rng: random.Random) -> list[Chunk]:
-    """DE form/list/CSV-style high-density chunks."""
-    forms = _load("forms_de")
-    out: list[Chunk] = []
-    for tpl in forms:
-        for _ in range(FORM_RENDERS_PER_TEMPLATE):
-            chunk = render_standalone(tpl, source="synthetic_forms", rng=rng)
-            chunk = maybe_apply_noise(chunk, probability=NOISE_PROBABILITY,
-                                      rng=rng)
+    for tpl in templates:
+        for _ in range(n_renders_per_template):
+            chunk = render_standalone(tpl, source=source, rng=rng)
+            chunk = maybe_apply_noise(chunk, probability=NOISE_PROBABILITY, rng=rng)
             out.append(chunk)
     return out
 
@@ -163,16 +141,11 @@ def _gen_forms(rng: random.Random) -> list[Chunk]:
 def _gen_common_word(rng: random.Random) -> list[Chunk]:
     """Common-word surname pairs. Positives use pre-resolved literal
     spans from the SPANS dict; negatives have empty span lists."""
-    import uuid
     templates, spans_map = _load_common_word()
     out: list[Chunk] = []
     for tpl in templates:
         for _ in range(COMMON_WORD_RENDERS_PER_TEMPLATE):
-            # No PII markers in these templates — the text is literal.
-            # Look up explicit spans for positive templates; negatives
-            # get [].
             pair_specs = spans_map.get(tpl.template_id, [])
-            # Normalise label aliases ("person" → "private_person").
             from .core.composers import _LABEL_MAP
             spans: list[Span] = []
             cursor = 0
@@ -202,7 +175,6 @@ def _gen_common_word(rng: random.Random) -> list[Chunk]:
 def _gen_adversarial(rng: random.Random) -> list[Chunk]:
     """Adversarial-negative chunks. No PII markers; renders as chunks
     with empty span lists."""
-    import uuid
     advs = _load("adversarial_de")
     out: list[Chunk] = []
     for tpl in advs:
@@ -230,58 +202,76 @@ def main() -> None:
     ap.add_argument("--out-dir", type=Path, default=Path("data"))
     ap.add_argument("--seed", type=int, default=SEED)
     ap.add_argument("--skip", nargs="*", default=[],
-                    choices=["emails", "docs", "short_form", "forms",
-                             "common_word", "adversarial"],
+                    choices=["emails", "docs", "multilang_docs", "short_form",
+                             "forms", "common_word", "adversarial", "rm_secrets"],
                     help="Skip one or more output kinds (for partial re-runs).")
     args = ap.parse_args()
 
     rng = random.Random(args.seed)
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
-    # ---- emails (per-language) ----
     if "emails" not in args.skip:
         all_emails: list[Chunk] = []
         for lang, n in EMAIL_VOLUME_PER_LANG.items():
             print(f"Generating {n:,} {lang} emails…", flush=True)
             all_emails.extend(_gen_emails_for_lang(lang, n, rng))
-        out = args.out_dir / "layer_synth_emails.jsonl"
-        n = write_jsonl(out, all_emails)
-        print(f"  wrote {n:,} → {out}")
+        n = write_jsonl(args.out_dir / "layer_synth_emails.jsonl", all_emails)
+        print(f"  wrote {n:,} → layer_synth_emails.jsonl")
 
     if "docs" not in args.skip:
-        print("Generating DE documents…", flush=True)
-        chunks = _gen_docs(rng)
-        out = args.out_dir / "layer_synth_docs.jsonl"
-        n = write_jsonl(out, chunks)
-        print(f"  wrote {n:,} → {out}")
+        print("Generating DE legal/medical/bank/HR documents…", flush=True)
+        all_docs = (_load("docs_de_legal") + _load("docs_de_medical") +
+                    _load("docs_de_bank") + _load("docs_de_hr"))
+        chunks = _gen_standalone_layer(all_docs, "synthetic_docs",
+                                       DOC_RENDERS_PER_TEMPLATE, rng)
+        n = write_jsonl(args.out_dir / "layer_synth_docs.jsonl", chunks)
+        print(f"  wrote {n:,} → layer_synth_docs.jsonl")
+
+    if "multilang_docs" not in args.skip:
+        print("Generating multilang KYC/HR/bank/medical/secret/doctor docs…",
+              flush=True)
+        templates = _load("multilang_docs")
+        chunks = _gen_standalone_layer(templates, "synthetic_multilang_docs",
+                                       MULTILANG_DOC_RENDERS_PER_TEMPLATE, rng)
+        n = write_jsonl(args.out_dir / "layer_synth_multilang_docs.jsonl", chunks)
+        print(f"  wrote {n:,} → layer_synth_multilang_docs.jsonl")
 
     if "short_form" not in args.skip:
         print("Generating short-form narrative…", flush=True)
-        chunks = _gen_short_form(rng)
-        out = args.out_dir / "layer_synth_short_form.jsonl"
-        n = write_jsonl(out, chunks)
-        print(f"  wrote {n:,} → {out}")
+        all_sf = (_load("short_form_de") + _load("short_form_fr") +
+                  _load("short_form_it") + _load("short_form_rm") +
+                  _load("short_form_en"))
+        chunks = _gen_standalone_layer(all_sf, "synthetic_short_form",
+                                       SHORT_FORM_RENDERS_PER_TEMPLATE, rng)
+        n = write_jsonl(args.out_dir / "layer_synth_short_form.jsonl", chunks)
+        print(f"  wrote {n:,} → layer_synth_short_form.jsonl")
 
     if "forms" not in args.skip:
-        print("Generating DE forms…", flush=True)
-        chunks = _gen_forms(rng)
-        out = args.out_dir / "layer_synth_forms.jsonl"
-        n = write_jsonl(out, chunks)
-        print(f"  wrote {n:,} → {out}")
+        print("Generating DE structured layouts…", flush=True)
+        chunks = _gen_standalone_layer(_load("forms_de"), "synthetic_forms",
+                                       FORM_RENDERS_PER_TEMPLATE, rng)
+        n = write_jsonl(args.out_dir / "layer_synth_forms.jsonl", chunks)
+        print(f"  wrote {n:,} → layer_synth_forms.jsonl")
 
     if "common_word" not in args.skip:
         print("Generating common-word surname pairs (DE)…", flush=True)
         chunks = _gen_common_word(rng)
-        out = args.out_dir / "layer_synth_common_word.jsonl"
-        n = write_jsonl(out, chunks)
-        print(f"  wrote {n:,} → {out}")
+        n = write_jsonl(args.out_dir / "layer_synth_common_word.jsonl", chunks)
+        print(f"  wrote {n:,} → layer_synth_common_word.jsonl")
 
     if "adversarial" not in args.skip:
         print("Generating adversarial negatives (DE)…", flush=True)
         chunks = _gen_adversarial(rng)
-        out = args.out_dir / "layer_synth_adversarial.jsonl"
-        n = write_jsonl(out, chunks)
-        print(f"  wrote {n:,} → {out}")
+        n = write_jsonl(args.out_dir / "layer_synth_adversarial.jsonl", chunks)
+        print(f"  wrote {n:,} → layer_synth_adversarial.jsonl")
+
+    if "rm_secrets" not in args.skip:
+        print("Generating RM-context secret slots…", flush=True)
+        chunks = _gen_standalone_layer(_load("rm_secrets"),
+                                       "synthetic_rm_secrets",
+                                       RM_SECRETS_RENDERS_PER_TEMPLATE, rng)
+        n = write_jsonl(args.out_dir / "layer_synth_rm_secrets.jsonl", chunks)
+        print(f"  wrote {n:,} → layer_synth_rm_secrets.jsonl")
 
 
 if __name__ == "__main__":

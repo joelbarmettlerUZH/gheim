@@ -39,7 +39,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from .balance import SEED, SYNTHETIC_SOURCES
-from .schema import LabelledExample, read_jsonl, write_jsonl
+from .labelling.schema import LabelledExample, read_jsonl, write_jsonl
 
 IN_PATH = Path("data/balanced.jsonl")  # was v2_balanced; now reads v3 output
 OUT_TRAIN = Path("data/balanced_train.jsonl")

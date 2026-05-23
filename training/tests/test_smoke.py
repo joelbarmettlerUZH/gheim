@@ -18,8 +18,9 @@ from gheim_training.data.label_space import (
 )
 from gheim_training.data.schema import Example, Span
 from gheim_training.data.synth import faker_ch as F
-from gheim_training.data.synth.docs import generate as syn_generate
-from gheim_training.data.synth.docs.template import render
+# synth.docs and its template/generate were superseded by the unified
+# composer framework (synth/core/ + synth/templates/ + synth/generate.py).
+# See test_synth_core.py for the current generator tests.
 
 
 def test_label_space_shape() -> None:
@@ -129,34 +130,8 @@ def test_encode_example_masks_specials() -> None:
     assert enc["labels"][2] == LABEL2ID["E-private_person"]
 
 
-# --- Synthetic generator ---
-
-def test_synthetic_generation_validates() -> None:
-    F.seed_all(17)
-    examples = syn_generate.generate(50)
-    assert len(examples) == 50
-    for ex in examples:
-        ex.validate_offsets()
-        for sp in ex.spans:
-            surface = ex.text[sp.start:sp.end]
-            assert surface.strip() == surface
-            assert sp.label in CATEGORIES
-
-
-def test_template_render_offsets() -> None:
-    text, spans = render(
-        "Hello {{name:private_person}}, your IBAN is {{iban:account_number}}.",
-        {"name": lambda: "Joel", "iban": lambda: "CH9300762011623852957"},
-    )
-    assert text == "Hello Joel, your IBAN is CH9300762011623852957."
-    assert spans[0] == Span(start=6, end=10, label="private_person")
-    assert spans[1] == Span(start=25, end=46, label="account_number")
-
-
-def test_template_unknown_category_rejected() -> None:
-    import pytest
-    with pytest.raises(ValueError):
-        render("{{x:not_a_category}}", {"x": lambda: "v"})
+# Synthetic generator tests moved to test_synth_core.py (test the new
+# marker-based composer framework end-to-end).
 
 
 # Apertus slot-verification tests removed when the apertus labeller
