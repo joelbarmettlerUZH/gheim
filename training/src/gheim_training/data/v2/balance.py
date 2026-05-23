@@ -47,6 +47,7 @@ from .schema import V2Example, V2Span, write_jsonl
 ASSEMBLED_PATH = Path("data/v2_assembled.jsonl")
 LAYER1_PATH = Path("data/layer1.jsonl")
 LAYER9_PATH = Path("data/layer9.jsonl")
+RM_SECRETS_PATH = Path("data/layer_rm_secrets.jsonl")
 OUT_PATH = Path("data/v2_balanced.jsonl")
 
 LANGS = ("de_ch", "fr_ch", "it_ch", "rm", "en")
@@ -55,7 +56,7 @@ CATS = (
     "private_person", "private_phone", "private_url", "secret",
 )
 REAL_SOURCES = ("fineweb", "entscheidsuche", "curia_vista", "romansh")
-SYNTHETIC_SOURCES = ("synthetic_l1", "synthetic_l9")
+SYNTHETIC_SOURCES = ("synthetic_l1", "synthetic_l9", "synthetic_rm_secrets")
 
 # Phase E
 CONFIDENCE_FLOOR = 0.5
@@ -109,6 +110,12 @@ def _cell_cap(lang: str, source: str, cat: str) -> int:
         return 4_000
     if source == "synthetic_l9":
         return 200  # keep nearly all of the 880 Layer-9 chunks
+    if source == "synthetic_rm_secrets":
+        # 800 chunks, ~1.2 spans/chunk, dominated by secret (800 spans).
+        # cap=800 keeps all (rm × synthetic_rm_secrets × secret) and lets
+        # the few co-occurring person/phone spans through. Closes the
+        # (rm × secret) cell which was 1-span in v2.0.
+        return 800
     return 1_000
 
 
@@ -500,9 +507,14 @@ def main() -> None:
     print(f"[Pass 1] Loading {LAYER9_PATH} …")
     syn_l9 = _load_synthetic_metadata(LAYER9_PATH, "synthetic_l9")
     print(f"  layer9: {len(syn_l9):,} chunks")
+    print(f"[Pass 1] Loading {RM_SECRETS_PATH} …")
+    syn_rm_secrets = _load_synthetic_metadata(
+        RM_SECRETS_PATH, "synthetic_rm_secrets",
+    )
+    print(f"  rm_secrets: {len(syn_rm_secrets):,} chunks")
     print()
 
-    all_chunks = real + syn_l1 + syn_l9
+    all_chunks = real + syn_l1 + syn_l9 + syn_rm_secrets
     print(f"Combined pool: {len(all_chunks):,} chunks")
     print()
 
@@ -532,9 +544,11 @@ def main() -> None:
     real_ids = {c.id for c in real if c.id in admitted_all}
     syn_l1_ids = {c.id for c in syn_l1 if c.id in admitted_all}
     syn_l9_ids = {c.id for c in syn_l9 if c.id in admitted_all}
+    syn_rm_secrets_ids = {c.id for c in syn_rm_secrets if c.id in admitted_all}
     print(f"[Pass 2] Writing {OUT_PATH} …")
     print(f"  real: {len(real_ids):,}  synthetic_l1: {len(syn_l1_ids):,}  "
-          f"synthetic_l9: {len(syn_l9_ids):,}")
+          f"synthetic_l9: {len(syn_l9_ids):,}  "
+          f"synthetic_rm_secrets: {len(syn_rm_secrets_ids):,}")
 
     def _generate() -> Iterator[V2Example]:
         for d in _stream_assembled_records():
@@ -547,6 +561,10 @@ def main() -> None:
         )
         yield from _emit_synthetic_chunks(
             LAYER9_PATH, "synthetic_l9", syn_l9_ids, surviving,
+        )
+        yield from _emit_synthetic_chunks(
+            RM_SECRETS_PATH, "synthetic_rm_secrets", syn_rm_secrets_ids,
+            surviving,
         )
 
     n = write_jsonl(OUT_PATH, _generate())
@@ -580,24 +598,16 @@ def main() -> None:
         else:
             n_neg += 1
     # add synthetic to per-(lang,source) counts
-    for c in syn_l1:
-        if c.id in admitted_all:
-            by_ls[(c.language, c.subset)] += 1
-            by_lang[c.language] += 1
-            n_pos += 1 if surviving.get(c.id) else 0
-            n_neg += 0 if surviving.get(c.id) else 1
-            for sp in c.spans:
-                if (sp.start, sp.end) in surviving.get(c.id, set()):
-                    n_span_signals_dist[1] += 1  # synthetic = 1 signal
-    for c in syn_l9:
-        if c.id in admitted_all:
-            by_ls[(c.language, c.subset)] += 1
-            by_lang[c.language] += 1
-            n_pos += 1 if surviving.get(c.id) else 0
-            n_neg += 0 if surviving.get(c.id) else 1
-            for sp in c.spans:
-                if (sp.start, sp.end) in surviving.get(c.id, set()):
-                    n_span_signals_dist[1] += 1
+    for synth_pool in (syn_l1, syn_l9, syn_rm_secrets):
+        for c in synth_pool:
+            if c.id in admitted_all:
+                by_ls[(c.language, c.subset)] += 1
+                by_lang[c.language] += 1
+                n_pos += 1 if surviving.get(c.id) else 0
+                n_neg += 0 if surviving.get(c.id) else 1
+                for sp in c.spans:
+                    if (sp.start, sp.end) in surviving.get(c.id, set()):
+                        n_span_signals_dist[1] += 1  # synthetic = 1 signal
 
     print(f"  {'lang':<8} {'source':<18} {'chunks':>10}")
     for (la, src), k in sorted(by_ls.items(), key=lambda x: -x[1]):
