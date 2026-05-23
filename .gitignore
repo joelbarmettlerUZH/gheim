@@ -53,4 +53,6 @@ htmlcov/
 !/data/v3_postprocess_report.json
 !/data/v3_split_summary.json
 !/data/v3_balanced_summary.json
+!/eval/v3_probe_postrelease.json
+!/eval/v3_test_per_lang_cat.json
 packages/gheim-js/package-lock.json

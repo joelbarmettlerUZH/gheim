@@ -1,0 +1,238 @@
+{
+  "model_id": "checkpoints/gheim-ch-v3",
+  "dataset_id": "data/built_v3_balanced",
+  "dataset_split": "test",
+  "n_chunks": 22103,
+  "languages": [
+    "de_ch",
+    "en",
+    "fr_ch",
+    "it_ch",
+    "rm"
+  ],
+  "categories": [
+    "account_number",
+    "private_address",
+    "private_date",
+    "private_email",
+    "private_person",
+    "private_phone",
+    "private_url",
+    "secret"
+  ],
+  "n_chunks_per_lang": {
+    "rm": 1696,
+    "it_ch": 3874,
+    "fr_ch": 6688,
+    "de_ch": 9293,
+    "en": 552
+  },
+  "n_gold": {
+    "de_ch": {
+      "private_date": 8213,
+      "private_person": 9225,
+      "private_address": 3669,
+      "private_url": 1972,
+      "private_phone": 1112,
+      "account_number": 741,
+      "private_email": 937,
+      "secret": 124
+    },
+    "en": {
+      "private_person": 940,
+      "private_date": 162,
+      "private_address": 82,
+      "private_url": 66,
+      "private_phone": 102,
+      "private_email": 87,
+      "account_number": 38
+    },
+    "fr_ch": {
+      "private_date": 7643,
+      "private_person": 8142,
+      "private_address": 2005,
+      "private_url": 820,
+      "private_phone": 436,
+      "private_email": 602,
+      "account_number": 508,
+      "secret": 262
+    },
+    "it_ch": {
+      "private_person": 4625,
+      "private_date": 4058,
+      "account_number": 428,
+      "private_address": 728,
+      "private_url": 607,
+      "private_email": 540,
+      "private_phone": 436,
+      "secret": 220
+    },
+    "rm": {
+      "private_person": 2279,
+      "private_date": 1156,
+      "private_address": 762,
+      "private_url": 325,
+      "account_number": 29,
+      "private_phone": 320,
+      "private_email": 224,
+      "secret": 84
+    }
+  },
+  "f1": {
+    "de_ch": {
+      "account_number": 0.9927553984530851,
+      "private_address": 0.9388945603033396,
+      "private_date": 0.9474546605593416,
+      "private_email": 0.9955174686882003,
+      "private_person": 0.9153432960058269,
+      "private_phone": 0.9959659053939749,
+      "private_url": 0.9922393743296819,
+      "secret": 0.9826109525045419
+    },
+    "en": {
+      "account_number": 1.0,
+      "private_address": 0.9581550166428912,
+      "private_date": 0.9091894822445107,
+      "private_email": 1.0,
+      "private_person": 0.9601889020070838,
+      "private_phone": 0.9986348122866895,
+      "private_url": 0.9436358825086002,
+      "secret": null
+    },
+    "fr_ch": {
+      "account_number": 0.9969648644477598,
+      "private_address": 0.906486991590026,
+      "private_date": 0.9097289386934572,
+      "private_email": 0.9999662538386258,
+      "private_person": 0.9488474224950191,
+      "private_phone": 0.9954862535904802,
+      "private_url": 0.9928051123921885,
+      "secret": 1.0
+    },
+    "it_ch": {
+      "account_number": 0.9892839746712129,
+      "private_address": 0.9259652168322243,
+      "private_date": 0.9470990700148578,
+      "private_email": 0.9980544747081712,
+      "private_person": 0.956747897962092,
+      "private_phone": 0.9965214510518469,
+      "private_url": 0.9847032334439776,
+      "secret": 0.9998416844771629
+    },
+    "rm": {
+      "account_number": 0.9929961089494164,
+      "private_address": 0.8562515723270441,
+      "private_date": 0.9334652485777888,
+      "private_email": 0.9927921092564491,
+      "private_person": 0.90321751974825,
+      "private_phone": 0.9909889357819094,
+      "private_url": 0.9923019985196151,
+      "secret": 0.9998965338851526
+    }
+  },
+  "precision": {
+    "de_ch": {
+      "account_number": 0.9943213684800898,
+      "private_address": 0.9238584507648595,
+      "private_date": 0.9259380572842741,
+      "private_email": 0.9951675965382419,
+      "private_person": 0.9078845525378834,
+      "private_phone": 0.9935094437593301,
+      "private_url": 0.9901155589759623,
+      "secret": 0.9664326738991704
+    },
+    "en": {
+      "account_number": 1.0,
+      "private_address": 0.9767329132331556,
+      "private_date": 0.882167280378748,
+      "private_email": 1.0,
+      "private_person": 0.9538374929630324,
+      "private_phone": 0.9972733469665985,
+      "private_url": 0.9399051133368477,
+      "secret": null
+    },
+    "fr_ch": {
+      "account_number": 0.9984544049459042,
+      "private_address": 0.8895731577829687,
+      "private_date": 0.883820693455075,
+      "private_email": 0.9999325099547817,
+      "private_person": 0.9456565828074445,
+      "private_phone": 0.9965494577719356,
+      "private_url": 0.9915496310402285,
+      "secret": 1.0
+    },
+    "it_ch": {
+      "account_number": 0.9866407578333738,
+      "private_address": 0.9156917599186165,
+      "private_date": 0.9194892616732557,
+      "private_email": 1.0,
+      "private_person": 0.960151599120439,
+      "private_phone": 0.9938873285973897,
+      "private_url": 0.9758465218991534,
+      "secret": 0.9996834190740008
+    },
+    "rm": {
+      "account_number": 0.9860896445131375,
+      "private_address": 0.8174656547218753,
+      "private_date": 0.9004703797123185,
+      "private_email": 0.9924156238149412,
+      "private_person": 0.8504051275849559,
+      "private_phone": 0.9834729454380802,
+      "private_url": 0.9873324495507438,
+      "secret": 0.999793089178564
+    }
+  },
+  "recall": {
+    "de_ch": {
+      "account_number": 0.9911943532042771,
+      "private_address": 0.9544282029234737,
+      "private_date": 0.9699950436539708,
+      "private_email": 0.9958675869345408,
+      "private_person": 0.9229256095748494,
+      "private_phone": 0.9984345443871894,
+      "private_url": 0.9943723205120464,
+      "secret": 0.9993401082222515
+    },
+    "en": {
+      "account_number": 1.0,
+      "private_address": 0.9402706486234251,
+      "private_date": 0.9379194630872483,
+      "private_email": 1.0,
+      "private_person": 0.9666254635352287,
+      "private_phone": 1.0,
+      "private_url": 0.9473963868225292,
+      "secret": null
+    },
+    "fr_ch": {
+      "account_number": 0.9954797616601603,
+      "private_address": 0.9240564713431998,
+      "private_date": 0.9372019990192703,
+      "private_email": 1.0,
+      "private_person": 0.9520598681836312,
+      "private_phone": 0.9944253156255124,
+      "private_url": 0.994063777108254,
+      "secret": 1.0
+    },
+    "it_ch": {
+      "account_number": 0.991941391941392,
+      "private_address": 0.9364718122114571,
+      "private_date": 0.9764183055975795,
+      "private_email": 0.996116504854369,
+      "private_person": 0.9533682435430905,
+      "private_phone": 0.9991695731606045,
+      "private_url": 0.9937221831810729,
+      "secret": 1.0
+    },
+    "rm": {
+      "account_number": 1.0,
+      "private_address": 0.8989013310796535,
+      "private_date": 0.9689700704225352,
+      "private_email": 0.993168880455408,
+      "private_person": 0.9630238290879212,
+      "private_phone": 0.9986206896551724,
+      "private_url": 0.9973218271090611,
+      "secret": 1.0
+    }
+  },
+  "metric": "char-label-aware"
+}
