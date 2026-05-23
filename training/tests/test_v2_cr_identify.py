@@ -1,7 +1,7 @@
 """Tests for the commercial-register chunk identifier."""
 from __future__ import annotations
 
-from gheim_training.data.v2.cr_identify import (
+from gheim_training.data.labelling.cr_identify import (
     filter_cr,
     is_commercial_register,
 )

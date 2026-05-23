@@ -7,7 +7,7 @@ caught in CI rather than at 50k chunks of compute.
 from __future__ import annotations
 
 import pytest
-from gheim_training.data.gemma import prompts
+from gheim_training.data.labelling.gemma import prompts
 from gheim_training.data.label_space import CATEGORIES
 
 

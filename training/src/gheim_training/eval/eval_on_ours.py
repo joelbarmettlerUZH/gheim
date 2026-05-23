@@ -78,9 +78,9 @@ DEFAULT_SPLIT = "test"
 
 # v2 test split (touched-once) — gheim-pii-v2 dataset built by
 # data.v2.build_hf. Used by V2-12 eval matrix.
-V2_DATASET = "data/built_v2_balanced"
+V2_DATASET = "data/built"
 # v3 test split — gheim-pii-v3 dataset built by data.v3 pipeline.
-V3_DATASET = "data/built_v3_balanced"
+V3_DATASET = "data/built"
 
 
 # ---------------------------------------------------------------------------

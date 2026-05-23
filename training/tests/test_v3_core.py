@@ -16,13 +16,13 @@ from pathlib import Path
 
 import pytest
 
-from gheim_training.data.v3.core import (
+from gheim_training.data.synth.core import (
     Chunk, CompositionStyle, Fragment, Span,
     apply_noise, compose_email, maybe_apply_noise,
     render_fragment, render_standalone, write_jsonl,
 )
-from gheim_training.data.v3.core import name_registry as nr
-from gheim_training.data.v3.core import pii_values as pv
+from gheim_training.data.synth.core import name_registry as nr
+from gheim_training.data.synth.core import pii_values as pv
 
 
 SEED = 20260524

@@ -9,7 +9,7 @@ from __future__ import annotations
 import random
 import re
 
-from gheim_training.data.synthetic import swiss_address, swiss_geo
+from gheim_training.data.synth import swiss_address, swiss_geo
 
 # Surface forms that en_US Faker emits but never appear in real Swiss
 # addresses. Word-bounded so they don't false-positive inside legitimate

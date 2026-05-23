@@ -7,7 +7,7 @@ alignment, and slot-bag verification.
 from __future__ import annotations
 
 from gheim_training.data import bioes
-from gheim_training.data.apertus import verify
+# gheim_training.data.apertus removed; tests below stripped accordingly
 from gheim_training.data.label_space import (
     CATEGORIES,
     ID2LABEL,
@@ -17,9 +17,9 @@ from gheim_training.data.label_space import (
     prefix_of,
 )
 from gheim_training.data.schema import Example, Span
-from gheim_training.data.synthetic import faker_ch as F
-from gheim_training.data.synthetic import generate as syn_generate
-from gheim_training.data.synthetic.template import render
+from gheim_training.data.synth import faker_ch as F
+from gheim_training.data.synth.docs import generate as syn_generate
+from gheim_training.data.synth.docs.template import render
 
 
 def test_label_space_shape() -> None:
@@ -159,23 +159,9 @@ def test_template_unknown_category_rejected() -> None:
         render("{{x:not_a_category}}", {"x": lambda: "v"})
 
 
-# --- Apertus slot verification ---
-
-def test_apertus_verify_locates_spans() -> None:
-    text = "Hi Joel, your IBAN CH9300762011623852957 was processed."
-    bag = [("private_person", "Joel"), ("account_number", "CH9300762011623852957")]
-    ex = verify.build_example(text, bag, language="de_ch", template_id="test")
-    assert ex.spans[0].label == "private_person"
-    assert ex.text[ex.spans[0].start:ex.spans[0].end] == "Joel"
-    assert ex.text[ex.spans[1].start:ex.spans[1].end] == "CH9300762011623852957"
-
-
-def test_apertus_verify_raises_on_missing() -> None:
-    import pytest
-    text = "Hi Joel."
-    bag = [("private_person", "Joel"), ("account_number", "CH-MISSING")]
-    with pytest.raises(verify.SlotVerificationError):
-        verify.build_example(text, bag, language="de_ch", template_id="test")
+# Apertus slot-verification tests removed when the apertus labeller
+# was retired in favour of Gemma+Qwen+Nemotron. See git history for the
+# original tests if needed.
 
 
 # --- Faker checksum sanity ---

@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import pytest
 
-from gheim_training.data.v2.merge import _RawSpan, from_value_pair, merge_signals
-from gheim_training.data.v2.schema import V2_PIPELINE_VERSION, V2Example, V2Span
+from gheim_training.data.labelling.merge import _RawSpan, from_value_pair, merge_signals
+from gheim_training.data.labelling.schema import V2_PIPELINE_VERSION, V2Example, V2Span
 
 
 # --------------------------------------------------------------------- V2Span
