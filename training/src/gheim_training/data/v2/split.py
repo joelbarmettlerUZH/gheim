@@ -41,11 +41,11 @@ from pathlib import Path
 from .balance import SEED, SYNTHETIC_SOURCES
 from .schema import V2Example, read_jsonl, write_jsonl
 
-IN_PATH = Path("data/v2_balanced.jsonl")
-OUT_TRAIN = Path("data/v2_balanced_train.jsonl")
-OUT_VAL = Path("data/v2_balanced_val.jsonl")
-OUT_TEST = Path("data/v2_balanced_test.jsonl")
-SUMMARY = Path("data/v2_split_summary.json")
+IN_PATH = Path("data/v3_balanced.jsonl")  # was v2_balanced; now reads v3 output
+OUT_TRAIN = Path("data/v3_balanced_train.jsonl")
+OUT_VAL = Path("data/v3_balanced_val.jsonl")
+OUT_TEST = Path("data/v3_balanced_test.jsonl")
+SUMMARY = Path("data/v3_split_summary.json")
 
 TARGET_VAL = 0.10
 TARGET_TEST = 0.10

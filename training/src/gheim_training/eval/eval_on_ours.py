@@ -79,6 +79,8 @@ DEFAULT_SPLIT = "test"
 # v2 test split (touched-once) — gheim-pii-v2 dataset built by
 # data.v2.build_hf. Used by V2-12 eval matrix.
 V2_DATASET = "data/built_v2_balanced"
+# v3 test split — gheim-pii-v3 dataset built by data.v3 pipeline.
+V3_DATASET = "data/built_v3_balanced"
 
 
 # ---------------------------------------------------------------------------
@@ -128,7 +130,8 @@ def _build_parser() -> argparse.ArgumentParser:
     # --dataset v2 for the V2-12 eval matrix).
     p.add_argument("--dataset", type=str, default=DEFAULT_DATASET,
                    help=f"HF dataset directory. Shorthands: 'v1' → {DEFAULT_DATASET}, "
-                        f"'v2' → {V2_DATASET}. Defaults to v1 for back-compat.")
+                        f"'v2' → {V2_DATASET}, 'v3' → {V3_DATASET}. "
+                        f"Defaults to v1 for back-compat.")
     p.add_argument("--split", type=str, default=DEFAULT_SPLIT,
                    help="Dataset split to evaluate (default: test).")
     return p
@@ -512,6 +515,8 @@ def main() -> None:
         dataset_path = DEFAULT_DATASET
     elif dataset_path == "v2":
         dataset_path = V2_DATASET
+    elif dataset_path == "v3":
+        dataset_path = V3_DATASET
 
     print(f"Loading dataset: {dataset_path} (split={args.split})", flush=True)
     raw = load_test_dataset(dataset_path, args.split, languages)

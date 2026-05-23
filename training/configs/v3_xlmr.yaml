@@ -1,0 +1,51 @@
+# V3 Stage 2 training — xlm-roberta-large on gheim-pii v3.
+#
+# Same hyperparams as v2_xlmr.yaml (lr=5e-5, 3 epochs, batch 64
+# effective, DDP). Only dataset differs:
+#   v2: data/built_v2_balanced  (171k chunks)
+#   v3: data/built_v3_balanced  (221k chunks — adds 64k v3 synthetic
+#                                + v3-3 labelling fixes on real text)
+#
+# Launch:
+#   uv run accelerate launch \
+#     --config_file training/configs/accelerate_ddp.yaml \
+#     -m gheim_training.train \
+#     --config training/configs/v3_xlmr.yaml
+
+base_model: FacebookAI/xlm-roberta-large
+output_dir: ./checkpoints/gheim-ch-v3
+hub_model_id: joelbarmettler/gheim-ch-v3
+
+dataset_dir: ./data/built_v3_balanced
+
+eval_split: validation
+max_seq_length: 512
+
+learning_rate: 5.0e-5
+lr_scheduler_type: cosine
+warmup_ratio: 0.05
+num_train_epochs: 3
+per_device_train_batch_size: 64
+per_device_eval_batch_size: 64
+gradient_accumulation_steps: 1
+gradient_checkpointing: true
+bf16: true
+
+logging_steps: 25
+eval_strategy: steps
+eval_steps: 500
+save_strategy: steps
+save_steps: 500
+save_total_limit: 3
+load_best_model_at_end: true
+metric_for_best_model: eval_overall_f1
+greater_is_better: true
+
+early_stopping_patience: 4
+early_stopping_threshold: 0.001
+
+seed: 20260524
+report_to: ["wandb"]
+wandb_project: gheim-1
+wandb_entity: university-of-zurich
+wandb_run_name: gheim-ch-v3

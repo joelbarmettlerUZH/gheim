@@ -43,10 +43,10 @@ import argparse
 import json
 from pathlib import Path
 
-IN_TRAIN = Path("data/v2_balanced_train.jsonl")
-IN_VAL = Path("data/v2_balanced_val.jsonl")
-IN_TEST = Path("data/v2_balanced_test.jsonl")
-OUT_DIR = Path("data/built_v2_balanced")
+IN_TRAIN = Path("data/v3_balanced_train.jsonl")
+IN_VAL = Path("data/v3_balanced_val.jsonl")
+IN_TEST = Path("data/v3_balanced_test.jsonl")
+OUT_DIR = Path("data/built_v3_balanced")
 
 
 def _convert(rec: dict) -> dict:
