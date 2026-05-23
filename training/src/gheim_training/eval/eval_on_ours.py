@@ -76,6 +76,10 @@ if TYPE_CHECKING:
 DEFAULT_DATASET = "data/built_v2"
 DEFAULT_SPLIT = "test"
 
+# v2 test split (touched-once) — gheim-pii-v2 dataset built by
+# data.v2.build_hf. Used by V2-12 eval matrix.
+V2_DATASET = "data/built_v2_balanced"
+
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -119,6 +123,14 @@ def _build_parser() -> argparse.ArgumentParser:
     # Presidio
     p.add_argument("--score-threshold", type=float, default=0.5,
                    help="Minimum confidence for a Presidio detection (--backend presidio).")
+
+    # Dataset override (default = v1 dataset for back-compat; pass
+    # --dataset v2 for the V2-12 eval matrix).
+    p.add_argument("--dataset", type=str, default=DEFAULT_DATASET,
+                   help=f"HF dataset directory. Shorthands: 'v1' → {DEFAULT_DATASET}, "
+                        f"'v2' → {V2_DATASET}. Defaults to v1 for back-compat.")
+    p.add_argument("--split", type=str, default=DEFAULT_SPLIT,
+                   help="Dataset split to evaluate (default: test).")
     return p
 
 
@@ -133,12 +145,19 @@ def _parse_languages(arg: str | None) -> list[str] | None:
 # ---------------------------------------------------------------------------
 
 def _example_from_hf_record(rec: dict) -> Any:
+    """Build a v1 Example from either v1- or v2-shaped HF record. v2
+    spans carry extra fields (value/signals/confidence/regex_subtype)
+    which the scoring path doesn't use — project explicitly so Span(**s)
+    doesn't crash."""
     from ..data.schema import Example, Span
     return Example(
         text=rec["text"],
-        spans=[Span(**s) for s in rec["spans"]],
+        spans=[
+            Span(start=int(s["start"]), end=int(s["end"]), label=s["label"])
+            for s in rec["spans"]
+        ],
         language=rec["language"],
-        source=rec["source"],
+        source=rec.get("source") or rec.get("subset") or "unknown",
         template_id=rec.get("template_id") or None,
     )
 
@@ -487,8 +506,15 @@ def main() -> None:
     args = _build_parser().parse_args()
     languages = _parse_languages(args.languages)
 
-    print(f"Loading dataset: {DEFAULT_DATASET} (split={DEFAULT_SPLIT})", flush=True)
-    raw = load_test_dataset(DEFAULT_DATASET, DEFAULT_SPLIT, languages)
+    # Resolve dataset shorthand.
+    dataset_path = args.dataset
+    if dataset_path == "v1":
+        dataset_path = DEFAULT_DATASET
+    elif dataset_path == "v2":
+        dataset_path = V2_DATASET
+
+    print(f"Loading dataset: {dataset_path} (split={args.split})", flush=True)
+    raw = load_test_dataset(dataset_path, args.split, languages)
     print(f"  {len(raw):,} chunks", flush=True)
 
     extra: dict[str, Any] = {}
@@ -511,8 +537,8 @@ def main() -> None:
         args.out,
         model_id=model_id,
         backend=args.backend,
-        dataset_id=DEFAULT_DATASET,
-        dataset_split=DEFAULT_SPLIT,
+        dataset_id=dataset_path,
+        dataset_split=args.split,
         n_chunks=n_chunks,
         metrics=metrics,
         extra=extra,

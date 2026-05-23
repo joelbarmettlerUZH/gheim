@@ -109,9 +109,12 @@ def main() -> None:
             mask = enc["attention_mask"][bi].tolist()
             ex = Example(
                 text=row["text"],
-                spans=[Span(**s) for s in row["spans"]],
+                spans=[
+                    Span(start=int(s["start"]), end=int(s["end"]), label=s["label"])
+                    for s in row["spans"]
+                ],
                 language=row["language"],
-                source=row["source"],
+                source=row.get("source") or row.get("subset") or "unknown",
                 template_id=row.get("template_id") or None,
             )
             enc_gold = encode_example(ex, tok, max_length=args.max_seq_length)

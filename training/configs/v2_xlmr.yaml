@@ -1,0 +1,51 @@
+# V2-11 Stage 2 training — xlm-roberta-large on gheim-pii v2.
+#
+# v1's xlm-r-large Stage 2 (P20) was 3 epochs at lr=5e-5 on 156k chunks,
+# wandb run 'gheim-xlmr-stage2'. v2 keeps the same hyperparams so any
+# F1 delta on the test split is attributable to data, not optimiser.
+#
+# Launch:
+#   uv run accelerate launch \
+#     --config_file training/configs/accelerate_ddp.yaml \
+#     -m gheim_training.train \
+#     --config training/configs/v2_xlmr.yaml
+
+base_model: FacebookAI/xlm-roberta-large
+output_dir: ./checkpoints/gheim-ch-v2
+hub_model_id: joelbarmettler/gheim-ch-v2
+
+# Built by gheim_training.data.v2.build_hf — DatasetDict with
+# train/validation/test keys and the full v2 schema preserved.
+dataset_dir: ./data/built_v2_balanced
+
+eval_split: validation
+max_seq_length: 512
+
+learning_rate: 5.0e-5
+lr_scheduler_type: cosine
+warmup_ratio: 0.05
+num_train_epochs: 3
+per_device_train_batch_size: 64
+per_device_eval_batch_size: 64
+gradient_accumulation_steps: 1
+gradient_checkpointing: true
+bf16: true
+
+logging_steps: 25
+eval_strategy: steps
+eval_steps: 500
+save_strategy: steps
+save_steps: 500
+save_total_limit: 3
+load_best_model_at_end: true
+metric_for_best_model: eval_overall_f1
+greater_is_better: true
+
+early_stopping_patience: 4
+early_stopping_threshold: 0.001
+
+seed: 20260522  # matches the balancer + split seed
+report_to: ["wandb"]
+wandb_project: gheim-1
+wandb_entity: university-of-zurich
+wandb_run_name: gheim-ch-v2

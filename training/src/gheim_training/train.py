@@ -95,11 +95,22 @@ def _build_llrd_param_groups(
 
 
 def _example_from_hf_record(rec: dict) -> Example:
+    """Build a v1 ``Example`` from either a v1- or v2-shaped HF record.
+
+    v2 records carry extra per-span metadata (``value``, ``signals``,
+    ``confidence``, ``regex_subtype``) which the BIOES encoder doesn't
+    use. Project explicitly to v1 ``Span`` fields rather than ``Span(**s)``
+    so the extras don't crash construction. Likewise ``subset`` is the
+    v2 alias for the v1 ``source`` field — fall back to it when present.
+    """
     return Example(
         text=rec["text"],
-        spans=[Span(**s) for s in rec["spans"]],
+        spans=[
+            Span(start=int(s["start"]), end=int(s["end"]), label=s["label"])
+            for s in rec["spans"]
+        ],
         language=rec["language"],
-        source=rec["source"],
+        source=rec.get("source") or rec.get("subset") or "unknown",
         template_id=rec.get("template_id") or None,
     )
 
