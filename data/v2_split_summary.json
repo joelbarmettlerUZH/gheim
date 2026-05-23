@@ -1,0 +1,197 @@
+{
+  "_meta": {
+    "seed": 20260522,
+    "target_val": 0.1,
+    "target_test": 0.1,
+    "stratify": "(language, source)",
+    "grouping": {
+      "real_text": "by doc_id (all chunks from a source doc stay together)",
+      "synthetic": "by chunk_id (template-only `doc_id` is not a real grouping signal)"
+    }
+  },
+  "splits": {
+    "train": {
+      "n_chunks": 137185,
+      "by_language": {
+        "de_ch": 55027,
+        "it_ch": 27729,
+        "rm": 9606,
+        "fr_ch": 42950,
+        "en": 1873
+      },
+      "by_source": {
+        "entscheidsuche": 26156,
+        "romansh": 11492,
+        "fineweb": 39517,
+        "curia_vista": 50547,
+        "synthetic_l1": 9091,
+        "synthetic_l9": 382
+      },
+      "by_lang_cat_spans": {
+        "de_ch__account_number": 3527,
+        "de_ch__private_address": 20003,
+        "de_ch__private_date": 47144,
+        "de_ch__private_email": 3671,
+        "de_ch__private_person": 46744,
+        "de_ch__private_phone": 4264,
+        "de_ch__private_url": 14314,
+        "de_ch__secret": 1092,
+        "fr_ch__account_number": 3263,
+        "fr_ch__private_address": 12990,
+        "fr_ch__private_date": 44382,
+        "fr_ch__private_email": 3379,
+        "fr_ch__private_person": 46297,
+        "fr_ch__private_phone": 1723,
+        "fr_ch__private_url": 5629,
+        "fr_ch__secret": 2154,
+        "it_ch__account_number": 3249,
+        "it_ch__private_address": 4221,
+        "it_ch__private_date": 31982,
+        "it_ch__private_email": 2899,
+        "it_ch__private_person": 28953,
+        "it_ch__private_phone": 2145,
+        "it_ch__private_url": 3840,
+        "it_ch__secret": 1646,
+        "rm__account_number": 37,
+        "rm__private_address": 3577,
+        "rm__private_date": 8625,
+        "rm__private_email": 327,
+        "rm__private_person": 8740,
+        "rm__private_phone": 1317,
+        "rm__private_url": 2190,
+        "rm__secret": 1,
+        "en__account_number": 2,
+        "en__private_address": 86,
+        "en__private_date": 746,
+        "en__private_email": 10,
+        "en__private_person": 3296,
+        "en__private_phone": 12,
+        "en__private_url": 166
+      }
+    },
+    "val": {
+      "n_chunks": 17153,
+      "by_language": {
+        "it_ch": 3469,
+        "fr_ch": 5369,
+        "rm": 1200,
+        "de_ch": 6880,
+        "en": 235
+      },
+      "by_source": {
+        "romansh": 1438,
+        "entscheidsuche": 3270,
+        "fineweb": 4941,
+        "curia_vista": 6318,
+        "synthetic_l1": 1137,
+        "synthetic_l9": 49
+      },
+      "by_lang_cat_spans": {
+        "de_ch__account_number": 449,
+        "de_ch__private_address": 2488,
+        "de_ch__private_date": 5775,
+        "de_ch__private_email": 461,
+        "de_ch__private_person": 6008,
+        "de_ch__private_phone": 539,
+        "de_ch__private_url": 1707,
+        "de_ch__secret": 144,
+        "fr_ch__account_number": 447,
+        "fr_ch__private_address": 1667,
+        "fr_ch__private_date": 5561,
+        "fr_ch__private_email": 424,
+        "fr_ch__private_person": 6005,
+        "fr_ch__private_phone": 255,
+        "fr_ch__private_url": 645,
+        "fr_ch__secret": 258,
+        "it_ch__account_number": 413,
+        "it_ch__private_address": 556,
+        "it_ch__private_date": 4006,
+        "it_ch__private_email": 357,
+        "it_ch__private_person": 3649,
+        "it_ch__private_phone": 271,
+        "it_ch__private_url": 461,
+        "it_ch__secret": 205,
+        "rm__account_number": 1,
+        "rm__private_address": 525,
+        "rm__private_date": 1053,
+        "rm__private_email": 39,
+        "rm__private_person": 1198,
+        "rm__private_phone": 162,
+        "rm__private_url": 267,
+        "en__private_address": 11,
+        "en__private_date": 84,
+        "en__private_email": 1,
+        "en__private_person": 402,
+        "en__private_url": 21
+      }
+    },
+    "test": {
+      "n_chunks": 17140,
+      "by_language": {
+        "de_ch": 6877,
+        "it_ch": 3463,
+        "fr_ch": 5367,
+        "rm": 1200,
+        "en": 233
+      },
+      "by_source": {
+        "entscheidsuche": 3269,
+        "romansh": 1434,
+        "fineweb": 4937,
+        "curia_vista": 6318,
+        "synthetic_l1": 1136,
+        "synthetic_l9": 46
+      },
+      "by_lang_cat_spans": {
+        "de_ch__account_number": 424,
+        "de_ch__private_address": 2521,
+        "de_ch__private_date": 5828,
+        "de_ch__private_email": 462,
+        "de_ch__private_person": 6097,
+        "de_ch__private_phone": 537,
+        "de_ch__private_url": 1834,
+        "de_ch__secret": 134,
+        "fr_ch__account_number": 412,
+        "fr_ch__private_address": 1693,
+        "fr_ch__private_date": 5598,
+        "fr_ch__private_email": 417,
+        "fr_ch__private_person": 5923,
+        "fr_ch__private_phone": 231,
+        "fr_ch__private_url": 652,
+        "fr_ch__secret": 265,
+        "it_ch__account_number": 470,
+        "it_ch__private_address": 597,
+        "it_ch__private_date": 3948,
+        "it_ch__private_email": 357,
+        "it_ch__private_person": 3697,
+        "it_ch__private_phone": 278,
+        "it_ch__private_url": 488,
+        "it_ch__secret": 183,
+        "rm__account_number": 3,
+        "rm__private_address": 373,
+        "rm__private_date": 1106,
+        "rm__private_email": 43,
+        "rm__private_person": 942,
+        "rm__private_phone": 175,
+        "rm__private_url": 250,
+        "en__private_address": 6,
+        "en__private_date": 102,
+        "en__private_email": 1,
+        "en__private_person": 386,
+        "en__private_phone": 2,
+        "en__private_url": 30
+      }
+    }
+  },
+  "coverage_warnings": {
+    "val_empty_cells": [
+      "rm__secret",
+      "en__account_number",
+      "en__private_phone"
+    ],
+    "test_empty_cells": [
+      "rm__secret",
+      "en__account_number"
+    ]
+  }
+}
