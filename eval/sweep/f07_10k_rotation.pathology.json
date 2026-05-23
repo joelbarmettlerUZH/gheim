@@ -1,0 +1,199 @@
+{
+  "model_id": "/home/joelbarmettler/projects/gheim/checkpoints/sweep_v2/f07_10k_rotation",
+  "n_examples": 237,
+  "headline": {
+    "full_coverage": 99,
+    "full_coverage_rate": 0.4177215189873418,
+    "avg_cat_recovery": 0.7236990154711673
+  },
+  "per_category": {
+    "account_number": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 352,
+      "fn": 178
+    },
+    "private_address": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 162,
+      "fn": 84
+    },
+    "private_date": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 239,
+      "fn": 169
+    },
+    "private_email": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 96,
+      "fn": 48
+    },
+    "private_person": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 240,
+      "fn": 268
+    },
+    "private_phone": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 248,
+      "fn": 124
+    },
+    "private_url": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 30,
+      "fn": 15
+    },
+    "secret": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 12,
+      "fn": 6
+    }
+  },
+  "per_category_recall_at_example_level": {
+    "private_email": {
+      "present_in": 48,
+      "recovered_in": 48,
+      "rate": 1.0
+    },
+    "account_number": {
+      "present_in": 178,
+      "recovered_in": 176,
+      "rate": 0.9887640449438202
+    },
+    "private_phone": {
+      "present_in": 124,
+      "recovered_in": 124,
+      "rate": 1.0
+    },
+    "private_address": {
+      "present_in": 84,
+      "recovered_in": 81,
+      "rate": 0.9642857142857143
+    },
+    "private_date": {
+      "present_in": 169,
+      "recovered_in": 120,
+      "rate": 0.7100591715976331
+    },
+    "private_person": {
+      "present_in": 231,
+      "recovered_in": 99,
+      "rate": 0.42857142857142855
+    },
+    "private_url": {
+      "present_in": 15,
+      "recovered_in": 15,
+      "rate": 1.0
+    },
+    "secret": {
+      "present_in": 6,
+      "recovered_in": 6,
+      "rate": 1.0
+    }
+  },
+  "overall_strict": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "tp": 0,
+    "fp": 1379,
+    "fn": 892
+  },
+  "overall_overlap": {
+    "precision": 0.9985611510791367,
+    "recall": 0.7780269058295964,
+    "f1": 0.8746061751732829,
+    "tp": 694,
+    "fp": 1,
+    "fn": 198
+  },
+  "per_category_overlap": {
+    "account_number": {
+      "precision": 1.0,
+      "recall": 0.9887640449438202,
+      "f1": 0.9943502824858756,
+      "tp": 176,
+      "fp": 0,
+      "fn": 2
+    },
+    "private_address": {
+      "precision": 1.0,
+      "recall": 0.9642857142857143,
+      "f1": 0.9818181818181818,
+      "tp": 81,
+      "fp": 0,
+      "fn": 3
+    },
+    "private_date": {
+      "precision": 1.0,
+      "recall": 0.7100591715976331,
+      "f1": 0.8304498269896193,
+      "tp": 120,
+      "fp": 0,
+      "fn": 49
+    },
+    "private_email": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 48,
+      "fp": 0,
+      "fn": 0
+    },
+    "private_person": {
+      "precision": 0.992,
+      "recall": 0.4626865671641791,
+      "f1": 0.6310432569974554,
+      "tp": 124,
+      "fp": 1,
+      "fn": 144
+    },
+    "private_phone": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 124,
+      "fp": 0,
+      "fn": 0
+    },
+    "private_url": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 15,
+      "fp": 0,
+      "fn": 0
+    },
+    "secret": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 6,
+      "fp": 0,
+      "fn": 0
+    }
+  }
+}

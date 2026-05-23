@@ -1,0 +1,199 @@
+{
+  "model_id": "/home/joelbarmettler/projects/gheim/checkpoints/sweep_v2/f09_10k_dotsep_random",
+  "n_examples": 237,
+  "headline": {
+    "full_coverage": 114,
+    "full_coverage_rate": 0.4810126582278481,
+    "avg_cat_recovery": 0.7570323488045007
+  },
+  "per_category": {
+    "account_number": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 357,
+      "fn": 178
+    },
+    "private_address": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 160,
+      "fn": 84
+    },
+    "private_date": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 228,
+      "fn": 169
+    },
+    "private_email": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 96,
+      "fn": 48
+    },
+    "private_person": {
+      "precision": 0.0034602076124567475,
+      "recall": 0.0037313432835820895,
+      "f1": 0.003590664272890485,
+      "tp": 1,
+      "fp": 288,
+      "fn": 267
+    },
+    "private_phone": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 248,
+      "fn": 124
+    },
+    "private_url": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 30,
+      "fn": 15
+    },
+    "secret": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 12,
+      "fn": 6
+    }
+  },
+  "per_category_recall_at_example_level": {
+    "account_number": {
+      "present_in": 178,
+      "recovered_in": 178,
+      "rate": 1.0
+    },
+    "private_email": {
+      "present_in": 48,
+      "recovered_in": 48,
+      "rate": 1.0
+    },
+    "private_date": {
+      "present_in": 169,
+      "recovered_in": 116,
+      "rate": 0.6863905325443787
+    },
+    "private_phone": {
+      "present_in": 124,
+      "recovered_in": 124,
+      "rate": 1.0
+    },
+    "private_person": {
+      "present_in": 231,
+      "recovered_in": 123,
+      "rate": 0.5324675324675324
+    },
+    "private_address": {
+      "present_in": 84,
+      "recovered_in": 78,
+      "rate": 0.9285714285714286
+    },
+    "private_url": {
+      "present_in": 15,
+      "recovered_in": 15,
+      "rate": 1.0
+    },
+    "secret": {
+      "present_in": 6,
+      "recovered_in": 6,
+      "rate": 1.0
+    }
+  },
+  "overall_strict": {
+    "precision": 0.0007042253521126761,
+    "recall": 0.0011210762331838565,
+    "f1": 0.0008650519031141868,
+    "tp": 1,
+    "fp": 1419,
+    "fn": 891
+  },
+  "overall_overlap": {
+    "precision": 0.9986072423398329,
+    "recall": 0.8038116591928252,
+    "f1": 0.8906832298136647,
+    "tp": 717,
+    "fp": 1,
+    "fn": 175
+  },
+  "per_category_overlap": {
+    "account_number": {
+      "precision": 0.994413407821229,
+      "recall": 1.0,
+      "f1": 0.9971988795518207,
+      "tp": 178,
+      "fp": 1,
+      "fn": 0
+    },
+    "private_address": {
+      "precision": 1.0,
+      "recall": 0.9285714285714286,
+      "f1": 0.962962962962963,
+      "tp": 78,
+      "fp": 0,
+      "fn": 6
+    },
+    "private_date": {
+      "precision": 1.0,
+      "recall": 0.6863905325443787,
+      "f1": 0.8140350877192982,
+      "tp": 116,
+      "fp": 0,
+      "fn": 53
+    },
+    "private_email": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 48,
+      "fp": 0,
+      "fn": 0
+    },
+    "private_person": {
+      "precision": 1.0,
+      "recall": 0.5671641791044776,
+      "f1": 0.7238095238095238,
+      "tp": 152,
+      "fp": 0,
+      "fn": 116
+    },
+    "private_phone": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 124,
+      "fp": 0,
+      "fn": 0
+    },
+    "private_url": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 15,
+      "fp": 0,
+      "fn": 0
+    },
+    "secret": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 6,
+      "fp": 0,
+      "fn": 0
+    }
+  }
+}
