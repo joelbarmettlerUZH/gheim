@@ -48,6 +48,7 @@ ASSEMBLED_PATH = Path("data/v2_assembled.jsonl")
 LAYER1_PATH = Path("data/layer1.jsonl")
 LAYER9_PATH = Path("data/layer9.jsonl")
 RM_SECRETS_PATH = Path("data/layer_rm_secrets.jsonl")
+NAME_PATTERNS_PATH = Path("data/layer_name_patterns.jsonl")
 OUT_PATH = Path("data/v2_balanced.jsonl")
 
 LANGS = ("de_ch", "fr_ch", "it_ch", "rm", "en")
@@ -56,17 +57,54 @@ CATS = (
     "private_person", "private_phone", "private_url", "secret",
 )
 REAL_SOURCES = ("fineweb", "entscheidsuche", "curia_vista", "romansh")
-SYNTHETIC_SOURCES = ("synthetic_l1", "synthetic_l9", "synthetic_rm_secrets")
+SYNTHETIC_SOURCES = (
+    "synthetic_l1", "synthetic_l9", "synthetic_rm_secrets",
+    "synthetic_name_patterns",
+)
 
 # Phase E
 CONFIDENCE_FLOOR = 0.5
 # Phase A
 PER_DOC_CAP = 30
-# Phase B
+# Phase B — base cap; cell-aware overrides via _per_value_cap() below.
 PER_VALUE_CAP = 30
 # Phase D
 NEGATIVES_FRACTION = 0.10
 SEED = 20260522
+
+
+def _per_value_cap(lang: str, cat: str, subset: str) -> int:
+    """Per-(lang, cat, value) cap for Phase B.
+
+    Cell-aware tuning based on v2.0 eval results (eval/v2_test_per_lang_cat.json):
+    cells where the trained model underperformed get more headroom so the
+    next training run sees additional context variations of the same
+    entity. Strong cells stay at the default 30 to keep the dataset from
+    bloating on already-easy patterns.
+
+    Tiers:
+    - 30 (default): strong cells — account_number/email/phone/url/secret
+      in de_ch/fr_ch/it_ch all hit F1 ≥ 0.98, no benefit from more dupes.
+    - 60: medium cells — person/address/date in the three Swiss langs.
+    - 100: rm × any cat — RM is data-thin overall; let more through.
+    - 200: en × any cat — corpus has only ~940 EN chunks; never the
+      binding constraint.
+    - 200: synthetic sources are deliberately diverse already, but the
+      template-derived chunks can repeat values within a template_id.
+      High cap here keeps name-pattern templates from being silently
+      gutted (the synth_name_patterns generator uses Faker so repeats
+      are rare anyway).
+    """
+    if subset in SYNTHETIC_SOURCES:
+        return 200
+    if lang == "en":
+        return 200
+    if lang == "rm":
+        return 100
+    medium_cats = ("private_person", "private_address", "private_date")
+    if cat in medium_cats:
+        return 60
+    return PER_VALUE_CAP
 
 
 def _cell_cap(lang: str, source: str, cat: str) -> int:
@@ -87,6 +125,13 @@ def _cell_cap(lang: str, source: str, cat: str) -> int:
                 "private_person", "private_date", "private_address",
                 "private_url", "private_phone",
             )
+            # de_ch × person, fr_ch × date were the two ≥0.88-but-<0.93
+            # weak cells in v2.0 → bump person/address/date specifically
+            # to 24k while keeping url/phone at 18k.
+            weak_for_swiss = ("private_person", "private_address",
+                              "private_date")
+            if cat in weak_for_swiss:
+                return 24_000
             return 18_000 if cat in major else 3_000
         if lang == "it_ch":
             major = (
@@ -100,6 +145,10 @@ def _cell_cap(lang: str, source: str, cat: str) -> int:
             return 600  # RM is overwhelmingly from `romansh`, almost none here
     if source == "romansh":
         if lang == "rm":
+            # rm × person/address were the v2.0 weak cells (F1 0.84/0.80)
+            # — bump from 10k → 16k for more name + address variation.
+            if cat in ("private_person", "private_address"):
+                return 16_000
             return 10_000
         if lang == "it_ch":
             return 2_400  # the rm corpus has some it_ch leakage
@@ -116,6 +165,13 @@ def _cell_cap(lang: str, source: str, cat: str) -> int:
         # the few co-occurring person/phone spans through. Closes the
         # (rm × secret) cell which was 1-span in v2.0.
         return 800
+    if source == "synthetic_name_patterns":
+        # ~2.7k chunks across 4 langs targeting v2.0 edge-case failures
+        # (bare first names in greetings, bare last names in narrative,
+        # signature lines, title abbreviations, common-word surnames).
+        # Cap high — these are precisely the patterns the model is
+        # missing, so let all of them through.
+        return 1_500
     return 1_000
 
 
@@ -295,7 +351,8 @@ def _phase_b_per_value_cap(
             counter = real_count
         for sp in c.spans:
             key = (c.language, sp.label, sp.value_norm)
-            if counter[key] < PER_VALUE_CAP:
+            cap = _per_value_cap(c.language, sp.label, c.subset)
+            if counter[key] < cap:
                 surviving_here.add((sp.start, sp.end))
                 counter[key] += 1
             else:
@@ -306,7 +363,7 @@ def _phase_b_per_value_cap(
         surviving[c.id] = surviving_here
     print(f"  Phase B: kept span-survivors for {len(surviving):,} chunks "
           f"({n_dropped_real:,} real + {n_dropped_syn:,} synthetic spans "
-          f"dropped as over-cap dupes)")
+          f"dropped as over-cap dupes; cell-aware caps)")
     return surviving
 
 
@@ -512,9 +569,16 @@ def main() -> None:
         RM_SECRETS_PATH, "synthetic_rm_secrets",
     )
     print(f"  rm_secrets: {len(syn_rm_secrets):,} chunks")
+    print(f"[Pass 1] Loading {NAME_PATTERNS_PATH} …")
+    syn_name_patterns = _load_synthetic_metadata(
+        NAME_PATTERNS_PATH, "synthetic_name_patterns",
+    )
+    print(f"  name_patterns: {len(syn_name_patterns):,} chunks")
     print()
 
-    all_chunks = real + syn_l1 + syn_l9 + syn_rm_secrets
+    all_chunks = (
+        real + syn_l1 + syn_l9 + syn_rm_secrets + syn_name_patterns
+    )
     print(f"Combined pool: {len(all_chunks):,} chunks")
     print()
 
@@ -545,10 +609,14 @@ def main() -> None:
     syn_l1_ids = {c.id for c in syn_l1 if c.id in admitted_all}
     syn_l9_ids = {c.id for c in syn_l9 if c.id in admitted_all}
     syn_rm_secrets_ids = {c.id for c in syn_rm_secrets if c.id in admitted_all}
+    syn_name_patterns_ids = {
+        c.id for c in syn_name_patterns if c.id in admitted_all
+    }
     print(f"[Pass 2] Writing {OUT_PATH} …")
     print(f"  real: {len(real_ids):,}  synthetic_l1: {len(syn_l1_ids):,}  "
           f"synthetic_l9: {len(syn_l9_ids):,}  "
-          f"synthetic_rm_secrets: {len(syn_rm_secrets_ids):,}")
+          f"synthetic_rm_secrets: {len(syn_rm_secrets_ids):,}  "
+          f"synthetic_name_patterns: {len(syn_name_patterns_ids):,}")
 
     def _generate() -> Iterator[V2Example]:
         for d in _stream_assembled_records():
@@ -565,6 +633,10 @@ def main() -> None:
         yield from _emit_synthetic_chunks(
             RM_SECRETS_PATH, "synthetic_rm_secrets", syn_rm_secrets_ids,
             surviving,
+        )
+        yield from _emit_synthetic_chunks(
+            NAME_PATTERNS_PATH, "synthetic_name_patterns",
+            syn_name_patterns_ids, surviving,
         )
 
     n = write_jsonl(OUT_PATH, _generate())
@@ -598,7 +670,7 @@ def main() -> None:
         else:
             n_neg += 1
     # add synthetic to per-(lang,source) counts
-    for synth_pool in (syn_l1, syn_l9, syn_rm_secrets):
+    for synth_pool in (syn_l1, syn_l9, syn_rm_secrets, syn_name_patterns):
         for c in synth_pool:
             if c.id in admitted_all:
                 by_ls[(c.language, c.subset)] += 1

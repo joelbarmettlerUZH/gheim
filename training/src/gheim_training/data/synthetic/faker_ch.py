@@ -55,6 +55,51 @@ def name_rm() -> str:
     return f"{random.choice(_RM_FIRST)} {random.choice(_RM_LAST)}"
 
 
+# --- first / last name extractors for partial-name synthetic templates ---
+# Used by synth_name_patterns.py to construct "Hallo {first}, ..." and
+# "{last} hat unterzeichnet..." patterns that the model fails on without
+# explicit training data (see edge-case probe, v2 baseline).
+
+def first_name_de() -> str:
+    return _FAKER_DE.first_name()
+
+
+def first_name_fr() -> str:
+    return _FAKER_FR.first_name()
+
+
+def first_name_it() -> str:
+    return _FAKER_IT.first_name()
+
+
+def first_name_rm() -> str:
+    return random.choice(_RM_FIRST)
+
+
+def first_name_en() -> str:
+    return _FAKER_EN.first_name()
+
+
+def last_name_de() -> str:
+    return _FAKER_DE.last_name()
+
+
+def last_name_fr() -> str:
+    return _FAKER_FR.last_name()
+
+
+def last_name_it() -> str:
+    return _FAKER_IT.last_name()
+
+
+def last_name_rm() -> str:
+    return random.choice(_RM_LAST)
+
+
+def last_name_en() -> str:
+    return _FAKER_EN.last_name()
+
+
 # --------- addresses ---------
 
 # Faker_CH's street names fall back to en_US ("Adams Key", "Miller Walks").
