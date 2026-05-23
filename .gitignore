@@ -44,4 +44,9 @@ htmlcov/
 !/data/v2_freq_report.json
 !/data/v2_balanced_summary.json
 !/data/v2_split_summary.json
+# v3 probe report (frozen baseline for the v3 must-beat measurement)
+!/eval/v3_probe_baseline.json
+!/eval/v3_probe_v1.json
+!/eval/v3_cross_v1_on_v2test.json
+!/eval/v3_cross_v2_on_v1test.json
 packages/gheim-js/package-lock.json
