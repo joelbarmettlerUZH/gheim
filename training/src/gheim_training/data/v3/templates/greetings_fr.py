@@ -1,0 +1,30 @@
+"""French email greeting fragments. Hand-written, 25 entries, one per template_id."""
+from ..core import Fragment
+
+TEMPLATES: list[Fragment] = [
+    Fragment("greet_fr_01", "fr_ch", "Bonjour [[PII:first]], merci pour votre message."),
+    Fragment("greet_fr_02", "fr_ch", "Salut [[PII:first]] !"),
+    Fragment("greet_fr_03", "fr_ch", "Cher Monsieur [[PII:last]],"),
+    Fragment("greet_fr_04", "fr_ch", "Chère Madame [[PII:last]],\n\nJ'espère que vous allez bien."),
+    Fragment("greet_fr_05", "fr_ch", "Coucou [[PII:first]] — petite question rapide."),
+    Fragment("greet_fr_06", "fr_ch", "Madame, Monsieur,\n\nSuite à notre entretien avec [[PII:title_first_last]], je reviens vers vous."),
+    Fragment("greet_fr_07", "fr_ch", "Bonsoir [[PII:first]]."),
+    Fragment("greet_fr_08", "fr_ch", "Hello [[PII:first]], j'espère que ta semaine se passe bien."),
+    Fragment("greet_fr_09", "fr_ch", "À l'attention de [[PII:title_last]]"),
+    Fragment("greet_fr_10", "fr_ch", "Cher [[PII:first]],"),
+    Fragment("greet_fr_11", "fr_ch", "Bien le bonjour [[PII:first]] — comment vas-tu ?"),
+    Fragment("greet_fr_12", "fr_ch", "Monsieur [[PII:last]],"),
+    Fragment("greet_fr_13", "fr_ch", "Mesdames, Messieurs,"),
+    Fragment("greet_fr_14", "fr_ch", "Très chère [[PII:first]],\n"),
+    Fragment("greet_fr_15", "fr_ch", "Re-bonjour [[PII:first]] !"),
+    Fragment("greet_fr_16", "fr_ch", "Cher [[PII:title_first_last]]\n\nMerci de votre prompt retour."),
+    Fragment("greet_fr_17", "fr_ch", "Salut tout le monde, [[PII:first]] m'a demandé de vous écrire."),
+    Fragment("greet_fr_18", "fr_ch", "Madame [[PII:last]] —"),
+    Fragment("greet_fr_19", "fr_ch", "Bonjour à toutes et à tous,\n\nJe transmets le message de [[PII:full]]."),
+    Fragment("greet_fr_20", "fr_ch", "Coucou [[PII:first]]."),
+    Fragment("greet_fr_21", "fr_ch", "Au nom de [[PII:title_last]], je vous remercie de votre patience."),
+    Fragment("greet_fr_22", "fr_ch", "Bien à vous [[PII:first]], et bonne réception."),
+    Fragment("greet_fr_23", "fr_ch", "Chers [[PII:first]] et collègues,"),
+    Fragment("greet_fr_24", "fr_ch", "Très honoré Monsieur [[PII:last]],"),
+    Fragment("greet_fr_25", "fr_ch", "Hey [[PII:first]] — dispo demain ?"),
+]

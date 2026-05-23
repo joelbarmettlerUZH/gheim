@@ -1,0 +1,30 @@
+"""Italian email greeting fragments. Hand-written, 25 entries, one per template_id."""
+from ..core import Fragment
+
+TEMPLATES: list[Fragment] = [
+    Fragment("greet_it_01", "it_ch", "Ciao [[PII:first]], grazie del messaggio."),
+    Fragment("greet_it_02", "it_ch", "Caro [[PII:first]],\nti scrivo brevemente."),
+    Fragment("greet_it_03", "it_ch", "Egregio [[PII:title_last]]"),
+    Fragment("greet_it_04", "it_ch", "Buongiorno [[PII:first]] – spero tu stia bene."),
+    Fragment("greet_it_05", "it_ch", "Gentile [[PII:title_last]],"),
+    Fragment("greet_it_06", "it_ch", "Salve [[PII:title_first_last]]!"),
+    Fragment("greet_it_07", "it_ch", "Cara [[PII:first]], come stai?"),
+    Fragment("greet_it_08", "it_ch", "Buonasera [[PII:first]],\nuna piccola novità da condividere."),
+    Fragment("greet_it_09", "it_ch", "Stimato [[PII:title_last]]"),
+    Fragment("greet_it_10", "it_ch", "Ciao [[PII:first]]!"),
+    Fragment("greet_it_11", "it_ch", "Spettabile [[PII:title_last]],\nin riferimento alla nostra ultima conversazione,"),
+    Fragment("greet_it_12", "it_ch", "Ehi [[PII:first]], hai un attimo?"),
+    Fragment("greet_it_13", "it_ch", "Gentilissima [[PII:title_first_last]],"),
+    Fragment("greet_it_14", "it_ch", "All'attenzione di [[PII:title_first_last]]\nOggetto: aggiornamento pratica"),
+    Fragment("greet_it_15", "it_ch", "Carissimo [[PII:first]], è tanto che non ci sentiamo."),
+    Fragment("greet_it_16", "it_ch", "Buongiorno Signora [[PII:last]]"),
+    Fragment("greet_it_17", "it_ch", "Ciao a tutti e in particolare a [[PII:full]],"),
+    Fragment("greet_it_18", "it_ch", "Egregia [[PII:title_last]] – mi permetto di disturbarLa."),
+    Fragment("greet_it_19", "it_ch", "Salve [[PII:first]]"),
+    Fragment("greet_it_20", "it_ch", "[[PII:first]], scusa il messaggio improvviso."),
+    Fragment("greet_it_21", "it_ch", "Pregiatissimo [[PII:title_last]],"),
+    Fragment("greet_it_22", "it_ch", "Buondì [[PII:first]] :)"),
+    Fragment("greet_it_23", "it_ch", "Gentile Avv. [[PII:last]],\nLe scrivo in merito alla pratica in oggetto."),
+    Fragment("greet_it_24", "it_ch", "Cara collega, cara [[PII:first]],"),
+    Fragment("greet_it_25", "it_ch", "C.a. [[PII:title_first_last]]"),
+]
