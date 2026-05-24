@@ -7,7 +7,7 @@ HF cache.
 
 Resolution order for the test model:
   1. ``$GHEIM_TEST_MODEL`` env var (any HF id or local directory)
-  2. ``../../checkpoints/stage2_xlmr`` if it exists locally
+  2. ``../../checkpoints/gheim-ch`` if it exists locally
   3. ``joelbarmettler/gheim-ch-560m`` (HF Hub fallback)
 """
 from __future__ import annotations
@@ -24,7 +24,7 @@ def _resolve_test_model() -> str:
     if env:
         return env
     repo_root = Path(__file__).resolve().parents[3]
-    local_ckpt = repo_root / "checkpoints" / "stage2_xlmr"
+    local_ckpt = repo_root / "checkpoints" / "gheim-ch"
     if local_ckpt.is_dir() and (local_ckpt / "config.json").is_file():
         return str(local_ckpt)
     return "joelbarmettler/gheim-ch-560m"

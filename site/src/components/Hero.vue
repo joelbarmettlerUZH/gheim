@@ -82,8 +82,8 @@ function scrollTo(id: string) {
     >
       <div class="bg-paper p-5">
         <div class="kicker mb-1.5">Test F1</div>
-        <div class="font-serif text-3xl">0.916</div>
-        <div class="text-xs text-ink-soft mt-1">P 0.907 · R 0.926</div>
+        <div class="font-serif text-3xl">0.910</div>
+        <div class="text-xs text-ink-soft mt-1">P 0.890 · R 0.932 · char 0.946</div>
       </div>
       <div class="bg-paper p-5">
         <div class="kicker mb-1.5">Languages</div>

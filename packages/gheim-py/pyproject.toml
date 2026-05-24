@@ -50,7 +50,7 @@ Homepage = "https://github.com/joelbarmettlerUZH/gheim"
 Repository = "https://github.com/joelbarmettlerUZH/gheim"
 Issues = "https://github.com/joelbarmettlerUZH/gheim/issues"
 "Model card" = "https://huggingface.co/joelbarmettler/gheim-ch-560m"
-"Dataset card" = "https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k"
+"Dataset card" = "https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-212k"
 
 [build-system]
 requires = ["hatchling"]

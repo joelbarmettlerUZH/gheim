@@ -41,14 +41,15 @@ The core package itself has no runtime dependencies.
 (transformers.js). The package's default model is
 [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m)
 — a 560M xlm-roberta-large fine-tune optimised for Swiss-market PII
-(strict-span F1 0.916 on Swiss text, see
+(test strict F1 0.910, char F1 0.946 on Swiss text, see
 [MODEL_CARD.md](https://github.com/joelbarmettlerUZH/gheim/blob/main/MODEL_CARD.md)).
 Any HuggingFace token-classification model that emits the same 33-class
 BIOES schema can be substituted via `model:`.
 
 | Model | Best for | Parameters | Notes |
 |---|---|---:|---|
-| [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) **(default)** | Swiss-market text (de_CH, fr_CH, it_CH, rm, en) with CH-format account numbers (IBAN, AHV, VAT-CHE) | 560M | Apache 2.0. Test F1 0.916. Hub repo ships `onnx/model_quantized.onnx` only — load with `dtype: "q8"`. |
+| [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) **(default)** | Production / commercial. Swiss court / parliament / web text with CH-format account numbers (IBAN, AHV, VAT-CHE) | 560M | Apache 2.0. Test strict F1 0.910, char F1 0.946. Hub repo ships both fp32 and `onnx/model_quantized.onnx` — load with `dtype: "q8"` for browser deployment. |
+| [`joelbarmettler/gheim-ch-560m-research`](https://huggingface.co/joelbarmettler/gheim-ch-560m-research) | Research / non-commercial. Stronger cross-domain transfer on Swiss-news text (swissner PER char F1 0.90 vs 0.70 on the default) | 560M | **CC BY-NC-SA 4.0 + Reuters research-only rider.** safetensors only — no browser-targeted ONNX. |
 | [`openai/privacy-filter`](https://huggingface.co/openai/privacy-filter) | English-first or general use, long-context (up to 128k tokens) | 1.4B (50M active, MoE) | Apache 2.0. Wider language coverage, larger weights. |
 
 ```ts
@@ -57,6 +58,9 @@ import { LocalDetector } from "gheim";
 // Default — Swiss-tuned, q8 ONNX. `device: "auto"` probes WebGPU in
 // the browser and falls back to WASM; in Node it's WASM directly.
 const det = new LocalDetector({ dtype: "q8" });
+
+// Stronger cross-domain transfer (research, non-commercial; safetensors only):
+const detResearch = new LocalDetector({ model: "joelbarmettler/gheim-ch-560m-research" });
 
 // Alternative for English or general use:
 const detEn = new LocalDetector({ model: "openai/privacy-filter" });

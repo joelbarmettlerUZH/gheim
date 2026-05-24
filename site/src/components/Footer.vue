@@ -11,8 +11,12 @@ const links = {
       href: "https://huggingface.co/joelbarmettler/gheim-ch-560m",
     },
     {
-      label: "Dataset · gheim-ch-pii-171k",
-      href: "https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k",
+      label: "Model · gheim-ch-560m-research",
+      href: "https://huggingface.co/joelbarmettler/gheim-ch-560m-research",
+    },
+    {
+      label: "Dataset · gheim-ch-pii-212k",
+      href: "https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-212k",
     },
   ],
   About: [

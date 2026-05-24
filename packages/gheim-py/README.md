@@ -38,21 +38,25 @@ uv add "gheim[local,openai]"          # both
 package's default model is
 [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m)
 — a 560M xlm-roberta-large fine-tune optimised for Swiss-market PII
-(strict-span F1 0.916 on Swiss text, see
+(test strict F1 0.910, char F1 0.946 on Swiss text, see
 [MODEL_CARD.md](https://github.com/joelbarmettlerUZH/gheim/blob/main/MODEL_CARD.md)).
 Any HuggingFace token-classification model that emits the same 33-class
 BIOES schema can be substituted via the `model_id` constructor arg.
 
 | Model | Best for | Parameters | Notes |
 |---|---|---:|---|
-| [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) **(default)** | Swiss-market text (de_CH, fr_CH, it_CH, rm, en) with CH-format account numbers (IBAN, AHV, VAT-CHE) | 560M | Apache 2.0. Test F1 0.916. |
+| [`joelbarmettler/gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) **(default)** | Production / commercial. Swiss court / parliament / web text with CH-format account numbers (IBAN, AHV, VAT-CHE) | 560M | Apache 2.0. Test strict F1 0.910, char F1 0.946. |
+| [`joelbarmettler/gheim-ch-560m-research`](https://huggingface.co/joelbarmettler/gheim-ch-560m-research) | Research / non-commercial. Stronger cross-domain transfer on Swiss-news text (swissner PER char F1 0.90 vs 0.70 on the default) | 560M | **CC BY-NC-SA 4.0 + Reuters research-only rider.** In-distribution numbers identical to the default. |
 | [`openai/privacy-filter`](https://huggingface.co/openai/privacy-filter) | English-first or general use, long-context (up to 128k tokens) | 1.4B (50M active, MoE) | Apache 2.0. Wider language coverage, larger weights. |
 
 ```python
 from gheim import LocalDetector
 
-# Default — Swiss-tuned, 560M:
+# Default — Swiss-tuned, 560M, Apache 2.0:
 det = LocalDetector()
+
+# Stronger cross-domain transfer (research, non-commercial):
+det = LocalDetector(model_id="joelbarmettler/gheim-ch-560m-research")
 
 # Alternative for English or general use:
 det = LocalDetector(model_id="openai/privacy-filter")
