@@ -10,14 +10,21 @@ library_name: transformers
 pipeline_tag: token-classification
 tags:
   - pii
+  - pii-detection
   - ner
+  - named-entity-recognition
   - swiss
+  - swiss-german
   - de-CH
   - fr-CH
   - it-CH
   - rm
   - privacy
+  - gdpr
+  - onnx
+  - quantized
 base_model: FacebookAI/xlm-roberta-large
+base_model_relation: finetune
 datasets:
   - joelbarmettler/gheim-ch-pii-212k
 metrics:
@@ -27,19 +34,146 @@ metrics:
 model-index:
   - name: gheim-ch-560m
     results:
+      # ============================================================
+      # In-distribution headline (held-out test split)
+      # ============================================================
       - task:
           type: token-classification
-          name: PII NER (held-out test)
+          name: PII NER (in-distribution, held-out test)
         dataset:
           type: joelbarmettler/gheim-ch-pii-212k
-          name: gheim-ch-pii-212k (test split)
+          name: gheim-ch-pii-212k
+          split: test
         metrics:
           - type: f1
             value: 0.9105
+            name: Strict-span F1 (seqeval)
+          - type: f1
+            value: 0.9461
+            name: Char-level F1 (label-aware)
           - type: precision
             value: 0.8904
+            name: Strict-span precision
           - type: recall
             value: 0.9315
+            name: Strict-span recall
+      # ============================================================
+      # Cross-domain (zero-shot) — six external benchmarks
+      # ============================================================
+      - task:
+          type: token-classification
+          name: PII NER (zero-shot, Swiss-news)
+        dataset:
+          type: ZurichNLP/swissner
+          name: ZurichNLP/swissner
+          split: test
+          args:
+            evaluation: zero_shot
+        metrics:
+          - type: f1
+            value: 0.702
+            name: PER char F1 (overall, zero-shot)
+          - type: f1
+            value: 0.539
+            name: PER char F1 (de, zero-shot)
+          - type: f1
+            value: 0.761
+            name: PER char F1 (fr, zero-shot)
+          - type: f1
+            value: 0.643
+            name: PER char F1 (it, zero-shot)
+          - type: f1
+            value: 0.409
+            name: PER char F1 (rm, zero-shot)
+      - task:
+          type: token-classification
+          name: PII NER (zero-shot)
+        dataset:
+          type: ai4privacy/pii-masking-openpii-1m
+          name: ai4privacy/pii-masking-openpii-1m
+          split: validation
+          args:
+            evaluation: zero_shot
+            sample_per_lang: 2000
+        metrics:
+          - type: f1
+            value: 0.938
+            name: PER char F1 (zero-shot)
+      - task:
+          type: token-classification
+          name: PII NER (zero-shot)
+        dataset:
+          type: ai4privacy/open-pii-masking-500k-ai4privacy
+          name: ai4privacy/open-pii-masking-500k-ai4privacy
+          split: validation
+          args:
+            evaluation: zero_shot
+            sample_per_lang: 2000
+        metrics:
+          - type: f1
+            value: 0.933
+            name: PER char F1 (zero-shot)
+      - task:
+          type: token-classification
+          name: PII NER (zero-shot, financial documents)
+        dataset:
+          type: gretelai/synthetic_pii_finance_multilingual
+          name: gretelai/synthetic_pii_finance_multilingual
+          split: test
+          args:
+            evaluation: zero_shot
+            sample_per_lang: 1000
+        metrics:
+          - type: f1
+            value: 0.624
+            name: PER char F1 (zero-shot)
+      - task:
+          type: token-classification
+          name: NER PER cell (zero-shot)
+        dataset:
+          type: Babelscape/wikineural
+          name: Babelscape/wikineural
+          split: test
+          args:
+            evaluation: zero_shot
+            sample_per_lang: 2000
+        metrics:
+          - type: f1
+            value: 0.808
+            name: PER char F1 (zero-shot)
+      - task:
+          type: token-classification
+          name: NER PER cell (zero-shot)
+        dataset:
+          type: tomaarsen/conll2003
+          name: tomaarsen/conll2003
+          split: test
+          args:
+            evaluation: zero_shot
+        metrics:
+          - type: f1
+            value: 0.911
+            name: PER char F1 (zero-shot)
+      # ============================================================
+      # ONNX int8 deployment delta (browser default)
+      # ============================================================
+      - task:
+          type: token-classification
+          name: PII NER (ONNX int8 dynamic quantisation)
+        dataset:
+          type: joelbarmettler/gheim-ch-pii-212k
+          name: gheim-ch-pii-212k
+          split: test
+          args:
+            format: onnx_int8_dynamic
+            file_name: onnx/model_quantized.onnx
+        metrics:
+          - type: f1
+            value: 0.9044
+            name: Strict-span F1 (ONNX int8; delta vs fp32 -0.0061)
+          - type: f1
+            value: 0.9448
+            name: Char-level F1 (ONNX int8; delta vs fp32 -0.0013)
 ---
 
 <p align="center">

@@ -12,16 +12,21 @@ library_name: transformers
 pipeline_tag: token-classification
 tags:
   - pii
+  - pii-detection
   - ner
+  - named-entity-recognition
   - swiss
+  - swiss-german
   - de-CH
   - fr-CH
   - it-CH
   - rm
   - privacy
+  - gdpr
   - research-only
   - non-commercial
 base_model: FacebookAI/xlm-roberta-large
+base_model_relation: finetune
 datasets:
   - joelbarmettler/gheim-ch-pii-212k
   - ai4privacy/pii-masking-openpii-1m
@@ -34,29 +39,131 @@ metrics:
 model-index:
   - name: gheim-ch-560m-research
     results:
+      # ============================================================
+      # In-distribution headline (held-out test split)
+      # ============================================================
       - task:
           type: token-classification
-          name: PII NER (in-domain held-out test)
+          name: PII NER (in-distribution, held-out test)
         dataset:
           type: joelbarmettler/gheim-ch-pii-212k
-          name: gheim-ch-pii-212k (test split)
+          name: gheim-ch-pii-212k
+          split: test
         metrics:
           - type: f1
             value: 0.9115
+            name: Strict-span F1 (seqeval)
+          - type: f1
+            value: 0.9461
+            name: Char-level F1 (label-aware)
           - type: precision
             value: 0.8944
+            name: Strict-span precision
           - type: recall
             value: 0.9293
+            name: Strict-span recall
+      # ============================================================
+      # Cross-domain (zero-shot for swissner / open-pii-500k / gretel)
+      # ============================================================
       - task:
           type: token-classification
-          name: Swiss-news PER NER (zero-shot cross-domain)
+          name: PII NER (zero-shot, Swiss-news)
         dataset:
           type: ZurichNLP/swissner
-          name: swissner (de+fr+it+rm test)
+          name: ZurichNLP/swissner
+          split: test
+          args:
+            evaluation: zero_shot
         metrics:
           - type: f1
             value: 0.903
-            name: PER char F1 (overall)
+            name: PER char F1 (overall, zero-shot)
+          - type: f1
+            value: 0.931
+            name: PER char F1 (de, zero-shot)
+          - type: f1
+            value: 0.913
+            name: PER char F1 (fr, zero-shot)
+          - type: f1
+            value: 0.856
+            name: PER char F1 (it, zero-shot)
+          - type: f1
+            value: 0.873
+            name: PER char F1 (rm, zero-shot)
+      - task:
+          type: token-classification
+          name: PII NER (zero-shot)
+        dataset:
+          type: ai4privacy/open-pii-masking-500k-ai4privacy
+          name: ai4privacy/open-pii-masking-500k-ai4privacy
+          split: validation
+          args:
+            evaluation: zero_shot
+            sample_per_lang: 2000
+        metrics:
+          - type: f1
+            value: 0.982
+            name: PER char F1 (zero-shot)
+      - task:
+          type: token-classification
+          name: PII NER (zero-shot, financial documents)
+        dataset:
+          type: gretelai/synthetic_pii_finance_multilingual
+          name: gretelai/synthetic_pii_finance_multilingual
+          split: test
+          args:
+            evaluation: zero_shot
+            sample_per_lang: 1000
+        metrics:
+          - type: f1
+            value: 0.627
+            name: PER char F1 (zero-shot)
+      # ============================================================
+      # In-distribution generalisation (train splits of these three
+      # datasets are in this variant's training mix)
+      # ============================================================
+      - task:
+          type: token-classification
+          name: PII NER (in-distribution)
+        dataset:
+          type: ai4privacy/pii-masking-openpii-1m
+          name: ai4privacy/pii-masking-openpii-1m
+          split: validation
+          args:
+            evaluation: in_distribution
+            note: train_split_in_training_mix
+        metrics:
+          - type: f1
+            value: 0.995
+            name: PER char F1 (in-distribution)
+      - task:
+          type: token-classification
+          name: NER PER cell (in-distribution)
+        dataset:
+          type: Babelscape/wikineural
+          name: Babelscape/wikineural
+          split: test
+          args:
+            evaluation: in_distribution
+            note: train_split_in_training_mix
+        metrics:
+          - type: f1
+            value: 0.795
+            name: PER char F1 (in-distribution)
+      - task:
+          type: token-classification
+          name: NER PER cell (in-distribution)
+        dataset:
+          type: tomaarsen/conll2003
+          name: tomaarsen/conll2003
+          split: test
+          args:
+            evaluation: in_distribution
+            note: train_split_in_training_mix
+        metrics:
+          - type: f1
+            value: 0.765
+            name: PER char F1 (in-distribution)
 ---
 
 <p align="center">
