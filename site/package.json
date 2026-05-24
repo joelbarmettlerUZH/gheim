@@ -4,6 +4,10 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "copy-paper": "node scripts/copy-paper.mjs",
+    "predev": "node scripts/copy-paper.mjs",
+    "prebuild": "node scripts/copy-paper.mjs",
+    "prepreview": "node scripts/copy-paper.mjs",
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview --port 4173"

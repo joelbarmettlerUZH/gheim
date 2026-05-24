@@ -6,6 +6,7 @@ on:
     paths:
       - "site/**"
       - "packages/gheim-js/**"
+      - "paper/paper.pdf"
       - "package.json"
       - "bun.lock"
       - ".github/workflows/deploy-site.yml"

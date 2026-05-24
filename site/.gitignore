@@ -2,3 +2,6 @@ node_modules
 dist
 .vite
 *.log
+
+# Staged from /paper/paper.pdf by scripts/copy-paper.mjs at build time.
+public/paper.pdf

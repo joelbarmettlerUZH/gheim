@@ -21,6 +21,10 @@ const links = {
   ],
   About: [
     {
+      label: "Technical report (PDF)",
+      href: "/paper.pdf",
+    },
+    {
       label: "Author",
       href: "https://joelbarmettler.xyz",
     },

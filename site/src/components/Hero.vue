@@ -16,6 +16,12 @@ function scrollTo(id: string) {
         <a href="#how" class="hover:text-accent transition-colors">How</a>
         <a href="#install" class="hover:text-accent transition-colors">Install</a>
         <a
+          href="/paper.pdf"
+          target="_blank"
+          rel="noopener"
+          class="hover:text-accent transition-colors"
+        >Paper</a>
+        <a
           href="https://github.com/joelbarmettlerUZH/gheim"
           target="_blank"
           rel="noopener"
