@@ -669,6 +669,7 @@ the selected checkpoint to produce the headline numbers in
 Section~\ref{sec:eval}.
 
 \subsection{Deployment formats and SDKs}
+\label{subsec:deployment}
 
 The model ships in two formats. Server-side users load
 \texttt{model.safetensors} (fp32 PyTorch, 2.2 GB) via
@@ -1006,7 +1007,7 @@ than a harness bug.
         entity-linked identifiers.
 \end{itemize}
 
-\paragraph{Inference-time suppression and the calibrated decoder.}
+\paragraph{Inference-time suppression, browser quantisation, and the calibrated decoder.}
 A failure mode visible only on deploy probes, not in the test-set
 metrics: on a small fraction of inputs the raw model emits zero
 non-O tokens for an entire chunk, even when the chunk contains
@@ -1016,15 +1017,39 @@ token (e.g.\ a CH-IBAN), which appears to nudge the per-token
 argmax over the entire span toward the dominant \texttt{O} class.
 The released SDKs ship a thin wrapper that subtracts a small
 constant bias from the \texttt{O}-class logit before argmax
-(\texttt{CalibratedDetector}, default bias 0.5). On the failing
-probe set this recovers approximately 95\% of the suppression
-cases; on the in-distribution test split it costs approximately
-0.4 pp strict F\textsubscript{1}. The wrapper is the default
-detector in both the Python and JavaScript SDKs. The published
-checkpoint exhibits a known inference-time failure mode that the
-test-set numbers do not expose; the wrapper trades a small amount
-of in-distribution F\textsubscript{1} for a noticeable improvement
-on the failure mode without requiring retraining.
+(\texttt{CalibratedDetector}, default bias 0.5). On a 212-case
+forensic edge-case probe combined with a 300-chunk in-distribution
+test slice, a sweep over $\{0.0, 0.25, 0.5, 0.75, 1.0, 1.5\}$
+identifies bias 0.5 as the Pareto-clean point on both the fp32
+PyTorch backend and the int8 quantised ONNX deployment target.
+
+On fp32 the bias has essentially no effect on the probe (91.5\%
+perfect at both 0.0 and 0.5) and gains 0.27~pp char
+F\textsubscript{1} on the slice at zero cost. The dataset pipeline
+described in Section~\ref{sec:dataset} (gazetteer-driven address
+labelling, overlap resolution, multi-LLM consensus) appears to
+have absorbed most of the original suppression pathology that
+motivated the wrapper; the wrapper is retained as the SDK default
+because it remains net-positive rather than because it is doing
+substantial pathology repair. The more interesting finding
+concerns the int8 browser deployment
+(Section~\ref{subsec:deployment}). On the same probe, the int8
+model drops from 91.5\% perfect at bias 0.0 to 73.1\% perfect at
+bias 0.0 — an 18.4~pp gap that does not appear in the
+in-distribution test-set numbers reported in
+Section~\ref{subsec:deployment}, where int8 costs only 0.13~pp
+char F\textsubscript{1}. Quantisation appears to perturb the
+\texttt{O}-versus-entity margin specifically on long-tail edge
+cases while leaving mainstream chunks essentially unaffected.
+The calibrated decoder partially recovers this gap: on int8 it
+lifts the probe perfect-rate by 1.4~pp (73.1\% $\to$ 74.5\%) and
+slice char F\textsubscript{1} by 0.43~pp, roughly $3\times$ the
+fp32 lift. Browser users therefore see a larger calibration win
+than server-side fp32 users; neither backend incurs a cost at
+bias 0.5, and higher bias values (1.0--1.5) trade modest probe
+gains for slice F\textsubscript{1} losses and are not recommended.
+The wrapper is the default detector in both the Python and
+JavaScript SDKs.
 
 % --------------------------------------------------------------------
 \section{Summary}

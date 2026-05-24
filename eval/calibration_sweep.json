@@ -1,0 +1,121 @@
+{
+  "0.0": {
+    "bias": 0.0,
+    "probe": {
+      "counts": {
+        "PASS": 178,
+        "PASS_NEG": 16,
+        "PARTIAL": 2,
+        "FAIL": 15,
+        "FAIL_NEG": 1
+      },
+      "n": 212,
+      "perfect_rate": 0.9150943396226415,
+      "fail_rate": 0.07547169811320754
+    },
+    "test_slice_char_f1": 0.894685133010956,
+    "test_slice_n": 300
+  },
+  "0.25": {
+    "bias": 0.25,
+    "probe": {
+      "counts": {
+        "PASS": 178,
+        "PASS_NEG": 16,
+        "PARTIAL": 2,
+        "FAIL": 15,
+        "FAIL_NEG": 1
+      },
+      "n": 212,
+      "perfect_rate": 0.9150943396226415,
+      "fail_rate": 0.07547169811320754
+    },
+    "test_slice_char_f1": 0.8966296024346715,
+    "test_slice_n": 300
+  },
+  "0.5": {
+    "bias": 0.5,
+    "probe": {
+      "counts": {
+        "PASS": 178,
+        "PASS_NEG": 16,
+        "PARTIAL": 2,
+        "FAIL": 15,
+        "FAIL_NEG": 1
+      },
+      "n": 212,
+      "perfect_rate": 0.9150943396226415,
+      "fail_rate": 0.07547169811320754
+    },
+    "test_slice_char_f1": 0.8974342710091179,
+    "test_slice_n": 300
+  },
+  "0.75": {
+    "bias": 0.75,
+    "probe": {
+      "counts": {
+        "PASS": 179,
+        "PASS_NEG": 16,
+        "PARTIAL": 2,
+        "FAIL": 14,
+        "FAIL_NEG": 1
+      },
+      "n": 212,
+      "perfect_rate": 0.9198113207547169,
+      "fail_rate": 0.07075471698113207
+    },
+    "test_slice_char_f1": 0.8920134054980389,
+    "test_slice_n": 300
+  },
+  "1.0": {
+    "bias": 1.0,
+    "probe": {
+      "counts": {
+        "PASS": 179,
+        "PASS_NEG": 16,
+        "PARTIAL": 2,
+        "FAIL": 14,
+        "FAIL_NEG": 1
+      },
+      "n": 212,
+      "perfect_rate": 0.9198113207547169,
+      "fail_rate": 0.07075471698113207
+    },
+    "test_slice_char_f1": 0.8894196656093482,
+    "test_slice_n": 300
+  },
+  "1.5": {
+    "bias": 1.5,
+    "probe": {
+      "counts": {
+        "PASS": 180,
+        "PASS_NEG": 16,
+        "PARTIAL": 2,
+        "FAIL": 13,
+        "FAIL_NEG": 1
+      },
+      "n": 212,
+      "perfect_rate": 0.9245283018867925,
+      "fail_rate": 0.0660377358490566
+    },
+    "test_slice_char_f1": 0.8844277341047969,
+    "test_slice_n": 300
+  },
+  "2.0": {
+    "bias": 2.0,
+    "probe": {
+      "counts": {
+        "PASS": 179,
+        "PASS_NEG": 16,
+        "PARTIAL": 3,
+        "FAIL": 13,
+        "FAIL_NEG": 1
+      },
+      "n": 212,
+      "perfect_rate": 0.9198113207547169,
+      "fail_rate": 0.0660377358490566
+    },
+    "test_slice_char_f1": 0.8853361181949218,
+    "test_slice_n": 300
+  }
+}

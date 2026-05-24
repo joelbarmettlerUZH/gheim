@@ -16,9 +16,11 @@ def default_detector() -> Detector:
     """Pick a reasonable default: remote if a key is configured, else
     a calibrated local model.
 
-    The calibrated default (``o_bias=0.5``) recovers ~95% of the
-    multi-entity-letter cases that the raw v1 model fails on, with
-    ~0.4pp test_v1 strict-F1 cost. See eval/calibration_sweep.json.
+    The calibrated default (``o_bias=0.5``) is Pareto-clean on the
+    current gheim-ch-560m: small precision/recall boost on both fp32
+    (+0.27pp test char-F1) and q8 ONNX (+0.43pp test char-F1, +1.4pp
+    forensic-probe perfect-rate), no observed cost on either backend.
+    See eval/calibration_sweep.json and eval/calibration_sweep_q8.json.
     """
     import os
 

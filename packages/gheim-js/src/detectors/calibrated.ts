@@ -1,19 +1,22 @@
 /**
- * Calibrated detector — fixes the v1 model's "single-category mode"
- * bug at inference time by subtracting a constant `oBias` from the O
- * class logit before argmax.
+ * Calibrated detector — subtracts a constant `oBias` from the O-class
+ * logit before argmax. Originally introduced to recover the v1 model's
+ * "single-category mode" pathology (Müller + IBAN co-occurrence flipped
+ * the person prediction to O); the v3 / gheim-ch-560m training pipeline
+ * largely resolved that pathology, but the calibration still buys a
+ * small precision/recall improvement and remains the default.
  *
- * Empirical justification (see eval/calibration_sweep.json): on a
- * 237-case multi-entity pathology suite the v1 model emits literally
- * zero non-O tokens for "Müller" / "März" when an IBAN follows them —
- * but the per-token softmax shows person at 47% vs O at 51%. A small
- * additive bias on O flips those marginal cases without inducing false
- * positives on PII-free text.
+ * Sweep on gheim-ch-560m, q8 ONNX backend (the actual browser
+ * deployment — see eval/calibration_sweep_q8.json): oBias=0.5 is
+ * Pareto-clean:
  *
- * Sweet spot: oBias=0.5:
- *   - pathology full-coverage 81% → 94.5% (+13.5pp)
- *   - test_v1 strict-F1 0.872 → 0.868 (−0.4pp)
- *   - ~0.05 extra FP per chunk on real text
+ *   bias 0.0  probe 73.1%  test char-F1 0.8565
+ *   bias 0.5  probe 74.5%  test char-F1 0.8608   (+1.4pp / +0.43pp)
+ *   bias 1.0+ flattens; precision starts to fall off
+ *
+ * Higher biases (1.0–1.5) get marginal probe gains at the cost of test
+ * F1. Note that q8 quantization itself costs ~18pp probe and ~4pp
+ * char-F1 vs the fp32 PyTorch backend regardless of calibration.
  *
  * `defaultDetector()` returns this with oBias=0.5, so users get the
  * better behavior automatically.
@@ -31,14 +34,14 @@ export interface CalibratedDetectorOptions {
   model?: string;
   /**
    * Constant subtracted from the O-class logit before argmax. Default
-   * `0.5` is the Pareto-clean point per the full-scale bias sweep
-   * (eval/calibration_sweep.json):
+   * `0.5` is the Pareto-clean point on both backends:
    *
    *   - oBias=0.0  uncalibrated (matches the raw model)
-   *   - oBias=0.5  recovers ~95% of multi-entity pathology cases for
-   *               ~0.4pp test_v1 strict-F1 cost
-   *   - oBias=1.0  more aggressive: 96.6% pathology, 1.1pp test_v1 cost
-   *   - oBias=1.5+ trades too much precision; not recommended
+   *   - oBias=0.5  q8: +1.4pp probe perfect-rate, +0.43pp test char-F1
+   *               fp32: +0.27pp test char-F1, no probe cost
+   *   - oBias=1.0+ marginal probe gains, test F1 starts to fall off
+   *
+   * See eval/calibration_sweep_q8.json and eval/calibration_sweep.json.
    */
   oBias?: number;
   /** Backend selector. See {@link LocalDetectorOptions.device}. */

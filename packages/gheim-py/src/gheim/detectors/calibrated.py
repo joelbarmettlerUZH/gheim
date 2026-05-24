@@ -1,18 +1,24 @@
-"""Calibrated detector — fixes the v1 model's "single-category mode" bug
-at inference time by subtracting a constant `o_bias` from the O-class
-logit before argmax.
+"""Calibrated detector — subtracts a constant `o_bias` from the O-class
+logit before argmax. Originally introduced to recover the v1 model's
+"single-category mode" pathology (Müller + IBAN co-occurrence flipped the
+person prediction to O); the v3 / gheim-ch-560m training pipeline
+(Geonames gazetteer + overlap resolver + multi-LLM consensus labelling)
+largely resolved that pathology, but the calibration still buys a small
+precision/recall improvement and remains the default.
 
-Empirical justification (see eval/calibration_sweep.json): on a
-237-case multi-entity pathology suite the v1 model emits literally zero
-non-O tokens for "Müller" / "März" when an IBAN follows them in the
-chunk — but the per-token softmax shows person at 47% vs O at 51%.
-A small additive bias on O flips those marginal cases without inducing
-false positives on PII-free text.
+Sweep on gheim-ch-560m (see eval/calibration_sweep.json,
+eval/calibration_sweep_q8.json): ``o_bias=0.5`` is Pareto-clean on both
+fp32 PyTorch and q8 ONNX backends.
 
-Sweet spot: ``o_bias=0.5``:
-  - pathology full-coverage 81% → 94.5% (+13.5pp)
-  - test_v1 strict-F1 0.872 → 0.868 (−0.4pp)
-  - ~0.05 extra FP per chunk on real text
+  fp32 PyTorch (212 probe + 300-chunk test slice)
+    bias 0.0  probe 91.5%  test char-F1 0.8947
+    bias 0.5  probe 91.5%  test char-F1 0.8974   (+0.27pp, no probe cost)
+    bias 1.0+ trades test F1 for marginal probe gains
+
+  q8 ONNX (same suite)
+    bias 0.0  probe 73.1%  test char-F1 0.8565
+    bias 0.5  probe 74.5%  test char-F1 0.8608   (+1.4pp / +0.43pp)
+    bias 1.0+ flattens
 
 This is what ``default_detector()`` returns, so users get the better
 behavior without having to opt in.
@@ -39,8 +45,10 @@ class CalibratedDetector:
     contiguous same-label tokens collapse into one span; offsets are
     char-level via the tokenizer's ``offset_mapping``.
 
-    Default ``o_bias=0.5`` is the Pareto-clean point from the bias sweep:
-    big pathology recovery, ~0.4pp test_v1 strict-F1 cost.
+    Default ``o_bias=0.5`` is the Pareto-clean point from the bias sweep
+    on gheim-ch-560m: small precision boost on fp32 (+0.27pp char-F1),
+    larger boost on the q8 ONNX deployment backend (+0.43pp char-F1,
+    +1.4pp probe perfect-rate), no observed cost on either.
     """
 
     model_id: Annotated[

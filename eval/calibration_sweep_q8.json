@@ -1,0 +1,92 @@
+{
+  "0": {
+    "bias": 0,
+    "probe": {
+      "counts": {
+        "PASS": 142,
+        "PASS_NEG": 13,
+        "PARTIAL": 4,
+        "FAIL": 49,
+        "FAIL_NEG": 4
+      },
+      "perfect_rate": 0.7311320754716981
+    },
+    "test_slice_char_f1": 0.8564926867501199,
+    "test_slice_n": 300
+  },
+  "1": {
+    "bias": 1,
+    "probe": {
+      "counts": {
+        "PASS": 147,
+        "PASS_NEG": 12,
+        "PARTIAL": 4,
+        "FAIL": 44,
+        "FAIL_NEG": 5
+      },
+      "perfect_rate": 0.75
+    },
+    "test_slice_char_f1": 0.8567242902814327,
+    "test_slice_n": 300
+  },
+  "0.25": {
+    "bias": 0.25,
+    "probe": {
+      "counts": {
+        "PASS": 144,
+        "PASS_NEG": 13,
+        "PARTIAL": 4,
+        "FAIL": 47,
+        "FAIL_NEG": 4
+      },
+      "perfect_rate": 0.7405660377358491
+    },
+    "test_slice_char_f1": 0.8564265773937378,
+    "test_slice_n": 300
+  },
+  "0.5": {
+    "bias": 0.5,
+    "probe": {
+      "counts": {
+        "PASS": 145,
+        "PASS_NEG": 13,
+        "PARTIAL": 4,
+        "FAIL": 46,
+        "FAIL_NEG": 4
+      },
+      "perfect_rate": 0.7452830188679245
+    },
+    "test_slice_char_f1": 0.8608214532549666,
+    "test_slice_n": 300
+  },
+  "0.75": {
+    "bias": 0.75,
+    "probe": {
+      "counts": {
+        "PASS": 146,
+        "PASS_NEG": 12,
+        "PARTIAL": 4,
+        "FAIL": 45,
+        "FAIL_NEG": 5
+      },
+      "perfect_rate": 0.7452830188679245
+    },
+    "test_slice_char_f1": 0.8597156013582956,
+    "test_slice_n": 300
+  },
+  "1.5": {
+    "bias": 1.5,
+    "probe": {
+      "counts": {
+        "PASS": 148,
+        "PASS_NEG": 12,
+        "PARTIAL": 4,
+        "FAIL": 43,
+        "FAIL_NEG": 5
+      },
+      "perfect_rate": 0.7547169811320755
+    },
+    "test_slice_char_f1": 0.8577716403314891,
+    "test_slice_n": 300
+  }
+}
