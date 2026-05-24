@@ -1,5 +1,5 @@
 {
-  "model_id": "checkpoints/stage2_xlmr",
+  "model_id": "checkpoints/gheim-ch",
   "backend": "hf",
   "dataset_id": "tomaarsen/conll2003",
   "dataset_split": "test",
@@ -7,15 +7,15 @@
   "metrics": {
     "overall": {
       "strict_span": {
-        "f1": 0.677709417889257,
-        "precision": 0.5488692985818321,
-        "recall": 0.8855905998763142,
+        "f1": 0.6389822371579453,
+        "precision": 0.5221655551196548,
+        "recall": 0.8231292517006803,
         "method": "seqeval-token-level"
       },
       "char": {
-        "f1": 0.7031499244953954,
-        "precision": 0.5657471421726333,
-        "recall": 0.9287038597674027,
+        "f1": 0.6850441669204995,
+        "precision": 0.5589958456130384,
+        "recall": 0.8844878925782347,
         "method": "char-label-aware"
       }
     },
@@ -59,30 +59,17 @@
           "recall": 0.0
         }
       },
-      "private_email": {
-        "strict_span": {
-          "f1": 0.0,
-          "precision": 0.0,
-          "recall": 0.0,
-          "n_gold": 0
-        },
-        "char": {
-          "f1": 0.0,
-          "precision": 0.0,
-          "recall": 0.0
-        }
-      },
       "private_person": {
         "strict_span": {
-          "f1": 0.8872366790582403,
-          "precision": 0.8888888888888888,
-          "recall": 0.8855905998763142,
+          "f1": 0.8543003851091143,
+          "precision": 0.8879252835223482,
+          "recall": 0.8231292517006803,
           "n_gold": 1617
         },
         "char": {
-          "f1": 0.9362521593837615,
-          "precision": 0.9439241662859753,
-          "recall": 0.9287038597674027
+          "f1": 0.9110532407407408,
+          "precision": 0.9392637670783366,
+          "recall": 0.8844878925782347
         }
       },
       "private_phone": {
@@ -115,15 +102,15 @@
     "per_language": {
       "en": {
         "strict_span": {
-          "f1": 0.677709417889257,
-          "precision": 0.5488692985818321,
-          "recall": 0.8855905998763142,
+          "f1": 0.6389822371579453,
+          "precision": 0.5221655551196548,
+          "recall": 0.8231292517006803,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.7031499244953954,
-          "precision": 0.5657471421726333,
-          "recall": 0.9287038597674027,
+          "f1": 0.6850441669204995,
+          "precision": 0.5589958456130384,
+          "recall": 0.8844878925782347,
           "method": "char-label-aware"
         },
         "n_chunks": 3453

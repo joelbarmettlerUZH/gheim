@@ -1,21 +1,21 @@
 {
   "model_id": "spacy:de=de_core_news_lg,fr=fr_core_news_lg,it=it_core_news_lg",
   "backend": "spacy",
-  "dataset_id": "data/built_v2",
+  "dataset_id": "data/built",
   "dataset_split": "test",
-  "n_chunks": 13627,
+  "n_chunks": 19042,
   "metrics": {
     "overall": {
       "strict_span": {
-        "f1": 0.3191746043178421,
-        "precision": 0.39605862901063543,
-        "recall": 0.26728791579963207,
+        "f1": 0.2921726891786708,
+        "precision": 0.3718046132971506,
+        "recall": 0.24063438537330734,
         "method": "char-set-strict"
       },
       "char": {
-        "f1": 0.3135252295069858,
-        "precision": 0.4745697092679801,
-        "recall": 0.23408787843866782,
+        "f1": 0.30663000060217993,
+        "precision": 0.4367058285407848,
+        "recall": 0.23625871962796255,
         "method": "char-label-aware"
       }
     },
@@ -25,7 +25,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 307
+          "n_gold": 1654
         },
         "char": {
           "f1": 0.0,
@@ -38,7 +38,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 3126
+          "n_gold": 6331
         },
         "char": {
           "f1": 0.0,
@@ -51,7 +51,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 9008
+          "n_gold": 20561
         },
         "char": {
           "f1": 0.0,
@@ -64,7 +64,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 1041
+          "n_gold": 1563
         },
         "char": {
           "f1": 0.0,
@@ -74,15 +74,15 @@
       },
       "private_person": {
         "strict_span": {
-          "f1": 0.5050574123144428,
-          "precision": 0.39605862901063543,
-          "recall": 0.6968315119113138,
-          "n_gold": 12719
+          "f1": 0.4731743537497194,
+          "precision": 0.3718046132971506,
+          "recall": 0.6505389107829638,
+          "n_gold": 21061
         },
         "char": {
-          "f1": 0.6214332227626926,
-          "precision": 0.4745697092679801,
-          "recall": 0.8999322797668399
+          "f1": 0.5741718326543996,
+          "precision": 0.4367058285407848,
+          "recall": 0.8379372176952584
         }
       },
       "private_phone": {
@@ -90,7 +90,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 2837
+          "n_gold": 2100
         },
         "char": {
           "f1": 0.0,
@@ -103,7 +103,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 3518
+          "n_gold": 3470
         },
         "char": {
           "f1": 0.0,
@@ -116,7 +116,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 603
+          "n_gold": 197
         },
         "char": {
           "f1": 0.0,
@@ -128,48 +128,48 @@
     "per_language": {
       "de_ch": {
         "strict_span": {
-          "f1": 0.33304423243712056,
-          "precision": 0.3836163836163836,
-          "recall": 0.2942528735632184,
+          "f1": 0.25381341309099276,
+          "precision": 0.30714405033687847,
+          "recall": 0.21626284011605112,
           "method": "char-set-strict"
         },
         "char": {
-          "f1": 0.30830058129956933,
-          "precision": 0.41062612647911606,
-          "recall": 0.24679961190290037,
+          "f1": 0.23752731831014443,
+          "precision": 0.32047991669036213,
+          "recall": 0.1886876549115102,
           "method": "char-label-aware"
         },
-        "n_chunks": 4753
+        "n_chunks": 9028
       },
       "fr_ch": {
         "strict_span": {
-          "f1": 0.25538884192730343,
-          "precision": 0.3140592515592516,
-          "recall": 0.21518874643874644,
+          "f1": 0.30715330246161343,
+          "precision": 0.396180446400503,
+          "recall": 0.2507960199004975,
           "method": "char-set-strict"
         },
         "char": {
-          "f1": 0.29824508714498804,
-          "precision": 0.4654030410331181,
-          "recall": 0.2194320731833069,
+          "f1": 0.3802353001486645,
+          "precision": 0.5629969322242955,
+          "recall": 0.2870517587793842,
           "method": "char-label-aware"
         },
-        "n_chunks": 4705
+        "n_chunks": 6402
       },
       "it_ch": {
         "strict_span": {
-          "f1": 0.3771680857773573,
-          "precision": 0.5270579940066984,
-          "recall": 0.29365547043802787,
+          "f1": 0.35935535489770265,
+          "precision": 0.509810280525377,
+          "recall": 0.2774688906539582,
           "method": "char-set-strict"
         },
         "char": {
-          "f1": 0.33728669069590056,
-          "precision": 0.5935283512955141,
-          "recall": 0.23558046370241148,
+          "f1": 0.3718588059191526,
+          "precision": 0.5836387083594019,
+          "recall": 0.2728515403487199,
           "method": "char-label-aware"
         },
-        "n_chunks": 4169
+        "n_chunks": 3612
       }
     }
   }

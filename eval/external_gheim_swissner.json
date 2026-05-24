@@ -1,5 +1,5 @@
 {
-  "model_id": "checkpoints/stage2_xlmr",
+  "model_id": "checkpoints/gheim-ch",
   "backend": "hf",
   "dataset_id": "ZurichNLP/swissner",
   "dataset_split": "test",
@@ -7,15 +7,15 @@
   "metrics": {
     "overall": {
       "strict_span": {
-        "f1": 0.7805429864253394,
-        "precision": 0.7232704402515723,
-        "recall": 0.8476658476658476,
+        "f1": 0.5038560411311054,
+        "precision": 0.5283018867924528,
+        "recall": 0.48157248157248156,
         "method": "seqeval-token-level"
       },
       "char": {
-        "f1": 0.8375625446747677,
-        "precision": 0.7762504140443856,
-        "recall": 0.9093907644547924,
+        "f1": 0.6015700612969137,
+        "precision": 0.674788902291918,
+        "recall": 0.5426852929763291,
         "method": "char-label-aware"
       }
     },
@@ -48,15 +48,15 @@
       },
       "private_person": {
         "strict_span": {
-          "f1": 0.9031413612565445,
-          "precision": 0.9663865546218487,
-          "recall": 0.8476658476658476,
+          "f1": 0.6373983739837399,
+          "precision": 0.9423076923076923,
+          "recall": 0.48157248157248156,
           "n_gold": 407
         },
         "char": {
-          "f1": 0.9462951746416314,
-          "precision": 0.9863215488215489,
-          "recall": 0.9093907644547924
+          "f1": 0.702234496610595,
+          "precision": 0.9946657183499289,
+          "recall": 0.5426852929763291
         }
       },
       "private_phone": {
@@ -89,60 +89,60 @@
     "per_language": {
       "de": {
         "strict_span": {
-          "f1": 0.8186046511627907,
-          "precision": 0.7927927927927928,
-          "recall": 0.8461538461538461,
+          "f1": 0.44047619047619047,
+          "precision": 0.578125,
+          "recall": 0.3557692307692308,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.8841072102680257,
-          "precision": 0.8497822931785196,
-          "recall": 0.9213217938630999,
+          "f1": 0.5385385385385385,
+          "precision": 0.7400275103163686,
+          "recall": 0.4232887490165224,
           "method": "char-label-aware"
         },
         "n_chunks": 200
       },
       "fr": {
         "strict_span": {
-          "f1": 0.8165137614678899,
-          "precision": 0.7063492063492064,
-          "recall": 0.967391304347826,
+          "f1": 0.669811320754717,
+          "precision": 0.5916666666666667,
+          "recall": 0.7717391304347826,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.8618376928236082,
-          "precision": 0.7731648616125151,
-          "recall": 0.9734848484848485,
+          "f1": 0.7606652205350687,
+          "precision": 0.7275242047026279,
+          "recall": 0.796969696969697,
           "method": "char-label-aware"
         },
         "n_chunks": 200
       },
       "it": {
         "strict_span": {
-          "f1": 0.747663551401869,
-          "precision": 0.6611570247933884,
-          "recall": 0.8602150537634409,
+          "f1": 0.5365853658536586,
+          "precision": 0.49107142857142855,
+          "recall": 0.5913978494623656,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.8098250837365091,
-          "precision": 0.7143795141168746,
-          "recall": 0.9347079037800687,
+          "f1": 0.6432160804020101,
+          "precision": 0.6274509803921569,
+          "recall": 0.6597938144329897,
           "method": "char-label-aware"
         },
         "n_chunks": 200
       },
       "rm": {
         "strict_span": {
-          "f1": 0.7426160337552743,
-          "precision": 0.7394957983193278,
-          "recall": 0.7457627118644068,
+          "f1": 0.34196891191709844,
+          "precision": 0.44,
+          "recall": 0.2796610169491525,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.7954070981210856,
-          "precision": 0.7749152542372881,
-          "recall": 0.8170121515368121,
+          "f1": 0.40894271075919886,
+          "precision": 0.5868983957219251,
+          "recall": 0.31379556826304505,
           "method": "char-label-aware"
         },
         "n_chunks": 200

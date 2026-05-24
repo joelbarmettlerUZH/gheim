@@ -1,0 +1,81 @@
+{
+  "model_id": "checkpoints/gheim-ch-multisource",
+  "backend": "hf",
+  "dataset_id": "tomaarsen/conll2003",
+  "dataset_split": "test",
+  "n_chunks": 3453,
+  "metrics": {
+    "overall": {
+      "strict_span": {
+        "f1": 0.6814655172413792,
+        "precision": 0.5229904068805822,
+        "recall": 0.9777365491651205,
+        "method": "seqeval-token-level"
+      },
+      "char": {
+        "f1": 0.7587392303891025,
+        "precision": 0.6142847202894517,
+        "recall": 0.9920220237091971,
+        "method": "char-label-aware"
+      }
+    },
+    "per_category": {
+      "private_address": {
+        "strict_span": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "n_gold": 0
+        },
+        "char": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0
+        }
+      },
+      "private_date": {
+        "strict_span": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "n_gold": 0
+        },
+        "char": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0
+        }
+      },
+      "private_person": {
+        "strict_span": {
+          "f1": 0.6875407697325505,
+          "precision": 0.5301810865191147,
+          "recall": 0.9777365491651205,
+          "n_gold": 1617
+        },
+        "char": {
+          "f1": 0.7646205477969038,
+          "precision": 0.6220319875995209,
+          "recall": 0.9920220237091971
+        }
+      }
+    },
+    "per_language": {
+      "en": {
+        "strict_span": {
+          "f1": 0.6814655172413792,
+          "precision": 0.5229904068805822,
+          "recall": 0.9777365491651205,
+          "method": "seqeval-token-level"
+        },
+        "char": {
+          "f1": 0.7587392303891025,
+          "precision": 0.6142847202894517,
+          "recall": 0.9920220237091971,
+          "method": "char-label-aware"
+        },
+        "n_chunks": 3453
+      }
+    }
+  }
+}

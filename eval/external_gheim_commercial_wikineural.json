@@ -1,5 +1,5 @@
 {
-  "model_id": "checkpoints/gheim-ch",
+  "model_id": "checkpoints/gheim-ch-commercial",
   "backend": "hf",
   "dataset_id": "Babelscape/wikineural",
   "dataset_split": "test",
@@ -7,15 +7,15 @@
   "metrics": {
     "overall": {
       "strict_span": {
-        "f1": 0.6749276201505501,
-        "precision": 0.7043751510756587,
-        "recall": 0.6478434859937751,
+        "f1": 0.6314782096584217,
+        "precision": 0.4720449042482941,
+        "recall": 0.9535349044019564,
         "method": "seqeval-token-level"
       },
       "char": {
-        "f1": 0.739330305940714,
-        "precision": 0.7941029184944814,
-        "recall": 0.691625959525471,
+        "f1": 0.6732848743219131,
+        "precision": 0.5125531022663045,
+        "recall": 0.9808792742498256,
         "method": "char-label-aware"
       }
     },
@@ -61,88 +61,75 @@
       },
       "private_person": {
         "strict_span": {
-          "f1": 0.759546461618663,
-          "precision": 0.9177952755905512,
-          "recall": 0.6478434859937751,
+          "f1": 0.6395764986579183,
+          "precision": 0.48115324209109267,
+          "recall": 0.9535349044019564,
           "n_gold": 4498
         },
         "char": {
-          "f1": 0.8075861436763462,
-          "precision": 0.9702635894172642,
-          "recall": 0.691625959525471
-        }
-      },
-      "private_url": {
-        "strict_span": {
-          "f1": 0.0,
-          "precision": 0.0,
-          "recall": 0.0,
-          "n_gold": 0
-        },
-        "char": {
-          "f1": 0.0,
-          "precision": 0.0,
-          "recall": 0.0
+          "f1": 0.6810407480982607,
+          "precision": 0.5215971500667953,
+          "recall": 0.9808792742498256
         }
       }
     },
     "per_language": {
       "de": {
         "strict_span": {
-          "f1": 0.6677796327212021,
-          "precision": 0.7067137809187279,
-          "recall": 0.6329113924050633,
+          "f1": 0.5941157861436254,
+          "precision": 0.42431089019430634,
+          "recall": 0.990506329113924,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.7175984484357871,
-          "precision": 0.7936952061182615,
-          "recall": 0.654816866728224,
+          "f1": 0.6371737902928829,
+          "precision": 0.4678588167429787,
+          "recall": 0.9985380116959064,
           "method": "char-label-aware"
         },
         "n_chunks": 2000
       },
       "en": {
         "strict_span": {
-          "f1": 0.7188755020080322,
-          "precision": 0.6806083650190115,
-          "recall": 0.7617021276595745,
+          "f1": 0.54185303514377,
+          "precision": 0.3872146118721461,
+          "recall": 0.902127659574468,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.779545845518665,
-          "precision": 0.7243446291560103,
-          "recall": 0.843854748603352,
+          "f1": 0.5674375375867913,
+          "precision": 0.4016330005417537,
+          "recall": 0.9663873370577282,
           "method": "char-label-aware"
         },
         "n_chunks": 2000
       },
       "fr": {
         "strict_span": {
-          "f1": 0.6701191092698083,
-          "precision": 0.6949516648764769,
-          "recall": 0.647,
+          "f1": 0.6296774193548387,
+          "precision": 0.46476190476190476,
+          "recall": 0.976,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.7504821304008862,
-          "precision": 0.828276424236935,
-          "recall": 0.686046511627907,
+          "f1": 0.6761476147614761,
+          "precision": 0.5144198786930151,
+          "recall": 0.9861965491372843,
           "method": "char-label-aware"
         },
         "n_chunks": 2000
       },
       "it": {
         "strict_span": {
-          "f1": 0.6524871355060035,
-          "precision": 0.728735632183908,
-          "recall": 0.5906832298136646,
+          "f1": 0.7278797996661102,
+          "precision": 0.5907859078590786,
+          "recall": 0.9478260869565217,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.7200713052197649,
-          "precision": 0.8260480572597138,
-          "recall": 0.6381949244593661,
+          "f1": 0.7762427677411737,
+          "precision": 0.6453534031413612,
+          "recall": 0.9737335834896811,
           "method": "char-label-aware"
         },
         "n_chunks": 2000

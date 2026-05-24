@@ -1,6 +1,6 @@
 {
-  "model_id": "checkpoints/gheim-ch",
-  "backend": "hf",
+  "model_id": "checkpoints/gheim-ch_onnx",
+  "backend": "onnx",
   "dataset_id": "data/built",
   "dataset_split": "test",
   "n_chunks": 21246,
@@ -202,5 +202,7 @@
         "n_chunks": 1651
       }
     }
-  }
+  },
+  "onnx_file": "model.onnx",
+  "provider": "CPUExecutionProvider"
 }

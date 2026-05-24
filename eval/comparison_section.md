@@ -1,6 +1,6 @@
 ## Comparison to other models and benchmarks
 
-To position the model in the broader PII / NER landscape, two evaluations were run. Direction A scores other open PII detectors and multilingual NER models on the same held-out test split that produced the headline F1. Direction B scores `joelbarmettler/gheim-ch-560m` on widely-used external benchmarks.
+To position the model in the broader PII / NER landscape, two evaluations were run. **Direction A** scores other open PII detectors and multilingual NER models on the same held-out test split that produced the headline F1. **Direction B** scores both released `gheim` checkpoints on widely-used external benchmarks.
 
 ### Two metrics: strict-span and char F1
 
@@ -10,45 +10,62 @@ Both metrics are reported. **Strict-span F1**: exact (start, end, label) match p
 
 ### Direction A: other models on our held-out test set
 
-| Model | Strict F1 | Char F1 | PER strict | PER char |
-|---|---:|---:|---:|---:|
-| **joelbarmettler/gheim-ch-560m** | **0.916** | **0.958** | **0.915** | **0.944** |
-| openai/privacy-filter (1.4B MoE, zero-shot) | 0.443 | 0.610 | 0.406 | 0.561 |
-| Microsoft Presidio Analyzer (multi-lang config) | 0.434 | 0.562 | 0.442 | 0.521 |
-| Davlan/xlm-roberta-base-ner-hrl | n/a | n/a | 0.645 | 0.728 |
-| Davlan/distilbert-base-multilingual-cased-ner-hrl | n/a | n/a | 0.619 | 0.771 |
-| spaCy de/fr/it core_news_lg | n/a | n/a | 0.505 | 0.621 |
-| dslim/bert-base-NER (English slice) | n/a | n/a | 0.512 | 0.770 |
-| Isotonic/distilbert_finetuned_ai4privacy_v2 | 0.157 | 0.508 | 0.264 | 0.507 |
+`joelbarmettler/gheim-ch-pii-212k` test split, 21,246 chunks, document-level isolated from train for the real-text portion. The two `gheim` checkpoints have essentially identical in-distribution numbers; the cross-domain differences are reported in Direction B.
 
-Per-language overall char F1 (top three Direction A contestants):
+| Model | License | Strict F1 | Char F1 | PER strict | PER char |
+|---|---|---:|---:|---:|---:|
+| **`joelbarmettler/gheim-ch-560m`** (this release) | Apache 2.0 | **0.910** | **0.946** | **0.896** | **0.929** |
+| **`joelbarmettler/gheim-ch-560m-research`** | CC BY-NC-SA 4.0 (research-only) | **0.912** | **0.946** | **0.898** | **0.929** |
+| `dslim/bert-base-NER` (English slice) | MIT | n/a | n/a | 0.561 | 0.834 |
+| `ZurichNLP/swissbert-ner` + regex hybrid | CC BY 4.0 | 0.346 | 0.613 | 0.464 | 0.770 |
+| `Davlan/distilbert-base-multilingual-cased-ner-hrl` | Apache 2.0 | n/a | n/a | 0.569 | 0.758 |
+| `Davlan/xlm-roberta-base-ner-hrl` | Apache 2.0 | n/a | n/a | 0.610 | 0.733 |
+| `openai/privacy-filter` (ONNX, 1.4B MoE, zero-shot) | Apache 2.0 | 0.449 | 0.619 | 0.436 | 0.582 |
+| spaCy `de/fr/it_core_news_lg` | MIT | n/a | n/a | 0.473 | 0.574 |
+| Microsoft Presidio Analyzer (multi-lang config) | MIT | 0.398 | 0.501 | 0.433 | 0.519 |
+| `Isotonic/distilbert_finetuned_ai4privacy_v2` | Apache 2.0 | 0.140 | 0.441 | 0.243 | 0.513 |
 
-| Language | joelbarmettler/gheim-ch-560m | openai/privacy-filter (1.4B MoE, zero-shot) | Microsoft Presidio Analyzer (multi-lang config) |
+PER-only models (Davlan, dslim, spaCy) emit only person mentions, so their overall 8-category F1 is reported as `n/a`. `openai/privacy-filter` is scored via its shipped ONNX export (`onnx/model.onnx`) because its custom `model_type=openai_privacy_filter` is not registered in `transformers` 4.57; the eval harness applies a config patch (`model_type → xlm-roberta`) so AutoConfig can load the id-to-label mapping, then runs inference through the ONNX graph unmodified. `ZurichNLP/swissbert-ner` is run via the XMOD-adapter-aware baseline runner with regex fallbacks for non-PER categories (IBAN, AHV, VAT-CHE, phone, email, URL, secret).
+
+### Direction B: `gheim` checkpoints on external benchmarks (zero-shot)
+
+PER character-level F1 on each benchmark. Both `gheim` checkpoints are scored zero-shot: neither has seen the test material at training time. The research variant has been trained on the *train* split of `ai4privacy/openpii-1m`, `Babelscape/wikineural`, and CoNLL-2003 (in addition to the in-domain Swiss data); the Apache-2.0 baseline has not. Numbers are character-level F1, the metric that survives schema-fragmentation noise.
+
+| External benchmark | n | License | Apache-2.0 baseline | Research |
+|---|---:|---|---:|---:|
+| `ZurichNLP/swissner` (Swiss-news NER, **zero-shot for both**, all 4 langs incl. RM) | 800 | CC BY 4.0 | 0.702 | **0.903** |
+| `ai4privacy/pii-masking-openpii-1m` (research trained on train split) | 8,000 | Apache 2.0 | 0.938 | **0.995**† |
+| `ai4privacy/open-pii-masking-500k-ai4privacy` (**zero-shot for both**) | 8,000 | CC BY 4.0 | 0.933 | **0.982** |
+| `gretelai/synthetic_pii_finance_multilingual` (**zero-shot for both**) | 4,800 | Apache 2.0 | 0.624 | 0.627 |
+| `Babelscape/wikineural` (research trained on train split) | 8,000 | CC BY-NC-SA 4.0 | **0.808** | 0.795† |
+| `tomaarsen/conll2003` (research trained on train split, PER only) | 3,453 | research-only | **0.911** | 0.765† |
+
+†Research-variant numbers on these three rows reflect in-distribution generalisation, not zero-shot cross-domain transfer (the research training mix includes the train splits of these three datasets). On the two news-style NER benchmarks (`WikiNeural`, `CoNLL-2003`) the research variant actually regresses against the in-domain-only Apache baseline because its broader 8-category output schema produces non-PER false positives on news text that the Apache baseline does not.
+
+#### Per-language `swissner` PER char F1 — the headline cross-domain test
+
+`swissner` is the only Swiss-news NER benchmark that includes Romansh. The Apache-2.0 baseline's per-language drop on `swissner` is the main reason the research variant exists.
+
+| Language | Apache-2.0 baseline | Research | Δ |
 |---|---:|---:|---:|
-| de_ch | **0.954** | 0.569 | 0.572 |
-| en | **0.981** | 0.788 | 0.561 |
-| fr_ch | **0.953** | 0.577 | 0.596 |
-| it_ch | **0.972** | 0.630 | 0.690 |
-| rm | **0.923** | 0.643 | 0.251 |
+| de | 0.539 | **0.931** | +39 pp |
+| fr | 0.761 | **0.913** | +15 pp |
+| it | 0.643 | **0.856** | +21 pp |
+| rm | 0.409 | **0.873** | **+46 pp** |
 
-### Direction B: `gheim-ch-560m` on external benchmarks
+The Romansh gain is the most surprising: none of the external training corpora include Romansh, but the cross-lingual transfer in XLM-R's shared encoder body from the additional de/fr/it/en supervision lifts RM by 46 pp.
 
-Each external dataset uses its own label schema; PER / SURNAME / GIVENNAME etc. are mapped to `private_person` and remaining categories to the closest `gheim` cell or to `O`. For pure-NER datasets (swissner, CoNLL-2003, WikiNeural) only PER maps to a `gheim` category, so the meaningful number is the PER cell. The non-PER `Overall F1` is dragged down by `gheim` predicting categories the NER datasets don't label.
+#### Choosing a variant
 
-| External benchmark | n_chunks | Overall strict | Overall char | PER strict | PER char |
-|---|---:|---:|---:|---:|---:|
-| `ai4privacy/pii-masking-openpii-1m` | 8,000 | 0.919 | 0.972 | 0.776 | 0.920 |
-| `Babelscape/wikineural` | 8,000 | 0.833 | 0.880 | 0.919 | 0.960 |
-| `ZurichNLP/swissner` | 800 | 0.781 | 0.838 | 0.903 | 0.946 |
-| `tomaarsen/conll2003` | 3,453 | 0.678 | 0.703 | 0.887 | 0.936 |
+| Use case | Variant |
+|---|---|
+| Production deployment, customer data, commercial product | `gheim-ch-560m` (Apache 2.0) |
+| Swiss court / parliament / web text redaction (the original target distribution) | either — equivalent in-distribution |
+| Swiss-news article redaction (any of de/fr/it/rm) | `gheim-ch-560m-research` |
+| Cross-distribution PII / NER experiments, papers, evaluations | `gheim-ch-560m-research` |
 
-Per-language PER char F1 on Swiss news (`swissner`):
+### Methodology validation
 
-| Language | PER char F1 |
-|---|---:|
-| de | 0.884 |
-| fr | 0.862 |
-| it | 0.810 |
-| rm | 0.795 |
+To check that the harness is sound, each external baseline was replicated on its own training-distribution dataset and the reproduction compared to the baseline's own published number; three of four match within ±0.03. See `paper/paper.pdf` Appendix A4 (Table replication) for the full breakdown.
 
 <!-- Methodology footnote: strict_span is computed via seqeval-token-level for HF/ONNX backends and via char-set-strict for spaCy/Presidio (which emit char spans directly). char F1 is char-label-aware and uses an identical formulation across all backends. The full numerical breakdown is in [`eval/positioning_matrix.json`](eval/positioning_matrix.json). -->

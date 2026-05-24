@@ -362,6 +362,178 @@ def _load_wikineural(per_lang: int, _languages: list[str], seed: int) -> tuple[l
     return flat, "Babelscape/wikineural"
 
 
+# gretelai/synthetic_pii_finance_multilingual label → our 8-cat schema.
+# License: Apache 2.0. Domain: synthetic financial documents (invoices,
+# shipping manifests, EDI, customer records) covering en/fr/de/es/it/nl/sv.
+GRETEL_REMAP: dict[str, str] = {
+    "name":                     "private_person",
+    "first_name":               "private_person",
+    "last_name":                "private_person",
+    "user_name":                "private_person",
+    "email":                    "private_email",
+    "phone_number":             "private_phone",
+    "street_address":           "private_address",
+    "local_latlng":             "private_address",
+    "date":                     "private_date",
+    "date_of_birth":            "private_date",
+    "date_time":                "private_date",
+    "time":                     "private_date",
+    "iban":                     "account_number",
+    "bban":                     "account_number",
+    "credit_card_number":       "account_number",
+    "credit_card_security_code":"account_number",
+    "swift_bic_code":           "account_number",
+    "bank_routing_number":      "account_number",
+    "ssn":                      "account_number",
+    "passport_number":          "account_number",
+    "driver_license_number":    "account_number",
+    "customer_id":              "account_number",
+    "employee_id":              "account_number",
+    "account_pin":              "secret",
+    "password":                 "secret",
+    "api_key":                  "secret",
+    "ipv4":                     "private_url",
+    "ipv6":                     "private_url",
+    "company":                  "O",
+}
+
+# Map gretel's full-name language strings to gheim language codes.
+_GRETEL_LANG_TO_CODE: dict[str, str] = {
+    "English": "en", "German": "de_ch",
+    "French": "fr_ch", "France": "fr_ch",  # gretel uses both spellings
+    "Italian": "it_ch", "Spanish": "es", "Dutch": "nl", "Swedish": "sv",
+}
+
+
+def _load_gretel_finance(per_lang: int, languages: list[str],
+                         seed: int) -> tuple[list[dict], str]:
+    """gretelai/synthetic_pii_finance_multilingual — Apache 2.0.
+    Synthetic financial documents with rich PII labels; closest schema
+    match to our 8-cat space among public PII datasets. The test split
+    is small (~5.6k); we sample ``per_lang`` per language we care about.
+    """
+    from datasets import load_dataset
+    import json as _json
+    targets = set(languages) if languages else {"en", "de_ch", "fr_ch", "it_ch"}
+    print(f"\nLoading gretel finance test (filter to {sorted(targets)}) ...",
+          flush=True)
+    ds = load_dataset("gretelai/synthetic_pii_finance_multilingual",
+                      split="test")
+    rng = random.Random(seed)
+    bucket: dict[str, list[dict]] = defaultdict(list)
+    skipped_lang: Counter[str] = Counter()
+    unmapped: Counter[str] = Counter()
+    idxs = list(range(len(ds)))
+    rng.shuffle(idxs)
+    for i in idxs:
+        if all(len(bucket[t]) >= per_lang for t in targets):
+            break
+        row = ds[i]
+        gheim_lang = _GRETEL_LANG_TO_CODE.get(row["language"])
+        if gheim_lang not in targets:
+            skipped_lang[row["language"]] += 1
+            continue
+        if len(bucket[gheim_lang]) >= per_lang:
+            continue
+        text = row.get("generated_text") or ""
+        if not text:
+            continue
+        raw_spans = row.get("pii_spans") or []
+        if isinstance(raw_spans, str):
+            try:
+                raw_spans = _json.loads(raw_spans)
+            except Exception:
+                continue
+        gold_spans: list[dict] = []
+        for s in raw_spans:
+            label = s.get("label")
+            target = GRETEL_REMAP.get(label)
+            if target is None:
+                unmapped[label] += 1
+                continue
+            if target == "O":
+                continue
+            start, end = int(s.get("start", -1)), int(s.get("end", -1))
+            if start < 0 or end <= start or end > len(text):
+                continue
+            gold_spans.append({"start": start, "end": end, "label": target})
+        bucket[gheim_lang].append({
+            "text": text,
+            "spans": gold_spans,
+            "language": gheim_lang,
+            "source": "gretelai/synthetic_pii_finance_multilingual",
+            "template_id": None,
+        })
+    if unmapped:
+        print(f"  unmapped gretel labels: {dict(unmapped.most_common(10))}",
+              flush=True)
+    flat: list[dict] = []
+    for la in sorted(targets):
+        flat.extend(bucket[la])
+    print(f"  total: {len(flat):,} chunks "
+          f"({', '.join(f'{la}={len(bucket[la])}' for la in sorted(targets))})",
+          flush=True)
+    return flat, "gretelai/synthetic_pii_finance_multilingual"
+
+
+def _load_openpii_500k(per_lang: int, languages: list[str],
+                       seed: int) -> tuple[list[dict], str]:
+    """ai4privacy/open-pii-masking-500k-ai4privacy — CC BY 4.0.
+    Same label schema as openpii-1m (OPENPII_REMAP applies). Has a
+    Swiss-region (region='CH') subset that is particularly relevant
+    for our deployment context. Uses the validation split as eval
+    (no test split exists on this release)."""
+    from datasets import load_dataset
+    targets = set(languages) if languages else {"en", "de", "fr", "it"}
+    print(f"\nLoading open-pii-500k validation; sampling {per_lang}/lang in "
+          f"{sorted(targets)} ...", flush=True)
+    ds = load_dataset("ai4privacy/open-pii-masking-500k-ai4privacy",
+                      split="validation")
+    rng = random.Random(seed)
+    idxs = list(range(len(ds)))
+    rng.shuffle(idxs)
+    bucket: dict[str, list[dict]] = defaultdict(list)
+    unmapped: Counter[str] = Counter()
+    for i in idxs:
+        if all(len(bucket[la]) >= per_lang for la in targets):
+            break
+        row = ds[i]
+        lang = row.get("language")
+        if lang not in targets or len(bucket[lang]) >= per_lang:
+            continue
+        text = row.get("source_text") or ""
+        if not text:
+            continue
+        gold_spans: list[dict] = []
+        for s in row.get("privacy_mask") or []:
+            target = OPENPII_REMAP.get(s.get("label"))
+            if not target or target == "O":
+                if target is None:
+                    unmapped[s.get("label")] += 1
+                continue
+            start, end = int(s.get("start", -1)), int(s.get("end", -1))
+            if start < 0 or end <= start or end > len(text):
+                continue
+            gold_spans.append({"start": start, "end": end, "label": target})
+        bucket[lang].append({
+            "text": text,
+            "spans": gold_spans,
+            "language": lang,
+            "source": "ai4privacy/open-pii-masking-500k-ai4privacy",
+            "template_id": None,
+        })
+    if unmapped:
+        print(f"  unmapped open-pii-500k labels: {dict(unmapped.most_common(10))}",
+              flush=True)
+    flat: list[dict] = []
+    for la in sorted(targets):
+        flat.extend(bucket[la])
+    print(f"  total: {len(flat):,} chunks "
+          f"({', '.join(f'{la}={len(bucket[la])}' for la in sorted(targets))})",
+          flush=True)
+    return flat, "ai4privacy/open-pii-masking-500k-ai4privacy"
+
+
 # Registry: dataset name → (loader, default per_lang, default languages,
 # whether --per-lang is meaningful). Keep this as a module-level table so
 # new datasets can be wired in by appending one line.
@@ -387,6 +559,18 @@ DATASET_REGISTRY: dict[str, dict[str, Any]] = {
     },
     "wikineural": {
         "load": _load_wikineural,
+        "default_per_lang": 2000,
+        "default_languages": ["en", "de", "fr", "it"],
+        "supports_per_lang": True,
+    },
+    "gretel_finance": {
+        "load": _load_gretel_finance,
+        "default_per_lang": 1000,
+        "default_languages": ["en", "de_ch", "fr_ch", "it_ch"],
+        "supports_per_lang": True,
+    },
+    "openpii_500k": {
+        "load": _load_openpii_500k,
         "default_per_lang": 2000,
         "default_languages": ["en", "de", "fr", "it"],
         "supports_per_lang": True,

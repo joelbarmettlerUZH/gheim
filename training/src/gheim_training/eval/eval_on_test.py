@@ -89,7 +89,8 @@ V3_DATASET = "data/built"
 
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--backend", choices=["hf", "onnx", "spacy", "presidio"], required=True)
+    p.add_argument("--backend", choices=["hf", "onnx", "spacy", "presidio", "swissbert"],
+                   required=True)
     p.add_argument("--out", type=Path, required=True,
                    help="Output JSON path (consumed by report.py).")
 
@@ -268,12 +269,30 @@ def _run_hf(args: argparse.Namespace, raw: Dataset) -> tuple[ScoreAccumulator, i
 
     import numpy as np
     import torch
-    from transformers import AutoModelForTokenClassification, AutoTokenizer
+    from transformers import AutoModelForTokenClassification, AutoTokenizer, PreTrainedTokenizerFast
 
     print(f"Loading HF model: {args.model}", flush=True)
-    tokenizer = AutoTokenizer.from_pretrained(
-        args.model, use_fast=True, trust_remote_code=args.trust_remote_code,
-    )
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(
+            args.model, use_fast=True, trust_remote_code=args.trust_remote_code,
+        )
+    except ValueError as e:
+        # openai/privacy-filter (and other recent "backend" tokenizer configs)
+        # ship tokenizer_class="TokenizersBackend" which AutoTokenizer can't
+        # resolve. Fall back to loading the raw tokenizer.json directly.
+        if "TokenizersBackend" not in str(e):
+            raise
+        from huggingface_hub import hf_hub_download
+        tok_file = hf_hub_download(args.model, "tokenizer.json")
+        cfg_path = hf_hub_download(args.model, "tokenizer_config.json")
+        import json
+        cfg = json.load(open(cfg_path))
+        tokenizer = PreTrainedTokenizerFast(
+            tokenizer_file=tok_file,
+            model_max_length=cfg.get("model_max_length", 4096),
+            pad_token=cfg.get("pad_token"),
+            eos_token=cfg.get("eos_token"),
+        )
     model = AutoModelForTokenClassification.from_pretrained(
         args.model, trust_remote_code=args.trust_remote_code,
     ).eval()
@@ -305,10 +324,24 @@ def _run_onnx(args: argparse.Namespace, raw: Dataset) -> tuple[ScoreAccumulator,
     import numpy as np
     import torch
     from optimum.onnxruntime import ORTModelForTokenClassification
-    from transformers import AutoTokenizer
+    from transformers import AutoTokenizer, PreTrainedTokenizerFast
 
     print(f"Loading ONNX: {args.onnx_dir}/{args.onnx_file} ({args.provider})", flush=True)
-    tokenizer = AutoTokenizer.from_pretrained(str(args.onnx_dir), use_fast=True)
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(str(args.onnx_dir), use_fast=True)
+    except ValueError as e:
+        # Same fallback as _run_hf — privacy-filter and similar models ship
+        # tokenizer_class="TokenizersBackend" which AutoTokenizer can't resolve.
+        if "TokenizersBackend" not in str(e):
+            raise
+        import json
+        cfg = json.load(open(f"{args.onnx_dir}/tokenizer_config.json"))
+        tokenizer = PreTrainedTokenizerFast(
+            tokenizer_file=f"{args.onnx_dir}/tokenizer.json",
+            model_max_length=cfg.get("model_max_length", 4096),
+            pad_token=cfg.get("pad_token"),
+            eos_token=cfg.get("eos_token"),
+        )
     model = ORTModelForTokenClassification.from_pretrained(
         str(args.onnx_dir),
         file_name=args.onnx_file,
@@ -501,6 +534,37 @@ def _run_presidio(args: argparse.Namespace, raw: Dataset) -> tuple[ScoreAccumula
     return acc, n_total, "microsoft/presidio-analyzer"
 
 
+def _run_swissbert(args: argparse.Namespace, raw: Dataset) -> tuple[ScoreAccumulator, int, str]:
+    """SwissBERT-NER (+ regex for non-NER categories) baseline.
+
+    Wraps :class:`SwissBertNERDetector` so the XMOD adapter-switching
+    logic stays in one place. Treated as a span-emitting backend, so
+    strict scoring uses ``char-set-strict`` (matching how spaCy and
+    Presidio are scored).
+    """
+    from .baselines.swissbert_ner import SwissBertNERDetector
+
+    model_id = args.model or "ZurichNLP/swissbert-ner"
+    print(f"Loading SwissBERT-NER: {model_id}", flush=True)
+    detector = SwissBertNERDetector(model_id=model_id)
+
+    acc = ScoreAccumulator(strict_method="char-set-strict")
+    n_total = len(raw)
+    t0 = time.time()
+    for n, row in enumerate(raw, start=1):
+        text = row["text"]
+        gold_spans = gold_spans_from_row(row)
+        preds = detector.detect(text)
+        pred_spans: list[CharSpan] = [(p.start, p.end, p.label) for p in preds]
+        acc.add_span_row(gold_spans, pred_spans, row["language"])
+        if n % 500 == 0 or n == n_total:
+            elapsed = time.time() - t0
+            rate = n / elapsed if elapsed else 0
+            print(f"  {n:>6}/{n_total} · {rate:5.1f} chunks/s · elapsed {elapsed:5.0f}s",
+                  flush=True)
+    return acc, n_total, model_id
+
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
@@ -534,6 +598,8 @@ def main() -> None:
     elif args.backend == "presidio":
         acc, n_chunks, model_id = _run_presidio(args, raw)
         extra["score_threshold"] = args.score_threshold
+    elif args.backend == "swissbert":
+        acc, n_chunks, model_id = _run_swissbert(args, raw)
     else:  # pragma: no cover — argparse already constrains the choices.
         raise SystemExit(f"unknown backend {args.backend!r}")
 

@@ -32,12 +32,12 @@ htmlcov/
 
 # Exceptions: data provenance / audit READMEs that explain what's in /data/.
 !/data/*.md
-# Exceptions: P7 OpenRouter audit raw outputs and scoring report — these are
+# Exceptions: OpenRouter audit raw outputs and scoring report — these are
 # the reproducibility evidence for the label-noise audit number cited in
-# the paper §3.5 (~900 KB total; see p7_audit_openrouter.py + p7_audit_score.py).
-!/data/p7_audit_*.jsonl
-!/data/p7_audit_report.json
-!/data/p7_audit_analysis.json
+# the paper §3.5 (~1.3 MB total; see analysis/audit_openrouter.py + audit_score.py).
+!/data/audit_openrouter_*.jsonl
+!/data/audit_openrouter_report.json
+!/data/audit_openrouter_analysis.json
 # v2 audit + frequency + balancer + split summaries (small JSONs that
 # anchor paper §3.5/§4 numbers and document the balancer + split configs).
 !/data/v2_p7_audit_report.json

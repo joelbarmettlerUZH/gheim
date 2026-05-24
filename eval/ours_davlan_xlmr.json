@@ -1,21 +1,21 @@
 {
   "model_id": "Davlan/xlm-roberta-base-ner-hrl",
   "backend": "hf",
-  "dataset_id": "data/built_v2",
+  "dataset_id": "data/built",
   "dataset_split": "test",
-  "n_chunks": 15861,
+  "n_chunks": 21246,
   "metrics": {
     "overall": {
       "strict_span": {
-        "f1": 0.4025405030574292,
-        "precision": 0.5128297795446332,
-        "recall": 0.33129264053542246,
+        "f1": 0.3782620914209297,
+        "precision": 0.4920582896329165,
+        "recall": 0.3072140282390719,
         "method": "seqeval-token-level"
       },
       "char": {
-        "f1": 0.34594846287328207,
-        "precision": 0.5893028789599983,
-        "recall": 0.24484073622578856,
+        "f1": 0.3759411828712442,
+        "precision": 0.6091396854764107,
+        "recall": 0.27186312710500266,
         "method": "char-label-aware"
       }
     },
@@ -25,7 +25,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 502
+          "n_gold": 1713
         },
         "char": {
           "f1": 0.0,
@@ -38,7 +38,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 3507
+          "n_gold": 7156
         },
         "char": {
           "f1": 0.0,
@@ -51,7 +51,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 9678
+          "n_gold": 21864
         },
         "char": {
           "f1": 0.0,
@@ -64,7 +64,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 1712
+          "n_gold": 1853
         },
         "char": {
           "f1": 0.0,
@@ -74,15 +74,15 @@
       },
       "private_person": {
         "strict_span": {
-          "f1": 0.6445279971737868,
-          "precision": 0.5128297795446332,
-          "recall": 0.8672416134727693,
-          "n_gold": 14726
+          "f1": 0.6101636627952418,
+          "precision": 0.4920582896329165,
+          "recall": 0.8028713645152001,
+          "n_gold": 24309
         },
         "char": {
-          "f1": 0.7276635832057203,
-          "precision": 0.5893028789599983,
-          "recall": 0.9509295615766753
+          "f1": 0.7332307148144024,
+          "precision": 0.6091396854764107,
+          "recall": 0.9208146880758095
         }
       },
       "private_phone": {
@@ -90,7 +90,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 3329
+          "n_gold": 2477
         },
         "char": {
           "f1": 0.0,
@@ -103,7 +103,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 3991
+          "n_gold": 3869
         },
         "char": {
           "f1": 0.0,
@@ -116,7 +116,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 1104
+          "n_gold": 288
         },
         "char": {
           "f1": 0.0,
@@ -128,78 +128,78 @@
     "per_language": {
       "de_ch": {
         "strict_span": {
-          "f1": 0.4229817741202605,
-          "precision": 0.5195981146117589,
-          "recall": 0.3566624095359728,
+          "f1": 0.3167903750060641,
+          "precision": 0.415024787085293,
+          "recall": 0.2561587949160521,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.3576085820310459,
-          "precision": 0.5834879010766443,
-          "recall": 0.25780668619711944,
+          "f1": 0.3056313030210366,
+          "precision": 0.5556517154025149,
+          "recall": 0.21078618950297864,
           "method": "char-label-aware"
         },
-        "n_chunks": 4753
+        "n_chunks": 9028
       },
       "en": {
         "strict_span": {
-          "f1": 0.3650755576876949,
-          "precision": 0.4465962441314554,
-          "recall": 0.30872210953346857,
+          "f1": 0.5443186255368996,
+          "precision": 0.6018998272884283,
+          "recall": 0.49679258731290094,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.27713222552088235,
-          "precision": 0.5576278516596389,
-          "recall": 0.1843841052499866,
+          "f1": 0.5798382118839543,
+          "precision": 0.7545446858882219,
+          "recall": 0.4708241004537301,
           "method": "char-label-aware"
         },
-        "n_chunks": 893
+        "n_chunks": 553
       },
       "fr_ch": {
         "strict_span": {
-          "f1": 0.35160377861984304,
-          "precision": 0.43890739506995335,
-          "recall": 0.2932692307692308,
+          "f1": 0.4117355781133944,
+          "precision": 0.5446655203471711,
+          "recall": 0.3309617393900194,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.3295891423020618,
-          "precision": 0.5431119026952689,
-          "recall": 0.23657888663560075,
+          "f1": 0.4216298225651212,
+          "precision": 0.6584245196455717,
+          "recall": 0.31010439477155377,
           "method": "char-label-aware"
         },
-        "n_chunks": 4705
+        "n_chunks": 6402
       },
       "it_ch": {
         "strict_span": {
-          "f1": 0.4524244004171012,
-          "precision": 0.6724137931034483,
-          "recall": 0.34089569829110195,
+          "f1": 0.417910447761194,
+          "precision": 0.5890476955195117,
+          "recall": 0.32382802154144963,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.3619971244984254,
-          "precision": 0.6908082502133168,
-          "recall": 0.24525877603037727,
+          "f1": 0.40862943123831197,
+          "precision": 0.6497280274835385,
+          "recall": 0.2980355405397339,
           "method": "char-label-aware"
         },
-        "n_chunks": 4169
+        "n_chunks": 3612
       },
       "rm": {
         "strict_span": {
-          "f1": 0.3914735866543096,
-          "precision": 0.42753036437246966,
-          "recall": 0.36102564102564105,
+          "f1": 0.41299790356394134,
+          "precision": 0.45475530932594643,
+          "recall": 0.3782642089093702,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.37266790471153965,
-          "precision": 0.5307759677701874,
-          "recall": 0.28713565553576165,
+          "f1": 0.4531124375685224,
+          "precision": 0.5553188948164662,
+          "recall": 0.3826801465040673,
           "method": "char-label-aware"
         },
-        "n_chunks": 1341
+        "n_chunks": 1651
       }
     }
   }

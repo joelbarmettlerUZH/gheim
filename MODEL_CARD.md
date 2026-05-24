@@ -19,7 +19,7 @@ tags:
   - privacy
 base_model: FacebookAI/xlm-roberta-large
 datasets:
-  - joelbarmettler/gheim-ch-pii-171k
+  - joelbarmettler/gheim-ch-pii-212k
 metrics:
   - f1
   - precision
@@ -31,15 +31,15 @@ model-index:
           type: token-classification
           name: PII NER (held-out test)
         dataset:
-          type: joelbarmettler/gheim-ch-pii-171k
-          name: gheim-ch-pii-171k (test split)
+          type: joelbarmettler/gheim-ch-pii-212k
+          name: gheim-ch-pii-212k (test split)
         metrics:
           - type: f1
-            value: 0.9161
+            value: 0.9105
           - type: precision
-            value: 0.9067
+            value: 0.8904
           - type: recall
-            value: 0.9258
+            value: 0.9315
 ---
 
 <p align="center">
@@ -52,9 +52,24 @@ A multilingual token-classification model for personally-identifiable informatio
 (PII) detection across the four official Swiss languages (de_CH, fr_CH, it_CH, rm)
 and English. The model is a fine-tune of
 [`FacebookAI/xlm-roberta-large`](https://huggingface.co/FacebookAI/xlm-roberta-large)
-on [`joelbarmettler/gheim-ch-pii-171k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k).
+on [`joelbarmettler/gheim-ch-pii-212k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-212k).
 Output schema is a 33-class BIOES tag set (8 PII categories plus the outside class)
 aligned with the categorical naming used by `openai/privacy-filter`.
+
+> **Two-variant release.** This checkpoint is the **Apache-2.0
+> commercial flagship**, trained only on the in-domain
+> `gheim-ch-pii-212k` so that the entire pipeline is end-to-end
+> reproducible from the gheim repository alone. A sibling checkpoint
+> [`joelbarmettler/gheim-ch-560m-research`](https://huggingface.co/joelbarmettler/gheim-ch-560m-research)
+> is trained on the same architecture + the same in-domain data
+> **plus** external public NER / PII corpora (ai4privacy/openpii-1m,
+> Babelscape/wikineural, tomaarsen/conll2003). It attains the same
+> in-distribution numbers but substantially stronger cross-domain
+> transfer on Swiss news (`swissner` PER char F1: 0.70 → 0.90) and
+> external person-NER benchmarks. **Non-commercial / research-only
+> licence** (CC BY-NC-SA 4.0 with Reuters research-only restriction).
+> See the [research card](https://huggingface.co/joelbarmettler/gheim-ch-560m-research)
+> for the full comparison table.
 
 | | |
 |---|---|
@@ -69,8 +84,8 @@ aligned with the categorical naming used by `openai/privacy-filter`.
 > against seven other PII / NER systems, cross-domain results on four
 > external benchmarks, methodology validation, and an extended related-work
 > section are documented in
-> [`paper/paper.pdf`](https://github.com/joelbarmettlerUZH/gheim/blob/main/paper/paper.pdf)
-> (arXiv preprint forthcoming). This card is the deployment-facing summary.
+> [`paper/paper.pdf`](https://github.com/joelbarmettlerUZH/gheim/blob/main/paper/paper.pdf).
+> This card is the deployment-facing summary.
 
 ## Intended use
 
@@ -167,15 +182,15 @@ const out = await ner("Email me at alice@example.ch, phone +41 44 268 12 34.");
 ## Performance
 
 Strict-span F1 (`seqeval`) on the held-out test split of
-[`joelbarmettler/gheim-ch-pii-171k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k)
-(15,861 chunks, document-isolated from the training split for the real-text
-portion). The test set was scored once.
+[`joelbarmettler/gheim-ch-pii-212k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-212k)
+(21,246 chunks, document-isolated from the training split for the
+real-text portion). The test set was scored once.
 
 | Metric | Test | Validation |
 |---|---:|---:|
-| F1 | 0.916 | 0.918 |
-| Precision | 0.907 | 0.908 |
-| Recall | 0.926 | 0.926 |
+| F1 | 0.910 | 0.910 |
+| Precision | 0.890 | 0.891 |
+| Recall | 0.932 | 0.930 |
 
 Per-language × per-category char-level F1 on the same test split. Body
 cells are char-level F1 for each (language, category) pair; the
@@ -185,48 +200,85 @@ over categories. The bottom-right cell is the overall char F1.
 
 | Category | de_ch | fr_ch | it_ch | rm | en | Avg. |
 |---|---:|---:|---:|---:|---:|---:|
-| `account_number` | 0.932 | 0.717 | 0.660 | 0.169 | 0.994 | 0.765 |
-| `private_address` | 0.890 | 0.870 | 0.915 | 0.825 | 0.973 | 0.889 |
-| `private_date` | 0.943 | 0.934 | 0.952 | 0.888 | 0.909 | 0.939 |
-| `private_email` | 0.988 | 0.994 | 0.999 | 0.992 | 0.999 | 0.994 |
-| `private_person` | 0.938 | 0.948 | 0.962 | 0.897 | 0.951 | 0.944 |
-| `private_phone` | 0.989 | 0.985 | 0.993 | 0.995 | 0.997 | 0.990 |
-| `private_url` | 0.992 | 0.994 | 0.994 | 0.958 | 0.980 | 0.992 |
-| `secret` | 0.999 | 1.000 | 0.999 | 1.000 | 1.000 | 1.000 |
-| **Avg.** | **0.954** | **0.953** | **0.972** | **0.923** | **0.981** | **0.958** |
+| `account_number` | 0.994 | 0.998 | 0.990 | 0.971 | 1.000 | 0.994 |
+| `private_address` | 0.933 | 0.911 | 0.916 | 0.853 | 0.955 | 0.917 |
+| `private_date` | 0.951 | 0.908 | 0.952 | 0.919 | 0.883 | 0.933 |
+| `private_email` | 0.996 | 1.000 | 0.997 | 0.989 | 1.000 | 0.997 |
+| `private_person` | 0.913 | 0.939 | 0.951 | 0.909 | 0.955 | 0.930 |
+| `private_phone` | 0.995 | 0.996 | 0.996 | 0.985 | 1.000 | 0.995 |
+| `private_url` | 0.990 | 0.993 | 0.993 | 0.994 | 0.970 | 0.991 |
+| `secret` | 0.994 | 0.999 | 1.000 | 0.999 | n/a | 0.997 |
+| **Avg.** | **0.944** | **0.931** | **0.956** | **0.918** | **0.954** | **0.940** |
 
-For the full comparison against seven other open PII / NER systems on the
-same Swiss test set, cross-domain evaluation on four external benchmarks
-(AI4Privacy openpii-1m, ZurichNLP swissner, CoNLL-2003, Babelscape
-WikiNeural), and the methodology-validation reproductions of each
-baseline's published numbers, see
-[`paper/paper.pdf`](https://github.com/joelbarmettlerUZH/gheim/blob/main/paper/paper.pdf)
-§4 and the machine-readable matrix at
+### Cross-domain (six external benchmarks)
+
+PER character-level F1 on the six external benchmarks below. This
+`gheim-ch-560m` checkpoint is run zero-shot on every row; the
+research variant is included for context but is zero-shot only on
+the gretel + swissner + open-pii-500k rows — three of the six
+(`ai4privacy/openpii-1m`, `Babelscape/WikiNeural`,
+`tomaarsen/conll2003`) are present in its training mix (see the
+[research model card](https://huggingface.co/joelbarmettler/gheim-ch-560m-research)
+for the full discussion). Numbers on those three rows for the
+research variant are therefore in-distribution, not transfer.
+
+| Benchmark | n | License | gheim-ch-560m (zero-shot) | gheim-ch-560m-research |
+|---|---:|---|---:|---:|
+| `ZurichNLP/swissner` (Swiss-news NER, zero-shot for both) | 800 | CC BY 4.0 | 0.702 | **0.903** |
+| `ai4privacy/pii-masking-openpii-1m` (research trained on train split) | 8,000 | Apache 2.0 / CC BY 4.0 | 0.938 | **0.995**† |
+| `ai4privacy/open-pii-masking-500k` (zero-shot for both) | 8,000 | CC BY 4.0 | 0.933 | **0.982** |
+| `gretelai/synthetic_pii_finance_multilingual` (zero-shot for both) | 4,800 | Apache 2.0 | 0.624 | 0.627 |
+| Babelscape `WikiNeural` (research trained on train split) | 8,000 | CC BY-NC-SA 4.0 | **0.808** | 0.795† |
+| `tomaarsen/conll2003` (research trained on train split, PER only) | 3,453 | research-only | **0.911** | 0.765† |
+
+†Research-variant numbers on these three rows reflect in-distribution generalisation, not zero-shot cross-domain transfer (research training mix includes the train splits of these three datasets). Note that on `Babelscape/WikiNeural` and `tomaarsen/conll2003` the research variant actually **regresses** relative to the Apache-2.0 baseline despite training on their train splits — the broader 8-category output schema produces non-PER false positives on news / Wikipedia text that the in-domain-only baseline doesn't make.
+
+Per-language `ZurichNLP/swissner` PER char F1 (the headline
+cross-domain test for Swiss-market deployment, zero-shot for both
+checkpoints):
+
+| Language | gheim-ch-560m | gheim-ch-560m-research |
+|---|---:|---:|
+| de | 0.539 | **0.931** |
+| fr | 0.761 | **0.913** |
+| it | 0.643 | **0.856** |
+| rm | 0.409 | **0.873** |
+
+For Swiss-news redaction at scale, the research variant is
+substantially stronger — especially on Romansh (+46 pp). For
+in-domain Swiss court / parliament / web text and structured PII
+(IBAN/AHV/email/phone), the two variants are essentially identical.
+
+For the full comparison against eight other open PII / NER systems on
+the same Swiss test set, the methodology-validation reproductions of
+each baseline's published numbers, and the full three-variant
+training-mix experiment that motivates the two-checkpoint release,
+see [`paper/paper.pdf`](https://github.com/joelbarmettlerUZH/gheim/blob/main/paper/paper.pdf)
+and the machine-readable matrix at
 [`eval/positioning_matrix.json`](https://github.com/joelbarmettlerUZH/gheim/blob/main/eval/positioning_matrix.json).
 
 ## Deployment formats
 
-The model is published in two formats:
+The model is published in three formats:
 
 - `model.safetensors` (root): fp32 PyTorch checkpoint, 2.2 GB, intended
   for server-side inference via `transformers`.
-- `onnx/model_quantized.onnx`: int8 dynamic-quantised ONNX export, 552 MB,
+- `onnx/model.onnx` (+ `onnx/model.onnx_data`): fp32 ONNX export, 2.2 GB,
+  intended for server-side ONNX Runtime / GPU deployment.
+- `onnx/model_quantized.onnx`: int8 dynamic-quantised ONNX export, 557 MB,
   intended for in-browser inference via
   [`@huggingface/transformers`](https://www.npmjs.com/package/@huggingface/transformers)
   on WebGPU or WebAssembly. Selected with `dtype: "q8"`.
 
-| Format | Size | Test F1 | Δ vs fp32 |
-|---|---:|---:|---:|
-| PyTorch fp32 | 2.2 GB | 0.916 | (baseline) |
-| ONNX int8 (dynamic) | 552 MB | 0.909 | -0.7 pp |
+| Format | Size | Test strict F1 | Test char F1 | Δ strict vs fp32 | Δ char vs fp32 |
+|---|---:|---:|---:|---:|---:|
+| PyTorch fp32 | 2.2 GB | 0.9105 | 0.9461 | (baseline) | (baseline) |
+| ONNX fp32 | 2.2 GB | 0.9105 | 0.9461 | 0.000 | 0.000 |
+| ONNX int8 (dynamic) | 557 MB | 0.9044 | 0.9448 | −0.0061 | −0.0013 |
 
-The int8 export loses 0.7 pp overall F1 relative to the PyTorch checkpoint;
-the loss is concentrated in `private_address` (-2.1 pp) and `account_number`
-(-5.3 pp), the two categories that were already weakest under fp32. All
-five languages are affected uniformly within ±0.001 pp of the overall
-drop. Per-category and per-language quantisation deltas are tabulated in
-[`paper/paper.pdf`](https://github.com/joelbarmettlerUZH/gheim/blob/main/paper/paper.pdf)
-§3.3.
+Per-category int8 vs fp32 char F1 deltas: `account_number` 0.00, `private_address` −0.003, `private_date` −0.002, `private_email` 0.00, `private_person` −0.001, `private_phone` 0.00, `private_url` 0.00, `secret` 0.00. The int8 quantisation cost is concentrated almost entirely on the `private_address` cell (the same cell that is weakest under fp32); structured-PII categories are unaffected.
+
+An fp16 ONNX export is also bundled with the dynamic-quantisation pipeline but is not separately published because ORT's CPUExecutionProvider does not handle the mixed-precision attention graph cleanly (one `Div` node mixes fp16 and fp32 operands). If you need fp16 for a GPU target, re-export with an explicit fp16-everywhere conversion.
 
 ## Training procedure
 
@@ -237,17 +289,17 @@ base model was trained for 3 full epochs and selected by best validation
 F1. `xlm-roberta-large` won the bake-off (val F1 0.918 vs swissbert's
 0.910). Selected configuration: AdamW, LR 5e-5 cosine with 5% warmup,
 no LLRD, effective batch 128 (per-device 64 × 2 GPUs DDP), bf16, 3
-epochs, max sequence length 512. Best checkpoint at epoch 2.50 by
-validation `overall_f1`. Wall time ≈ 52 min train + 4 min eval on
-2 × RTX 4090. Full procedure including the hyperparameter sweep results
-is in
+epochs, max sequence length 512. Best checkpoint at step
+3,500 of 3,987 (epoch 2.63) by validation `overall_f1` 0.910.
+Wall time ≈ 66 min train + 5 min eval on 2 × RTX 4090. Full
+procedure including the hyperparameter sweep results is in
 [`paper/paper.pdf`](https://github.com/joelbarmettlerUZH/gheim/blob/main/paper/paper.pdf)
 §3.
 
-The training data was the train split of `gheim-ch-pii-171k` (139,641
-chunks) plus an English-anchor and Swiss-region email rescue slice from
-`ai4privacy/pii-masking-openpii-1m` (≈ 14,000 chunks); validation and
-test contain no AI4Privacy data.
+The training data is the train split of
+[`joelbarmettler/gheim-ch-pii-212k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-212k)
+(170,001 chunks), used end-to-end with no external augmentation. The
+validation and test splits are held out from the same dataset.
 
 ## Limitations
 
@@ -255,24 +307,59 @@ test contain no AI4Privacy data.
    policy of flagging publicly-listed institutional contact information.
    Applications needing stricter precision should apply downstream
    filtering or a private-vs-public-entity post-classifier.
-2. **`private_address` test F1 is 0.78.** Boundary placement on
-   multi-token addresses is the dominant error mode.
-3. **`account_number` test F1 is 0.67.** For production use, pair the
-   model with the regex front-end documented in the `gheim` library,
-   which applies checksum validation (IBAN, AHV, VAT-CHE, Luhn).
-4. **Romansh test F1 is 0.85**, the weakest of the five languages. The RM
-   training material is dominated by a single literary/journalistic
-   register; performance on dialectal or technical RM text is unmeasured.
-5. **Swiss German dialect (GSW) is not measured.** The fasttext detector
-   used in data preparation labels GSW as standard German.
-6. **Re-identification is not in scope.** The model is intended for
+2. **`private_address` test strict F1 is 0.84** (char F1 0.92).
+   Boundary placement on multi-token addresses is the dominant error
+   mode.
+3. **`account_number` test strict F1 is 0.99** in the headline,
+   but a small fraction of regex-shaped non-PII (numeric tables in
+   court documents and parliamentary statistics) still slips
+   through. For production use, pair the model with the regex
+   front-end documented in the `gheim` library, which applies
+   checksum validation (IBAN, AHV, VAT-CHE, Luhn).
+4. **Romansh test strict F1 is 0.89** (char F1 0.93), the weakest
+   of the five languages. The RM training material is dominated by
+   a single literary/journalistic register; performance on
+   dialectal or technical RM text is unmeasured.
+5. **Cross-domain Swiss-news transfer is weaker than the
+   in-distribution headline.** On `ZurichNLP/swissner` the model
+   scores 0.70 PER char F1 overall (per-lang: de 0.54 / fr 0.76 /
+   it 0.64 / rm 0.41). The released checkpoint trains only on the
+   in-domain `gheim-ch-pii-212k` corpus so the published pipeline
+   is end-to-end reproducible from this repository alone; a
+   multi-source training mix that includes external public NER
+   corpora is being investigated as the next iteration.
+6. **Swiss German dialect (GSW) is not measured.** The fasttext
+   detector used in data preparation labels GSW as standard German.
+7. **Lone first-names in greetings can be missed.** Bare first names
+   in greeting positions (e.g. "Hallo Marius,") are a known coverage
+   gap; pair with a deterministic greeting-pattern regex for
+   chat-style inputs where this matters.
+8. **Re-identification is not in scope.** The model is intended for
    redaction; it does not return entity-linked identifiers.
+
+## Note on the predecessor release
+
+An earlier checkpoint of the same architecture was previously
+published at this URL, trained against an earlier dataset revision.
+That release surfaced several pipeline issues after publication —
+double-labelled overlapping spans, missing Geonames-CH gazetteer
+demotion of municipality names mis-tagged as people, and a forked
+synthetic generator that disagreed with the templated pipeline on
+output schema. The earlier checkpoint and dataset have been retired
+and moved to private archive repositories
+(`joelbarmettler/gheim-ch-560m-archive` and
+`joelbarmettler/gheim-ch-pii-171k-archive`); the current
+`joelbarmettler/gheim-ch-560m` checkpoint is a fresh fine-tune on
+the reproducible
+[`gheim-ch-pii-212k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-212k).
+The architecture and parameter count are unchanged; the training
+data and weights are new.
 
 ## License
 
 Apache 2.0, inherited from the base model `FacebookAI/xlm-roberta-large`.
 The training data
-([`joelbarmettler/gheim-ch-pii-171k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k))
+([`joelbarmettler/gheim-ch-pii-212k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-212k))
 is released under CC BY 4.0; attribution to its upstream corpora (the
 `swiss-ai/apertus-pretrain-*` datasets) is required when reusing the data.
 
@@ -290,11 +377,11 @@ is released under CC BY 4.0; attribution to its upstream corpora (the
 If the model is used in published work, please also cite the dataset:
 
 ```bibtex
-@misc{barmettler2026gheim_ch_pii,
-  title  = {gheim-ch-pii-171k: A Swiss-grounded PII NER dataset with synthetic gap-fill},
+@misc{barmettler2026gheim_ch_pii_212k,
+  title  = {gheim-ch-pii-212k: A Swiss-grounded PII NER dataset with multi-LLM consensus labels and synthetic gap-fill},
   author = {Joel Barmettler},
   year   = {2026},
-  url    = {https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k}
+  url    = {https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-212k}
 }
 ```
 

@@ -13,10 +13,10 @@
 #     --config training/configs/v3_xlmr.yaml
 
 base_model: FacebookAI/xlm-roberta-large
-output_dir: ./checkpoints/gheim-ch
-hub_model_id: joelbarmettler/gheim-ch
+output_dir: ./checkpoints/gheim-ch-multisource
+hub_model_id: joelbarmettler/gheim-ch-multisource
 
-dataset_dir: ./data/built
+dataset_dir: ./data/built_multisource
 
 eval_split: validation
 max_seq_length: 512
@@ -48,4 +48,4 @@ seed: 20260524
 report_to: ["wandb"]
 wandb_project: gheim-1
 wandb_entity: university-of-zurich
-wandb_run_name: gheim-ch
+wandb_run_name: gheim-ch-multisource

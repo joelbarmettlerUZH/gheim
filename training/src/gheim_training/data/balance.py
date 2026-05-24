@@ -810,7 +810,7 @@ def main() -> None:
         "signal_strength_dist": {str(k): v for k, v in n_span_signals_dist.items()},
         "total_surviving_spans": total,
     }
-    summary_path = OUT_PATH.with_name("v2_balanced_summary.json")
+    summary_path = OUT_PATH.with_name("balanced_summary.json")
     summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False))
     print(f"\nWrote {summary_path}")
 

@@ -1,44 +1,31 @@
 {
-  "model_id": "dslim/bert-base-NER",
+  "model_id": "checkpoints/gheim-ch-commercial",
   "backend": "hf",
-  "dataset_id": "data/built",
+  "dataset_id": "tomaarsen/conll2003",
   "dataset_split": "test",
-  "n_chunks": 553,
+  "n_chunks": 3453,
   "metrics": {
     "overall": {
       "strict_span": {
-        "f1": 0.4532208588957055,
-        "precision": 0.4904564315352697,
-        "recall": 0.421240199572345,
+        "f1": 0.5278561354019746,
+        "precision": 0.369173859432799,
+        "recall": 0.9257884972170687,
         "method": "seqeval-token-level"
       },
       "char": {
-        "f1": 0.5739106453392168,
-        "precision": 0.8279291824149593,
-        "recall": 0.4391685132425873,
+        "f1": 0.5425485421739402,
+        "precision": 0.3756294711361819,
+        "recall": 0.976459351648969,
         "method": "char-label-aware"
       }
     },
     "per_category": {
-      "account_number": {
-        "strict_span": {
-          "f1": 0.0,
-          "precision": 0.0,
-          "recall": 0.0,
-          "n_gold": 30
-        },
-        "char": {
-          "f1": 0.0,
-          "precision": 0.0,
-          "recall": 0.0
-        }
-      },
       "private_address": {
         "strict_span": {
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 58
+          "n_gold": 0
         },
         "char": {
           "f1": 0.0,
@@ -51,20 +38,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 156
-        },
-        "char": {
-          "f1": 0.0,
-          "precision": 0.0,
-          "recall": 0.0
-        }
-      },
-      "private_email": {
-        "strict_span": {
-          "f1": 0.0,
-          "precision": 0.0,
-          "recall": 0.0,
-          "n_gold": 90
+          "n_gold": 0
         },
         "char": {
           "f1": 0.0,
@@ -74,15 +48,15 @@
       },
       "private_person": {
         "strict_span": {
-          "f1": 0.5612535612535613,
-          "precision": 0.4904564315352697,
-          "recall": 0.655937846836848,
-          "n_gold": 901
+          "f1": 0.5318884348907443,
+          "precision": 0.37313060817547355,
+          "recall": 0.9257884972170687,
+          "n_gold": 1617
         },
         "char": {
-          "f1": 0.8335252590997847,
-          "precision": 0.8279291824149593,
-          "recall": 0.8391974997479584
+          "f1": 0.5476344272367779,
+          "precision": 0.3805228357490038,
+          "recall": 0.976459351648969
         }
       },
       "private_phone": {
@@ -90,7 +64,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 91
+          "n_gold": 0
         },
         "char": {
           "f1": 0.0,
@@ -103,7 +77,7 @@
           "f1": 0.0,
           "precision": 0.0,
           "recall": 0.0,
-          "n_gold": 77
+          "n_gold": 0
         },
         "char": {
           "f1": 0.0,
@@ -115,18 +89,18 @@
     "per_language": {
       "en": {
         "strict_span": {
-          "f1": 0.4532208588957055,
-          "precision": 0.4904564315352697,
-          "recall": 0.421240199572345,
+          "f1": 0.5278561354019746,
+          "precision": 0.369173859432799,
+          "recall": 0.9257884972170687,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.5739106453392168,
-          "precision": 0.8279291824149593,
-          "recall": 0.4391685132425873,
+          "f1": 0.5425485421739402,
+          "precision": 0.3756294711361819,
+          "recall": 0.976459351648969,
           "method": "char-label-aware"
         },
-        "n_chunks": 553
+        "n_chunks": 3453
       }
     }
   }

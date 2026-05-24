@@ -1,38 +1,25 @@
 {
-  "model_id": "checkpoints/gheim-ch",
+  "model_id": "checkpoints/gheim-ch-multisource",
   "backend": "hf",
-  "dataset_id": "Babelscape/wikineural",
+  "dataset_id": "ZurichNLP/swissner",
   "dataset_split": "test",
-  "n_chunks": 8000,
+  "n_chunks": 800,
   "metrics": {
     "overall": {
       "strict_span": {
-        "f1": 0.6749276201505501,
-        "precision": 0.7043751510756587,
-        "recall": 0.6478434859937751,
+        "f1": 0.8200654307524535,
+        "precision": 0.7372549019607844,
+        "recall": 0.9238329238329238,
         "method": "seqeval-token-level"
       },
       "char": {
-        "f1": 0.739330305940714,
-        "precision": 0.7941029184944814,
-        "recall": 0.691625959525471,
+        "f1": 0.8925170068027211,
+        "precision": 0.8380173735309147,
+        "recall": 0.9545983701979045,
         "method": "char-label-aware"
       }
     },
     "per_category": {
-      "account_number": {
-        "strict_span": {
-          "f1": 0.0,
-          "precision": 0.0,
-          "recall": 0.0,
-          "n_gold": 0
-        },
-        "char": {
-          "f1": 0.0,
-          "precision": 0.0,
-          "recall": 0.0
-        }
-      },
       "private_address": {
         "strict_span": {
           "f1": 0.0,
@@ -61,15 +48,28 @@
       },
       "private_person": {
         "strict_span": {
-          "f1": 0.759546461618663,
-          "precision": 0.9177952755905512,
-          "recall": 0.6478434859937751,
-          "n_gold": 4498
+          "f1": 0.8318584070796461,
+          "precision": 0.7565392354124748,
+          "recall": 0.9238329238329238,
+          "n_gold": 407
         },
         "char": {
-          "f1": 0.8075861436763462,
-          "precision": 0.9702635894172642,
-          "recall": 0.691625959525471
+          "f1": 0.9025866813428729,
+          "precision": 0.8559498956158664,
+          "recall": 0.9545983701979045
+        }
+      },
+      "private_phone": {
+        "strict_span": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "n_gold": 0
+        },
+        "char": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0
         }
       },
       "private_url": {
@@ -89,65 +89,64 @@
     "per_language": {
       "de": {
         "strict_span": {
-          "f1": 0.6677796327212021,
-          "precision": 0.7067137809187279,
-          "recall": 0.6329113924050633,
+          "f1": 0.8744186046511627,
+          "precision": 0.8468468468468469,
+          "recall": 0.9038461538461539,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.7175984484357871,
-          "precision": 0.7936952061182615,
-          "recall": 0.654816866728224,
+          "f1": 0.9311015959517323,
+          "precision": 0.9214175654853621,
+          "recall": 0.940991345397325,
           "method": "char-label-aware"
         },
-        "n_chunks": 2000
-      },
-      "en": {
-        "strict_span": {
-          "f1": 0.7188755020080322,
-          "precision": 0.6806083650190115,
-          "recall": 0.7617021276595745,
-          "method": "seqeval-token-level"
-        },
-        "char": {
-          "f1": 0.779545845518665,
-          "precision": 0.7243446291560103,
-          "recall": 0.843854748603352,
-          "method": "char-label-aware"
-        },
-        "n_chunks": 2000
+        "n_chunks": 200
       },
       "fr": {
         "strict_span": {
-          "f1": 0.6701191092698083,
-          "precision": 0.6949516648764769,
-          "recall": 0.647,
+          "f1": 0.8450704225352111,
+          "precision": 0.743801652892562,
+          "recall": 0.9782608695652174,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.7504821304008862,
-          "precision": 0.828276424236935,
-          "recall": 0.686046511627907,
+          "f1": 0.9127094972067038,
+          "precision": 0.8465025906735751,
+          "recall": 0.9901515151515151,
           "method": "char-label-aware"
         },
-        "n_chunks": 2000
+        "n_chunks": 200
       },
       "it": {
         "strict_span": {
-          "f1": 0.6524871355060035,
-          "precision": 0.728735632183908,
-          "recall": 0.5906832298136646,
+          "f1": 0.7753303964757708,
+          "precision": 0.6567164179104478,
+          "recall": 0.946236559139785,
           "method": "seqeval-token-level"
         },
         "char": {
-          "f1": 0.7200713052197649,
-          "precision": 0.8260480572597138,
-          "recall": 0.6381949244593661,
+          "f1": 0.8556469708302168,
+          "precision": 0.7576158940397351,
+          "recall": 0.9828178694158075,
           "method": "char-label-aware"
         },
-        "n_chunks": 2000
+        "n_chunks": 200
+      },
+      "rm": {
+        "strict_span": {
+          "f1": 0.7938931297709924,
+          "precision": 0.7222222222222222,
+          "recall": 0.8813559322033898,
+          "method": "seqeval-token-level"
+        },
+        "char": {
+          "f1": 0.8725154215215902,
+          "precision": 0.8380513495720869,
+          "recall": 0.9099356683345247,
+          "method": "char-label-aware"
+        },
+        "n_chunks": 200
       }
     }
-  },
-  "per_lang": 2000
+  }
 }
