@@ -59,8 +59,10 @@ export function useDetector() {
     loadPromise = (async () => {
       const det = new LocalDetector({
         model: MODEL_ID,
-        device: "auto", // SDK probes WebGPU + falls back to WASM if needed
-        dtype: "q8",
+        // SDK probes WebGPU + falls back to WASM; "auto" dtype picks
+        // fp16 on WebGPU (byte-equivalent to fp32) and q8 elsewhere.
+        device: "auto",
+        dtype: "auto",
         onProgress: (e: LocalDetectorLoadEvent) => {
           if (e.fraction != null) progress.value = e.fraction;
           progressLabelRef.value = progressLabel(e);

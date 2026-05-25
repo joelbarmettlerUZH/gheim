@@ -17,10 +17,8 @@ def default_detector() -> Detector:
     a calibrated local model.
 
     The calibrated default (``o_bias=0.5``) is Pareto-clean on the
-    current gheim-ch-560m: small precision/recall boost on both fp32
-    (+0.27pp test char-F1) and q8 ONNX (+0.43pp test char-F1, +1.4pp
-    forensic-probe perfect-rate), no observed cost on either backend.
-    See eval/calibration_sweep.json and eval/calibration_sweep_q8.json.
+    current gheim-ch-560m: +0.27pp test char-F1 with no probe cost
+    (91.5% perfect at both 0.0 and 0.5). See eval/calibration_sweep.json.
     """
     import os
 

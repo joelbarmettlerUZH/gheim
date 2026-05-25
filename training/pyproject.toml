@@ -27,6 +27,7 @@ dependencies = [
     "fasttext-langdetect>=1.0.5",
     "optimum[exporters,onnxruntime-gpu]>=1.21",
     "onnxconverter-common>=1.16.0",
+    "onnxscript>=0.7.0",
 ]
 
 [project.optional-dependencies]

@@ -37,7 +37,15 @@ export interface LocalDetectorOptions {
    * (no probe, no fallback — your choice is respected and may throw).
    */
   device?: string;
-  /** Quantization dtype: "fp32" | "fp16" | "q8" | "q4" | "auto" */
+  /**
+   * Quantization dtype: `"fp32" | "fp16" | "q8" | "q4" | "auto"`. Defaults
+   * to `"auto"`, which picks based on the resolved backend: `"fp16"` when
+   * WebGPU was selected (large but byte-equivalent to fp32 on the forensic
+   * probe), `"q8"` otherwise (~550 MB; safe everywhere, but degrades on
+   * the `onnxruntime-web` WASM kernel on Swiss edge cases — see
+   * eval/q8_quality_report.md). Set explicitly to opt out of this
+   * trade-off.
+   */
   dtype?: string;
   /** Aggregation strategy passed to the pipeline call. */
   aggregationStrategy?: string;
@@ -132,6 +140,11 @@ export class LocalDetector implements Detector {
    *  the model is loaded. Different from {@link device} only when
    *  `device: "auto"` was requested. */
   actualDevice: string | null = null;
+  /** Dtype that ended up being used after `load()` resolves. `null` until
+   *  the model is loaded. Different from {@link dtype} only when
+   *  `dtype: "auto"` was requested — in that case it resolves to `"fp16"`
+   *  on WebGPU and `"q8"` everywhere else. */
+  actualDtype: string | null = null;
   private _pipeline: PipelineCallable | null = null;
   private _loadPromise: Promise<PipelineCallable> | null = null;
   private readonly _onProgress?: (event: LocalDetectorLoadEvent) => void;
@@ -139,7 +152,7 @@ export class LocalDetector implements Detector {
   constructor(opts: LocalDetectorOptions = {}) {
     this.model = opts.model ?? DEFAULT_MODEL;
     this.device = opts.device ?? "auto";
-    this.dtype = opts.dtype ?? "fp32";
+    this.dtype = opts.dtype ?? "auto";
     this.aggregationStrategy = opts.aggregationStrategy ?? "simple";
     this.chunkTokens = opts.chunkTokens ?? DEFAULT_CHUNK_TOKENS;
     this.chunkOverlapTokens = opts.chunkOverlapTokens ?? DEFAULT_OVERLAP_TOKENS;
@@ -155,7 +168,18 @@ export class LocalDetector implements Detector {
       // A pre-built pipeline bypasses `load()` entirely; we don't know which
       // backend it was built with, but the consumer almost certainly does.
       this.actualDevice = this.device === "auto" ? null : this.device;
+      this.actualDtype = this.dtype === "auto" ? null : this.dtype;
     }
+  }
+
+  /** Resolve `dtype: "auto"` for a concrete device: fp16 on WebGPU (byte-
+   *  equivalent to fp32 on the forensic probe), q8 on WASM/CPU. The
+   *  WASM-q8 path is known to degrade on Swiss edge cases via
+   *  `onnxruntime-web`, but it's the small-file fallback for low-RAM
+   *  contexts where WebGPU isn't available. Explicit dtype passes through. */
+  private _resolveDtype(device: string): string {
+    if (this.dtype !== "auto") return this.dtype;
+    return device === "webgpu" ? "fp16" : "q8";
   }
 
   /**
@@ -173,16 +197,18 @@ export class LocalDetector implements Detector {
       let lastErr: unknown;
       for (let i = 0; i < sequence.length; i++) {
         const dev = sequence[i] ?? "wasm";
+        const resolvedDtype = this._resolveDtype(dev);
         try {
           const pipe = await mod.pipeline("token-classification", this.model, {
             device: dev,
-            dtype: this.dtype,
+            dtype: resolvedDtype,
             progress_callback: this._onProgress
               ? (raw: RawProgress) => this._emitProgress(raw, dev)
               : undefined,
           });
           this._pipeline = pipe;
           this.actualDevice = dev;
+          this.actualDtype = resolvedDtype;
           return pipe;
         } catch (e) {
           lastErr = e;
@@ -198,9 +224,20 @@ export class LocalDetector implements Detector {
     return this._loadPromise;
   }
 
-  /** Build the ordered list of backends to attempt. */
+  /** Build the ordered list of backends to attempt.
+   *
+   * In a browser we try WebGPU (if a real adapter is reachable) and fall
+   * back to WASM. In Node, transformers.js uses onnxruntime-node, which
+   * speaks "cpu" / "cuda" / "webgpu" — never "wasm" — so the fallback
+   * has to be "cpu" instead. We detect "browser-ness" via `typeof window`;
+   * Node 21+ now ships a global `navigator`, so that's no longer a
+   * reliable discriminator on its own.
+   */
   private async _planDeviceSequence(): Promise<string[]> {
     if (this.device !== "auto") return [this.device];
+    // `typeof window` is the discriminator; declared in DOM lib but not in
+    // our tsconfig, so go via globalThis to keep `tsc --noEmit` happy.
+    const isBrowser = typeof (globalThis as { window?: unknown }).window !== "undefined";
     const seq: string[] = [];
     const nav =
       typeof navigator !== "undefined"
@@ -214,7 +251,7 @@ export class LocalDetector implements Detector {
         // Adapter request itself threw — skip WebGPU.
       }
     }
-    seq.push("wasm");
+    seq.push(isBrowser ? "wasm" : "cpu");
     return seq;
   }
 

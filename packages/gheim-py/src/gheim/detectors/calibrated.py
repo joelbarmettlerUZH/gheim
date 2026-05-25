@@ -6,19 +6,19 @@ person prediction to O); the v3 / gheim-ch-560m training pipeline
 largely resolved that pathology, but the calibration still buys a small
 precision/recall improvement and remains the default.
 
-Sweep on gheim-ch-560m (see eval/calibration_sweep.json,
-eval/calibration_sweep_q8.json): ``o_bias=0.5`` is Pareto-clean on both
-fp32 PyTorch and q8 ONNX backends.
+Sweep on gheim-ch-560m (see eval/calibration_sweep.json):
+``o_bias=0.5`` is the Pareto-clean default — probe perfect-rate is
+flat at 91.5% across bias 0.0 and 0.5, and test char-F1 lifts by
+0.27pp at no probe cost. Higher biases (1.0--1.5) trade test F1 for
+marginal probe gains.
 
-  fp32 PyTorch (212 probe + 300-chunk test slice)
-    bias 0.0  probe 91.5%  test char-F1 0.8947
-    bias 0.5  probe 91.5%  test char-F1 0.8974   (+0.27pp, no probe cost)
-    bias 1.0+ trades test F1 for marginal probe gains
-
-  q8 ONNX (same suite)
-    bias 0.0  probe 73.1%  test char-F1 0.8565
-    bias 0.5  probe 74.5%  test char-F1 0.8608   (+1.4pp / +0.43pp)
-    bias 1.0+ flattens
+Python users running this detector through ``transformers`` on fp32 or
+through ``optimum.onnxruntime`` on either fp32 or q8 see the same
+near-fp32 reference numbers. (A separate JS-side sweep through
+``transformers.js`` showed a much larger calibration effect on the
+int8 path; that gap is a JS-runtime divergence, not a quantisation
+issue --- see eval/q8_quality_report.md --- and it does not affect
+Python consumers.)
 
 This is what ``default_detector()`` returns, so users get the better
 behavior without having to opt in.
@@ -46,9 +46,8 @@ class CalibratedDetector:
     char-level via the tokenizer's ``offset_mapping``.
 
     Default ``o_bias=0.5`` is the Pareto-clean point from the bias sweep
-    on gheim-ch-560m: small precision boost on fp32 (+0.27pp char-F1),
-    larger boost on the q8 ONNX deployment backend (+0.43pp char-F1,
-    +1.4pp probe perfect-rate), no observed cost on either.
+    on gheim-ch-560m: +0.27pp test char-F1 with no probe cost (91.5%
+    perfect at both 0.0 and 0.5). See eval/calibration_sweep.json.
     """
 
     model_id: Annotated[

@@ -19,11 +19,9 @@ import { RemoteDetector } from "./remote.ts";
 /** Pick a reasonable default: remote when `GHEIM_API_KEY` is set in env,
  *  else a calibrated local model.
  *
- *  The calibrated default (`oBias=0.5`) is Pareto-clean on the current
- *  gheim-ch-560m: +1.4pp probe perfect-rate and +0.43pp test char-F1 on
- *  the q8 ONNX browser backend (+0.27pp test char-F1 on fp32 PyTorch),
- *  no observed cost on either. See eval/calibration_sweep_q8.json and
- *  eval/calibration_sweep.json. */
+ *  The calibrated default (`oBias=0.5`) is Pareto-clean on gheim-ch-560m:
+ *  +0.27pp test char-F1 with no probe cost (91.5% perfect at both 0.0
+ *  and 0.5). See eval/calibration_sweep.json. */
 export function defaultDetector(): Detector {
   const hasKey =
     typeof process !== "undefined" && Boolean(process.env?.GHEIM_API_KEY);

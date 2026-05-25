@@ -6,17 +6,22 @@
  * largely resolved that pathology, but the calibration still buys a
  * small precision/recall improvement and remains the default.
  *
- * Sweep on gheim-ch-560m, q8 ONNX backend (the actual browser
- * deployment — see eval/calibration_sweep_q8.json): oBias=0.5 is
- * Pareto-clean:
+ * Sweep on gheim-ch-560m (see eval/calibration_sweep.json):
+ * `oBias=0.5` is the Pareto-clean default — probe perfect-rate is flat
+ * at 91.5% across bias 0.0 and 0.5, and test char-F1 lifts by 0.27pp.
+ * Higher biases (1.0–1.5) trade test F1 for marginal probe gains.
  *
- *   bias 0.0  probe 73.1%  test char-F1 0.8565
- *   bias 0.5  probe 74.5%  test char-F1 0.8608   (+1.4pp / +0.43pp)
- *   bias 1.0+ flattens; precision starts to fall off
- *
- * Higher biases (1.0–1.5) get marginal probe gains at the cost of test
- * F1. Note that q8 quantization itself costs ~18pp probe and ~4pp
- * char-F1 vs the fp32 PyTorch backend regardless of calibration.
+ * A separate sweep on the int8 ONNX path via `transformers.js`
+ * (eval/calibration_sweep_q8.json) showed a much larger calibration
+ * effect (+1.4pp probe, +0.43pp char-F1 at 0.5). That gap is not a
+ * property of the int8 quantisation — Python `onnxruntime` on the same
+ * int8 file gives 91.0% probe perfect-rate, essentially fp32-equivalent
+ * — but of a runtime divergence inside `onnxruntime-web` / WASM that
+ * the calibration partially papers over. The reliable fix is to use the
+ * `model_fp16.onnx` variant when WebGPU is available (which is what
+ * LocalDetector's default `dtype: "auto"` does); int8 should be treated
+ * as a low-RAM fallback. See eval/q8_quality_report.md for the
+ * diagnostic.
  *
  * `defaultDetector()` returns this with oBias=0.5, so users get the
  * better behavior automatically.
@@ -34,14 +39,13 @@ export interface CalibratedDetectorOptions {
   model?: string;
   /**
    * Constant subtracted from the O-class logit before argmax. Default
-   * `0.5` is the Pareto-clean point on both backends:
+   * `0.5` is the Pareto-clean point on the reference (fp32/fp16) path:
    *
    *   - oBias=0.0  uncalibrated (matches the raw model)
-   *   - oBias=0.5  q8: +1.4pp probe perfect-rate, +0.43pp test char-F1
-   *               fp32: +0.27pp test char-F1, no probe cost
+   *   - oBias=0.5  +0.27pp test char-F1, no probe cost (91.5% perfect)
    *   - oBias=1.0+ marginal probe gains, test F1 starts to fall off
    *
-   * See eval/calibration_sweep_q8.json and eval/calibration_sweep.json.
+   * See eval/calibration_sweep.json.
    */
   oBias?: number;
   /** Backend selector. See {@link LocalDetectorOptions.device}. */
@@ -111,6 +115,9 @@ export class CalibratedDetector implements Detector {
   readonly trimWhitespace: boolean;
   /** Backend actually used after `load()` resolves; `null` before. */
   actualDevice: string | null = null;
+  /** Dtype actually used after `load()` resolves; `null` before. Differs
+   *  from {@link dtype} only when `dtype: "auto"` was requested. */
+  actualDtype: string | null = null;
   private _model: ModelCallable | null = null;
   private _tokenizer: TokenizerCallable | null = null;
   private _id2label: Record<number, string> = {};
@@ -122,7 +129,7 @@ export class CalibratedDetector implements Detector {
     this.model = opts.model ?? DEFAULT_MODEL;
     this.oBias = opts.oBias ?? 0.5;
     this.device = opts.device ?? "auto";
-    this.dtype = opts.dtype ?? "fp32";
+    this.dtype = opts.dtype ?? "auto";
     this.chunkTokens = opts.chunkTokens ?? DEFAULT_CHUNK_TOKENS;
     this.chunkOverlapTokens = opts.chunkOverlapTokens ?? DEFAULT_OVERLAP_TOKENS;
     this.trimWhitespace = opts.trimWhitespace ?? true;
@@ -140,32 +147,45 @@ export class CalibratedDetector implements Detector {
     if (this._loadPromise) return this._loadPromise;
     this._loadPromise = (async () => {
       const mod = await loadTransformersJs();
-      // Pick a backend (auto-fallback identical to LocalDetector).
+      // Pick a backend (auto-fallback identical to LocalDetector). Node
+      // transformers.js uses onnxruntime-node which doesn't speak "wasm" —
+      // fall back to "cpu" instead. We discriminate via `typeof window`
+      // (Node 21+ ships a global `navigator`, so that no longer works).
       let preferredDevice: string = this.device;
       if (this.device === "auto") {
+        const isBrowser =
+          typeof (globalThis as { window?: unknown }).window !== "undefined";
         const nav = typeof navigator !== "undefined"
           ? (navigator as { gpu?: { requestAdapter: () => Promise<unknown> } })
           : null;
-        preferredDevice = "wasm";
+        preferredDevice = isBrowser ? "wasm" : "cpu";
         if (nav?.gpu?.requestAdapter) {
           try {
             const adapter = await nav.gpu.requestAdapter();
             if (adapter) preferredDevice = "webgpu";
           } catch {
-            /* keep wasm */
+            /* keep the platform fallback */
           }
         }
       }
+      // Resolve `dtype: "auto"` to a concrete file: fp16 on WebGPU (byte-
+      // equivalent to fp32 on the forensic probe), q8 elsewhere (small,
+      // safe fallback, but degrades on Swiss edge cases via the
+      // onnxruntime-web WASM kernel — see eval/q8_quality_report.md).
+      const resolvedDtype = this.dtype === "auto"
+        ? (preferredDevice === "webgpu" ? "fp16" : "q8")
+        : this.dtype;
       const tokenizer = (await mod.AutoTokenizer.from_pretrained(this.model)) as TokenizerCallable;
       const model = (await mod.AutoModelForTokenClassification.from_pretrained(this.model, {
         device: preferredDevice,
-        dtype: this.dtype,
+        dtype: resolvedDtype,
         progress_callback: this._onProgress
           ? (raw: RawProgress) => this._emitProgress(raw, preferredDevice)
           : undefined,
       })) as ModelCallable;
       this._tokenizer = tokenizer;
       this._model = model;
+      this.actualDtype = resolvedDtype;
       this._id2label = model.config.id2label as unknown as Record<number, string>;
       const label2id = model.config.label2id;
       this._oId = label2id?.["O"] ?? 0;

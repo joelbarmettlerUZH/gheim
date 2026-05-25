@@ -304,12 +304,16 @@ for span in ner(text):
 
 ```ts
 // Node / Bun / browser via @huggingface/transformers (transformers.js).
-// The Hub repo only ships the int8 ONNX, so pass dtype: "q8".
+// Recommended: dtype: "fp16" when WebGPU is available (1.1 GB, byte-
+// equivalent to fp32 on the forensic probe), "q8" for low-RAM fallback
+// (557 MB, but see the JS-runtime caveat under Deployment formats below
+// — int8 degrades sharply on Swiss edge cases via onnxruntime-web/WASM).
+// The `gheim` SDK picks this automatically via its `dtype: "auto"` default.
 import { pipeline } from "@huggingface/transformers";
 
 const ner = await pipeline("token-classification",
   "joelbarmettler/gheim-ch-560m",
-  { aggregation_strategy: "simple", dtype: "q8" });
+  { aggregation_strategy: "simple", dtype: "fp16", device: "webgpu" });
 const out = await ner("Email me at alice@example.ch, phone +41 44 268 12 34.");
 ```
 
@@ -393,26 +397,56 @@ and the machine-readable matrix at
 
 ## Deployment formats
 
-The model is published in three formats:
+The model is published in four formats:
 
 - `model.safetensors` (root): fp32 PyTorch checkpoint, 2.2 GB, intended
   for server-side inference via `transformers`.
 - `onnx/model.onnx` (+ `onnx/model.onnx_data`): fp32 ONNX export, 2.2 GB,
   intended for server-side ONNX Runtime / GPU deployment.
-- `onnx/model_quantized.onnx`: int8 dynamic-quantised ONNX export, 557 MB,
-  intended for in-browser inference via
+- `onnx/model_fp16.onnx` (+ `onnx/model_fp16.onnx_data`): fp16 ONNX
+  export, 1.1 GB, recommended for browser/Node consumers via
   [`@huggingface/transformers`](https://www.npmjs.com/package/@huggingface/transformers)
-  on WebGPU or WebAssembly. Selected with `dtype: "q8"`.
+  when WebGPU is available. Byte-equivalent to fp32 on the forensic
+  probe. Selected with `dtype: "fp16"` (or `dtype: "auto"` in the
+  `gheim` SDK, which picks this on WebGPU).
+- `onnx/model_quantized.onnx`: int8 dynamic-quantised ONNX export, 557 MB,
+  intended for low-RAM mobile fallback. Selected with `dtype: "q8"`
+  (or `dtype: "auto"` when WebGPU is not available). **JS-runtime
+  caveat:** this file is essentially fp32-equivalent under Python
+  `onnxruntime` (91.0% forensic-probe perfect-rate vs 91.5% for fp32 /
+  fp16) but degrades to 73.1% perfect-rate under `transformers.js` /
+  `onnxruntime-web` — a JS runtime divergence, not a quantisation
+  issue. Common-word surnames like "Bach" become false positives and
+  some commercial-register person names go undetected. The published
+  Python SDK is unaffected. See
+  [`eval/q8_quality_report.md`](https://github.com/joelbarmettlerUZH/gheim/blob/main/eval/q8_quality_report.md)
+  for the diagnostic and per-language / per-category breakdown.
 
 | Format | Size | Test strict F1 | Test char F1 | Δ strict vs fp32 | Δ char vs fp32 |
 |---|---:|---:|---:|---:|---:|
 | PyTorch fp32 | 2.2 GB | 0.9105 | 0.9461 | (baseline) | (baseline) |
 | ONNX fp32 | 2.2 GB | 0.9105 | 0.9461 | 0.000 | 0.000 |
+| ONNX fp16 | 1.1 GB | ≈0.9105 | ≈0.9461 | 0.000* | 0.000* |
 | ONNX int8 (dynamic) | 557 MB | 0.9044 | 0.9448 | −0.0061 | −0.0013 |
 
-Per-category int8 vs fp32 char F1 deltas: `account_number` 0.00, `private_address` −0.003, `private_date` −0.002, `private_email` 0.00, `private_person` −0.001, `private_phone` 0.00, `private_url` 0.00, `secret` 0.00. The int8 quantisation cost is concentrated almost entirely on the `private_address` cell (the same cell that is weakest under fp32); structured-PII categories are unaffected.
+*fp16 measured equivalent to fp32 on the 212-case forensic probe and on a
+~150k-token logit-divergence sample (mean abs logit diff 0.0011, 100%
+per-token argmax match). Full test-set numbers not separately tabulated.
 
-An fp16 ONNX export is also bundled with the dynamic-quantisation pipeline but is not separately published because ORT's CPUExecutionProvider does not handle the mixed-precision attention graph cleanly (one `Div` node mixes fp16 and fp32 operands). If you need fp16 for a GPU target, re-export with an explicit fp16-everywhere conversion.
+Per-category int8 vs fp32 char F1 deltas (Python / `onnxruntime` CPU):
+`account_number` 0.00, `private_address` −0.003, `private_date` −0.002,
+`private_email` 0.00, `private_person` −0.001, `private_phone` 0.00,
+`private_url` 0.00, `secret` 0.00. The int8 quantisation cost is
+concentrated almost entirely on the `private_address` cell; structured-PII
+categories are unaffected.
+
+The fp16 export above is produced by `training/eval/quantize_onnx.py::quantize_fp16`
+with a post-conversion fixup that inserts `fp16->fp32` promotion Casts at
+type-match-op boundaries (Div/Mul/MatMul/LayerNorm) and strips the
+redundant trailing classifier Cast. The naked `onnxconverter_common`
+output was unloadable in onnxruntime because XLM-R's attention block
+casts to fp32 around its `sqrt(d_k)` for numerical stability and the
+converter doesn't propagate that mix.
 
 ## Training procedure
 
