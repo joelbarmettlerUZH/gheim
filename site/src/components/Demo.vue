@@ -129,7 +129,7 @@ const labelDisplay: Record<string, string> = {
       </div>
       <div class="sm:col-span-5 self-end">
         <p class="text-ink-soft text-sm leading-relaxed">
-          Inference runs entirely in your browser via
+          Inference runs entirely on your device via
           <code class="font-mono text-[0.85em]">@huggingface/transformers</code>
           on WebGPU (or WASM). No text leaves this page. The model is fetched
           once from Hugging Face and cached.

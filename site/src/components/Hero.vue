@@ -46,13 +46,13 @@ function scrollTo(id: string) {
     <!-- Headline -->
     <div class="grid sm:grid-cols-12 gap-6 sm:gap-10 items-end">
       <div class="sm:col-span-8">
-        <p class="kicker mb-5">PII round-trip · Apache 2.0 · runs in your browser</p>
+        <p class="kicker mb-5">PII round-trip · Apache 2.0 · runs on your device</p>
         <h1
           class="font-serif font-medium leading-[1.05] text-[2.6rem] sm:text-[4.2rem] tracking-[-0.015em]"
         >
           <span class="redact" data-static="true" aria-label="redacted">Anonymise</span><br />
           PII before it leaves<br />
-          your <span class="italic text-accent">browser.</span>
+          your <span class="italic text-accent">control.</span>
         </h1>
         <p
           class="mt-7 max-w-2xl font-serif text-lg sm:text-xl text-ink-soft leading-relaxed"

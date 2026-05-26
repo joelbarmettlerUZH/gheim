@@ -74,7 +74,7 @@ const links = {
       class="mt-12 pt-5 border-t border-rule flex flex-wrap items-center justify-between gap-4 text-xs text-ink-soft font-mono"
     >
       <span>© {{ new Date().getFullYear() }} Joel Barmettler · gheim.ch</span>
-      <span>Inference runs in your browser. No telemetry.</span>
+      <span>Inference runs on your device. No telemetry.</span>
     </div>
   </footer>
 </template>
