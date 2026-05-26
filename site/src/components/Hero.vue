@@ -52,7 +52,7 @@ function scrollTo(id: string) {
         >
           <span class="redact" data-static="true" aria-label="redacted">Anonymise</span><br />
           PII before it leaves<br />
-          your <span class="italic text-accent">control.</span>
+          your <span class="italic text-accent">device.</span>
         </h1>
         <p
           class="mt-7 max-w-2xl font-serif text-lg sm:text-xl text-ink-soft leading-relaxed"
