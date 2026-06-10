@@ -8,7 +8,7 @@ import { ref, onMounted } from "vue";
 // a plain literal in the JS bundle: it is stored base64-encoded AND reversed,
 // then decoded at runtime to build both the visible text and the mailto href.
 // (A contact form is the only fully scraper-proof option, but needs a backend.)
-const EMAIL_TOKEN = "=UWbu0GcAV2YhB3c05WZ0FGb";
+const EMAIL_TOKEN = "=UWbu0GcAV2YhB3c05WZ0FGbu8GbsVGa";
 
 const email = ref("");
 const mailto = ref("");
