@@ -227,6 +227,15 @@ the model. The JavaScript package implements the model side; combine
 with your own regex layer or proxy through `gheim-server`, which
 applies the composite detector internally.
 
+## Consulting
+
+gheim is built and maintained by
+[Souverana](https://souverana.ch), a Swiss AI consulting business helping
+companies build secure, privacy-first AI systems — on-premise LLM
+deployments, PII/data-protection engineering, and Swiss-market NLP. If you
+need help integrating gheim or building compliant AI, get in touch at
+[souverana.ch](https://souverana.ch).
+
 ## License
 
 Apache 2.0. Bundled model weights are inherited from the upstream
