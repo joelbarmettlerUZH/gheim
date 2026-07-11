@@ -29,6 +29,10 @@ const links = {
       href: "https://joelbarmettler.xyz",
     },
     {
+      label: "AI Consulting · Souverana",
+      href: "https://souverana.ch",
+    },
+    {
       label: "Issues",
       href: "https://github.com/joelbarmettlerUZH/gheim/issues",
     },
@@ -53,6 +57,17 @@ const links = {
           gheim is a small open-source toolkit for redacting PII before it
           reaches an LLM and restoring it on the way back. Built in Switzerland.
           Apache 2.0 licensed.
+        </p>
+        <p class="text-sm text-ink-soft leading-relaxed max-w-md mt-3">
+          Built and maintained by
+          <a
+            href="https://souverana.ch"
+            target="_blank"
+            rel="noopener"
+            class="text-accent hover:underline"
+            >Souverana</a
+          >, a Swiss AI consulting business helping companies build secure,
+          privacy-first AI systems.
         </p>
       </div>
 
