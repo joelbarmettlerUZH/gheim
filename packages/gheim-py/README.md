@@ -188,6 +188,15 @@ recall on `account_number`, `private_phone`, and `private_url` close
 to 1.0 with high precision; the underlying ML model handles person
 names, addresses, and dates.
 
+## Consulting
+
+gheim is built and maintained by
+[Souverana](https://souverana.ch), a Swiss AI consulting business helping
+companies build secure, privacy-first AI systems — on-premise LLM
+deployments, PII/data-protection engineering, and Swiss-market NLP. If you
+need help integrating gheim or building compliant AI, get in touch at
+[souverana.ch](https://souverana.ch).
+
 ## License
 
 Apache 2.0. Bundled model weights are inherited from the upstream
