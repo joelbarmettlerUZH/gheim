@@ -272,6 +272,15 @@ so it must start with a letter and contain only letters, digits and
 underscores; reuse a built-in label such as `account_number` to share its tag.
 An optional `validator` callable can reject a match, for example on a checksum.
 
+## Consulting
+
+gheim is built and maintained by
+[Souverana](https://souverana.ch), a Swiss AI consulting business helping
+companies build secure, privacy-first AI systems — on-premise LLM
+deployments, PII/data-protection engineering, and Swiss-market NLP. If you
+need help integrating gheim or building compliant AI, get in touch at
+[souverana.ch](https://souverana.ch).
+
 ## License
 
 Apache 2.0. Bundled model weights are inherited from the upstream

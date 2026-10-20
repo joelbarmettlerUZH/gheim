@@ -29,12 +29,20 @@ const links = {
       href: "https://joelbarmettler.xyz",
     },
     {
+      label: "AI Consulting · Souverana",
+      href: "https://souverana.ch",
+    },
+    {
       label: "Issues",
       href: "https://github.com/joelbarmettlerUZH/gheim/issues",
     },
     {
       label: "Apache 2.0",
       href: "https://www.apache.org/licenses/LICENSE-2.0",
+    },
+    {
+      label: "Impressum",
+      href: "/impressum",
     },
   ],
 };
@@ -50,6 +58,17 @@ const links = {
           reaches an LLM and restoring it on the way back. Built in Switzerland.
           Apache 2.0 licensed.
         </p>
+        <p class="text-sm text-ink-soft leading-relaxed max-w-md mt-3">
+          Built and maintained by
+          <a
+            href="https://souverana.ch"
+            target="_blank"
+            rel="noopener"
+            class="text-accent hover:underline"
+            >Souverana</a
+          >, a Swiss AI consulting business helping companies build secure,
+          privacy-first AI systems.
+        </p>
       </div>
 
       <div
@@ -62,8 +81,8 @@ const links = {
           v-for="l in group"
           :key="l.href"
           :href="l.href"
-          target="_blank"
-          rel="noopener"
+          :target="l.href.startsWith('http') ? '_blank' : undefined"
+          :rel="l.href.startsWith('http') ? 'noopener' : undefined"
           class="text-sm hover:text-accent transition-colors"
           >{{ l.label }}</a
         >
@@ -73,7 +92,7 @@ const links = {
     <div
       class="mt-12 pt-5 border-t border-rule flex flex-wrap items-center justify-between gap-4 text-xs text-ink-soft font-mono"
     >
-      <span>© {{ new Date().getFullYear() }} Joel Barmettler · gheim.ch</span>
+      <span>© {{ new Date().getFullYear() }} LatentSpace Labs GmbH · gheim.ch</span>
       <span>Inference runs on your device. No telemetry.</span>
     </div>
   </footer>
