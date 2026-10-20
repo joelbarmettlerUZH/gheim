@@ -492,3 +492,41 @@ def test_record_number_example_needs_a_label_and_six_to_eleven_digits() -> None:
 
 def test_record_numbers_are_not_detected_without_a_user_pattern() -> None:
     assert CompositeDetector(model=_FakeModel(spans=[])).detect("Fall-Nr. 4559576277") == []
+
+
+# ---------- the Detector protocol: per-call `model` ----------
+
+class _ModelAwareFake:
+    """Records the per-call model override the way LocalDetector / CalibratedDetector receive it."""
+
+    def __init__(self) -> None:
+        self.seen: list[str | None] = []
+
+    def detect(self, text: str, *, model: str | None = None) -> list[Span]:
+        self.seen.append(model)
+        return []
+
+
+def test_composite_forwards_a_per_call_model_override_to_the_inner_detector() -> None:
+    inner = _ModelAwareFake()
+    det = CompositeDetector(model=inner)
+    det.detect("Hallo Welt")
+    det.detect("Hallo Welt", model="custom/test")
+    assert inner.seen == [None, "custom/test"]
+
+
+def test_composite_without_override_still_works_with_a_detector_that_takes_no_model() -> None:
+    # _FakeModel.detect(text) has no `model` parameter, like the minimal Detector in tests and user code.
+    assert CompositeDetector(model=_FakeModel(spans=[])).detect("Hallo Welt") == []
+
+
+def test_anonymize_text_works_with_the_composite_and_an_explicit_model() -> None:
+    """Regression: the composite became the default detector, and anonymize_text() passes
+    `model=` to detect(); CompositeDetector.detect() used to reject it with a TypeError."""
+    from gheim import Session, anonymize_text
+
+    text = "Mail an anna@example.ch bitte."
+    inner = _ModelAwareFake()
+    out = anonymize_text(text, detector=CompositeDetector(model=inner), model="custom/test", session=Session())
+    assert "anna@example.ch" not in out
+    assert inner.seen == ["custom/test"]

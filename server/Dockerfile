@@ -1,5 +1,7 @@
-# Multi-stage build: bakes the openai/privacy-filter weights into the image so the
+# Multi-stage build: bakes the gheim-ch-560m weights into the image so the
 # container works in air-gapped environments with no runtime HuggingFace downloads.
+# To serve another model, rebuild with --build-arg GHEIM_DEFAULT_MODEL=<hf-id>; the same
+# value becomes the runtime default, so the baked weights and the served model always match.
 
 FROM python:3.12-slim AS builder
 
@@ -20,12 +22,17 @@ COPY src ./src
 RUN pip install --upgrade pip && pip install --prefix=/install .
 
 # Pre-download the model so the runtime image ships with weights baked in.
-ARG GHEIM_DEFAULT_MODEL=openai/privacy-filter
+ARG GHEIM_DEFAULT_MODEL=joelbarmettler/gheim-ch-560m
 ENV PYTHONPATH=/install/lib/python3.12/site-packages
 RUN python -c "from huggingface_hub import snapshot_download; snapshot_download(repo_id='${GHEIM_DEFAULT_MODEL}')"
 
 # ---- runtime ----
 FROM python:3.12-slim
+
+# Re-declared: an ARG does not cross a stage boundary. Without this the baked model and the
+# default the server serves (registry.py) could differ.
+ARG GHEIM_DEFAULT_MODEL=joelbarmettler/gheim-ch-560m
+ENV GHEIM_DEFAULT_MODEL=${GHEIM_DEFAULT_MODEL}
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \

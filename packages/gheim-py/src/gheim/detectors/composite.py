@@ -473,9 +473,12 @@ class CompositeDetector:
         "each detected name. Higher recall, more false positives.",
     ] = False
 
-    def detect(self, text: str) -> list[Span]:
+    def detect(self, text: str, *, model: str | None = None) -> list[Span]:
         """Two-pass detection: regex first (with checksum), then model on
         the masked remainder. Returns a single overlap-resolved span list.
+
+        ``model`` is the per-call model override of the ``Detector`` protocol; it is
+        forwarded to the inner model detector, which decides whether to accept it.
         """
         if not text:
             return []
@@ -491,7 +494,7 @@ class CompositeDetector:
                     regex_spans.append(sp)
             regex_spans.sort(key=lambda sp: sp.start)
         masked = _mask_spans(text, regex_spans)
-        model_spans = self.model.detect(masked)
+        model_spans = self.model.detect(masked) if model is None else self.model.detect(masked, model=model)
         # Overlap resolution: regex wins on any overlap (regex spans are
         # high-confidence / checksum-validated). Then model spans fill
         # the gaps.

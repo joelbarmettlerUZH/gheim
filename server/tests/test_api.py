@@ -28,7 +28,7 @@ class _FakePipeline:
 def client(monkeypatch):
     # Skip lifespan warmup so we don't hit the network.
     monkeypatch.setenv("GHEIM_SKIP_WARMUP", "1")
-    monkeypatch.setenv("GHEIM_ALLOWED_MODELS", "openai/privacy-filter,custom/test")
+    monkeypatch.setenv("GHEIM_ALLOWED_MODELS", "joelbarmettler/gheim-ch-560m,custom/test")
     # Reload registry module so the env vars take effect.
     import importlib
 
@@ -57,7 +57,7 @@ def test_detect_returns_spans(client):
     r = client.post("/v1/detect", json={"text": "Hi, my name is Joel"})
     assert r.status_code == 200
     body = r.json()
-    assert body["model"] == "openai/privacy-filter"
+    assert body["model"] == "joelbarmettler/gheim-ch-560m"
     assert body["spans"] == [
         {"label": "private_person", "start": 15, "end": 19, "score": 0.95}
     ]
@@ -91,7 +91,7 @@ def test_auth_disabled_when_no_keys_configured(client, monkeypatch):
 def test_auth_required_when_keys_configured(monkeypatch):
     monkeypatch.setenv("GHEIM_API_KEYS", "secret-key-1")
     monkeypatch.setenv("GHEIM_SKIP_WARMUP", "1")
-    monkeypatch.setenv("GHEIM_ALLOWED_MODELS", "openai/privacy-filter")
+    monkeypatch.setenv("GHEIM_ALLOWED_MODELS", "joelbarmettler/gheim-ch-560m")
     import importlib
 
     import gheim_server.main as main_mod
@@ -166,3 +166,22 @@ def test_live_name_after_the_512_token_limit_is_found(monkeypatch):
     }
     start = text.index("Zbinden")
     assert all(i in covered for i in range(start, start + len("Zbinden")))
+
+
+def test_registry_and_dockerfile_agree_on_the_default_model():
+    """The image bakes one model's weights and the server serves another's if these drift apart
+    (the 0.1.0 image baked and served a model other than the project default, and an ARG does not
+    cross a Docker stage boundary unless it is re-declared)."""
+    import importlib
+    import re
+    from pathlib import Path
+
+    import gheim_server.registry as reg_mod
+    from gheim.detectors.local import DEFAULT_MODEL as sdk_default
+
+    importlib.reload(reg_mod)
+    dockerfile = (Path(__file__).resolve().parents[1] / "Dockerfile").read_text()
+    args = re.findall(r"^ARG GHEIM_DEFAULT_MODEL=(\S+)", dockerfile, flags=re.M)
+    assert len(args) == 2, "builder and runtime stage must both declare the ARG"
+    assert "ENV GHEIM_DEFAULT_MODEL=${GHEIM_DEFAULT_MODEL}" in dockerfile
+    assert set(args) == {reg_mod.DEFAULT_MODEL} == {sdk_default}
