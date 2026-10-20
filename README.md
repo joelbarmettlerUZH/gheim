@@ -43,7 +43,7 @@ bounded hold-back buffer.
 | 🌐 | Live demo | [gheim.ch](https://gheim.ch) | runs the model in your browser |
 | 🐍 | Python SDK | [`packages/gheim-py`](packages/gheim-py) · [PyPI](https://pypi.org/project/gheim/) | `uv add "gheim[openai]"` |
 | 🟦 | JS / TS SDK | [`packages/gheim-js`](packages/gheim-js) · [npm](https://www.npmjs.com/package/gheim) | `npm install gheim openai` |
-| 🐳 | Detection server | [`server`](server) | `docker pull ghcr.io/joelbarmettlerUZH/gheim-server` |
+| 🐳 | Detection server | [`server`](server) | `docker pull ghcr.io/joelbarmettleruzh/gheim-server` |
 | 🤗 | Model | [`gheim-ch-560m`](https://huggingface.co/joelbarmettler/gheim-ch-560m) · [model card](MODEL_CARD.md) | 560M, Apache 2.0, ONNX int8 |
 | 📚 | Dataset | [`gheim-ch-pii-171k`](https://huggingface.co/datasets/joelbarmettler/gheim-ch-pii-171k) · [dataset card](DATASET_CARD.md) | 171k chunks, 5 langs, CC BY 4.0 |
 
@@ -103,7 +103,7 @@ modern browsers (auto WebGPU + WASM fallback). See the
 
 ```bash
 docker run -p 8080:8080 -e GHEIM_API_KEYS=your-key \
-  ghcr.io/joelbarmettlerUZH/gheim-server:latest
+  ghcr.io/joelbarmettleruzh/gheim-server:latest
 ```
 
 ```python

@@ -19,7 +19,7 @@ product pitch.
 ## Run
 
 ```bash
-docker run -p 8080:8080 ghcr.io/joelbarmettlerUZH/gheim-server:latest
+docker run -p 8080:8080 ghcr.io/joelbarmettleruzh/gheim-server:latest
 ```
 
 With API-key auth:
@@ -27,7 +27,7 @@ With API-key auth:
 ```bash
 docker run -p 8080:8080 \
   -e GHEIM_API_KEYS=key_a,key_b \
-  ghcr.io/joelbarmettlerUZH/gheim-server:latest
+  ghcr.io/joelbarmettleruzh/gheim-server:latest
 ```
 
 The image bakes the `joelbarmettler/gheim-ch-560m` weights at build time and serves that model by
