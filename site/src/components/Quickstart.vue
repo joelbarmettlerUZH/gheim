@@ -168,8 +168,14 @@ pip install <span class="tok-string">"gheim[litellm]"</span>
       guardrail: <span class="tok-string">gheim.litellm.GheimGuardrail</span>
       mode: <span class="tok-string">pre_call</span>   <span class="tok-comment"># post_call is added for you</span>
       default_on: <span class="tok-string">true</span>
-      <span class="tok-comment"># detector: remote | local | calibrated</span>
-      <span class="tok-comment"># api_key: os.environ/GHEIM_API_KEY</span>
+      <span class="tok-comment"># Every knob is plain YAML:</span>
+      <span class="tok-comment"># detector: composite | remote | local</span>
+      <span class="tok-comment"># o_bias: 0.5</span>
+      <span class="tok-comment"># propagate_names: true</span>
+      <span class="tok-comment"># custom_patterns:</span>
+      <span class="tok-comment">#   - label: case_id</span>
+      <span class="tok-comment">#     regex: 'Dossier\s+(ZH-\d{4}-\d{5})'</span>
+      <span class="tok-comment">#     group: 1</span>
 
 <span class="tok-comment"># Every provider behind the proxy only sees</span>
 <span class="tok-comment"># &lt;PERSON_1&gt;; your clients get "Joel" back.</span></pre>

@@ -12,6 +12,17 @@ guardrails:
       mode: pre_call
       default_on: true
       # no `detector:` -> gheim default (composite: regex checksums + gheim-ch-560m, CPU)
+      o_bias: 0.5
+      device: cpu
+      propagate_names: true
+      propagate_surnames: true
+      custom_patterns:
+        - label: case_id
+          regex: 'Dossier\s+(ZH-\d{4}-\d{5})'
+          group: 1
+          name: court-dossier
+      normalizers:
+        private_phone: e164
 
 general_settings:
   master_key: sk-test

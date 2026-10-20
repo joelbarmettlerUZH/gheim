@@ -7,4 +7,4 @@ USER root
 COPY --from=uv /uv /usr/local/bin/uv
 # --no-config: /app/pyproject.toml pins a different uv version.
 RUN uv --no-config pip install --python /app/.venv/bin/python --index-url https://download.pytorch.org/whl/cpu torch \
- && uv --no-config pip install --python /app/.venv/bin/python transformers
+ && uv --no-config pip install --python /app/.venv/bin/python transformers phonenumbers dateparser

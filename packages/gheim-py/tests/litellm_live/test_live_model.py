@@ -32,6 +32,22 @@ def _sent() -> str:
 
 
 @pytest.mark.parametrize("stream", [False, True])
+def test_yaml_custom_pattern_masks_and_restores(client, stream):
+    # `case_id` exists only via custom_patterns in config_model.yaml; the
+    # anchor word ("Dossier") stays visible, only capture group 1 is masked.
+    text = "Bitte Dossier ZH-2024-00417 prüfen."
+    httpx.post(f"{UPSTREAM}/_reset")
+    r = client.chat.completions.create(
+        model="fake", messages=[{"role": "user", "content": text}], stream=stream
+    )
+    out = ("".join(c.choices[0].delta.content or "" for c in r if c.choices)
+           if stream else r.choices[0].message.content)
+    sent = _sent()
+    assert "ZH-2024-00417" not in sent and "Dossier <CASE_ID_1>" in sent
+    assert out == "Echo: " + text
+
+
+@pytest.mark.parametrize("stream", [False, True])
 def test_real_model_roundtrip(client, stream):
     httpx.post(f"{UPSTREAM}/_reset")
     r = client.chat.completions.create(

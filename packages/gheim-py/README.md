@@ -302,9 +302,47 @@ load classes from a file next to `config.yaml`. Put a one-line
 `gheim_guardrail.py` there — `from gheim.litellm import GheimGuardrail` — and
 use `guardrail: gheim_guardrail.GheimGuardrail`.
 
-Options: `detector`, `detector_model`, `api_key`, `api_base`,
-`restore_output` (default `true`; `false` returns anonymized output as-is),
-`session_ttl_seconds`. Scope: `/chat/completions` — text content (incl.
+Every detector knob is available in YAML, under `litellm_params`. The default
+is the composite detector (checksum regexes + `gheim-ch-560m`), as in Python:
+
+```yaml
+    litellm_params:
+      guardrail: gheim.litellm.GheimGuardrail
+      mode: pre_call
+      default_on: true
+      detector: composite        # composite | calibrated | local | remote | "module:factory"
+      detector_model: joelbarmettler/gheim-ch-560m
+      o_bias: 0.5                # calibrated / composite
+      device: auto               # auto | cpu | cuda | cuda:N
+      dtype: bfloat16            # name of a torch dtype
+      chunk_tokens: 510
+      chunk_overlap_tokens: 32
+      batch_size: 8
+      trim_whitespace: true
+      propagate_names: true      # composite: mask later occurrences of a found name
+      propagate_surnames: false  # composite: also the single capitalised name parts
+      custom_patterns:           # composite: regex rules for your own formats
+        - label: case_id         # becomes <CASE_ID_1>
+          regex: 'Dossier\s+(ZH-\d{4}-\d{5})'
+          group: 1               # capture group that is the PII (0 = whole match)
+          flags: IGNORECASE      # name, "A|B" or a list (default IGNORECASE)
+          validator: mypkg.checks:is_valid   # optional, str -> bool
+          name: court-dossier    # optional, for error messages
+      normalizers:               # per-label canonical forms (needs gheim[normalizers])
+        private_phone: e164
+        private_date: iso_date
+      api_key: os.environ/GHEIM_API_KEY      # remote detector
+      api_base: https://api.gheim.ch
+      timeout: 30
+      restore_output: true       # false: return the model's anonymized output as-is
+      session_ttl_seconds: 3600  # drop state of calls that never reach a response hook
+```
+
+A knob the chosen detector would ignore (say `o_bias` with `remote`, or
+`custom_patterns` with `local`) is a startup error, not a silent no-op.
+Setting `api_key` (or `GHEIM_API_KEY`) without `detector` selects `remote`.
+
+Scope: `/chat/completions` — text content (incl.
 multimodal text parts), restored in `content`, reasoning and tool-call
 arguments (JSON-escaped), streaming and non-streaming. The sentinel mapping
 stays in process memory and is never written to request metadata or logs.

@@ -38,9 +38,9 @@ from litellm.types.utils import (
 from ..core.sentinels import SENTINEL_RE
 from ..core.session import Session
 from ..core.stream import StreamDeanonymizer
-from ..detectors import Detector, LocalDetector, RemoteDetector, default_detector
-from ..detectors.calibrated import CalibratedDetector
+from ..detectors import Detector
 from ..plain import anonymize_messages
+from ._config import build_detector
 
 _CALL_KEY = "gheim_call_key"
 _TEXT_FIELDS = ("content", "reasoning_content")
@@ -48,38 +48,6 @@ _TEXT_FIELDS = ("content", "reasoning_content")
 
 def _json_escape(s: str) -> str:
     return json.dumps(s, ensure_ascii=False)[1:-1]
-
-
-def _build_detector(
-    detector: Detector | str | None,
-    model_id: str | None,
-    api_key: str | None,
-    api_base: str | None,
-) -> Detector:
-    if detector is not None and not isinstance(detector, str):
-        return detector
-    kind = (detector or "").lower()
-    if kind == "remote":
-        return RemoteDetector(api_key=api_key, base_url=api_base)
-    if kind in ("local", "calibrated"):
-        cls = LocalDetector if kind == "local" else CalibratedDetector
-        return cls(model_id=model_id) if model_id else cls()
-    if ":" in kind:
-        # "package.module:factory" — a zero-arg callable returning a Detector.
-        import importlib
-
-        mod, _, attr = (detector or "").partition(":")
-        return getattr(importlib.import_module(mod), attr)()
-    if kind:
-        raise ValueError(
-            f"gheim guardrail: unknown detector {detector!r} "
-            "(expected 'remote', 'local', 'calibrated' or 'module:factory')"
-        )
-    if api_key:
-        return RemoteDetector(api_key=api_key, base_url=api_base)
-    if model_id:
-        return CalibratedDetector(model_id=model_id)
-    return default_detector()
 
 
 class _StreamState:
@@ -140,17 +108,25 @@ def _tail_chunk(
 class GheimGuardrail(CustomGuardrail):
     """PII anonymization with streaming-safe restoration for the LiteLLM proxy.
 
-    Extra ``litellm_params`` accepted in ``config.yaml``:
+    Extra ``litellm_params`` accepted in ``config.yaml`` (all optional; see
+    :mod:`gheim.litellm._config` for the detector knobs and an example):
 
-    - ``detector``: ``remote`` | ``local`` | ``calibrated`` | ``module:factory``
-      (default: gheim's ``default_detector()`` — remote if ``GHEIM_API_KEY``
-      is set, else local);
-    - ``api_key`` / ``api_base``: for the remote detector;
-    - ``detector_model``: HF model id or path for the local detectors;
+    - ``detector``: ``composite`` (default; ``remote`` if an ``api_key`` /
+      ``GHEIM_API_KEY`` is set) | ``calibrated`` | ``local`` | ``remote`` |
+      ``module:factory``;
+    - ``detector_model``, ``o_bias``, ``device``, ``dtype``, ``chunk_tokens``,
+      ``chunk_overlap_tokens``, ``batch_size``, ``trim_whitespace``: model knobs;
+    - ``custom_patterns``, ``propagate_names``, ``propagate_surnames``:
+      composite-detector knobs;
+    - ``api_key``, ``api_base``, ``timeout``: remote detector;
+    - ``normalizers``: per-label canonical forms, e.g.
+      ``{private_phone: e164, private_date: iso_date}``;
     - ``restore_output``: restore sentinels in responses (default ``true``);
       ``false`` returns the model's anonymized output as-is;
     - ``session_ttl_seconds``: drop per-request state of calls that never
       reach a response hook (default 3600).
+
+    A detector knob the chosen detector would ignore is a startup error.
     """
 
     def __init__(
@@ -159,8 +135,20 @@ class GheimGuardrail(CustomGuardrail):
         *,
         detector: Detector | str | None = None,
         detector_model: str | None = None,
+        o_bias: float | None = None,
+        device: str | None = None,
+        dtype: str | None = None,
+        chunk_tokens: int | None = None,
+        chunk_overlap_tokens: int | None = None,
+        batch_size: int | None = None,
+        trim_whitespace: bool | None = None,
+        custom_patterns: list[dict[str, Any]] | None = None,
+        propagate_names: bool | None = None,
+        propagate_surnames: bool | None = None,
         api_key: str | None = None,
         api_base: str | None = None,
+        timeout: float | None = None,
+        normalizers: dict[str, str] | None = None,
         restore_output: bool = True,
         session_ttl_seconds: float = 3600.0,
         **kwargs: Any,
@@ -170,7 +158,16 @@ class GheimGuardrail(CustomGuardrail):
         # who wrote ``mode: pre_call`` wants, so always register both.
         kwargs["event_hook"] = [GuardrailEventHooks.pre_call, GuardrailEventHooks.post_call]
         super().__init__(guardrail_name=guardrail_name, **kwargs)
-        self.detector = _build_detector(detector, detector_model, api_key, api_base)
+        self.detector = build_detector(
+            detector,
+            detector_model=detector_model, o_bias=o_bias, device=device, dtype=dtype,
+            chunk_tokens=chunk_tokens, chunk_overlap_tokens=chunk_overlap_tokens,
+            batch_size=batch_size, trim_whitespace=trim_whitespace,
+            custom_patterns=custom_patterns, propagate_names=propagate_names,
+            propagate_surnames=propagate_surnames,
+            api_key=api_key, api_base=api_base, timeout=timeout,
+        )
+        self.normalizers = normalizers
         self.restore_output = restore_output
         self.session_ttl_seconds = session_ttl_seconds
         self._sessions: dict[str, tuple[Session, float]] = {}
@@ -210,7 +207,7 @@ class GheimGuardrail(CustomGuardrail):
             return data
 
         self._sweep()
-        session = Session(detector=self.detector)
+        session = Session(detector=self.detector, normalizers=self.normalizers)
         # Detection is blocking (model inference / HTTP): keep the event loop free.
         data["messages"] = await asyncio.to_thread(
             anonymize_messages, messages, session, detector=self.detector
