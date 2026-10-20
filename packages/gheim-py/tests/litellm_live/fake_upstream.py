@@ -13,6 +13,7 @@ the user message.
 """
 import asyncio
 import json
+import os
 import sys
 import time
 
@@ -109,5 +110,5 @@ async def chat(req: Request):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=int(sys.argv[1]) if len(sys.argv) > 1 else 9100,
+    uvicorn.run(app, host=os.getenv("HOST", "127.0.0.1"), port=int(sys.argv[1]) if len(sys.argv) > 1 else 9100,
                 log_level="warning")

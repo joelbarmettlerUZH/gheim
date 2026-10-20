@@ -11,6 +11,7 @@ Every knob of the Python API that makes sense in YAML is accepted by name::
     chunk_overlap_tokens: 32
     batch_size: 8
     trim_whitespace: true
+    model_detector: calibrated   # composite: calibrated (default) | local | remote
     propagate_names: true        # composite
     propagate_surnames: false    # composite
     custom_patterns:             # composite
@@ -46,12 +47,12 @@ _KINDS = ("composite", "calibrated", "local", "remote")
 # calibration bias is a PII leak waiting to happen.
 _MODEL_KNOBS = {"device", "dtype", "chunk_tokens", "chunk_overlap_tokens", "batch_size"}
 _ALLOWED: dict[str, set[str]] = {
-    "composite": _MODEL_KNOBS | {"o_bias", "trim_whitespace", "detector_model",
-                                 "custom_patterns", "propagate_names", "propagate_surnames"},
     "calibrated": _MODEL_KNOBS | {"o_bias", "trim_whitespace", "detector_model"},
     "local": _MODEL_KNOBS | {"trim_whitespace", "detector_model"},
     "remote": {"api_key", "api_base", "timeout", "trim_whitespace", "detector_model"},
 }
+_COMPOSITE_KNOBS = {"custom_patterns", "propagate_names", "propagate_surnames", "model_detector"}
+_INNER_KINDS = ("calibrated", "local", "remote")
 
 
 def _import_ref(ref: str) -> Any:
@@ -133,9 +134,21 @@ def build_detector(detector: Detector | str | None = None, **knobs: Any) -> Dete
         raise ValueError(
             f"unknown detector {detector!r}; expected one of {', '.join(_KINDS)} or 'module:factory'"
         )
-    stray = set(given) - _ALLOWED[kind]
+    inner = given.get("model_detector", "calibrated")
+    if kind == "composite" and inner not in _INNER_KINDS:
+        raise ValueError(f"model_detector {inner!r}: expected one of {', '.join(_INNER_KINDS)}")
+    allowed = _ALLOWED[inner] | _COMPOSITE_KNOBS if kind == "composite" else _ALLOWED[kind]
+    stray = set(given) - allowed
     if stray:
         raise ValueError(f"{sorted(stray)} have no effect with detector '{kind}'")
+
+    if kind == "composite":
+        model_knobs = {k: v for k, v in given.items() if k not in _COMPOSITE_KNOBS}
+        return CompositeDetector(
+            model=build_detector(inner, **model_knobs),
+            patterns=parse_custom_patterns(given.get("custom_patterns")),
+            **{k: given[k] for k in ("propagate_names", "propagate_surnames") if k in given},
+        )
 
     if kind == "remote":
         opts = {k: given[k] for k in ("api_key", "timeout", "trim_whitespace") if k in given}
@@ -151,13 +164,4 @@ def build_detector(detector: Detector | str | None = None, **knobs: Any) -> Dete
         opts["dtype"] = _torch_dtype(opts["dtype"])
     if "detector_model" in given:
         opts["model_id"] = given["detector_model"]
-    if kind == "local":
-        return LocalDetector(**opts)
-    model = CalibratedDetector(**opts)
-    if kind == "calibrated":
-        return model
-    return CompositeDetector(
-        model=model,
-        patterns=parse_custom_patterns(given.get("custom_patterns")),
-        **{k: given[k] for k in ("propagate_names", "propagate_surnames") if k in given},
-    )
+    return LocalDetector(**opts) if kind == "local" else CalibratedDetector(**opts)

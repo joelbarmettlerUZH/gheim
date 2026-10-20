@@ -79,3 +79,24 @@ def test_guardrail_takes_yaml_shaped_params_and_normalizers():
         default_on=True,
     )
     assert g.detector.o_bias == 0.75 and g.normalizers == {"private_phone": "e164"}
+
+
+def test_composite_over_remote_model_keeps_regex_front_end():
+    d = build_detector(
+        "composite", model_detector="remote", api_base="http://gheim:8080", timeout=7,
+        custom_patterns=[{"label": "case_id", "regex": "ZH-\\d+"}],
+    )
+    assert isinstance(d, CompositeDetector) and isinstance(d.model, RemoteDetector)
+    assert (d.model.base_url, d.model.timeout) == ("http://gheim:8080", 7)
+    assert len(d.patterns) == 1
+
+
+@pytest.mark.parametrize(
+    "knobs",
+    [{"model_detector": "remote", "device": "cpu"},   # model knob, remote model
+     {"model_detector": "calibrated", "api_base": "http://x"},  # remote knob, local model
+     {"model_detector": "nope"}],
+)
+def test_composite_inner_model_knob_mismatch_fails(knobs):
+    with pytest.raises(ValueError):
+        build_detector("composite", **knobs)

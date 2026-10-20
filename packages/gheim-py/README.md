@@ -281,9 +281,85 @@ Only a possibly-incomplete sentinel (a few characters) is held back, so
 time-to-first-token and chunk cadence are preserved. Presidio's
 `output_parse_pii` buffers the whole stream and re-emits it as one chunk.
 
+### Install
+
+Into a LiteLLM you run yourself (venv, VM, Kubernetes pod with your own image):
+
 ```bash
-pip install "gheim[litellm,local]"      # drop `local` when using a remote detector
+pip install "gheim[litellm,local]"      # `local` = torch + transformers, runs the model in-process
+pip install "gheim[litellm]"            # no torch: use a gheim-server as the detector (see below)
 ```
+
+### With the official LiteLLM Docker image
+
+The official image (`ghcr.io/berriai/litellm`) does not contain gheim, so
+`gheim.litellm.GheimGuardrail` cannot be found until you add it: extend the
+image rather than installing into a running container, which would be lost on
+restart. Its virtualenv ships without pip, so bootstrap it first.
+
+**A. Everything in the LiteLLM container** (model runs in-process on CPU):
+
+```dockerfile
+FROM ghcr.io/berriai/litellm:main-stable
+
+RUN /app/.venv/bin/python -m ensurepip \
+ && /app/.venv/bin/python -m pip install --no-cache-dir \
+      --extra-index-url https://download.pytorch.org/whl/cpu \
+      "gheim[litellm,local]"
+```
+
+```bash
+docker build -t litellm-gheim .
+docker run -p 4000:4000 -v $PWD/config.yaml:/app/config.yaml \
+  -v gheim-hf-cache:/root/.cache/huggingface \
+  litellm-gheim --config /app/config.yaml
+```
+
+The `--extra-index-url` selects the CPU build of torch (about 1.2 GB instead
+of 5+ GB with CUDA libraries; the whole image is about 2.3 GB). The model
+(about 2.2 GB) downloads on first use, so keep the Hugging Face cache on a
+volume as above, or the container re-downloads it on every start. For a GPU
+host, drop the extra index and run with `--gpus all`.
+
+**B. LiteLLM without torch, detection in a separate container.** The proxy
+image stays small and the model loads once for all workers. Run
+[gheim-server](https://github.com/joelbarmettlerUZH/gheim/tree/main/server)
+next to it (`docker compose`):
+
+```yaml
+services:
+  gheim:
+    image: ghcr.io/joelbarmettleruzh/gheim-server:latest   # model baked in, no download at runtime
+  litellm:
+    build: .                      # the Dockerfile above, with "gheim[litellm]" (no `local`)
+    ports: ["4000:4000"]
+    volumes: ["./config.yaml:/app/config.yaml:ro"]
+    command: ["--config", "/app/config.yaml"]
+    depends_on: [gheim]
+```
+
+```yaml
+# config.yaml
+guardrails:
+  - guardrail_name: gheim-pii
+    litellm_params:
+      guardrail: gheim.litellm.GheimGuardrail
+      mode: pre_call
+      default_on: true
+      detector: composite         # checksum regexes (IBAN/AHV/cards) + custom_patterns ...
+      model_detector: remote      # ... on top of the model served by the gheim container
+      api_base: http://gheim:8080
+      # api_key: os.environ/GHEIM_API_KEY    # if the server runs with GHEIM_API_KEYS
+```
+
+`detector: remote` on its own sends text to the server and uses its spans
+as-is. The server runs the model only, so use `composite` +
+`model_detector: remote` to keep the regex front-end.
+
+The proxy's request path waits for detection, so run the detector close to
+it (same host or network).
+
+### Configure the guardrail
 
 ```yaml
 # config.yaml
@@ -293,8 +369,7 @@ guardrails:
       guardrail: gheim.litellm.GheimGuardrail
       mode: pre_call          # post_call is added automatically
       default_on: true
-      # detector: remote      # remote | local | calibrated | "module:factory"
-      # api_key: os.environ/GHEIM_API_KEY
+      # Everything else is optional; see the full reference below.
 ```
 
 LiteLLM releases that predate importable guardrail paths (e.g. v1.83) only
@@ -311,6 +386,7 @@ is the composite detector (checksum regexes + `gheim-ch-560m`), as in Python:
       mode: pre_call
       default_on: true
       detector: composite        # composite | calibrated | local | remote | "module:factory"
+      model_detector: calibrated # composite: what runs after the regexes: calibrated | local | remote
       detector_model: joelbarmettler/gheim-ch-560m
       o_bias: 0.5                # calibrated / composite
       device: auto               # auto | cpu | cuda | cuda:N
