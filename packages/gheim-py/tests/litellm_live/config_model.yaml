@@ -1,0 +1,17 @@
+model_list:
+  - model_name: fake
+    litellm_params:
+      model: openai/fake
+      api_base: http://127.0.0.1:9100/v1
+      api_key: sk-fake
+
+guardrails:
+  - guardrail_name: gheim-pii
+    litellm_params:
+      guardrail: gheim_guardrail.GheimGuardrail
+      mode: pre_call
+      default_on: true
+      detector: calibrated   # real gheim-ch-560m, CPU
+
+general_settings:
+  master_key: sk-test

@@ -1,0 +1,19 @@
+model_list:
+  - model_name: fake
+    litellm_params:
+      model: openai/fake
+      api_base: http://127.0.0.1:9100/v1
+      api_key: sk-fake
+
+guardrails:
+  - guardrail_name: gheim-pii
+    litellm_params:
+      # Direct import path: works on current LiteLLM; older releases need the
+      # gheim_guardrail.py shim next to the config (see config.yaml).
+      guardrail: gheim.litellm.GheimGuardrail
+      mode: pre_call
+      default_on: true
+      detector: "stub_detector:make"
+
+general_settings:
+  master_key: sk-test

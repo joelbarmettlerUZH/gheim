@@ -32,6 +32,9 @@ local = [
 openai = [
     "openai>=1.50",
 ]
+litellm = [
+    "litellm[proxy]>=1.60",
+]
 normalizers = [
     "phonenumbers>=8",
     "dateparser>=1.2",

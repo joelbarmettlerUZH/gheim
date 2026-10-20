@@ -188,6 +188,46 @@ recall on `account_number`, `private_phone`, and `private_url` close
 to 1.0 with high precision; the underlying ML model handles person
 names, addresses, and dates.
 
+## LiteLLM proxy plugin
+
+A guardrail for the [LiteLLM](https://docs.litellm.ai) proxy, in the role of the
+Presidio guardrail. Requests are anonymized before they reach any provider;
+responses are restored on the way back, **chunk by chunk when streaming**.
+Only a possibly-incomplete sentinel (a few characters) is held back, so
+time-to-first-token and chunk cadence are preserved. Presidio's
+`output_parse_pii` buffers the whole stream and re-emits it as one chunk.
+
+```bash
+pip install "gheim[litellm,local]"      # drop `local` when using a remote detector
+```
+
+```yaml
+# config.yaml
+guardrails:
+  - guardrail_name: gheim-pii
+    litellm_params:
+      guardrail: gheim.litellm.GheimGuardrail
+      mode: pre_call          # post_call is added automatically
+      default_on: true
+      # detector: remote      # remote | local | calibrated | "module:factory"
+      # api_key: os.environ/GHEIM_API_KEY
+```
+
+LiteLLM releases that predate importable guardrail paths (e.g. v1.83) only
+load classes from a file next to `config.yaml`. Put a one-line
+`gheim_guardrail.py` there — `from gheim.litellm import GheimGuardrail` — and
+use `guardrail: gheim_guardrail.GheimGuardrail`.
+
+Options: `detector`, `detector_model`, `api_key`, `api_base`,
+`restore_output` (default `true`; `false` returns anonymized output as-is),
+`session_ttl_seconds`. Scope: `/chat/completions` — text content (incl.
+multimodal text parts), restored in `content`, reasoning and tool-call
+arguments (JSON-escaped), streaming and non-streaming. The sentinel mapping
+stays in process memory and is never written to request metadata or logs.
+Raw-byte passthrough streams (e.g. native Anthropic SSE) are not restored.
+
+Live tests against the official Docker image: `tests/litellm_live/run_live.sh`.
+
 ## Consulting
 
 gheim is built and maintained by
