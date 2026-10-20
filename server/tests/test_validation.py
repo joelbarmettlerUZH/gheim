@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
+from gheim import Span
 
 SERVER_SRC = Path(__file__).resolve().parents[1] / "src"
 if str(SERVER_SRC) not in sys.path:
@@ -19,12 +20,14 @@ if str(SERVER_SRC) not in sys.path:
 
 
 class _FakePipeline:
+    """Stands in for gheim.LocalDetector."""
+
     def __init__(self, delay: float = 0.0) -> None:
         self.delay = delay
         self.call_count = 0
         self._lock = threading.Lock()
 
-    def __call__(self, text: str) -> list[dict[str, Any]]:
+    def detect(self, text: str) -> list[Span]:
         with self._lock:
             self.call_count += 1
         if self.delay:
@@ -32,9 +35,7 @@ class _FakePipeline:
         idx = text.find("Joel")
         if idx == -1:
             return []
-        return [
-            {"entity_group": "private_person", "start": idx, "end": idx + 4, "score": 0.99}
-        ]
+        return [Span(label="private_person", start=idx, end=idx + 4, text="Joel", score=0.99)]
 
 
 @pytest.fixture

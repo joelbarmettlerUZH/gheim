@@ -54,6 +54,13 @@ Authorization: Bearer <key>            # optional if GHEIM_API_KEYS is unset
 }
 ```
 
+Inputs longer than the model's 512-token limit are split into overlapping windows
+(510 tokens, 32 overlap) and the spans merged, so PII anywhere in a long document is
+found. Spans that start or end inside a word are widened to the whole word, and
+touching fragments of one label are merged. The server returns what the model finds:
+for the regex layer (IBAN, AHV, phone, ...), your own patterns and repeated-name
+handling, wrap the client: `CompositeDetector(model=RemoteDetector(base_url=...))`.
+
 That's the entire surface. The server only ever sees input text and returns
 character-offset spans — no LLM-bound traffic, no response data. This is the
 foundation of the Swiss-data-residency story: customers can point

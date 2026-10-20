@@ -29,7 +29,7 @@ import threading
 from dataclasses import dataclass, field
 from typing import Annotated, Any
 
-from .base import Span, trim_span
+from .base import Span, snap_to_words, trim_span
 from .local import _DEFAULT_CHUNK_TOKENS, _DEFAULT_OVERLAP_TOKENS, DEFAULT_MODEL
 
 
@@ -134,7 +134,7 @@ class CalibratedDetector:
         if not text:
             return []
         self._ensure_loaded()
-        return self._detect_chunked(text)
+        return snap_to_words(text, self._detect_chunked(text))
 
     def _detect_chunked(self, text: str) -> list[Span]:
         """Chunk-aware inference. For inputs that fit in one window the
@@ -208,7 +208,7 @@ class CalibratedDetector:
         spans: list[Span] = []
         cur_start, cur_end, cur_cat = None, None, None
         cur_probs: list[float] = []
-        for (s, e), pid, prob in zip(offsets, pred_ids, token_probs):
+        for (s, e), pid, prob in zip(offsets, pred_ids, token_probs, strict=True):
             if s == e:  # special token (CLS, SEP, pad)
                 continue
             lab = self._id2label[int(pid)]
@@ -218,21 +218,28 @@ class CalibratedDetector:
                 cur_probs.append(prob)
             else:
                 if cur_cat is not None:
-                    spans.append(self._make_span(text, cur_start, cur_end, cur_cat,
-                                                  char_offset, cur_probs))
+                    span = self._make_span(text, cur_start, cur_end, cur_cat,
+                                           char_offset, cur_probs)
+                    if span is not None:
+                        spans.append(span)
                 cur_start, cur_end, cur_cat = s, e, cat
                 cur_probs = [prob]
         if cur_cat is not None:
-            spans.append(self._make_span(text, cur_start, cur_end, cur_cat,
-                                          char_offset, cur_probs))
+            span = self._make_span(text, cur_start, cur_end, cur_cat,
+                                   char_offset, cur_probs)
+            if span is not None:
+                spans.append(span)
         return spans
 
     def _make_span(
         self, text: str, start: int, end: int, label: str, char_offset: int,
         probs: list[float],
-    ) -> Span:
+    ) -> Span | None:
         if self.trim_whitespace:
-            start, end = trim_span(text, start, end)
+            trimmed = trim_span(text, start, end)
+            if trimmed is None:
+                return None  # whitespace-only span
+            start, end = trimmed
         return Span(
             start=start + char_offset,
             end=end + char_offset,

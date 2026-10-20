@@ -26,6 +26,7 @@
  * `defaultDetector()` returns this with oBias=0.5, so users get the
  * better behavior automatically.
  */
+import { snapToWords } from "./base.ts";
 import type { Detector, Span } from "./base.ts";
 import type { LocalDetectorLoadEvent } from "./local.ts";
 
@@ -203,7 +204,7 @@ export class CalibratedDetector implements Detector {
     }
     if (!text) return [];
     await this.load();
-    return this._detectChunked(text);
+    return snapToWords(text, await this._detectChunked(text));
   }
 
   private async _detectChunked(text: string): Promise<Span[]> {

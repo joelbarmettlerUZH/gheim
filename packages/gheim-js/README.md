@@ -259,6 +259,16 @@ replaces shorter model fragments it contains (`Käthi` inside `Zbinden Käthi`).
 each detected name, honorifics such as "Frau" excluded: higher recall, more
 false positives. `propagateNames: false` turns it off.
 
+### Whole words
+
+A token classifier sometimes tags only part of a word (`gano` of `Lugano`, `Zbind` +
+`en` of `Zbinden`), and a window boundary can cut a word in half. `LocalDetector` and
+`CalibratedDetector` widen such a span to the whole word and merge same-label spans
+that overlap or touch, so one entity gets one placeholder and nothing readable is
+left behind. A span is widened only when the characters on both sides of its edge
+are word characters; edges at spaces or punctuation (`Gay` in `Gay-Crosier`) are
+left alone.
+
 ### Confidence
 
 `CalibratedDetector` sets each span's `score` to the mean token probability of

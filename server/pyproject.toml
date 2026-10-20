@@ -13,6 +13,7 @@ dependencies = [
     "torch>=2.2",
     "transformers>=4.45",
     "huggingface-hub>=0.24",
+    "gheim>=0.1.7",
 ]
 
 [project.optional-dependencies]
