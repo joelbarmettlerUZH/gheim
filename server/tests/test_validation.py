@@ -41,7 +41,7 @@ class _FakePipeline:
 @pytest.fixture
 def client(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("GHEIM_SKIP_WARMUP", "1")
-    monkeypatch.setenv("GHEIM_ALLOWED_MODELS", "openai/privacy-filter")
+    monkeypatch.setenv("GHEIM_ALLOWED_MODELS", "joelbarmettler/gheim-ch-560m")
     import gheim_server.registry as reg_mod
     importlib.reload(reg_mod)
     import gheim_server.main as main_mod
@@ -58,7 +58,7 @@ def client(monkeypatch: pytest.MonkeyPatch):
 
 def test_missing_text_field_returns_422(client):
     c, _ = client
-    r = c.post("/v1/detect", json={"model": "openai/privacy-filter"})
+    r = c.post("/v1/detect", json={"model": "joelbarmettler/gheim-ch-560m"})
     assert r.status_code == 422
     detail = r.json()["detail"]
     assert any("text" in e["loc"] for e in detail)
@@ -84,7 +84,7 @@ def test_extra_fields_in_request_are_ignored(client):
     c, _ = client
     r = c.post(
         "/v1/detect",
-        json={"text": "Joel", "model": "openai/privacy-filter", "future_flag": True},
+        json={"text": "Joel", "model": "joelbarmettler/gheim-ch-560m", "future_flag": True},
     )
     assert r.status_code == 200
 
@@ -101,7 +101,7 @@ def test_default_model_used_when_body_omits_it(client):
     c, _ = client
     r = c.post("/v1/detect", json={"text": "Joel"})
     assert r.status_code == 200
-    assert r.json()["model"] == "openai/privacy-filter"
+    assert r.json()["model"] == "joelbarmettler/gheim-ch-560m"
 
 
 # ---------- C.3 large body ----------
@@ -113,7 +113,7 @@ def test_large_text_body_handled(client):
     assert r.status_code == 200
     # FakePipeline only finds the first occurrence; just make sure the request didn't choke.
     body = r.json()
-    assert body["model"] == "openai/privacy-filter"
+    assert body["model"] == "joelbarmettler/gheim-ch-560m"
     assert isinstance(body["spans"], list)
 
 
@@ -139,7 +139,7 @@ def test_registry_get_is_thread_safe_for_concurrent_first_calls(monkeypatch: pyt
     """Two threads racing to load the same model id must end up with the same
     pipeline instance — the lock in ModelRegistry must serialize the load."""
     monkeypatch.setenv("GHEIM_SKIP_WARMUP", "1")
-    monkeypatch.setenv("GHEIM_ALLOWED_MODELS", "openai/privacy-filter")
+    monkeypatch.setenv("GHEIM_ALLOWED_MODELS", "joelbarmettler/gheim-ch-560m")
     import gheim_server.registry as reg_mod
     importlib.reload(reg_mod)
 
@@ -156,7 +156,7 @@ def test_registry_get_is_thread_safe_for_concurrent_first_calls(monkeypatch: pyt
     registry = reg_mod.ModelRegistry()
     results: list[Any] = []
     with ThreadPoolExecutor(max_workers=8) as pool:
-        for fut in [pool.submit(registry.get, "openai/privacy-filter") for _ in range(8)]:
+        for fut in [pool.submit(registry.get, "joelbarmettler/gheim-ch-560m") for _ in range(8)]:
             results.append(fut.result())
 
     assert all(r is sentinel_pipe for r in results)

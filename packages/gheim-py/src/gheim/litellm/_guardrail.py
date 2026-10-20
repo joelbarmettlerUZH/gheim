@@ -116,8 +116,9 @@ class GheimGuardrail(CustomGuardrail):
       ``module:factory``;
     - ``detector_model``, ``o_bias``, ``device``, ``dtype``, ``chunk_tokens``,
       ``chunk_overlap_tokens``, ``batch_size``, ``trim_whitespace``: model knobs;
-    - ``custom_patterns``, ``propagate_names``, ``propagate_surnames``:
-      composite-detector knobs;
+    - ``model_detector`` (``calibrated`` | ``local`` | ``remote``: what the
+      composite runs after its regexes), ``custom_patterns``,
+      ``propagate_names``, ``propagate_surnames``: composite-detector knobs;
     - ``api_key``, ``api_base``, ``timeout``: remote detector;
     - ``normalizers``: per-label canonical forms, e.g.
       ``{private_phone: e164, private_date: iso_date}``;
@@ -143,6 +144,7 @@ class GheimGuardrail(CustomGuardrail):
         batch_size: int | None = None,
         trim_whitespace: bool | None = None,
         custom_patterns: list[dict[str, Any]] | None = None,
+        model_detector: str | None = None,
         propagate_names: bool | None = None,
         propagate_surnames: bool | None = None,
         api_key: str | None = None,
@@ -163,7 +165,8 @@ class GheimGuardrail(CustomGuardrail):
             detector_model=detector_model, o_bias=o_bias, device=device, dtype=dtype,
             chunk_tokens=chunk_tokens, chunk_overlap_tokens=chunk_overlap_tokens,
             batch_size=batch_size, trim_whitespace=trim_whitespace,
-            custom_patterns=custom_patterns, propagate_names=propagate_names,
+            custom_patterns=custom_patterns, model_detector=model_detector,
+            propagate_names=propagate_names,
             propagate_surnames=propagate_surnames,
             api_key=api_key, api_base=api_base, timeout=timeout,
         )

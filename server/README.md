@@ -30,9 +30,11 @@ docker run -p 8080:8080 \
   ghcr.io/joelbarmettlerUZH/gheim-server:latest
 ```
 
-The image bakes the `openai/privacy-filter` weights at build time. No
-HuggingFace download at runtime. `HF_HUB_OFFLINE=1` — works in air-gapped
-environments.
+The image bakes the `joelbarmettler/gheim-ch-560m` weights at build time and serves that model by
+default. No HuggingFace download at runtime. `HF_HUB_OFFLINE=1` — works in air-gapped
+environments. Images up to 0.1.1 baked and served `openai/privacy-filter`; to serve it (or any other
+model) rebuild with `--build-arg GHEIM_DEFAULT_MODEL=<hf-id>`: the build argument both bakes the weights and
+becomes the runtime default.
 
 ## Wire protocol
 
@@ -40,13 +42,13 @@ environments.
 POST /v1/detect
 Authorization: Bearer <key>            # optional if GHEIM_API_KEYS is unset
 
-{ "model": "openai/privacy-filter", "text": "Hi, my name is Joel" }
+{ "model": "joelbarmettler/gheim-ch-560m", "text": "Hi, my name is Joel" }
 ```
 
 ```
 200 OK
 {
-  "model": "openai/privacy-filter",
+  "model": "joelbarmettler/gheim-ch-560m",
   "spans": [
     { "label": "private_person", "start": 15, "end": 19, "score": 0.999 }
   ],
@@ -96,7 +98,7 @@ const det = new RemoteDetector({ baseUrl: "http://your-host:8080", apiKey: "key_
 | `HOST` | `0.0.0.0` | bind address |
 | `PORT` | `8080` | bind port |
 | `GHEIM_API_KEYS` | *(unset)* | comma-separated allowlist; unset = open mode |
-| `GHEIM_DEFAULT_MODEL` | `openai/privacy-filter` | model id used when the request body omits it |
+| `GHEIM_DEFAULT_MODEL` | `joelbarmettler/gheim-ch-560m` | model id used when the request body omits it |
 | `GHEIM_ALLOWED_MODELS` | *= `GHEIM_DEFAULT_MODEL`* | comma-separated model allowlist |
 | `GHEIM_SKIP_WARMUP` | *(unset)* | if `1`, skip model preload on startup (useful in tests) |
 

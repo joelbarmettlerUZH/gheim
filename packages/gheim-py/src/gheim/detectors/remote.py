@@ -10,7 +10,7 @@ import httpx
 from .base import Span, trim_span
 
 DEFAULT_BASE_URL = "https://api.gheim.ch"
-DEFAULT_MODEL = "openai/privacy-filter"
+DEFAULT_MODEL = "joelbarmettler/gheim-ch-560m"
 
 
 @dataclass

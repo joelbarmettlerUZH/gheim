@@ -3,7 +3,8 @@
  * Mirrors test_remote_detector.py.
  */
 import { describe, expect, test } from "bun:test";
-import { RemoteDetector } from "../src/detectors/remote.ts";
+import { DEFAULT_MODEL as LOCAL_DEFAULT_MODEL } from "../src/detectors/local.ts";
+import { DEFAULT_MODEL as REMOTE_DEFAULT_MODEL, RemoteDetector } from "../src/detectors/remote.ts";
 
 interface CapturedRequest {
   url: string;
@@ -48,7 +49,7 @@ describe("RemoteDetector (mocked fetch)", () => {
       fetch: makeFetch(
         {
           body: {
-            model: "openai/privacy-filter",
+            model: "joelbarmettler/gheim-ch-560m",
             spans: [{ label: "private_person", start: 11, end: 16, score: 0.99 }],
           },
         },
@@ -60,7 +61,7 @@ describe("RemoteDetector (mocked fetch)", () => {
     expect(captured[0]!.method).toBe("POST");
     expect(captured[0]!.url).toBe("http://mock/v1/detect");
     expect(captured[0]!.body).toEqual({
-      model: "openai/privacy-filter",
+      model: "joelbarmettler/gheim-ch-560m",
       text: "My name is Alice.",
     });
     expect(captured[0]!.headers.authorization).toBe("Bearer secret-abc");
@@ -160,5 +161,13 @@ describe("RemoteDetector (mocked fetch)", () => {
       ),
     });
     expect(await det.detect("abcdef")).toEqual([]);
+  });
+});
+
+describe("default model", () => {
+  test("remote and local detectors default to the same model", () => {
+    // A default RemoteDetector must ask a default server for a model it serves.
+    expect(REMOTE_DEFAULT_MODEL).toBe(LOCAL_DEFAULT_MODEL);
+    expect(REMOTE_DEFAULT_MODEL).toBe("joelbarmettler/gheim-ch-560m");
   });
 });

@@ -2,7 +2,7 @@
 import { type Detector, type Span, trimSpan } from "./base.ts";
 
 export const DEFAULT_BASE_URL = "https://api.gheim.ch";
-export const DEFAULT_MODEL = "openai/privacy-filter";
+export const DEFAULT_MODEL = "joelbarmettler/gheim-ch-560m";
 
 export interface RemoteDetectorOptions {
   baseUrl?: string;
