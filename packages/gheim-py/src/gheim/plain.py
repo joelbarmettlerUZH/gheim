@@ -60,7 +60,8 @@ def anonymize_text(
 ) -> str:
     """Detect PII in ``text`` and replace each span with a stable sentinel."""
     sess, det = _resolve(session, detector)
-    spans = det.detect(text, model=model)
+    # CompositeDetector.detect() takes no `model`; only forward it when set.
+    spans = det.detect(text) if model is None else det.detect(text, model=model)
     return sess.apply_spans(text, spans)
 
 

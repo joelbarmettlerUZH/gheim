@@ -11,7 +11,7 @@ guardrails:
       guardrail: gheim_guardrail.GheimGuardrail
       mode: pre_call
       default_on: true
-      detector: calibrated   # real gheim-ch-560m, CPU
+      # no `detector:` -> gheim default (composite: regex checksums + gheim-ch-560m, CPU)
 
 general_settings:
   master_key: sk-test

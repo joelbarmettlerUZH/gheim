@@ -10,7 +10,7 @@ from gheim.litellm import GheimGuardrail  # noqa: E402
 
 
 class _Names:
-    def detect(self, text, *, model=None):
+    def detect(self, text):  # like CompositeDetector: no `model` kwarg
         return [
             Span("private_person", i, i + len(n), n)
             for n in ("Joel Barmettler", "Anna Meier")
