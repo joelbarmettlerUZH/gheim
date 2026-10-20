@@ -1,32 +1,16 @@
-<script setup lang="ts">
-import { ref, onMounted } from "vue";
-
-// --- Email obfuscation ------------------------------------------------------
+---
 // The contact address is legally required (Swiss UWG Art. 3 para. 1 lit. s,
 // EU Directive 2000/31/EC Art. 5), but we don't want naive harvesters to scrape
-// it. We never emit the literal `user@domain` string into the served HTML or as
-// a plain literal in the JS bundle: it is stored base64-encoded AND reversed,
-// then decoded at runtime to build both the visible text and the mailto href.
+// it. We never emit the literal `user@domain` string into the served HTML or
+// the JS bundle: it is stored base64-encoded AND reversed in a data attribute
+// and decoded in the browser (see the script below).
 // (A contact form is the only fully scraper-proof option, but needs a backend.)
 const EMAIL_TOKEN = "=UWbu0GcAV2YhB3c05WZ0FGbu8GbsVGa";
 
-const email = ref("");
-const mailto = ref("");
-
-onMounted(() => {
-  try {
-    const decoded = atob(EMAIL_TOKEN.split("").reverse().join(""));
-    email.value = decoded;
-    mailto.value = "mailto:" + decoded;
-  } catch {
-    /* leave empty — the static fallback note stays visible */
-  }
-});
-
 const updated = "10 June 2026";
-</script>
+const year = new Date().getFullYear();
+---
 
-<template>
   <main class="mx-auto max-w-3xl px-6 sm:px-10 py-10 sm:py-14">
     <!-- Top bar -->
     <header class="flex items-center justify-between mb-14 sm:mb-20">
@@ -111,12 +95,9 @@ const updated = "10 June 2026";
       <p class="kicker mb-4">Contact</p>
       <p class="font-mono text-sm leading-relaxed">
         Email:
-        <template v-if="email">
-          <a :href="mailto" class="hover:text-accent transition-colors">{{ email }}</a>
-        </template>
-        <template v-else>
-          <span class="text-ink-soft">[ enable JavaScript to reveal the address ]</span>
-        </template>
+        <span id="contact-email" data-token={EMAIL_TOKEN} class="text-ink-soft"
+          >[ enable JavaScript to reveal the address ]</span
+        >
       </p>
       <p class="text-xs text-ink-soft mt-2">
         The address is assembled in your browser to deter automated harvesting.
@@ -161,7 +142,7 @@ const updated = "10 June 2026";
     <section class="section-rule mt-10 pt-8">
       <p class="kicker mb-4">Copyright · Urheberrecht</p>
       <p class="font-serif text-base leading-relaxed text-ink-soft max-w-2xl">
-        © {{ new Date().getFullYear() }} LatentSpace Labs GmbH. The texts,
+        © {year} LatentSpace Labs GmbH. The texts,
         images and graphics on this website are protected by copyright. The
         gheim source code, models and datasets are licensed separately under the
         terms stated in their respective repositories.
@@ -246,8 +227,24 @@ const updated = "10 June 2026";
     <footer
       class="section-rule mt-14 pt-6 flex flex-wrap items-center justify-between gap-4 text-xs text-ink-soft font-mono"
     >
-      <span>© {{ new Date().getFullYear() }} LatentSpace Labs GmbH · gheim.ch</span>
-      <span>Last updated: {{ updated }}</span>
+      <span>© {year} LatentSpace Labs GmbH · gheim.ch</span>
+      <span>Last updated: {updated}</span>
     </footer>
   </main>
-</template>
+
+<script>
+  const el = document.getElementById("contact-email");
+  const token = el?.dataset.token;
+  if (el && token) {
+    try {
+      const decoded = atob(token.split("").reverse().join(""));
+      const a = document.createElement("a");
+      a.href = "mailto:" + decoded;
+      a.textContent = decoded;
+      a.className = "hover:text-accent transition-colors";
+      el.replaceWith(a);
+    } catch {
+      /* leave the static fallback note in place */
+    }
+  }
+</script>

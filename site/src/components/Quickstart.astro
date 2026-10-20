@@ -1,0 +1,281 @@
+---
+// Code snippets are pre-highlighted HTML (tok-* spans, see global.css) and
+// rendered with set:html — literal `{` / `}` in the code would otherwise be
+// parsed as Astro expressions. All four panes ship in the static HTML so
+// crawlers index every snippet; the script below only adds tab switching.
+const c = (s: string) => `<span class="tok-comment">${s}</span>`;
+const str = (s: string) => `<span class="tok-string">${s}</span>`;
+const kw = (s: string) => `<span class="tok-keyword">${s}</span>`;
+const fn = (s: string) => `<span class="tok-fn">${s}</span>`;
+
+interface Pane {
+  id: string;
+  label: string;
+  sub: string;
+  installTitle: string;
+  install: string;
+  codeTitle: string;
+  code: string;
+}
+
+const panes: Pane[] = [
+  {
+    id: "python",
+    label: "Python",
+    sub: "openai SDK · drop-in",
+    installTitle: "Install",
+    install: [
+      c("# Drop-in OpenAI wrapper + on-device detection"),
+      `uv add ${str('"gheim[local,openai]"')}`,
+      "",
+      c("# Or, if you'll point gheim at a remote detection server:"),
+      `uv add ${str('"gheim[openai]"')}`,
+    ].join("\n"),
+    codeTitle: "Drop-in OpenAI client",
+    code: [
+      `${kw("from")} gheim.openai ${kw("import")} OpenAI`,
+      "",
+      `client = ${fn("OpenAI")}()  ${c("# same args as openai.OpenAI")}`,
+      "",
+      `r = client.chat.completions.${fn("create")}(`,
+      `    model=${str('"gpt-4o"')},`,
+      `    messages=[{${str('"role"')}: ${str('"user"')},`,
+      `                ${str('"content"')}: ${str('"Hi, my name is Joel"')}}],`,
+      `)`,
+      "",
+      c('# r.choices[0].message.content contains "Joel".'),
+      c("# OpenAI only ever saw &lt;PERSON_1&gt;."),
+    ].join("\n"),
+  },
+  {
+    id: "node",
+    label: "Node / Bun",
+    sub: "openai SDK · drop-in",
+    installTitle: "Install",
+    install: [
+      c("# Server-side / Bun / Node 18+"),
+      `npm install gheim openai ${str("@huggingface/transformers")}`,
+      "",
+      c("# Or with bun:"),
+      `bun add gheim openai ${str("@huggingface/transformers")}`,
+    ].join("\n"),
+    codeTitle: "Drop-in OpenAI client",
+    code: [
+      `${kw("import")} { OpenAI } ${kw("from")} ${str('"gheim/openai"')};`,
+      "",
+      `${kw("const")} client = ${kw("new")} ${fn("OpenAI")}();`,
+      "",
+      `${kw("const")} r = ${kw("await")} client.chat.completions.${fn("create")}({`,
+      `  model: ${str('"gpt-4o"')},`,
+      `  messages: [{ role: ${str('"user"')}, content: ${str('"Hi, my name is Joel"')} }],`,
+      `});`,
+      "",
+      c('// r.choices[0].message.content contains "Joel".'),
+      c("// OpenAI only ever saw &lt;PERSON_1&gt;."),
+    ].join("\n"),
+  },
+  {
+    id: "litellm",
+    label: "LiteLLM",
+    sub: "proxy guardrail · streaming",
+    installTitle: "Install",
+    install: [
+      c("# Next to your LiteLLM proxy"),
+      `pip install ${str('"gheim[litellm,local]"')}`,
+      "",
+      c("# Or with a remote detection server:"),
+      `pip install ${str('"gheim[litellm]"')}`,
+      "",
+      c("# Streaming is restored chunk by chunk: only a"),
+      c("# half-finished &lt;PERSON_1&gt; is held back, never the"),
+      c("# whole response."),
+    ].join("\n"),
+    codeTitle: "config.yaml · guardrail",
+    code: [
+      `${kw("guardrails")}:`,
+      `  - guardrail_name: ${str("gheim-pii")}`,
+      `    litellm_params:`,
+      `      guardrail: ${str("gheim.litellm.GheimGuardrail")}`,
+      `      mode: ${str("pre_call")}   ${c("# post_call is added for you")}`,
+      `      default_on: ${str("true")}`,
+      `      ${c("# Every knob is plain YAML:")}`,
+      `      ${c("# detector: composite | remote | local")}`,
+      `      ${c("# o_bias: 0.5")}`,
+      `      ${c("# propagate_names: true")}`,
+      `      ${c("# custom_patterns:")}`,
+      `      ${c("#   - label: case_id")}`,
+      `      ${c("#     regex: 'Dossier\\s+(ZH-\\d{4}-\\d{5})'")}`,
+      `      ${c("#     group: 1")}`,
+      "",
+      c("# Every provider behind the proxy only sees"),
+      c('# &lt;PERSON_1&gt;; your clients get "Joel" back.'),
+    ].join("\n"),
+  },
+  {
+    id: "browser",
+    label: "Browser",
+    sub: "transformers.js · in-process",
+    installTitle: "Install",
+    install: [
+      c("# Bundle for the browser (Vite, Webpack, etc.)"),
+      `npm install gheim ${str("@huggingface/transformers")}`,
+    ].join("\n"),
+    codeTitle: "In-browser detection · WebGPU",
+    code: [
+      `${kw("import")} { Session, LocalDetector,`,
+      `         anonymizeText, deanonymizeText } ${kw("from")} ${str('"gheim"')};`,
+      "",
+      `${kw("const")} session = ${kw("new")} ${fn("Session")}();`,
+      `session.detector = ${kw("new")} ${fn("LocalDetector")}({`,
+      `  ${c("// Defaults: model = joelbarmettler/gheim-ch-560m,")}`,
+      `  ${c('// device = "auto" (probes WebGPU, falls back to WASM).')}`,
+      `  dtype: ${str('"q8"')},`,
+      `});`,
+      "",
+      `${kw("const")} clean = ${kw("await")} ${fn("anonymizeText")}(${str('"Hi, my name is Joel"')}, session);`,
+      c('// → "Hi, my name is &lt;PERSON_1&gt;"'),
+      c("// ...send `clean` to any LLM endpoint, then:"),
+      `${kw("const")} final = ${fn("deanonymizeText")}(responseText, session);`,
+    ].join("\n"),
+  },
+];
+---
+
+<section id="install" class="section-rule pt-14 sm:pt-20 pb-16 sm:pb-24">
+  <div class="grid sm:grid-cols-12 gap-6 sm:gap-10 mb-10">
+    <div class="sm:col-span-7">
+      <p class="kicker mb-3">§ 03 — Install</p>
+      <h2 class="font-serif text-3xl sm:text-4xl leading-tight tracking-tight">
+        Three minutes from<br />
+        <span class="italic text-accent">pip install</span> to redacted prompts.
+      </h2>
+    </div>
+    <div class="sm:col-span-5 self-end">
+      <p class="text-ink-soft text-sm leading-relaxed">
+        The Python and Node packages ship a drop-in replacement for the
+        official OpenAI client. Anonymisation and round-trip restoration
+        happen automatically — including in streamed responses. Running a
+        LiteLLM proxy? Use the guardrail plugin instead.
+      </p>
+    </div>
+  </div>
+
+  <div id="quickstart">
+    <!-- Tab strip: hidden until the script runs. Without JS every pane is
+         simply shown one after another. -->
+    <div id="quickstart-tabs" class="hidden mb-3">
+    <div
+      class="flex gap-px bg-rule rounded-sm overflow-hidden border border-rule"
+      role="tablist"
+    >
+      {
+        panes.map((p, i) => (
+          <button
+            type="button"
+            role="tab"
+            class="tab flex-1 px-4 py-3 text-left transition-colors cursor-pointer bg-paper text-ink hover:bg-paper-dim data-[active=true]:bg-ink data-[active=true]:text-paper data-[active=true]:hover:bg-ink"
+            data-tab={p.id}
+            data-active={i === 0 ? "true" : "false"}
+            aria-controls={`pane-${p.id}`}
+            aria-selected={i === 0 ? "true" : "false"}
+          >
+            <div class="kicker mb-0.5">{p.label}</div>
+            <div class="tab-sub text-xs font-mono text-ink-soft">{p.sub}</div>
+          </button>
+        ))
+      }
+    </div>
+    </div>
+
+    {
+      panes.map((p) => (
+        <div id={`pane-${p.id}`} data-pane={p.id} role="tabpanel" class="mb-8 last:mb-0">
+          <h3 class="kicker mb-2 text-ink">{p.label}</h3>
+          <div class="grid lg:grid-cols-2 gap-3 items-stretch">
+            <div class="border border-rule rounded-md bg-paper flex flex-col">
+              <div class="flex items-center justify-between px-4 py-2 border-b border-rule">
+                <span class="kicker">{p.installTitle}</span>
+                <button
+                  type="button"
+                  class="copy-btn hidden text-xs font-mono text-ink-soft hover:text-accent cursor-pointer"
+                  data-copy={`${p.id}-install`}
+                >
+                  copy
+                </button>
+              </div>
+              <pre
+                id={`${p.id}-install`}
+                class="codeblock m-0 rounded-none rounded-b-md flex-1"
+                set:html={p.install}
+              />
+            </div>
+
+            <div class="border border-rule rounded-md bg-paper flex flex-col">
+              <div class="flex items-center justify-between px-4 py-2 border-b border-rule">
+                <span class="kicker">{p.codeTitle}</span>
+                <button
+                  type="button"
+                  class="copy-btn hidden text-xs font-mono text-ink-soft hover:text-accent cursor-pointer"
+                  data-copy={`${p.id}-code`}
+                >
+                  copy
+                </button>
+              </div>
+              <pre
+                id={`${p.id}-code`}
+                class="codeblock m-0 rounded-none rounded-b-md flex-1"
+                set:html={p.code}
+              />
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <p class="mt-6 text-xs text-ink-soft font-mono">
+    Full reference:
+    <a
+      href="https://github.com/joelbarmettlerUZH/gheim#readme"
+      target="_blank"
+      rel="noopener"
+      class="underline hover:text-accent"
+      >README on GitHub</a
+    >.
+  </p>
+</section>
+
+<script>
+  // Progressive enhancement: tab switching + copy buttons. The static HTML
+  // already contains every pane, so crawlers and no-JS visitors see all code.
+  const root = document.getElementById("quickstart");
+  const strip = document.getElementById("quickstart-tabs");
+  if (root && strip) {
+    const tabs = Array.from(strip.querySelectorAll<HTMLButtonElement>("[data-tab]"));
+    const panes = Array.from(root.querySelectorAll<HTMLElement>("[data-pane]"));
+
+    const select = (id: string) => {
+      for (const t of tabs) {
+        const on = t.dataset.tab === id;
+        t.dataset.active = String(on);
+        t.setAttribute("aria-selected", String(on));
+      }
+      for (const p of panes) p.hidden = p.dataset.pane !== id;
+    };
+
+    strip.classList.remove("hidden");
+    // Per-pane headings are only needed in the no-JS stacked layout.
+    root.querySelectorAll("[data-pane] > h3").forEach((h) => h.remove());
+    root.querySelectorAll(".copy-btn").forEach((b) => b.classList.remove("hidden"));
+    for (const p of panes) p.classList.remove("mb-8");
+
+    for (const t of tabs) t.addEventListener("click", () => select(t.dataset.tab!));
+    select(tabs[0].dataset.tab!);
+
+    root.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".copy-btn");
+      const target = btn && document.getElementById(btn.dataset.copy!);
+      if (btn && target) navigator.clipboard.writeText(target.innerText).catch(() => {});
+    });
+  }
+</script>

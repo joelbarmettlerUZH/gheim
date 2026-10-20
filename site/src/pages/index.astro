@@ -1,0 +1,88 @@
+---
+import Base from "../layouts/Base.astro";
+import Hero from "../components/Hero.astro";
+import Demo from "../components/Demo.vue";
+import HowItWorks from "../components/HowItWorks.astro";
+import Quickstart from "../components/Quickstart.astro";
+import Footer from "../components/Footer.astro";
+
+const title = "gheim — PII round-trip for LLM APIs";
+const description =
+  "Anonymise personally identifiable information before it leaves your device. De-anonymise the LLM response on the way back. Multilingual model for the four official Swiss languages plus English.";
+
+const orgId = "https://gheim.ch/#organization";
+const siteId = "https://gheim.ch/#website";
+const repo = "https://github.com/joelbarmettlerUZH/gheim";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": orgId,
+      name: "LatentSpace Labs GmbH",
+      url: "https://gheim.ch",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://gheim.ch/logo.png",
+        width: 850,
+        height: 335,
+      },
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Hirschgartnerweg 18",
+        postalCode: "8057",
+        addressLocality: "Zürich",
+        addressCountry: "CH",
+      },
+      sameAs: [
+        repo,
+        "https://huggingface.co/joelbarmettler",
+        "https://pypi.org/project/gheim/",
+        "https://www.npmjs.com/package/gheim",
+        "https://souverana.ch",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": siteId,
+      url: "https://gheim.ch",
+      name: "gheim",
+      inLanguage: "en",
+      publisher: { "@id": orgId },
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://gheim.ch/#software",
+      name: "gheim",
+      url: "https://gheim.ch",
+      description,
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Any",
+      license: "https://www.apache.org/licenses/LICENSE-2.0",
+      image: "https://gheim.ch/og-image.png",
+      sameAs: [repo],
+      offers: { "@type": "Offer", price: "0", priceCurrency: "CHF" },
+      publisher: { "@id": orgId },
+      isPartOf: { "@id": siteId },
+    },
+  ],
+};
+---
+
+<Base
+  title={title}
+  description={description}
+  ogDescription="Anonymise personally identifiable information before it leaves your device. De-anonymise the LLM response on the way back."
+  jsonLd={jsonLd}
+>
+  <main class="mx-auto max-w-6xl px-6 sm:px-10 py-10 sm:py-14">
+    <Hero />
+    <!-- Pre-rendered at build time (crawlers get the section copy); only
+         hydrated once it scrolls into view. -->
+    <Demo client:visible />
+    <HowItWorks />
+    <Quickstart />
+    <Footer />
+  </main>
+</Base>

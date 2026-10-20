@@ -213,6 +213,20 @@ body::before {
   overflow: auto;
 }
 
+/* Anchor links (e.g. "Try the demo →") scroll smoothly. */
+html {
+  scroll-behavior: smooth;
+}
+
+/* The .kicker rule sets a fixed dark-grey colour, which would make the tab
+ * title invisible on the inverted (selected) install tab. */
+.tab[data-active="true"] .kicker {
+  color: var(--color-paper);
+}
+.tab[data-active="true"] .tab-sub {
+  color: var(--color-paper-dim);
+}
+
 /* Code block style */
 .codeblock {
   font-family: var(--font-mono);

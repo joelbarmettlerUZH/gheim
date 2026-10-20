@@ -1,10 +1,6 @@
-<script setup lang="ts">
-function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-</script>
+---
+---
 
-<template>
   <section class="pt-4 pb-16 sm:pb-24">
     <!-- Top bar -->
     <header class="flex items-center justify-between mb-16 sm:mb-24">
@@ -50,7 +46,7 @@ function scrollTo(id: string) {
         <h1
           class="font-serif font-medium leading-[1.05] text-[2.6rem] sm:text-[4.2rem] tracking-[-0.015em]"
         >
-          <span class="redact" data-static="true" aria-label="redacted">Anonymise</span><br />
+          <span class="redact" data-static="true">Anonymise</span><br />
           PII before it leaves<br />
           your <span class="italic text-accent">device.</span>
         </h1>
@@ -65,12 +61,11 @@ function scrollTo(id: string) {
       </div>
       <div class="sm:col-span-4 flex sm:justify-end">
         <div class="flex flex-col gap-3 sm:items-end w-full sm:w-auto">
-          <button
+          <a
+            href="#demo"
             class="btn btn-primary w-full sm:w-auto justify-center"
-            @click="scrollTo('demo')"
+            >Try the demo →</a
           >
-            Try the demo →
-          </button>
           <a
             href="https://github.com/joelbarmettlerUZH/gheim"
             target="_blank"
@@ -108,4 +103,3 @@ function scrollTo(id: string) {
       </div>
     </div>
   </section>
-</template>
