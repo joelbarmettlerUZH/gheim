@@ -146,15 +146,19 @@ bun add gheim openai <span class="tok-string">@huggingface/transformers</span></
             <span class="kicker">Install</span>
             <button class="text-xs font-mono text-ink-soft hover:text-accent" @click="copy('ll-install')">copy</button>
           </div>
-          <pre id="ll-install" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-comment"># Next to your LiteLLM proxy</span>
+          <pre id="ll-install" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-comment"># Your own LiteLLM (venv, VM, pod)</span>
 pip install <span class="tok-string">"gheim[litellm,local]"</span>
 
-<span class="tok-comment"># Or with a remote detection server:</span>
-pip install <span class="tok-string">"gheim[litellm]"</span>
+<span class="tok-comment"># Official LiteLLM Docker image: extend it.</span>
+<span class="tok-comment"># Its virtualenv has no pip, so bootstrap it.</span>
+<span class="tok-keyword">FROM</span> ghcr.io/berriai/litellm:main-stable
+<span class="tok-keyword">RUN</span> /app/.venv/bin/python -m ensurepip \
+ &amp;&amp; /app/.venv/bin/python -m pip install \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    <span class="tok-string">"gheim[litellm,local]"</span>
 
-<span class="tok-comment"># Streaming is restored chunk by chunk: only a</span>
-<span class="tok-comment"># half-finished &lt;PERSON_1&gt; is held back, never the</span>
-<span class="tok-comment"># whole response.</span></pre>
+<span class="tok-comment"># No torch in the proxy? Install "gheim[litellm]" and</span>
+<span class="tok-comment"># point it at a gheim-server container (see README).</span></pre>
         </div>
 
         <div class="border border-rule rounded-md bg-paper flex flex-col">
