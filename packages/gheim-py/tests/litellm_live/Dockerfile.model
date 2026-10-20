@@ -1,0 +1,10 @@
+# LiteLLM image + CPU torch/transformers, so the guardrail can run the real
+# gheim model: docker build -f Dockerfile.model -t gheim-litellm-model .
+ARG BASE=ghcr.io/berriai/litellm:v1.83.10-stable
+FROM ghcr.io/astral-sh/uv:latest AS uv
+FROM ${BASE}
+USER root
+COPY --from=uv /uv /usr/local/bin/uv
+# --no-config: /app/pyproject.toml pins a different uv version.
+RUN uv --no-config pip install --python /app/.venv/bin/python --index-url https://download.pytorch.org/whl/cpu torch \
+ && uv --no-config pip install --python /app/.venv/bin/python transformers phonenumbers dateparser

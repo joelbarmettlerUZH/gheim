@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-type Tab = "python" | "node" | "browser";
+type Tab = "python" | "node" | "litellm" | "browser";
 const tab = ref<Tab>("python");
 
 const tabs: { id: Tab; label: string; sub: string }[] = [
   { id: "python", label: "Python", sub: "openai SDK · drop-in" },
   { id: "node", label: "Node / Bun", sub: "openai SDK · drop-in" },
+  { id: "litellm", label: "LiteLLM", sub: "proxy guardrail · streaming" },
   { id: "browser", label: "Browser", sub: "transformers.js · in-process" },
 ];
 
@@ -31,7 +32,8 @@ function copy(id: string) {
         <p class="text-ink-soft text-sm leading-relaxed">
           The Python and Node packages ship a drop-in replacement for the
           official OpenAI client. Anonymisation and round-trip restoration
-          happen automatically — including in streamed responses.
+          happen automatically — including in streamed responses. Running a
+          LiteLLM proxy? Use the guardrail plugin instead.
         </p>
       </div>
     </div>
@@ -133,6 +135,50 @@ bun add gheim openai <span class="tok-string">@huggingface/transformers</span></
 
 <span class="tok-comment">// r.choices[0].message.content contains "Joel".</span>
 <span class="tok-comment">// OpenAI only ever saw &lt;PERSON_1&gt;.</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div v-show="tab === 'litellm'">
+      <div class="grid lg:grid-cols-2 gap-3 items-stretch">
+        <div class="border border-rule rounded-md bg-paper flex flex-col">
+          <div class="flex items-center justify-between px-4 py-2 border-b border-rule">
+            <span class="kicker">Install</span>
+            <button class="text-xs font-mono text-ink-soft hover:text-accent" @click="copy('ll-install')">copy</button>
+          </div>
+          <pre id="ll-install" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-comment"># Next to your LiteLLM proxy</span>
+pip install <span class="tok-string">"gheim[litellm,local]"</span>
+
+<span class="tok-comment"># Or with a remote detection server:</span>
+pip install <span class="tok-string">"gheim[litellm]"</span>
+
+<span class="tok-comment"># Streaming is restored chunk by chunk: only a</span>
+<span class="tok-comment"># half-finished &lt;PERSON_1&gt; is held back, never the</span>
+<span class="tok-comment"># whole response.</span></pre>
+        </div>
+
+        <div class="border border-rule rounded-md bg-paper flex flex-col">
+          <div class="flex items-center justify-between px-4 py-2 border-b border-rule">
+            <span class="kicker">config.yaml · guardrail</span>
+            <button class="text-xs font-mono text-ink-soft hover:text-accent" @click="copy('ll-code')">copy</button>
+          </div>
+          <pre id="ll-code" class="codeblock m-0 rounded-none rounded-b-md flex-1"><span class="tok-keyword">guardrails</span>:
+  - guardrail_name: <span class="tok-string">gheim-pii</span>
+    litellm_params:
+      guardrail: <span class="tok-string">gheim.litellm.GheimGuardrail</span>
+      mode: <span class="tok-string">pre_call</span>   <span class="tok-comment"># post_call is added for you</span>
+      default_on: <span class="tok-string">true</span>
+      <span class="tok-comment"># Every knob is plain YAML:</span>
+      <span class="tok-comment"># detector: composite | remote | local</span>
+      <span class="tok-comment"># o_bias: 0.5</span>
+      <span class="tok-comment"># propagate_names: true</span>
+      <span class="tok-comment"># custom_patterns:</span>
+      <span class="tok-comment">#   - label: case_id</span>
+      <span class="tok-comment">#     regex: 'Dossier\s+(ZH-\d{4}-\d{5})'</span>
+      <span class="tok-comment">#     group: 1</span>
+
+<span class="tok-comment"># Every provider behind the proxy only sees</span>
+<span class="tok-comment"># &lt;PERSON_1&gt;; your clients get "Joel" back.</span></pre>
         </div>
       </div>
     </div>

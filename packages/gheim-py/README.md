@@ -272,6 +272,84 @@ so it must start with a letter and contain only letters, digits and
 underscores; reuse a built-in label such as `account_number` to share its tag.
 An optional `validator` callable can reject a match, for example on a checksum.
 
+## LiteLLM proxy plugin
+
+A guardrail for the [LiteLLM](https://docs.litellm.ai) proxy, in the role of the
+Presidio guardrail. Requests are anonymized before they reach any provider;
+responses are restored on the way back, **chunk by chunk when streaming**.
+Only a possibly-incomplete sentinel (a few characters) is held back, so
+time-to-first-token and chunk cadence are preserved. Presidio's
+`output_parse_pii` buffers the whole stream and re-emits it as one chunk.
+
+```bash
+pip install "gheim[litellm,local]"      # drop `local` when using a remote detector
+```
+
+```yaml
+# config.yaml
+guardrails:
+  - guardrail_name: gheim-pii
+    litellm_params:
+      guardrail: gheim.litellm.GheimGuardrail
+      mode: pre_call          # post_call is added automatically
+      default_on: true
+      # detector: remote      # remote | local | calibrated | "module:factory"
+      # api_key: os.environ/GHEIM_API_KEY
+```
+
+LiteLLM releases that predate importable guardrail paths (e.g. v1.83) only
+load classes from a file next to `config.yaml`. Put a one-line
+`gheim_guardrail.py` there — `from gheim.litellm import GheimGuardrail` — and
+use `guardrail: gheim_guardrail.GheimGuardrail`.
+
+Every detector knob is available in YAML, under `litellm_params`. The default
+is the composite detector (checksum regexes + `gheim-ch-560m`), as in Python:
+
+```yaml
+    litellm_params:
+      guardrail: gheim.litellm.GheimGuardrail
+      mode: pre_call
+      default_on: true
+      detector: composite        # composite | calibrated | local | remote | "module:factory"
+      detector_model: joelbarmettler/gheim-ch-560m
+      o_bias: 0.5                # calibrated / composite
+      device: auto               # auto | cpu | cuda | cuda:N
+      dtype: bfloat16            # name of a torch dtype
+      chunk_tokens: 510
+      chunk_overlap_tokens: 32
+      batch_size: 8
+      trim_whitespace: true
+      propagate_names: true      # composite: mask later occurrences of a found name
+      propagate_surnames: false  # composite: also the single capitalised name parts
+      custom_patterns:           # composite: regex rules for your own formats
+        - label: case_id         # becomes <CASE_ID_1>
+          regex: 'Dossier\s+(ZH-\d{4}-\d{5})'
+          group: 1               # capture group that is the PII (0 = whole match)
+          flags: IGNORECASE      # name, "A|B" or a list (default IGNORECASE)
+          validator: mypkg.checks:is_valid   # optional, str -> bool
+          name: court-dossier    # optional, for error messages
+      normalizers:               # per-label canonical forms (needs gheim[normalizers])
+        private_phone: e164
+        private_date: iso_date
+      api_key: os.environ/GHEIM_API_KEY      # remote detector
+      api_base: https://api.gheim.ch
+      timeout: 30
+      restore_output: true       # false: return the model's anonymized output as-is
+      session_ttl_seconds: 3600  # drop state of calls that never reach a response hook
+```
+
+A knob the chosen detector would ignore (say `o_bias` with `remote`, or
+`custom_patterns` with `local`) is a startup error, not a silent no-op.
+Setting `api_key` (or `GHEIM_API_KEY`) without `detector` selects `remote`.
+
+Scope: `/chat/completions` — text content (incl.
+multimodal text parts), restored in `content`, reasoning and tool-call
+arguments (JSON-escaped), streaming and non-streaming. The sentinel mapping
+stays in process memory and is never written to request metadata or logs.
+Raw-byte passthrough streams (e.g. native Anthropic SSE) are not restored.
+
+Live tests against the official Docker image: `tests/litellm_live/run_live.sh`.
+
 ## Consulting
 
 gheim is built and maintained by
