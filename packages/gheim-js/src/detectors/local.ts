@@ -12,6 +12,7 @@
  * be silently truncated by the underlying pipeline. Multiple inputs and
  * within-input chunks are batched together for one forward pass.
  */
+import { snapToWords } from "./base.ts";
 import type { Detector, Span } from "./base.ts";
 
 export const DEFAULT_MODEL = "joelbarmettler/gheim-ch-560m";
@@ -378,10 +379,7 @@ export class LocalDetector implements Detector {
         });
       }
     }
-    for (const spans of out) {
-      spans.sort((a, b) => a.start - b.start || a.end - b.end);
-    }
-    return out;
+    return out.map((spans, i) => snapToWords(texts[i] ?? "", spans));
   }
 
   private async chunkText(

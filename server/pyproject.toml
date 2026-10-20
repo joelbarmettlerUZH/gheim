@@ -1,6 +1,6 @@
 [project]
 name = "gheim-server"
-version = "0.1.0"
+version = "0.1.1"
 description = "PII detection HTTP server — pairs with the `gheim` client library."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -13,6 +13,7 @@ dependencies = [
     "torch>=2.2",
     "transformers>=4.45",
     "huggingface-hub>=0.24",
+    "gheim>=0.1.7",
 ]
 
 [project.optional-dependencies]
@@ -30,3 +31,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/gheim_server"]
+
+[tool.uv.sources]
+gheim = { workspace = true }

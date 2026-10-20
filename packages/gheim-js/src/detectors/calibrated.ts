@@ -26,6 +26,7 @@
  * `defaultDetector()` returns this with oBias=0.5, so users get the
  * better behavior automatically.
  */
+import { snapToWords } from "./base.ts";
 import type { Detector, Span } from "./base.ts";
 import type { LocalDetectorLoadEvent } from "./local.ts";
 
@@ -203,7 +204,7 @@ export class CalibratedDetector implements Detector {
     }
     if (!text) return [];
     await this.load();
-    return this._detectChunked(text);
+    return snapToWords(text, await this._detectChunked(text));
   }
 
   private async _detectChunked(text: string): Promise<Span[]> {
@@ -261,7 +262,7 @@ export class CalibratedDetector implements Detector {
     }
     // Argmax per token; build (token_id, label) list.
     const inputIds = readInputIds(enc.input_ids);
-    const tokenLabels: Array<{ id: number; label: string }> = [];
+    const tokenLabels: Array<{ id: number; label: string; prob: number }> = [];
     for (let t = 0; t < logits.length; t++) {
       const row = logits[t];
       const id = inputIds[t];
@@ -274,7 +275,11 @@ export class CalibratedDetector implements Detector {
           maxIdx = i;
         }
       }
-      tokenLabels.push({ id, label: this._id2label[maxIdx] ?? "O" });
+      // Probability of the chosen class, from the same (biased) logits the
+      // argmax used, so a span's score agrees with the decision behind it.
+      let denom = 0;
+      for (let i = 0; i < row.length; i++) denom += Math.exp(row[i]! - maxVal);
+      tokenLabels.push({ id, label: this._id2label[maxIdx] ?? "O", prob: 1 / denom });
     }
     // BIO aggregation: collapse consecutive same-category tokens. For each
     // collapsed group, decode its tokens to a surface form, then locate
@@ -284,9 +289,13 @@ export class CalibratedDetector implements Detector {
     const spans: Span[] = [];
     let cursor = 0;
     let groupIds: number[] = [];
+    let groupProbs: number[] = [];
     let groupCat: string | null = null;
     const flush = () => {
       if (groupCat === null || groupIds.length === 0) return;
+      // Mean token probability, as transformers' "simple" aggregation does.
+      const score = groupProbs.reduce((a, b) => a + b, 0) / groupProbs.length;
+      groupProbs = [];
       const surface = normalizeDecoded(
         tokenizer.decode(groupIds, { skip_special_tokens: true }),
       );
@@ -306,17 +315,19 @@ export class CalibratedDetector implements Detector {
         end: e + charOffset,
         label: cat,
         text: text.slice(s, e),
-        score: 1.0,
+        score,
       });
     };
-    for (const { id, label } of tokenLabels) {
+    for (const { id, label, prob } of tokenLabels) {
       const cat = label === "O" ? null : label.split("-", 2)[1] ?? null;
       if (cat === groupCat && cat !== null) {
         groupIds.push(id);
+        groupProbs.push(prob);
       } else {
         flush();
         if (cat !== null) {
           groupIds.push(id);
+          groupProbs.push(prob);
           groupCat = cat;
         }
       }

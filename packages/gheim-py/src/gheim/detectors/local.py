@@ -5,7 +5,7 @@ import threading
 from dataclasses import dataclass, field
 from typing import Annotated, Any
 
-from .base import Span, trim_span
+from .base import Span, snap_to_words, trim_span
 
 DEFAULT_MODEL = "joelbarmettler/gheim-ch-560m"
 
@@ -212,9 +212,7 @@ class LocalDetector:
                     score=float(r.get("score", 1.0)),
                 ))
 
-        for spans in out:
-            spans.sort(key=lambda s: (s.start, s.end))
-        return out
+        return [snap_to_words(texts[i], spans) for i, spans in enumerate(out)]
 
 
 def _token_char_offsets(tokenizer: Any, text: str) -> list[tuple[int, int]]:

@@ -1,4 +1,4 @@
-"""Model registry — lazy-loads HuggingFace token-classification pipelines per model id."""
+"""Model registry — lazy-loads one chunking detector per model id."""
 from __future__ import annotations
 
 import os
@@ -12,7 +12,13 @@ ALLOWED_MODELS = {
 
 
 class ModelRegistry:
-    """One pipeline per model id, loaded on first request, cached forever after."""
+    """One detector per model id, loaded on first request, cached forever after.
+
+    The detector is ``gheim.LocalDetector``, which splits inputs longer than the
+    model's 512-token limit into overlapping windows and merges the spans.
+    A bare token-classification pipeline would silently ignore everything past
+    the first ~512 tokens (about 1,700 characters).
+    """
 
     def __init__(self) -> None:
         self._pipelines: dict[str, Any] = {}
@@ -33,25 +39,15 @@ class ModelRegistry:
 
     @staticmethod
     def _load(model_id: str) -> Any:
-        import torch
-        from transformers import AutoModelForTokenClassification, AutoTokenizer, pipeline
+        from gheim import LocalDetector
 
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        tokenizer = AutoTokenizer.from_pretrained(model_id)
-        model = AutoModelForTokenClassification.from_pretrained(model_id)
-        model.to(device)
-        model.eval()
-        return pipeline(
-            task="token-classification",
-            model=model,
-            tokenizer=tokenizer,
-            device=0 if device == "cuda" else -1,
-            aggregation_strategy="simple",
-        )
+        # Weights load on the first detect() call (thread-safe); device "auto"
+        # picks CUDA when available, else CPU.
+        return LocalDetector(model_id=model_id, device="auto")
 
     def warmup(self) -> None:
         """Pre-load the default model so the first request is fast."""
-        self.get(DEFAULT_MODEL)
+        self.get(DEFAULT_MODEL).detect("Warm-up.")
 
 
 registry = ModelRegistry()

@@ -89,7 +89,7 @@ def test_long_input_finds_pii_at_the_end():
     """The bug we're fixing: PII near the end of a long document got
     silently truncated. With 1k chars and chunk_tokens=200, the input
     needs ~5 chunks; the Joel at char 950 was unreachable before."""
-    text = "x" * 950 + "Joel was here." + "y" * 50
+    text = "." * 950 + "Joel was here." + "." * 50
     pipe = _FakePipeline()
     det = _detector(pipe, chunk_tokens=200, chunk_overlap_tokens=20)
     spans = det.detect(text)
@@ -103,11 +103,11 @@ def test_long_input_finds_pii_at_the_end():
 def test_long_input_finds_pii_at_start_middle_and_end():
     """Sanity: PII anywhere in the document gets surfaced exactly once."""
     pieces = [
-        ("a" * 50) + "Joel" + ("b" * 50),       # block 0: 104 chars, Joel at 50
-        ("c" * 400),                            # block 1: 400 chars
-        ("d" * 50) + "Joel" + ("e" * 50),       # block 2: 104 chars, Joel at 554
-        ("f" * 400),                            # block 3: 400 chars
-        ("g" * 50) + "Joel" + ("h" * 50),       # block 4: 104 chars, Joel at 1058
+        ("." * 50) + "Joel" + ("." * 50),       # block 0: 104 chars, Joel at 50
+        ("." * 400),                            # block 1: 400 chars
+        ("." * 50) + "Joel" + ("." * 50),       # block 2: 104 chars, Joel at 554
+        ("." * 400),                            # block 3: 400 chars
+        ("." * 50) + "Joel" + ("." * 50),       # block 4: 104 chars, Joel at 1058
     ]
     text = "".join(pieces)
     pipe = _FakePipeline()
@@ -125,7 +125,7 @@ def test_pii_in_overlap_region_is_deduplicated():
     # Place Joel exactly inside the overlap window of two chunks.
     # chunk_tokens=100, overlap=20 → stride=80. Chunk 1 covers [0, 100),
     # chunk 2 covers [80, 180). A Joel at [85, 89) lives in both.
-    text = ("x" * 85) + "Joel" + ("y" * 100)
+    text = ("." * 85) + "Joel" + ("." * 100)
     pipe = _FakePipeline()
     det = _detector(pipe, chunk_tokens=100, chunk_overlap_tokens=20)
     spans = det.detect(text)
@@ -172,7 +172,7 @@ def test_detect_batch_chunks_long_inputs_and_batches_chunks():
     """Long inputs become multiple chunks; the chunks across all inputs
     flow through a single batched call."""
     short = "Joel here."
-    long_ = ("x" * 200) + "Joel" + ("y" * 200)  # needs ~3 chunks at chunk_tokens=180
+    long_ = ("." * 200) + "Joel" + ("." * 200)  # needs ~3 chunks at chunk_tokens=180
     pipe = _FakePipeline()
     det = _detector(pipe, chunk_tokens=180, chunk_overlap_tokens=20, batch_size=8)
     results = det.detect_batch([short, long_])

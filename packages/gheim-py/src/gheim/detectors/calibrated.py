@@ -29,7 +29,7 @@ import threading
 from dataclasses import dataclass, field
 from typing import Annotated, Any
 
-from .base import Span, trim_span
+from .base import Span, snap_to_words, trim_span
 from .local import _DEFAULT_CHUNK_TOKENS, _DEFAULT_OVERLAP_TOKENS, DEFAULT_MODEL
 
 
@@ -38,7 +38,8 @@ class CalibratedDetector:
     """Local model with O-logit calibration.
 
     Same surface as ``LocalDetector`` (lazy weight load, sliding-window
-    chunking for long inputs, threadsafe), but bypasses the HF
+    chunking for long inputs, threadsafe; a span's ``score`` is the mean
+    token probability, as with ``aggregation_strategy="simple"``), but bypasses the HF
     ``pipeline("token-classification")`` so it can intercept raw logits
     and apply ``o_bias`` before argmax. The aggregation that follows is
     a from-scratch reimplementation of ``aggregation_strategy="simple"``:
@@ -133,7 +134,7 @@ class CalibratedDetector:
         if not text:
             return []
         self._ensure_loaded()
-        return self._detect_chunked(text)
+        return snap_to_words(text, self._detect_chunked(text))
 
     def _detect_chunked(self, text: str) -> list[Span]:
         """Chunk-aware inference. For inputs that fit in one window the
@@ -195,38 +196,54 @@ class CalibratedDetector:
         if self.o_bias != 0.0:
             logits[:, self._o_id] -= float(self.o_bias)
         pred_ids = logits.argmax(dim=-1).tolist()
+        # Probability of the chosen class at each token, from the same
+        # (biased) logits the argmax used, so a span's score agrees with
+        # the decision that produced it.
+        token_probs = logits.softmax(dim=-1).max(dim=-1).values.tolist()
 
         # BIO aggregation: collapse contiguous same-category tokens into
         # one span. This mirrors transformers' "simple" aggregation but
-        # without the post-softmax pruning that the pipeline does.
+        # without the post-softmax pruning that the pipeline does. The
+        # span score is the mean token probability, as in "simple".
         spans: list[Span] = []
         cur_start, cur_end, cur_cat = None, None, None
-        for (s, e), pid in zip(offsets, pred_ids):
+        cur_probs: list[float] = []
+        for (s, e), pid, prob in zip(offsets, pred_ids, token_probs, strict=True):
             if s == e:  # special token (CLS, SEP, pad)
                 continue
             lab = self._id2label[int(pid)]
             cat = None if lab == "O" else lab.split("-", 1)[1]
             if cat == cur_cat and cat is not None:
                 cur_end = e
+                cur_probs.append(prob)
             else:
                 if cur_cat is not None:
-                    spans.append(self._make_span(text, cur_start, cur_end, cur_cat,
-                                                  char_offset))
+                    span = self._make_span(text, cur_start, cur_end, cur_cat,
+                                           char_offset, cur_probs)
+                    if span is not None:
+                        spans.append(span)
                 cur_start, cur_end, cur_cat = s, e, cat
+                cur_probs = [prob]
         if cur_cat is not None:
-            spans.append(self._make_span(text, cur_start, cur_end, cur_cat,
-                                          char_offset))
+            span = self._make_span(text, cur_start, cur_end, cur_cat,
+                                   char_offset, cur_probs)
+            if span is not None:
+                spans.append(span)
         return spans
 
     def _make_span(
         self, text: str, start: int, end: int, label: str, char_offset: int,
-    ) -> Span:
+        probs: list[float],
+    ) -> Span | None:
         if self.trim_whitespace:
-            start, end = trim_span(text, start, end)
+            trimmed = trim_span(text, start, end)
+            if trimmed is None:
+                return None  # whitespace-only span
+            start, end = trimmed
         return Span(
             start=start + char_offset,
             end=end + char_offset,
             label=label,
             text=text[start:end],
-            score=1.0,  # we collapsed across the softmax; no per-span score
+            score=sum(probs) / len(probs),
         )
