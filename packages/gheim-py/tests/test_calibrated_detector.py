@@ -27,11 +27,13 @@ slow = pytest.mark.skipif(
 )
 
 
-def test_default_detector_is_calibrated_when_no_api_key(monkeypatch):
-    """default_detector() must return a CalibratedDetector by default."""
+def test_default_detector_is_composite_over_calibrated_when_no_api_key(monkeypatch):
+    """default_detector() returns the regex front-end around the calibrated model."""
+    from gheim import CompositeDetector
     monkeypatch.delenv("GHEIM_API_KEY", raising=False)
     det = default_detector()
-    assert isinstance(det, CalibratedDetector)
+    assert isinstance(det, CompositeDetector)
+    assert isinstance(det.model, CalibratedDetector)
 
 
 def test_default_detector_uses_remote_when_api_key_set(monkeypatch):
@@ -122,3 +124,14 @@ def test_calibration_no_false_positives_on_pii_free_text():
         "der Vorinstanz bestätigt."
     )
     assert len(spans) == 0, f"expected no spans on PII-free text, got {spans}"
+
+
+@live
+def test_spans_carry_a_real_confidence_score():
+    """Scores are the mean token probability, not a constant 1.0: strictly
+    inside (0, 1], and a clear name scores higher than a doubtful one."""
+    det = CalibratedDetector(device="cpu")
+    spans = det.detect("Sehr geehrte Frau Müller, wir bestätigen Ihren Termin.")
+    assert spans, "expected at least one span"
+    assert all(0.0 < s.score <= 1.0 for s in spans)
+    assert any(s.score < 1.0 for s in spans), "scores must not all be the old constant 1.0"

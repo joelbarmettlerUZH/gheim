@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   CalibratedDetector,
+  CompositeDetector,
   defaultDetector,
   RemoteDetector,
 } from "../src/index.ts";
@@ -50,14 +51,16 @@ describe("CalibratedDetector — construction", () => {
 });
 
 describe("defaultDetector wiring", () => {
-  test("returns CalibratedDetector when no GHEIM_API_KEY in env", () => {
+  test("returns the composite over a calibrated model when no GHEIM_API_KEY in env", () => {
     const prev = process.env.GHEIM_API_KEY;
     delete process.env.GHEIM_API_KEY;
     try {
       const det = defaultDetector();
-      expect(det).toBeInstanceOf(CalibratedDetector);
+      expect(det).toBeInstanceOf(CompositeDetector);
+      const model = (det as CompositeDetector).model;
+      expect(model).toBeInstanceOf(CalibratedDetector);
       // And the calibration knob is set to the production default.
-      expect((det as CalibratedDetector).oBias).toBe(0.5);
+      expect((model as CalibratedDetector).oBias).toBe(0.5);
     } finally {
       if (prev !== undefined) process.env.GHEIM_API_KEY = prev;
     }

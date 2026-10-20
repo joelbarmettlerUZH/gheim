@@ -194,7 +194,8 @@ const remote = new RemoteDetector({
   apiKey: "...",
 });
 
-// Picks remote when GHEIM_API_KEY is set in the environment, else local.
+// Picks remote when GHEIM_API_KEY is set in the environment, else the composite
+// detector (checksum regex + calibrated local model, see below).
 const auto = defaultDetector();
 ```
 
@@ -221,11 +222,90 @@ dist/types/**/*.d.ts
 ## Composite detector (recommended for production)
 
 For categories where structure is verifiable by checksum (CH-IBAN, AHV,
-VAT-CHE, credit cards, common token formats), the Python sibling
-package ships a composite detector that pairs the regex catalogue with
-the model. The JavaScript package implements the model side; combine
-with your own regex layer or proxy through `gheim-server`, which
-applies the composite detector internally.
+VAT-CHE, credit cards, common token formats) the `CompositeDetector` applies a
+regex catalogue first, masks the matched spans, then runs the model on the
+remainder. `defaultDetector()` returns it (over `CalibratedDetector`) unless
+`GHEIM_API_KEY` is set; use `new CalibratedDetector()` for the model alone.
+
+```ts
+import { CalibratedDetector, CompositeDetector } from "gheim";
+
+const detector = new CompositeDetector({ model: new CalibratedDetector() });
+```
+
+`gheim-server` runs the model only, with no regex layer. To add the regex front-end
+and the name handling below to a server, wrap a `RemoteDetector`:
+`new CompositeDetector({ model: new RemoteDetector({ baseUrl }) })`.
+
+### Long inputs
+
+Inputs longer than the model's 512-token limit are split into overlapping
+windows (`chunkTokens: 510`, `chunkOverlapTokens: 32`) and the spans merged.
+Smaller windows catch more on dense documents but produce more false positives:
+on a Swiss test set of mixed letters and long email threads, 128-token windows
+found noticeably more entities than 510 before repeated-name handling was added,
+at about 40 extra false positives; with it, the gain was small and the false
+positives remained. The default stays at 510; lower it only after measuring on
+your own documents.
+
+### Repeated names
+
+A token classifier often tags a name once and skips a later occurrence of the
+same string, so a name caught in a greeting leaks again in a signature. The
+composite therefore masks every other occurrence of a string the model found as
+a person (`propagateNames`, on by default). A longer propagated occurrence
+replaces shorter model fragments it contains (`Käthi` inside `Zbinden Käthi`).
+`propagateSurnames: true` also propagates the individual capitalised parts of
+each detected name, honorifics such as "Frau" excluded: higher recall, more
+false positives. `propagateNames: false` turns it off.
+
+### Confidence
+
+`CalibratedDetector` sets each span's `score` to the mean token probability of
+its tokens, computed from the same logits the label decision used. Clear cases
+score near 1.0; ambiguous ones score visibly lower. Regex spans score 1.0.
+
+### Your own patterns
+
+Formats that only your deployment has (insurance card numbers, hospital record
+numbers, internal case IDs, ...) are not built in. Pass them as `CustomPattern`
+rules; they run in the regex front-end, are masked before the model sees the
+text, and win over a model span they overlap.
+
+```ts
+import { CalibratedDetector, CompositeDetector, CustomPattern } from "gheim";
+
+const detector = new CompositeDetector({
+  model: new CalibratedDetector(),
+  patterns: [
+    // whole match is the PII
+    new CustomPattern({ label: "insurance_card", regex: /\b80756(?:[ .\-]?\d){15}\b/ }),
+    // hospital / case numbers after a label word (DE/FR/IT/EN); reported as
+    // account_number, only the digits (group 1) are masked
+    new CustomPattern({
+      label: "account_number",
+      regex:
+        /\b(?:PID|FID|IPP|MRN|Patienten-?(?:nummer|nr\.?|id)|Patienten ?nr\.?|Fall-?(?:nummer|nr\.?)|Fall|KG-?Nr\.?|Patient ?ID|case|N° ?(?:patient|de séjour|dossier|IPP)|N\. ?(?:paziente|caso)|numero ?(?:paziente|caso))[ ]?[:#]?[ ]?(\d{6,11})\b/i,
+      group: 1,
+    }),
+    // a label word anchors the match; only group 1 (the ID) is masked.
+    // The `i` flag covers the label words; the validator keeps the ID letter upper case.
+    new CustomPattern({
+      label: "id_document",
+      regex: /\b(?:pass|ausweis|id-?karte)(?:[ \-]?(?:nr\.?|nummer))?[ ]?[:#]?[ ]?([A-Za-z]\d{7})\b/i,
+      group: 1,
+      validator: (id) => /^[A-Z]/.test(id),
+    }),
+  ],
+});
+```
+
+`label` becomes the placeholder tag (`insurance_card` -> `<INSURANCE_CARD_1>`), so
+it must start with a letter and contain only letters, digits and underscores;
+reuse a built-in label such as `account_number` to share its tag. A string
+`regex` is compiled with `flags` (default `"i"`); a `RegExp` keeps its own.
+`validator` receives the PII text and can reject a match, for example on a
+checksum.
 
 ## License
 

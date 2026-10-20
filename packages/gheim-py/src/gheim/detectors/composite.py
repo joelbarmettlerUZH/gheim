@@ -32,7 +32,7 @@ the same eval harness with no plumbing changes.
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Annotated, Any, Protocol
 
@@ -319,6 +319,106 @@ def _find_regex_spans(text: str) -> list[Span]:
     return [sp for sp, _ in _find_regex_spans_with_subtype(text)]
 
 
+@dataclass(frozen=True)
+class CustomPattern:
+    """A user-supplied regex rule for formats that are specific to one deployment.
+
+    Matches run in the regex front-end next to the built-in rules: the text
+    is masked before the model sees it, and a match wins over any model span
+    it overlaps. Nothing here is Swiss- or domain-specific; the rules a
+    deployment needs (insurance card numbers, internal case IDs, ...) are
+    passed in by the caller.
+
+    ``label`` becomes the placeholder tag (``insurance_card`` ->
+    ``<INSURANCE_CARD_1>``), so it must be letters, digits and underscores,
+    starting with a letter. Use a built-in label such as ``account_number``
+    to share its tag. ``group`` selects the capture group that is the PII
+    itself, which lets a label word anchor the match without being masked
+    (``Pass-Nr. (X1234567)``). ``validator`` receives the matched text and
+    returns False to reject it (a checksum, for instance). String patterns
+    are compiled with ``flags``; a pre-compiled pattern keeps its own.
+    """
+
+    label: Annotated[str, "Label of the spans this rule produces."]
+    regex: Annotated[str | re.Pattern[str], "Pattern to search for."]
+    group: Annotated[int, "Capture group that is the PII (0 = whole match)."] = 0
+    flags: Annotated[int, "Flags for a string pattern."] = re.IGNORECASE
+    validator: Annotated[Callable[[str], bool] | None, "Reject a match when this returns False."] = None
+    name: Annotated[str | None, "Optional name for error messages and logs."] = None
+
+    def __post_init__(self) -> None:
+        if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", self.label):
+            raise ValueError(
+                f"CustomPattern label {self.label!r} must start with a letter and contain only "
+                "letters, digits and underscores (it becomes a <TAG_1> placeholder)."
+            )
+        compiled = self.regex if isinstance(self.regex, re.Pattern) else re.compile(self.regex, self.flags)
+        if not 0 <= self.group <= compiled.groups:
+            raise ValueError(
+                f"CustomPattern {self.name or self.label!r}: group {self.group} does not exist "
+                f"(the pattern has {compiled.groups})."
+            )
+        object.__setattr__(self, "regex", compiled)
+
+    def find(self, text: str) -> list[Span]:
+        out: list[Span] = []
+        for m in self.regex.finditer(text):  # type: ignore[union-attr]
+            start, end = m.span(self.group)
+            if start < 0 or start == end:
+                continue  # optional group did not take part, or empty match
+            value = text[start:end]
+            if self.validator is not None and not self.validator(value):
+                continue
+            out.append(Span(start=start, end=end, label=self.label, text=value, score=1.0))
+        return out
+
+
+_NAME_PART_RE = re.compile(r"[A-ZÀ-Ý][\wÀ-ÿ'’-]{3,}")
+# Honorifics are capitalised words of 4+ letters; propagating them as surnames
+# would mask every "Frau" in the text.
+_HONORIFICS = frozenset({
+    "frau", "herr", "herrn", "madame", "monsieur", "signora", "signor", "signore",
+    "dott", "dottor", "dottoressa", "doktor", "docteur", "prof", "professor",
+    "mister", "miss", "mrs",
+})
+
+
+def _propagate_names(text: str, spans: list[Span], surnames: bool) -> list[Span]:
+    """Return ``spans`` plus a span for every other occurrence of a string already found as a person.
+
+    The model often tags one occurrence of a name and skips later ones, so a
+    name seen in a greeting leaks again in a signature. An occurrence that
+    lies inside an existing span is skipped. One that contains shorter
+    existing spans (a fragment such as ``Käthi`` of ``Zbinden Käthi``)
+    replaces them. With ``surnames`` the capitalised parts of each detected
+    name are propagated too (higher recall, more false positives).
+    """
+    names: set[str] = set()
+    for sp in spans:
+        if sp.label != "private_person":
+            continue
+        value = text[sp.start:sp.end].strip()
+        if len(value) >= 4:
+            names.add(value)
+        if surnames:
+            names.update(
+                part for part in _NAME_PART_RE.findall(value)
+                if part.casefold() not in _HONORIFICS
+            )
+    result = list(spans)
+    for name in sorted(names, key=len, reverse=True):
+        for m in re.finditer(r"(?<!\w)" + re.escape(name) + r"(?!\w)", text):
+            start, end = m.start(), m.end()
+            hits = [sp for sp in result if start < sp.end and sp.start < end]
+            if any(sp.start <= start and end <= sp.end for sp in hits):
+                continue  # already covered by a span at least as long
+            if any(sp.start < start or end < sp.end for sp in hits):
+                continue  # straddles a span boundary: leave it to the detector
+            result = [sp for sp in result if sp not in hits]
+            result.append(Span(start=start, end=end, label="private_person", text=m.group(), score=1.0))
+    return result
+
+
 def _mask_spans(text: str, spans: list[Span]) -> str:
     """Replace each span's characters with the same number of spaces.
 
@@ -358,6 +458,20 @@ class CompositeDetector:
         Any,
         "Pre-constructed model detector (must expose detect(text) -> list[Span]).",
     ]
+    patterns: Annotated[
+        Sequence[CustomPattern],
+        "Extra regex rules for formats specific to your deployment (see CustomPattern).",
+    ] = ()
+    propagate_names: Annotated[
+        bool,
+        "Mask every other occurrence of a string the model found as a person, "
+        "so a name caught once is not leaked by a later occurrence.",
+    ] = True
+    propagate_surnames: Annotated[
+        bool,
+        "With propagate_names: also propagate the individual capitalised parts of "
+        "each detected name. Higher recall, more false positives.",
+    ] = False
 
     def detect(self, text: str) -> list[Span]:
         """Two-pass detection: regex first (with checksum), then model on
@@ -366,6 +480,16 @@ class CompositeDetector:
         if not text:
             return []
         regex_spans = _find_regex_spans(text)
+        extra: list[Span] = []
+        for pattern in self.patterns:
+            extra.extend(pattern.find(text))
+        if extra:
+            # Built-in rules keep their spans; an extra rule only fills the gaps,
+            # longest match first when two extra rules overlap.
+            for sp in sorted(extra, key=lambda sp: (sp.start, -(sp.end - sp.start))):
+                if not any(sp.start < other.end and other.start < sp.end for other in regex_spans):
+                    regex_spans.append(sp)
+            regex_spans.sort(key=lambda sp: sp.start)
         masked = _mask_spans(text, regex_spans)
         model_spans = self.model.detect(masked)
         # Overlap resolution: regex wins on any overlap (regex spans are
@@ -378,5 +502,7 @@ class CompositeDetector:
                    for re_start, re_end in regex_ranges):
                 continue  # overlaps a regex span — drop the model claim
             all_spans.append(sp)
+        if self.propagate_names:
+            all_spans = _propagate_names(text, all_spans, self.propagate_surnames)
         all_spans.sort(key=lambda s: (s.start, -(s.end - s.start)))
         return all_spans

@@ -26,6 +26,7 @@ export {
   RemoteDetector,
   LocalDetector,
   CompositeDetector,
+  CustomPattern,
   CalibratedDetector,
   defaultDetector,
 } from "./detectors/index.ts";
@@ -34,6 +35,7 @@ export type {
   LocalDetectorOptions,
   LocalDetectorLoadEvent,
   CompositeDetectorOptions,
+  CustomPatternOptions,
   CalibratedDetectorOptions,
 } from "./detectors/index.ts";
 export {

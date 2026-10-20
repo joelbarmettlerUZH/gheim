@@ -13,6 +13,8 @@ from .core.session import ApplySpansResult, MergedSpan, Session
 from .core.stream import StreamDeanonymizer
 from .detectors import (
     CalibratedDetector,
+    CompositeDetector,
+    CustomPattern,
     Detector,
     LocalDetector,
     RemoteDetector,
@@ -33,6 +35,8 @@ __version__ = "0.1.6"
 __all__ = [
     "ApplySpansResult",
     "CalibratedDetector",
+    "CompositeDetector",
+    "CustomPattern",
     "Detector",
     "LocalDetector",
     "MergedSpan",

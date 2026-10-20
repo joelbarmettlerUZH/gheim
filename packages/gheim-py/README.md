@@ -173,7 +173,8 @@ det = LocalDetector(device="auto", dtype=torch.bfloat16)
 # Remote inference against your own gheim-server or api.gheim.ch.
 det = RemoteDetector(base_url="http://your-host:8080", api_key="...")
 
-# default_detector() picks remote if GHEIM_API_KEY is set, else local.
+# default_detector() picks remote if GHEIM_API_KEY is set, else the composite
+# detector (checksum regex + calibrated local model, see below).
 det = default_detector()
 ```
 
@@ -186,7 +187,80 @@ detector. The composite detector applies regex first, masks matched
 spans, then runs the model on the remainder. This pushes effective
 recall on `account_number`, `private_phone`, and `private_url` close
 to 1.0 with high precision; the underlying ML model handles person
-names, addresses, and dates.
+names, addresses, and dates. `default_detector()` returns this composite
+(over `CalibratedDetector`) unless `GHEIM_API_KEY` is set; use
+`CalibratedDetector()` directly for the model alone.
+
+### Long inputs
+
+Inputs longer than the model's 512-token limit are split into overlapping
+windows (`chunk_tokens=510`, `chunk_overlap_tokens=32`) and the spans merged.
+Smaller windows catch more on dense documents but produce more false positives:
+on a Swiss test set of mixed letters and long email threads, 128-token windows
+found noticeably more entities than 510 before repeated-name handling was added,
+at about 40 extra false positives; with it, the gain was small and the false
+positives remained. The default stays at 510; lower it only after measuring on
+your own documents.
+
+### Repeated names
+
+A token classifier often tags a name once and skips a later occurrence of the
+same string, so a name caught in a greeting leaks again in a signature. The
+composite therefore masks every other occurrence of a string the model found as
+a person (`propagate_names=True`, the default). A longer propagated occurrence
+replaces shorter model fragments it contains (`Käthi` inside `Zbinden Käthi`).
+`propagate_surnames=True` also propagates the individual capitalised parts of
+each detected name, honorifics such as "Frau" excluded: higher recall, more
+false positives. `propagate_names=False` turns it off.
+
+### Confidence
+
+`CalibratedDetector` sets each span's `score` to the mean token probability of
+its tokens (as `aggregation_strategy="simple"` does), computed from the same
+logits the label decision used. Clear cases score near 1.0; ambiguous ones, such
+as a surname that is also a company name, score visibly lower. Regex spans score
+1.0.
+
+### Your own patterns
+
+Formats that only your deployment has (insurance card numbers, hospital record
+numbers, internal case IDs, ...) are not built in. Pass them as `CustomPattern` rules; they run in the
+regex front-end, are masked before the model sees the text, and win over a
+model span they overlap.
+
+```python
+import re
+from gheim import CompositeDetector, CustomPattern, CalibratedDetector
+
+detector = CompositeDetector(
+    model=CalibratedDetector(),
+    patterns=[
+        # whole match is the PII
+        CustomPattern("insurance_card", r"\b80756(?:[ .\-]?\d){15}\b"),
+        # hospital / case numbers after a label word (Swiss hospital letters, DE/FR/IT/EN);
+        # reported as account_number, only the digits (group 1) are masked
+        CustomPattern(
+            "account_number",
+            r"\b(?:PID|FID|IPP|MRN|Patienten-?(?:nummer|nr\.?|id)|Patienten ?nr\.?|Fall-?(?:nummer|nr\.?)|Fall|"
+            r"KG-?Nr\.?|Patient ?ID|case|N° ?(?:patient|de séjour|dossier|IPP)|N\. ?(?:paziente|caso)|"
+            r"numero ?(?:paziente|caso))[ ]?[:#]?[ ]?(\d{6,11})\b",
+            group=1,
+        ),
+        # a label word anchors the match; only group 1 (the ID) is masked
+        CustomPattern(
+            "id_document",
+            r"\b(?i:pass|ausweis|id-?karte)(?i:[ \-]?(?:nr\.?|nummer))?[ ]?[:#]?[ ]?([A-Z]\d{7})\b",
+            group=1,
+            flags=0,  # label words are case-insensitive via (?i:...); the ID letter is not
+        ),
+    ],
+)
+```
+
+`label` becomes the placeholder tag (`insurance_card` -> `<INSURANCE_CARD_1>`),
+so it must start with a letter and contain only letters, digits and
+underscores; reuse a built-in label such as `account_number` to share its tag.
+An optional `validator` callable can reject a match, for example on a checksum.
 
 ## License
 

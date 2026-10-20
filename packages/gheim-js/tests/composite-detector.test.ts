@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { CompositeDetector } from "../src/detectors/composite.ts";
+import { CompositeDetector, CustomPattern } from "../src/detectors/composite.ts";
+import { Session } from "../src/core/session.ts";
 import type { Detector, Span } from "../src/detectors/base.ts";
 
 /** A fake `Detector` that returns whatever the test pre-loads. The
@@ -657,5 +658,186 @@ describe("CompositeDetector + Session round-trip", () => {
     // Round-trip: restore brings everything back.
     const restored = sess.restore(redacted);
     expect(restored).toBe(text);
+  });
+});
+
+
+// ── Name propagation ──────────────────────────────────────────────────
+
+function person(text: string, name: string, occurrence = 0): Span {
+  let start = -1;
+  for (let i = 0; i <= occurrence; i++) start = text.indexOf(name, start + 1);
+  return { label: "private_person", start, end: start + name.length, text: name, score: 1.0 };
+}
+
+const textsOf = (spans: Span[], label: string) =>
+  spans.filter((s) => s.label === label).map((s) => s.text);
+
+describe("CompositeDetector name propagation", () => {
+  test("a name found once is propagated to later occurrences", async () => {
+    const text = "Guten Tag Martina Tschudi, Rechnung folgt. Gruss, Martina Tschudi.";
+    const { detector } = fakeModel([person(text, "Martina Tschudi")]);
+    const out = await new CompositeDetector({ model: detector }).detect(text);
+    expect(textsOf(out, "private_person")).toEqual(["Martina Tschudi", "Martina Tschudi"]);
+  });
+
+  test("respects word boundaries", async () => {
+    const text = "Herr Bühler schrieb. Die Bühlergasse ist gesperrt.";
+    const { detector } = fakeModel([person(text, "Bühler")]);
+    const out = await new CompositeDetector({ model: detector }).detect(text);
+    expect(textsOf(out, "private_person")).toEqual(["Bühler"]);
+  });
+
+  test("does not duplicate spans the model already found", async () => {
+    const text = "Anna Keller und Anna Keller.";
+    const { detector } = fakeModel([person(text, "Anna Keller", 0), person(text, "Anna Keller", 1)]);
+    expect((await new CompositeDetector({ model: detector }).detect(text)).length).toBe(2);
+  });
+
+  test("can be disabled", async () => {
+    const text = "Martina Tschudi schrieb. Später schrieb Martina Tschudi nochmals.";
+    const { detector } = fakeModel([person(text, "Martina Tschudi")]);
+    const c = new CompositeDetector({ model: detector, propagateNames: false });
+    expect((await c.detect(text)).length).toBe(1);
+  });
+
+  test("surname propagation is opt-in and skips honorifics", async () => {
+    const text = "Frau Tschudi kam. Später sagte Tschudi nichts. Die Frau ging.";
+    const { detector } = fakeModel([person(text, "Frau Tschudi")]);
+    expect((await new CompositeDetector({ model: detector }).detect(text)).length).toBe(1);
+    const out = await new CompositeDetector({ model: detector, propagateSurnames: true }).detect(text);
+    expect(textsOf(out, "private_person")).toEqual(["Frau Tschudi", "Tschudi"]);
+  });
+
+  test("only follows persons", async () => {
+    const text = "Kontakt: Bern. Später wohnt jemand in Bern.";
+    const i = text.indexOf("Bern");
+    const city: Span = { label: "private_address", start: i, end: i + 4, text: "Bern", score: 1.0 };
+    const { detector } = fakeModel([city]);
+    expect((await new CompositeDetector({ model: detector }).detect(text)).length).toBe(1);
+  });
+
+  test("a propagated name replaces the fragment the model found elsewhere", async () => {
+    const text = "Patient Zbinden Käthi kam. Später meldete sich Zbinden Käthi erneut.";
+    const { detector } = fakeModel([person(text, "Käthi", 0), person(text, "Zbinden Käthi", 1)]);
+    const out = await new CompositeDetector({ model: detector }).detect(text);
+    expect(textsOf(out, "private_person")).toEqual(["Zbinden Käthi", "Zbinden Käthi"]);
+  });
+
+  test("never shrinks a longer existing span", async () => {
+    const text = "Herr Anna Keller kam. Dann sagte Anna Keller nichts.";
+    const { detector } = fakeModel([person(text, "Herr Anna Keller"), person(text, "Anna Keller", 1)]);
+    const out = await new CompositeDetector({ model: detector }).detect(text);
+    expect(textsOf(out, "private_person")).toEqual(["Herr Anna Keller", "Anna Keller"]);
+  });
+});
+
+// ── Custom patterns ───────────────────────────────────────────────────
+
+// Deployment-specific formats, supplied by the caller rather than shipped.
+const INSURANCE_CARD = new CustomPattern({
+  label: "insurance_card",
+  regex: /\b80756(?:[ .\-]?\d){15}\b/,
+  name: "kvg card",
+});
+const ID_DOCUMENT = new CustomPattern({
+  label: "id_document",
+  regex: /\b(?:pass|passport|passeport|ausweis|id-?karte)(?:[ \-]?(?:nr\.?|nummer|no\.?|n°))?[ ]?[:#]?[ ]?([A-Za-z]\d{7})\b/i,
+  group: 1,
+  validator: (v) => /^[A-Z]/.test(v), // the ID letter is upper case; the label words are not
+});
+const RECORD_NUMBER = new CustomPattern({
+  label: "account_number",
+  regex:
+    /\b(?:PID|FID|IPP|MRN|Patienten-?(?:nummer|nr\.?|id)|Patienten ?nr\.?|Fall-?(?:nummer|nr\.?)|Fall|KG-?Nr\.?|Patient ?ID|case|N° ?(?:patient|de séjour|dossier|IPP)|N\. ?(?:paziente|caso)|numero ?(?:paziente|caso))[ ]?[:#]?[ ]?(\d{6,11})\b/i,
+  group: 1,
+});
+
+const withPatterns = (...patterns: CustomPattern[]) =>
+  new CompositeDetector({ model: fakeModel([]).detector, patterns });
+
+describe("CompositeDetector custom patterns", () => {
+  test("finds a user format", async () => {
+    const text = "Versichertenkarte Nr. 80756 63705 20760 47669 liegt vor.";
+    const out = await withPatterns(INSURANCE_CARD).detect(text);
+    expect(textsOf(out, "insurance_card")).toEqual(["80756 63705 20760 47669"]);
+  });
+
+  test("group masks only the captured part", async () => {
+    const text = "Identität geprüft: Pass-Nr. E2099840, Urs Müller.";
+    expect(textsOf(await withPatterns(ID_DOCUMENT).detect(text), "id_document")).toEqual(["E2099840"]);
+  });
+
+  test("stays silent without the context", async () => {
+    expect(await withPatterns(ID_DOCUMENT).detect("Artikel E2099840 ist lieferbar.")).toEqual([]);
+  });
+
+  test("a validator can reject a match", async () => {
+    expect(await withPatterns(ID_DOCUMENT).detect("Pass-Nr. e2099840")).toEqual([]);
+    const evenOnly = new CustomPattern({
+      label: "ticket",
+      regex: /\bT-(\d{4})\b/,
+      group: 1,
+      validator: (v) => Number(v) % 2 === 0,
+    });
+    const text = "T-1001 und T-1002";
+    expect(textsOf(await withPatterns(evenOnly).detect(text), "ticket")).toEqual(["1002"]);
+  });
+
+  test("is masked before the model sees the text", async () => {
+    const { detector, lastMasked } = fakeModel([]);
+    await new CompositeDetector({ model: detector, patterns: [INSURANCE_CARD] }).detect(
+      "Karte 80756 63705 20760 47669.",
+    );
+    expect(lastMasked.value).not.toContain("63705");
+  });
+
+  test("built-in rules win over custom patterns on overlap", async () => {
+    const digits = new CustomPattern({ label: "digits", regex: "\\d{10,}" });
+    const out = await withPatterns(digits).detect("IBAN CH9300762011623852957 ok.");
+    expect(out.map((s) => s.label)).toEqual(["account_number"]);
+  });
+
+  test("a string pattern is case-insensitive by default; a RegExp keeps its own flags", async () => {
+    const text = "Code ab-123456.";
+    expect(await withPatterns(new CustomPattern({ label: "code", regex: /AB-\d{6}/ })).detect(text)).toEqual([]);
+    const out = await withPatterns(new CustomPattern({ label: "code", regex: "AB-\\d{6}" })).detect(text);
+    expect(textsOf(out, "code")).toEqual(["ab-123456"]);
+  });
+
+  test("rejects a label that cannot be a placeholder tag", () => {
+    for (const bad of ["", "1card", "my card", "karte-ch"]) {
+      expect(() => new CustomPattern({ label: bad, regex: "\\d+" })).toThrow(/label/);
+    }
+  });
+
+  test("rejects a group that does not exist", () => {
+    expect(() => new CustomPattern({ label: "x", regex: "\\d+", group: 2 })).toThrow(/group 2/);
+  });
+
+  test("a custom label round-trips through a session", async () => {
+    const text = "Karte 80756 63705 20760 47669 gültig.";
+    const spans = await withPatterns(INSURANCE_CARD).detect(text);
+    const session = new Session();
+    const redacted = session.applySpans(text, spans);
+    expect(redacted).not.toContain("80756");
+    expect(redacted).toContain("<INSURANCE_CARD_1>");
+    expect(session.restore(redacted)).toBe(text);
+  });
+
+  test("record-number example needs a label and six to eleven digits", async () => {
+    for (const label of ["PID", "Fall-Nr.", "patient ID", "Patienten-Nr.", "N° patient", "N. paziente", "MRN:"]) {
+      const text = `Dossier ${label} 20289135 ouvert.`;
+      expect(textsOf(await withPatterns(RECORD_NUMBER).detect(text), "account_number")).toEqual(["20289135"]);
+    }
+    const det = withPatterns(RECORD_NUMBER);
+    expect(await det.detect("Die Nummer 20289135 ist frei.")).toEqual([]);
+    expect(await det.detect("Fall-Nr. 12345 ist zu kurz.")).toEqual([]);
+    expect(await det.detect("Fall-Nr. 123456789012 ist zu lang.")).toEqual([]);
+  });
+
+  test("record numbers are not detected without a user pattern", async () => {
+    const { detector } = fakeModel([]);
+    expect(await new CompositeDetector({ model: detector }).detect("Fall-Nr. 4559576277")).toEqual([]);
   });
 });
