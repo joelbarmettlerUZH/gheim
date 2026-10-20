@@ -13,16 +13,15 @@ if str(SERVER_SRC) not in sys.path:
 
 
 class _FakePipeline:
-    """Returns a fixed span for any text containing 'Joel'."""
+    """Stands in for gheim.LocalDetector: one fixed span for any text containing 'Joel'."""
 
-    def __call__(self, text: str):
-        out = []
+    def detect(self, text: str):
+        from gheim import Span
+
         idx = text.find("Joel")
-        if idx >= 0:
-            out.append(
-                {"entity_group": "private_person", "start": idx, "end": idx + 4, "score": 0.95}
-            )
-        return out
+        if idx < 0:
+            return []
+        return [Span(label="private_person", start=idx, end=idx + 4, text="Joel", score=0.95)]
 
 
 @pytest.fixture
@@ -119,3 +118,51 @@ def test_auth_required_when_keys_configured(monkeypatch):
             headers={"Authorization": "Bearer secret-key-1"},
         )
         assert r.status_code == 200
+
+
+def test_registry_builds_a_chunking_detector(monkeypatch):
+    """The registry must hand out gheim.LocalDetector (sliding windows), not a bare pipeline
+    that silently ignores everything past ~512 tokens. Construction is lazy: no weights load."""
+    import importlib
+
+    from gheim import LocalDetector
+
+    monkeypatch.setenv("GHEIM_ALLOWED_MODELS", "custom/test")
+    import gheim_server.registry as reg_mod
+    importlib.reload(reg_mod)
+    det = reg_mod.ModelRegistry().get("custom/test")
+    assert isinstance(det, LocalDetector)
+    assert det.model_id == "custom/test"
+    assert det.chunk_tokens == 510
+
+
+@pytest.mark.skipif(
+    __import__("os").getenv("GHEIM_RUN_LIVE", "").lower() not in ("1", "true", "yes"),
+    reason="set GHEIM_RUN_LIVE=1 to run live model tests",
+)
+def test_live_name_after_the_512_token_limit_is_found(monkeypatch):
+    """With the real model: a name ~5,000 characters in must be detected, which a bare
+    pipeline over the whole text would not do."""
+    import importlib
+
+    model = "joelbarmettler/gheim-ch-560m"
+    monkeypatch.setenv("GHEIM_SKIP_WARMUP", "1")
+    monkeypatch.setenv("GHEIM_DEFAULT_MODEL", model)
+    monkeypatch.setenv("GHEIM_ALLOWED_MODELS", model)
+    import gheim_server.registry as reg_mod
+    importlib.reload(reg_mod)
+    import gheim_server.main as main_mod
+    importlib.reload(main_mod)
+
+    filler = "Das Bundesgericht hat die Beschwerde nach Prüfung der Akten abgewiesen. " * 70
+    text = filler + "Sehr geehrte Frau Käthi Zbinden, wir bestätigen Ihren Termin."
+    assert len(text) > 5000
+    with TestClient(main_mod.app) as c:
+        body = c.post("/v1/detect", json={"text": text}).json()
+    # The model may emit a name as touching fragments ("Zbind" + "en"); what matters
+    # is that every character of it is covered.
+    covered = {
+        i for s in body["spans"] if s["label"] == "private_person" for i in range(s["start"], s["end"])
+    }
+    start = text.index("Zbinden")
+    assert all(i in covered for i in range(start, start + len("Zbinden")))

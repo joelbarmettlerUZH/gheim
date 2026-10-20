@@ -7,23 +7,30 @@ export {
 export type { RemoteDetectorOptions } from "./remote.ts";
 export { LocalDetector } from "./local.ts";
 export type { LocalDetectorOptions, LocalDetectorLoadEvent } from "./local.ts";
-export { CompositeDetector } from "./composite.ts";
-export type { CompositeDetectorOptions } from "./composite.ts";
+export { CompositeDetector, CustomPattern } from "./composite.ts";
+export type { CompositeDetectorOptions, CustomPatternOptions } from "./composite.ts";
 export { CalibratedDetector } from "./calibrated.ts";
 export type { CalibratedDetectorOptions } from "./calibrated.ts";
 
 import type { Detector } from "./base.ts";
 import { CalibratedDetector } from "./calibrated.ts";
+import { CompositeDetector } from "./composite.ts";
 import { RemoteDetector } from "./remote.ts";
 
 /** Pick a reasonable default: remote when `GHEIM_API_KEY` is set in env,
- *  else a calibrated local model.
+ *  else the composite detector (checksum regex front-end + calibrated local
+ *  model).
  *
- *  The calibrated default (`oBias=0.5`) is Pareto-clean on gheim-ch-560m:
- *  +0.27pp test char-F1 with no probe cost (91.5% perfect at both 0.0
- *  and 0.5). See eval/calibration_sweep.json. */
+ *  The calibrated model alone (`oBias=0.5`) is Pareto-clean on
+ *  gheim-ch-560m: +0.27pp test char-F1 with no probe cost (91.5% perfect at
+ *  both 0.0 and 0.5). See eval/calibration_sweep.json. The composite adds
+ *  what a token classifier cannot verify: checksummed IBAN / AHV / VAT /
+ *  card numbers, phone numbers, and repeated occurrences of a name it found
+ *  once. Use `new CalibratedDetector()` for the model alone. */
 export function defaultDetector(): Detector {
   const hasKey =
     typeof process !== "undefined" && Boolean(process.env?.GHEIM_API_KEY);
-  return hasKey ? new RemoteDetector() : new CalibratedDetector();
+  return hasKey
+    ? new RemoteDetector()
+    : new CompositeDetector({ model: new CalibratedDetector() });
 }

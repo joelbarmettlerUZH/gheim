@@ -237,11 +237,159 @@ function maskSpans(text: string, spans: Span[]): string {
   return chars.join("");
 }
 
+/** Options for {@link CustomPattern}. */
+export interface CustomPatternOptions {
+  /** Label of the spans this rule produces. It becomes the placeholder tag
+   *  (`insurance_card` -> `<INSURANCE_CARD_1>`), so it must start with a
+   *  letter and contain only letters, digits and underscores. Reuse a
+   *  built-in label such as `account_number` to share its tag. */
+  label: string;
+  /** Pattern to search for. A string is compiled with `flags`; a RegExp
+   *  keeps its own flags. */
+  regex: string | RegExp;
+  /** Capture group that is the PII itself (0 = whole match). Lets a label
+   *  word anchor the match without being masked (`Pass-Nr. (X1234567)`). */
+  group?: number;
+  /** Flags for a string pattern. Default `"i"`. `g` and `d` are always added. */
+  flags?: string;
+  /** Receives the PII text; return false to reject the match (a checksum,
+   *  or a case check, since JS has no scoped `(?i:...)` flag). */
+  validator?: (value: string) => boolean;
+  /** Optional name for error messages. */
+  name?: string;
+}
+
+/** A user-supplied regex rule for formats that are specific to one
+ *  deployment (insurance card numbers, hospital record numbers, internal
+ *  case IDs, ...). Nothing in the library is domain-specific: the caller
+ *  passes the rules it needs to {@link CompositeDetector}.
+ *
+ *  Matches run in the regex front-end next to the built-in rules: the text
+ *  is masked before the model sees it, and a match wins over any model span
+ *  it overlaps. */
+export class CustomPattern {
+  readonly label: string;
+  readonly group: number;
+  readonly name: string;
+  private readonly regex: RegExp;
+  private readonly validator: ((value: string) => boolean) | undefined;
+
+  constructor(opts: CustomPatternOptions) {
+    if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(opts.label)) {
+      throw new Error(
+        `CustomPattern label ${JSON.stringify(opts.label)} must start with a letter and contain ` +
+          "only letters, digits and underscores (it becomes a <TAG_1> placeholder).",
+      );
+    }
+    this.label = opts.label;
+    this.name = opts.name ?? opts.label;
+    this.group = opts.group ?? 0;
+    this.validator = opts.validator;
+    const source = typeof opts.regex === "string" ? opts.regex : opts.regex.source;
+    const base = typeof opts.regex === "string" ? (opts.flags ?? "i") : opts.regex.flags;
+    // `g` to iterate, `d` for the capture-group offsets.
+    const flags = [...new Set([...base, "g", "d"])].join("");
+    this.regex = new RegExp(source, flags);
+    // An empty alternative always matches, so its length tells how many groups exist.
+    const groups = (new RegExp(`${source}|`, flags.replace(/[gd]/g, "")).exec("") ?? []).length - 1;
+    if (!Number.isInteger(this.group) || this.group < 0 || this.group > groups) {
+      throw new Error(
+        `CustomPattern ${JSON.stringify(this.name)}: group ${this.group} does not exist ` +
+          `(the pattern has ${groups}).`,
+      );
+    }
+  }
+
+  /** Every non-empty, validated match of the PII group in `text`. */
+  find(text: string): Span[] {
+    const out: Span[] = [];
+    this.regex.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = this.regex.exec(text)) !== null) {
+      if (m[0] === "") {
+        this.regex.lastIndex++;
+        continue;
+      }
+      const range = (m as RegExpExecArray & { indices: Array<[number, number] | undefined> }).indices[
+        this.group
+      ];
+      if (!range || range[0] === range[1]) continue; // optional group did not take part
+      const [start, end] = range;
+      const value = text.slice(start, end);
+      if (this.validator && !this.validator(value)) continue;
+      out.push({ start, end, label: this.label, text: value, score: 1.0 });
+    }
+    return out;
+  }
+}
+
+const NAME_PART = /[A-ZÀ-Ý][\p{L}\p{N}_'’-]{3,}/gu;
+// Honorifics are capitalised words of 4+ letters; propagating them as
+// surnames would mask every "Frau" in the text.
+const HONORIFICS = new Set([
+  "frau", "herr", "herrn", "madame", "monsieur", "signora", "signor", "signore",
+  "dott", "dottor", "dottoressa", "doktor", "docteur", "prof", "professor",
+  "mister", "miss", "mrs",
+]);
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Return `spans` plus a span for every other occurrence of a string
+ *  already found as a person.
+ *
+ *  The model often tags one occurrence of a name and skips later ones, so a
+ *  name seen in a greeting leaks again in a signature. An occurrence that
+ *  lies inside an existing span is skipped. One that contains shorter
+ *  existing spans (a fragment such as `Käthi` of `Zbinden Käthi`) replaces
+ *  them. With `surnames` the capitalised parts of each detected name are
+ *  propagated too (higher recall, more false positives). */
+function propagateNames(text: string, spans: Span[], surnames: boolean): Span[] {
+  const names = new Set<string>();
+  for (const sp of spans) {
+    if (sp.label !== "private_person") continue;
+    const value = text.slice(sp.start, sp.end).trim();
+    if (value.length >= 4) names.add(value);
+    if (surnames) {
+      for (const part of value.match(NAME_PART) ?? []) {
+        if (!HONORIFICS.has(part.toLowerCase())) names.add(part);
+      }
+    }
+  }
+  let result = [...spans];
+  for (const name of [...names].sort((a, b) => b.length - a.length)) {
+    const re = new RegExp(
+      `(?<![\\p{L}\\p{N}_])${escapeRegExp(name)}(?![\\p{L}\\p{N}_])`,
+      "gu",
+    );
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text)) !== null) {
+      const start = m.index;
+      const end = start + m[0].length;
+      const hits = result.filter((sp) => start < sp.end && sp.start < end);
+      if (hits.some((sp) => sp.start <= start && end <= sp.end)) continue; // already covered
+      if (hits.some((sp) => sp.start < start || end < sp.end)) continue; // straddles a boundary
+      result = result.filter((sp) => !hits.includes(sp));
+      result.push({ start, end, label: "private_person", text: m[0], score: 1.0 });
+    }
+  }
+  return result;
+}
+
 /** Options for {@link CompositeDetector}. */
 export interface CompositeDetectorOptions {
   /** Inner detector — usually a {@link LocalDetector}. Anything with
    *  a `detect(text) → Promise<Span[]>` method works. */
   model: Detector;
+  /** Extra regex rules for formats specific to your deployment. */
+  patterns?: CustomPattern[];
+  /** Mask every other occurrence of a string the model found as a person,
+   *  so a name caught once is not leaked by a later occurrence. Default true. */
+  propagateNames?: boolean;
+  /** With `propagateNames`: also propagate the individual capitalised parts
+   *  of each detected name. Higher recall, more false positives. Default false. */
+  propagateSurnames?: boolean;
 }
 
 /** Regex front-end (with checksum validation) + model on the remainder.
@@ -257,6 +405,9 @@ export interface CompositeDetectorOptions {
  */
 export class CompositeDetector implements Detector {
   readonly model: Detector;
+  readonly patterns: readonly CustomPattern[];
+  readonly propagateNames: boolean;
+  readonly propagateSurnames: boolean;
 
   constructor(opts: CompositeDetectorOptions) {
     if (!opts || !opts.model) {
@@ -266,6 +417,9 @@ export class CompositeDetector implements Detector {
       );
     }
     this.model = opts.model;
+    this.patterns = opts.patterns ?? [];
+    this.propagateNames = opts.propagateNames ?? true;
+    this.propagateSurnames = opts.propagateSurnames ?? false;
   }
 
   /** Two-pass detection: regex first (with checksum), then model on
@@ -273,17 +427,28 @@ export class CompositeDetector implements Detector {
   async detect(text: string, opts?: { model?: string }): Promise<Span[]> {
     if (!text) return [];
     const regexSpans = findRegexSpans(text);
+    // Built-in rules keep their spans; a custom rule only fills the gaps,
+    // longest match first when two custom rules overlap.
+    const extra = this.patterns.flatMap((p) => p.find(text));
+    extra.sort((a, b) =>
+      a.start !== b.start ? a.start - b.start : (b.end - b.start) - (a.end - a.start),
+    );
+    for (const sp of extra) {
+      if (!regexSpans.some((o) => sp.start < o.end && o.start < sp.end)) regexSpans.push(sp);
+    }
+    regexSpans.sort((a, b) => a.start - b.start);
     const masked = maskSpans(text, regexSpans);
     const modelSpans = await this.model.detect(masked, opts);
     // Overlap resolution: regex wins on any overlap (regex spans are
     // checksum-validated). Model spans fill the gaps.
-    const out: Span[] = [...regexSpans];
+    let out: Span[] = [...regexSpans];
     const regexRanges: [number, number][] = regexSpans.map((s) => [s.start, s.end]);
     for (const sp of modelSpans) {
       const overlaps = regexRanges.some(([rs, re]) => sp.start < re && rs < sp.end);
       if (overlaps) continue;
       out.push(sp);
     }
+    if (this.propagateNames) out = propagateNames(text, out, this.propagateSurnames);
     out.sort((a, b) =>
       a.start !== b.start ? a.start - b.start : (b.end - b.start) - (a.end - a.start),
     );

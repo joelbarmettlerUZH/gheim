@@ -10,6 +10,7 @@ from __future__ import annotations
 from gheim.detectors.base import Span
 from gheim.detectors.composite import (
     CompositeDetector,
+    CustomPattern,
     _ahv_ok,
     _find_regex_spans,
     _iban_ch_ok,
@@ -307,3 +308,187 @@ def test_composite_pure_text_no_pii() -> None:
     det = CompositeDetector(model=fake)
     out = det.detect(text)
     assert out == []
+
+
+def _texts(spans: list[Span], text: str, label: str) -> list[str]:
+    return [text[s.start:s.end] for s in spans if s.label == label]
+
+
+# ---------- name propagation ----------
+
+def _person(text: str, name: str, occurrence: int = 0) -> Span:
+    start = -1
+    for _ in range(occurrence + 1):
+        start = text.index(name, start + 1)
+    return Span(label="private_person", start=start, end=start + len(name), text=name, score=1.0)
+
+
+def test_name_found_once_is_propagated_to_later_occurrences() -> None:
+    text = "Guten Tag Martina Tschudi, Rechnung folgt. Gruss, Martina Tschudi."
+    out = CompositeDetector(model=_FakeModel(spans=[_person(text, "Martina Tschudi")])).detect(text)
+    assert _texts(out, text, "private_person") == ["Martina Tschudi", "Martina Tschudi"]
+
+
+def test_propagation_respects_word_boundaries() -> None:
+    text = "Herr Bühler schrieb. Die Bühlergasse ist gesperrt."
+    out = CompositeDetector(model=_FakeModel(spans=[_person(text, "Bühler")])).detect(text)
+    assert _texts(out, text, "private_person") == ["Bühler"]
+
+
+def test_propagation_does_not_duplicate_overlapping_spans() -> None:
+    text = "Anna Keller und Anna Keller."
+    model = _FakeModel(spans=[_person(text, "Anna Keller", 0), _person(text, "Anna Keller", 1)])
+    out = CompositeDetector(model=model).detect(text)
+    assert len(out) == 2
+
+
+def test_propagation_can_be_disabled() -> None:
+    text = "Martina Tschudi schrieb. Später schrieb Martina Tschudi nochmals."
+    det = CompositeDetector(model=_FakeModel(spans=[_person(text, "Martina Tschudi")]), propagate_names=False)
+    assert len(det.detect(text)) == 1
+
+
+def test_surname_propagation_is_opt_in_and_skips_honorifics() -> None:
+    text = "Frau Tschudi kam. Später sagte Tschudi nichts. Die Frau ging."
+    model = _FakeModel(spans=[_person(text, "Frau Tschudi")])
+    assert len(CompositeDetector(model=model).detect(text)) == 1
+    out = CompositeDetector(model=model, propagate_surnames=True).detect(text)
+    assert _texts(out, text, "private_person") == ["Frau Tschudi", "Tschudi"]
+
+
+def test_propagation_only_follows_persons() -> None:
+    text = "Kontakt: Bern. Später wohnt jemand in Bern."
+    city = Span(label="private_address", start=text.index("Bern"), end=text.index("Bern") + 4, text="Bern", score=1.0)
+    assert len(CompositeDetector(model=_FakeModel(spans=[city])).detect(text)) == 1
+
+
+def test_propagated_name_replaces_the_fragment_the_model_found_elsewhere() -> None:
+    text = "Patient Zbinden Käthi kam. Später meldete sich Zbinden Käthi erneut."
+    fragment = _person(text, "Käthi", 0)
+    full = _person(text, "Zbinden Käthi", 1)
+    out = CompositeDetector(model=_FakeModel(spans=[fragment, full])).detect(text)
+    assert _texts(out, text, "private_person") == ["Zbinden Käthi", "Zbinden Käthi"]
+
+
+def test_propagation_never_shrinks_a_longer_existing_span() -> None:
+    text = "Herr Anna Keller kam. Dann sagte Anna Keller nichts."
+    out = CompositeDetector(model=_FakeModel(spans=[_person(text, "Herr Anna Keller"), _person(text, "Anna Keller", 1)])).detect(text)
+    assert _texts(out, text, "private_person") == ["Herr Anna Keller", "Anna Keller"]
+
+
+# ---------- user-supplied patterns ----------
+
+# Deployment-specific formats, supplied by the caller rather than shipped.
+_INSURANCE_CARD = CustomPattern("insurance_card", r"\b80756(?:[ .\-]?\d){15}\b", name="kvg card")
+_ID_DOCUMENT = CustomPattern(
+    "id_document",
+    r"\b(?i:pass|passport|passeport|ausweis|id-?karte)(?i:[ \-]?(?:nr\.?|nummer|no\.?|n°))?[ ]?[:#]?[ ]?([A-Z]\d{7})\b",
+    group=1,
+    flags=0,
+    name="labelled id",
+)
+
+
+_RECORD_NUMBER = CustomPattern(
+    "account_number",
+    r"\b(?:PID|FID|IPP|MRN|Patienten-?(?:nummer|nr\.?|id)|Patienten ?nr\.?|Fall-?(?:nummer|nr\.?)|Fall|"
+    r"KG-?Nr\.?|Patient ?ID|case|N° ?(?:patient|de séjour|dossier|IPP)|N\. ?(?:paziente|caso)|"
+    r"numero ?(?:paziente|caso))[ ]?[:#]?[ ]?(\d{6,11})\b",
+    group=1,
+    name="labelled record number",
+)
+
+
+def _custom(*patterns: CustomPattern) -> CompositeDetector:
+    return CompositeDetector(model=_FakeModel(spans=[]), patterns=patterns)
+
+
+def test_custom_pattern_finds_user_format() -> None:
+    text = "Versichertenkarte Nr. 80756 63705 20760 47669 liegt vor."
+    out = _custom(_INSURANCE_CARD).detect(text)
+    assert _texts(out, text, "insurance_card") == ["80756 63705 20760 47669"]
+
+
+def test_custom_pattern_group_masks_only_the_captured_part() -> None:
+    text = "Identität geprüft: Pass-Nr. E2099840, Urs Müller."
+    out = _custom(_ID_DOCUMENT).detect(text)
+    assert _texts(out, text, "id_document") == ["E2099840"]
+
+
+def test_custom_pattern_without_matching_context_stays_silent() -> None:
+    assert _custom(_ID_DOCUMENT).detect("Artikel E2099840 ist lieferbar.") == []
+
+
+def test_custom_pattern_validator_can_reject_a_match() -> None:
+    only_even = CustomPattern("ticket", r"\bT-(\d{4})\b", group=1, validator=lambda v: int(v) % 2 == 0)
+    text = "T-1001 und T-1002"
+    assert _texts(_custom(only_even).detect(text), text, "ticket") == ["1002"]
+
+
+def test_custom_pattern_is_masked_before_the_model_sees_the_text() -> None:
+    fake = _FakeModel(spans=[])
+    CompositeDetector(model=fake, patterns=[_INSURANCE_CARD]).detect("Karte 80756 63705 20760 47669.")
+    assert "63705" not in (fake.last_text or "")
+
+
+def test_builtin_rules_win_over_custom_patterns_on_overlap() -> None:
+    text = "IBAN CH9300762011623852957 ok."
+    digits = CustomPattern("digits", r"\d{10,}")
+    out = _custom(digits).detect(text)
+    assert [sp.label for sp in out] == ["account_number"]
+
+
+def test_custom_pattern_label_must_fit_a_placeholder_tag() -> None:
+    for bad in ("", "1card", "my card", "karte-ch"):
+        try:
+            CustomPattern(bad, r"\d+")
+        except ValueError:
+            continue
+        raise AssertionError(f"label {bad!r} should have been rejected")
+
+
+def test_custom_pattern_group_must_exist() -> None:
+    try:
+        CustomPattern("x", r"\d+", group=2)
+    except ValueError as e:
+        assert "group 2" in str(e)
+    else:
+        raise AssertionError("missing group should have been rejected")
+
+
+def test_custom_pattern_accepts_a_precompiled_regex() -> None:
+    import re
+    text = "Code ab-123456."
+    pat = CustomPattern("code", re.compile(r"AB-\d{6}"))  # compiled without IGNORECASE
+    assert _custom(pat).detect(text) == []
+    pat = CustomPattern("code", re.compile(r"AB-\d{6}", re.IGNORECASE))
+    assert _texts(_custom(pat).detect(text), text, "code") == ["ab-123456"]
+
+
+def test_custom_label_round_trips_through_a_session() -> None:
+    from gheim import Session
+
+    text = "Karte 80756 63705 20760 47669 gültig."
+    spans = _custom(_INSURANCE_CARD).detect(text)
+    session = Session()
+    redacted = session.apply_spans(text, spans)
+    assert "80756" not in redacted and "<INSURANCE_CARD_1>" in redacted
+    assert session.restore(redacted) == text
+
+
+def test_record_number_example_is_labelled_case_insensitive_and_multilingual() -> None:
+    for label in ("PID", "Fall-Nr.", "patient ID", "Patienten-Nr.", "N° patient", "N. paziente", "MRN:"):
+        text = f"Dossier {label} 20289135 ouvert."
+        out = _custom(_RECORD_NUMBER).detect(text)
+        assert _texts(out, text, "account_number") == ["20289135"], label
+
+
+def test_record_number_example_needs_a_label_and_six_to_eleven_digits() -> None:
+    det = _custom(_RECORD_NUMBER)
+    assert det.detect("Die Nummer 20289135 ist frei.") == []
+    assert det.detect("Fall-Nr. 12345 ist zu kurz.") == []
+    assert det.detect("Fall-Nr. 123456789012 ist zu lang.") == []
+
+
+def test_record_numbers_are_not_detected_without_a_user_pattern() -> None:
+    assert CompositeDetector(model=_FakeModel(spans=[])).detect("Fall-Nr. 4559576277") == []
