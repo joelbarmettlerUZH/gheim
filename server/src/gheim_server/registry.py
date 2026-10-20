@@ -5,7 +5,7 @@ import os
 import threading
 from typing import Any
 
-DEFAULT_MODEL = os.getenv("GHEIM_DEFAULT_MODEL", "openai/privacy-filter")
+DEFAULT_MODEL = os.getenv("GHEIM_DEFAULT_MODEL", "joelbarmettler/gheim-ch-560m")
 ALLOWED_MODELS = {
     m.strip() for m in os.getenv("GHEIM_ALLOWED_MODELS", DEFAULT_MODEL).split(",") if m.strip()
 }

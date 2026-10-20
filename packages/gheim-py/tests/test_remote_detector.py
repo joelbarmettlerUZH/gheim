@@ -26,7 +26,7 @@ def test_basic_detect_request_shape_and_response_parsing():
         return httpx.Response(
             200,
             json={
-                "model": "openai/privacy-filter",
+                "model": "joelbarmettler/gheim-ch-560m",
                 "spans": [
                     {"label": "private_person", "start": 11, "end": 16, "score": 0.99},
                 ],
@@ -39,7 +39,7 @@ def test_basic_detect_request_shape_and_response_parsing():
 
     assert captured["method"] == "POST"
     assert captured["url"].endswith("/v1/detect")
-    assert captured["body"] == {"model": "openai/privacy-filter", "text": "My name is Alice."}
+    assert captured["body"] == {"model": "joelbarmettler/gheim-ch-560m", "text": "My name is Alice."}
     assert captured["auth"] == "Bearer secret-abc"
     assert len(spans) == 1
     assert spans[0].label == "private_person"
@@ -175,3 +175,12 @@ def test_close_releases_owned_client():
     # User's client must still be open.
     assert not user_client.is_closed
     user_client.close()
+
+
+def test_remote_and_local_detectors_default_to_the_same_model():
+    """Client and server defaults must name the same model, or a default RemoteDetector asks a
+    default server for a model it does not serve."""
+    from gheim.detectors.local import DEFAULT_MODEL as local_default
+    from gheim.detectors.remote import DEFAULT_MODEL as remote_default
+
+    assert remote_default == local_default == "joelbarmettler/gheim-ch-560m"
