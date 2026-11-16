@@ -422,6 +422,9 @@ Scope: `/chat/completions` — text content (incl.
 multimodal text parts), restored in `content`, reasoning and tool-call
 arguments (JSON-escaped), streaming and non-streaming. The sentinel mapping
 stays in process memory and is never written to request metadata or logs.
+Placeholders already in the request (text anonymised earlier with gheim)
+pass through verbatim in both directions: they are never re-detected, and a
+newly detected entity never reuses their index.
 Raw-byte passthrough streams (e.g. native Anthropic SSE) are not restored.
 
 Live tests against the official Docker image: `tests/litellm_live/run_live.sh`.

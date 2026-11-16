@@ -122,3 +122,23 @@ def test_session_persists_across_calls():
     anonymize_text("Alice met Joel", s)
     # Joel keeps its sentinel; Alice gets a new one.
     assert s.mapping == {"<PERSON_1>": "Joel", "<PERSON_2>": "Alice"}
+
+
+def test_anonymize_messages_does_not_reuse_index_from_a_later_message():
+    class _Anna:
+        def detect(self, text):
+            i = text.find("Anna")
+            return [Span("private_person", i, i + 4, "Anna")] if i >= 0 else []
+
+    s = Session()
+    out = anonymize_messages(
+        [
+            {"role": "user", "content": "Anna wrote"},
+            {"role": "user", "content": [{"type": "text", "text": "<PERSON_1> replied"}]},
+        ],
+        s,
+        detector=_Anna(),
+    )
+    assert out[0]["content"] == "<PERSON_2> wrote"
+    assert out[1]["content"][0]["text"] == "<PERSON_1> replied"
+    assert s.restore("<PERSON_1>, <PERSON_2>") == "<PERSON_1>, Anna"

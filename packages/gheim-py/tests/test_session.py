@@ -149,3 +149,41 @@ def test_session_roundtrip_json():
     # Counters survive: next allocation should not collide.
     new_sentinel = rebuilt.allocate("private_person", "Bob")
     assert new_sentinel == "<PERSON_3>"
+
+
+# -- sentinels already present in the input ----------------------------------
+# Text a caller anonymised earlier carries sentinels this session never issued.
+# They must pass through untouched, and their indices must not be reused, or
+# restore() would replace the caller's placeholder with a new entity's value.
+
+
+def test_preexisting_sentinel_index_is_not_reused():
+    s = Session()
+    text = "<PERSON_1> forwarded this from Anna"
+    out = s.apply_spans(text, [Span("private_person", 31, 35, "Anna")])
+    assert out == "<PERSON_1> forwarded this from <PERSON_2>"
+    assert s.mapping == {"<PERSON_2>": "Anna"}
+    assert s.restore(out) == text
+
+
+def test_span_overlapping_preexisting_sentinel_is_dropped():
+    s = Session()
+    text = "ask <PERSON_1> again"
+    # A detector may read the sentinel's own letters as a name.
+    out = s.apply_spans(text, [Span("private_person", 5, 13, "PERSON_1")])
+    assert out == text
+    assert s.mapping == {}
+
+
+def test_reserve_covers_text_anonymised_later():
+    s = Session()
+    s.reserve("second message quotes <PERSON_1> and <EMAIL_3>")
+    assert s.allocate("private_person", "Anna") == "<PERSON_2>"
+    assert s.allocate("private_email", "a@b.ch") == "<EMAIL_4>"
+
+
+def test_reserve_ignores_sentinels_this_session_issued():
+    s = Session()
+    assert s.allocate("private_person", "Anna") == "<PERSON_1>"
+    s.reserve("<PERSON_1>")
+    assert s.allocate("private_person", "Bob") == "<PERSON_2>"

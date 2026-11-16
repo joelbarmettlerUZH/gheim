@@ -155,6 +155,22 @@ class Session:
         self.mapping[sentinel] = surface
         return sentinel
 
+    def reserve(
+        self,
+        text: Annotated[str, "Text that may already carry sentinels from an earlier anonymisation."],
+    ) -> None:
+        """Keep sentinels this session did not issue from being allocated again.
+
+        Raises each tag's counter past every foreign sentinel in ``text``, so a
+        caller's ``<PERSON_1>`` keeps its meaning and ``restore()`` leaves it
+        alone. ``apply_spans`` calls this on its own text; call it up front for
+        every text when one session anonymises several (see ``anonymize_messages``).
+        """
+        for m in SENTINEL_RE.finditer(text):
+            if m.group(0) not in self.mapping:
+                tag = m["tag"]
+                self._counters[tag] = max(self._counters.get(tag, 0), int(m["index"]))
+
     def apply_spans(
         self,
         text: Annotated[str, "Original text the spans were detected in."],
@@ -182,6 +198,12 @@ class Session:
         merge again on the same input. Pure convenience — no extra cost
         over ``apply_spans``.
         """
+        self.reserve(text)
+        # A sentinel already in the text is never PII: drop spans that touch one.
+        taken = [(m.start(), m.end()) for m in SENTINEL_RE.finditer(text)]
+        spans = [
+            s for s in spans if not any(s.start < te and s.end > ts for ts, te in taken)
+        ]
         if not spans:
             return ApplySpansResult(redacted=text, merged=[])
         sorted_spans = sorted(spans, key=lambda s: (s.start, -(s.end - s.start)))

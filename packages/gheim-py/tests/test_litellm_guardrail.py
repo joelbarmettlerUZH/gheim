@@ -86,3 +86,12 @@ async def test_session_dropped_after_stream_and_ttl_sweep():
     await _setup(g=g)
     await _setup(g=g)  # sweep runs before the new session is registered
     assert len(g._sessions) == 1
+
+
+async def test_preexisting_sentinel_kept_verbatim_both_directions():
+    # Issue #4: a <PERSON_1> from an earlier manual anonymisation stays as-is,
+    # and a newly detected person gets a different placeholder.
+    g, data = await _setup("<PERSON_1> asked Anna Meier to call back")
+    assert data["messages"][0]["content"] == "<PERSON_1> asked <PERSON_2> to call back"
+    out = await _collect(g, data, [_chunk((0, "<PERSON_1> and <PERSON_2>", "stop"))])
+    assert _texts(out) == "<PERSON_1> and Anna Meier"
