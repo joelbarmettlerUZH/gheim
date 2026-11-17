@@ -434,3 +434,49 @@ describe("Strict mode", () => {
     expect(client.raw).toBe(fake as unknown as OpenAIClass);
   });
 });
+
+// ============================================================
+// Pre-existing sentinels across fields (issue #4)
+// ============================================================
+
+describe("Sentinels already in the request", () => {
+  test("Responses list input does not reuse a later element's index", async () => {
+    const { client, fake } = buildClient();
+    fake.responses.response = {
+      output: [{ content: [{ text: "<PERSON_1> and <PERSON_2>", type: "output_text" }] }],
+    };
+    await client.ready();
+    const r = (await client.responses.create({
+      model: "gpt-5",
+      input: ["Joel wrote", "<PERSON_1> replied"] as never,
+    })) as { output: Array<{ content: Array<{ text: string }> }> };
+    expect(fake.responses.calls[0]!.input).toEqual(["<PERSON_2> wrote", "<PERSON_1> replied"]);
+    expect(r.output[0]!.content[0]!.text).toBe("<PERSON_1> and Joel");
+  });
+
+  test("completions prompt list does not reuse a later element's index", async () => {
+    const { client, fake } = buildClient();
+    fake.completions.response = { choices: [] };
+    await client.ready();
+    await client.completions.create({ model: "x", prompt: ["Joel", "<PERSON_1>"] });
+    expect(fake.completions.calls[0]!.prompt).toEqual(["<PERSON_2>", "<PERSON_1>"]);
+  });
+
+  test("chat name and tool description sentinels are reserved", async () => {
+    const { client, fake } = buildClient();
+    fake.chat.completions.response = { choices: [] };
+    await client.ready();
+    await client.chat.completions.create({
+      model: "x",
+      messages: [{ role: "user", content: "Joel here", name: "<PERSON_1>" }],
+      tools: [{ type: "function", function: { name: "f", description: "ask <PERSON_2>" } }],
+    });
+    const sent = fake.chat.completions.calls[0]! as {
+      messages: Array<{ content: string; name: string }>;
+      tools: Array<{ function: { description: string } }>;
+    };
+    expect(sent.messages[0]!.content).toBe("<PERSON_3> here");
+    expect(sent.messages[0]!.name).toBe("<PERSON_1>");
+    expect(sent.tools[0]!.function.description).toBe("ask <PERSON_2>");
+  });
+});

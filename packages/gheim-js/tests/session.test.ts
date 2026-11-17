@@ -214,3 +214,70 @@ describe("Session duplicate-surface recovery", () => {
     expect(merged.length).toBe(2);
   });
 });
+
+// Text a caller anonymised earlier carries sentinels this session never
+// issued. They must pass through untouched, and their indices must not be
+// reused, or restore() would replace the caller's placeholder with a new
+// entity's value. Mirrors gheim-py tests/test_session.py.
+describe("Session with sentinels already in the input", () => {
+  test("does not reuse a pre-existing index", () => {
+    const s = new Session();
+    const text = "<PERSON_1> forwarded this from Anna";
+    const out = s.applySpans(text, [span("private_person", 31, 35, "Anna")]);
+    expect(out).toBe("<PERSON_1> forwarded this from <PERSON_2>");
+    expect(s.mapping).toEqual({ "<PERSON_2>": "Anna" });
+    expect(s.restore(out)).toBe(text);
+  });
+
+  test("span fully inside a sentinel is dropped", () => {
+    const s = new Session();
+    const text = "ask <PERSON_1> again";
+    expect(s.applySpans(text, [span("private_person", 5, 13, "PERSON_1")])).toBe(text);
+    expect(s.mapping).toEqual({});
+  });
+
+  test("span running into a sentinel is trimmed, so the PII next to it is redacted", () => {
+    const s = new Session();
+    const text = "Dr. <PERSON_1> Meier called";
+    const out = s.applySpans(text, [span("private_person", 4, 20, "<PERSON_1> Meier")]);
+    expect(out).toBe("Dr. <PERSON_1> <PERSON_2> called");
+    expect(s.mapping).toEqual({ "<PERSON_2>": "Meier" });
+  });
+
+  test("span around a sentinel keeps both sides", () => {
+    const s = new Session();
+    const text = "Anna <PERSON_1> Meier";
+    const out = s.applySpans(text, [span("private_person", 0, text.length, text)]);
+    expect(out).toBe("<PERSON_2> <PERSON_1> <PERSON_3>");
+    expect(s.mapping).toEqual({ "<PERSON_2>": "Anna", "<PERSON_3>": "Meier" });
+  });
+
+  test("unrelated markup token does not unredact adjacent PII", () => {
+    const s = new Session();
+    const text = "<TICKET_4711>Anna Meier";
+    const out = s.applySpans(text, [span("private_person", 0, text.length, text)]);
+    expect(out).toBe("<TICKET_4711><PERSON_1>");
+    expect(s.mapping).toEqual({ "<PERSON_1>": "Anna Meier" });
+  });
+
+  test("reserve covers text anonymised later", () => {
+    const s = new Session();
+    s.reserve("second message quotes <PERSON_1> and <EMAIL_3>");
+    expect(s.allocate("private_person", "Anna")).toBe("<PERSON_2>");
+    expect(s.allocate("private_email", "a@b.ch")).toBe("<EMAIL_4>");
+  });
+
+  test("reserve walks nested structures", () => {
+    const s = new Session();
+    s.reserve({ messages: [{ name: "<PERSON_4>", content: ["<EMAIL_2>"] }], n: 3 });
+    expect(s.allocate("private_person", "Anna")).toBe("<PERSON_5>");
+    expect(s.allocate("private_email", "a@b.ch")).toBe("<EMAIL_3>");
+  });
+
+  test("reserve leaves sentinels this session issued alone", () => {
+    const s = new Session();
+    expect(s.allocate("private_person", "Anna")).toBe("<PERSON_1>");
+    s.reserve("<PERSON_1>");
+    expect(s.allocate("private_person", "Bob")).toBe("<PERSON_2>");
+  });
+});

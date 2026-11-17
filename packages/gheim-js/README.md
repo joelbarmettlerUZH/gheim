@@ -148,6 +148,14 @@ OpenAI-typed helpers when you want manual control:
 import { anonymizeOpenAIMessages, deanonymizeOpenAIStream } from "gheim/openai";
 ```
 
+Placeholders already in the input (text anonymised earlier with gheim) pass
+through verbatim in both directions. They are never re-detected, and a newly
+detected entity never reuses their index. If you anonymise several texts with
+one session yourself, call `session.reserve(texts)` first. `anonymizeMessages`
+and the OpenAI wrapper do this for you. One limit: a placeholder that matches
+one this same session already issued cannot be told apart and is restored to
+the session's value.
+
 ## Wrapped endpoints
 
 The drop-in `OpenAI` client automatically protects every text-carrying endpoint:

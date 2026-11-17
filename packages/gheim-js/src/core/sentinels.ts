@@ -54,6 +54,19 @@ export function parseSentinel(s: string): Sentinel | null {
   return { tag: m.groups.tag!, index: Number.parseInt(m.groups.index!, 10) };
 }
 
+/** Every fully-formed sentinel in `text`, with its offsets. */
+export function* findSentinels(
+  text: string,
+): Generator<{ start: number; end: number; sentinel: Sentinel }> {
+  for (const m of text.matchAll(SENTINEL_RE)) {
+    yield {
+      start: m.index,
+      end: m.index + m[0].length,
+      sentinel: { tag: m.groups!.tag!, index: Number.parseInt(m.groups!.index!, 10) },
+    };
+  }
+}
+
 /**
  * Could `buffer` still become a sentinel if more characters arrive?
  * True iff buffer is a non-empty *strict* prefix of a valid sentinel.
