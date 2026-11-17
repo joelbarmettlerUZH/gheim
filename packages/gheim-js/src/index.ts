@@ -8,7 +8,7 @@
  *   - StreamDeanonymizer (low-level)
  */
 export { Session } from "./core/session.ts";
-export type { Normalizer, SessionOptions } from "./core/session.ts";
+export type { Normalizer, SessionJSON, SessionOptions } from "./core/session.ts";
 export {
   LABEL_TO_TAG,
   SENTINEL_RE,
