@@ -149,3 +149,75 @@ def test_session_roundtrip_json():
     # Counters survive: next allocation should not collide.
     new_sentinel = rebuilt.allocate("private_person", "Bob")
     assert new_sentinel == "<PERSON_3>"
+
+
+# -- sentinels already present in the input ----------------------------------
+# Text a caller anonymised earlier carries sentinels this session never issued.
+# They must pass through untouched, and their indices must not be reused, or
+# restore() would replace the caller's placeholder with a new entity's value.
+
+
+def test_preexisting_sentinel_index_is_not_reused():
+    s = Session()
+    text = "<PERSON_1> forwarded this from Anna"
+    out = s.apply_spans(text, [Span("private_person", 31, 35, "Anna")])
+    assert out == "<PERSON_1> forwarded this from <PERSON_2>"
+    assert s.mapping == {"<PERSON_2>": "Anna"}
+    assert s.restore(out) == text
+
+
+def test_span_overlapping_preexisting_sentinel_is_dropped():
+    s = Session()
+    text = "ask <PERSON_1> again"
+    # A detector may read the sentinel's own letters as a name.
+    out = s.apply_spans(text, [Span("private_person", 5, 13, "PERSON_1")])
+    assert out == text
+    assert s.mapping == {}
+
+
+def test_reserve_covers_text_anonymised_later():
+    s = Session()
+    s.reserve("second message quotes <PERSON_1> and <EMAIL_3>")
+    assert s.allocate("private_person", "Anna") == "<PERSON_2>"
+    assert s.allocate("private_email", "a@b.ch") == "<EMAIL_4>"
+
+
+def test_reserve_ignores_sentinels_this_session_issued():
+    s = Session()
+    assert s.allocate("private_person", "Anna") == "<PERSON_1>"
+    s.reserve("<PERSON_1>")
+    assert s.allocate("private_person", "Bob") == "<PERSON_2>"
+
+
+def test_span_running_into_preexisting_sentinel_is_trimmed_not_dropped():
+    # A detector that bleeds across "<...>" must not cause the real PII next
+    # to the sentinel to go out in clear text.
+    s = Session()
+    text = "Dr. <PERSON_1> Meier called"
+    out = s.apply_spans(text, [Span("private_person", 4, 20, "<PERSON_1> Meier")])
+    assert out == "Dr. <PERSON_1> <PERSON_2> called"
+    assert s.mapping == {"<PERSON_2>": "Meier"}
+
+
+def test_span_around_preexisting_sentinel_keeps_both_sides():
+    s = Session()
+    text = "Anna <PERSON_1> Meier"
+    out = s.apply_spans(text, [Span("private_person", 0, len(text), text)])
+    assert out == "<PERSON_2> <PERSON_1> <PERSON_3>"
+    assert s.mapping == {"<PERSON_2>": "Anna", "<PERSON_3>": "Meier"}
+
+
+def test_unrelated_markup_token_does_not_unredact_adjacent_pii():
+    s = Session()
+    text = "<TICKET_4711>Anna Meier"
+    out = s.apply_spans(text, [Span("private_person", 0, len(text), text)])
+    assert out == "<TICKET_4711><PERSON_1>"
+    assert s.mapping == {"<PERSON_1>": "Anna Meier"}
+
+
+def test_reserve_walks_nested_structures():
+    s = Session()
+    s.reserve({"messages": [{"name": "<PERSON_4>", "content": ("<EMAIL_2>",)}], "n": 3})
+    assert s.allocate("private_person", "Anna") == "<PERSON_5>"
+    assert s.allocate("private_email", "a@b.ch") == "<EMAIL_3>"
+

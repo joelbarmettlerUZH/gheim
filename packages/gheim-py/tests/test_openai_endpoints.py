@@ -462,3 +462,37 @@ def test_models_endpoint_passes_through(sync_client):
         pytest.fail("models should not be strict-blocked")
     except AttributeError:
         pass  # expected — fake doesn't define it
+
+
+# ============================================================
+# Pre-existing sentinels across fields (issue #4)
+# ============================================================
+
+def test_responses_list_input_does_not_reuse_later_elements_index(sync_client):
+    sync_client.responses.inner.response = _ResponsesResp(
+        output=[_ResponsesItem(content=[_ResponsesContent(text="<PERSON_1> and <PERSON_2>")])]
+    )
+    out = sync_client.responses.create(model="gpt-5", input=["Joel wrote", "<PERSON_1> replied"])
+    sent = sync_client.responses.inner.create_calls[-1]
+    assert sent["input"] == ["<PERSON_2> wrote", "<PERSON_1> replied"]
+    assert out.output[0].content[0].text == "<PERSON_1> and Joel"
+
+
+def test_completions_prompt_list_does_not_reuse_later_elements_index(sync_client):
+    sync_client.completions.inner.response = {"choices": []}
+    sync_client.completions.create(model="x", prompt=["Joel", "<PERSON_1>"])
+    sent = sync_client.completions.inner.create_calls[-1]
+    assert sent["prompt"] == ["<PERSON_2>", "<PERSON_1>"]
+
+
+def test_chat_name_and_tool_description_sentinels_are_reserved(sync_client):
+    sync_client.chat.completions.inner.response = {"choices": []}
+    sync_client.chat.completions.create(
+        model="x",
+        messages=[{"role": "user", "content": "Joel here", "name": "<PERSON_1>"}],
+        tools=[{"type": "function", "function": {"name": "f", "description": "ask <PERSON_2>"}}],
+    )
+    sent = sync_client.chat.completions.inner.create_calls[-1]
+    assert sent["messages"][0]["content"] == "<PERSON_3> here"
+    assert sent["messages"][0]["name"] == "<PERSON_1>"
+    assert sent["tools"][0]["function"]["description"] == "ask <PERSON_2>"

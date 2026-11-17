@@ -93,6 +93,11 @@ def anonymize_messages(
     Other fields (``role``, ``name``, ``tool_call_id``, ...) are preserved.
     """
     sess, _ = _resolve(session, detector)
+    messages = list(messages)
+    # Reserve every message's sentinels first (all fields, not just the ones
+    # anonymised here): allocating for message 1 must not hand out an index a
+    # later message already carries.
+    sess.reserve(messages)
     out: list[ChatMessage] = []
     for msg in messages:
         out.append(_anonymize_message(msg, sess, detector=detector, model=model))

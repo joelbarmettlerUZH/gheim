@@ -422,6 +422,12 @@ Scope: `/chat/completions` — text content (incl.
 multimodal text parts), restored in `content`, reasoning and tool-call
 arguments (JSON-escaped), streaming and non-streaming. The sentinel mapping
 stays in process memory and is never written to request metadata or logs.
+Placeholders already in the request (text anonymised earlier with gheim)
+pass through verbatim in both directions: they are never re-detected, and a
+newly detected entity never reuses their index. One limit: a placeholder that
+matches one this same session already issued (e.g. pasting your own earlier
+`<PERSON_1>` into a long-lived session that also has a `<PERSON_1>`) cannot be
+told apart and is restored to the session's value.
 Raw-byte passthrough streams (e.g. native Anthropic SSE) are not restored.
 
 Live tests against the official Docker image: `tests/litellm_live/run_live.sh`.
