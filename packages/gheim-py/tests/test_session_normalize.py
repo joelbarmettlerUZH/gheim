@@ -10,7 +10,6 @@ text reads naturally; only the lookup key is normalized.
 """
 from __future__ import annotations
 
-import pytest
 from gheim import Session
 
 

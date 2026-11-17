@@ -15,7 +15,6 @@ from ..core.stream import StreamDeanonymizer
 from ..detectors import Detector
 from ._base import anonymize_value, resolve_call_session
 
-
 # Event types whose ``delta`` field carries text we should restore.
 _TEXT_DELTA_EVENTS: dict[str, str] = {
     "response.output_text.delta": "text",

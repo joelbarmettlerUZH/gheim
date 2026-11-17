@@ -3,10 +3,9 @@ import pytest
 
 pytest.importorskip("litellm")
 
-from litellm.types.utils import ModelResponseStream, StreamingChoices, Delta  # noqa: E402
-
 from gheim.detectors import Span  # noqa: E402
 from gheim.litellm import GheimGuardrail  # noqa: E402
+from litellm.types.utils import Delta, ModelResponseStream, StreamingChoices  # noqa: E402
 
 
 class _Names:

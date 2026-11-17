@@ -141,7 +141,6 @@ class CalibratedDetector:
         chunking is a no-op; for longer ones we slide the window with
         overlap and reproject offsets back to the original text.
         """
-        import torch  # noqa: PLC0415  — lazy import for the no-`torch` install path
 
         # Tokenize the whole input once with offsets so we know per-token
         # positions in the ORIGINAL text. We never feed this single tokenization

@@ -5,15 +5,9 @@ calibration recovers a documented failing input.
 from __future__ import annotations
 
 import os
-import sys
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
 
 import pytest
-
 from gheim import CalibratedDetector, default_detector
-from gheim.detectors import Detector
 
 # Live model tests are slow + need GPU; gate behind an env var.
 _HAS_TORCH = True

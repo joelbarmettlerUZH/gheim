@@ -17,13 +17,13 @@ jobs:
     name: Run all tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           enable-cache: true
           python-version: '3.12'
       - name: Cache HuggingFace model downloads
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/huggingface/hub
           # Pin the cache key to the model's current revision on the hub so
@@ -40,9 +40,9 @@ jobs:
         # The release gate covers what we actually publish: gheim and
         # gheim-server.
         run: uv run pytest packages/gheim-py/tests server/tests
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
-          bun-version: latest
+          bun-version: 1.4.4
       # Install from the workspace root (so the site can resolve
       # `gheim: workspace:*`), then run the SDK's scripts in the
       # package directory.
@@ -62,7 +62,7 @@ jobs:
       version: ${{ steps.v.outputs.version }}
       is-new: ${{ steps.v.outputs.is-new }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: v
         name: Read version + check tag
         run: |
@@ -87,8 +87,8 @@ jobs:
     permissions:
       id-token: write   # PyPI Trusted Publisher (OIDC)
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           python-version: '3.12'
       - name: Build sdist + wheel
@@ -96,7 +96,7 @@ jobs:
         # workspace-root /dist by default; force a per-package output dir
         # so pypa/gh-action-pypi-publish finds them.
         run: uv build --package gheim --no-sources --out-dir packages/gheim-py/dist
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
         with:
           packages-dir: packages/gheim-py/dist
           skip-existing: true
@@ -109,7 +109,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -126,7 +126,7 @@ jobs:
       version: ${{ steps.v.outputs.version }}
       is-new: ${{ steps.v.outputs.is-new }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: v
         run: |
           version=$(node -p "require('./packages/gheim-js/package.json').version")
@@ -150,11 +150,11 @@ jobs:
     permissions:
       id-token: write   # npm provenance
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
-          bun-version: latest
-      - uses: actions/setup-node@v4
+          bun-version: 1.4.4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           # npm trusted publishing requires npm >=11.5; ship a Node version
           # that bundles a recent enough npm by default.
@@ -188,7 +188,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -205,7 +205,7 @@ jobs:
       version: ${{ steps.v.outputs.version }}
       is-new: ${{ steps.v.outputs.is-new }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: v
         run: |
           version=$(grep -E '^version = ' server/pyproject.toml | cut -d'"' -f2)
@@ -225,7 +225,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # GitHub-hosted runners ship with ~14 GB free, but the multi-arch
       # gheim-server image (amd64 + arm64, with torch + transformers +
       # ONNX weights) blows past that during buildx emulation, hitting
@@ -233,7 +233,7 @@ jobs:
       # we don't use (Android SDK, .NET, Haskell, GHC, large language
       # caches) — frees ~30 GB before buildx writes any layers.
       - name: Free runner disk
-        uses: jlumbroso/free-disk-space@main
+        uses: jlumbroso/free-disk-space@ceedf095f4ec1a097402bc6bd80831f2e1a6fde6 # v2.0.0
         with:
           tool-cache: false   # keep node/python tool cache; we use them
           android: true
@@ -242,20 +242,20 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ghcr.io/${{ github.repository_owner }}/gheim-server
           tags: |
             type=raw,value=${{ needs.detect-server.outputs.version }}
             type=raw,value=latest
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: ./server
           file: ./server/Dockerfile
@@ -274,7 +274,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

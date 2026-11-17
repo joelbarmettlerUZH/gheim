@@ -26,7 +26,6 @@ import pytest
 from gheim import Session, Span
 from gheim.detectors.base import Detector
 
-
 # ---------------------------------------------------------------------------
 # Test fixtures: realistic ticket text + a deterministic detector that
 # recognises every PII surface we plant in the test corpus.
