@@ -5,15 +5,14 @@ All tests use a fake openai client — no live API calls.
 """
 from __future__ import annotations
 
+import contextlib
 from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from typing import Any
 
-import pytest
-
 import gheim.openai as gheim_openai_mod
+import pytest
 from gheim import Session, Span
-from gheim.detectors.base import Detector
 
 
 class FakeDetector:
@@ -442,12 +441,9 @@ def test_loose_mode_warns_once_then_passes_through(sync_client_loose, recwarn):
     # WarningProxy emits warnings.warn — collected by recwarn.
     proxy = sync_client_loose.beta
     # Access to trigger the warning (forwards to the inner object).
-    try:
+    # The fake's `beta` is `object()`, so .assistants fails. Only the warning matters.
+    with contextlib.suppress(AttributeError):
         _ = proxy.assistants
-    except AttributeError:
-        # The fake's `beta` is `object()`, so .assistants would fail; that's fine
-        # — we only care that the warning was emitted.
-        pass
     assert any("WITHOUT gheim PII redaction" in str(w.message) for w in recwarn)
 
 

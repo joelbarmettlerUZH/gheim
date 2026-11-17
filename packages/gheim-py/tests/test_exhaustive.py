@@ -13,6 +13,7 @@ Topics:
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import threading
 from collections.abc import AsyncIterator
@@ -20,12 +21,9 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any
 
-import pytest
-
 import gheim.openai as gheim_openai_mod
+import pytest
 from gheim import Session, Span
-from gheim.detectors.base import Detector
-
 
 # ============================================================
 # Shared fakes (mirror test_openai_endpoints.py shapes)
@@ -282,7 +280,7 @@ class _Chunk:
     id: str = "x"
     model: str = "gpt-4o"
 
-    def model_copy(self, *, deep: bool = False) -> "_Chunk":
+    def model_copy(self, *, deep: bool = False) -> _Chunk:
         return _Chunk(
             id=self.id,
             model=self.model,
@@ -572,10 +570,8 @@ def test_strict_raise_through_chained_attribute_access(sync_client):
 
 def test_raw_works_after_strict_raise(sync_client):
     """Even after a strict raise, client.raw is still functional."""
-    try:
+    with contextlib.suppress(RuntimeError):
         sync_client.beta.assistants.create(name="x")
-    except RuntimeError:
-        pass
     raw = sync_client.raw
     assert raw.chat is not sync_client.chat  # raw is the underlying object
 

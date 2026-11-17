@@ -100,14 +100,14 @@ class Session:
         Detector | None, "Optional default detector reused across calls in this session."
     ] = None
     normalizers: Annotated[
-        Mapping[str, "str | Normalizer"] | None,
+        Mapping[str, str | Normalizer] | None,
         "Optional per-label canonical-form normalizers, e.g. "
         "``{'private_phone': 'e164', 'private_date': 'iso_date'}`` or "
         "``{'private_phone': e164(region='CH')}``. A label not listed "
         "here uses the default NFKC+casefold key. See "
         "``gheim.normalizers``.",
     ] = None
-    _resolved_normalizers: dict[str, "Normalizer"] = field(
+    _resolved_normalizers: dict[str, Normalizer] = field(
         default_factory=dict, init=False, repr=False,
     )
 
@@ -204,7 +204,7 @@ class Session:
         self,
         text: Annotated[str, "Original text the spans were detected in."],
         spans: Annotated[list[Span], "Detected PII spans, possibly unsorted."],
-    ) -> "ApplySpansResult":
+    ) -> ApplySpansResult:
         """Like :meth:`apply_spans` but also returns the post-merge span list.
 
         UI consumers (segment renderers, bar overlays, ablation scripts)
@@ -250,7 +250,7 @@ class Session:
         )
 
         merged_spans = [
-            MergedSpan(start=s, end=e, label=l) for s, e, l in merged_tuples
+            MergedSpan(start=s, end=e, label=label) for s, e, label in merged_tuples
         ]
         return ApplySpansResult(redacted=redacted, merged=merged_spans)
 
@@ -280,7 +280,7 @@ class Session:
         raw: Annotated[str, "JSON string previously produced by Session.to_json()."],
         *,
         normalizers: Annotated[
-            Mapping[str, "str | Normalizer"] | None,
+            Mapping[str, str | Normalizer] | None,
             "Re-apply the same normalizers the session was created with. "
             "Required if the session originally used custom normalizers; "
             "otherwise dedup of new variants will fall back to NFKC+casefold "

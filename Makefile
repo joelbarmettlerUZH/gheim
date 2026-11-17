@@ -26,7 +26,7 @@ help:
 	@echo "  make clean       - remove caches and build artefacts"
 
 lint:
-	uvx ruff check $(PY_DIRS)
+	uvx ruff@0.17.5 check $(PY_DIRS)
 
 typecheck:
 	uvx ty check training/src/gheim_training/
@@ -41,7 +41,7 @@ data-test:
 check: lint typecheck test
 
 fix:
-	uvx ruff check $(PY_DIRS) --fix
+	uvx ruff@0.17.5 check $(PY_DIRS) --fix
 
 clean:
 	rm -rf .ruff_cache .pytest_cache .mypy_cache

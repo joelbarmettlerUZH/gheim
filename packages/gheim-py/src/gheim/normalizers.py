@@ -158,7 +158,7 @@ _BUILTINS: dict[str, Callable[[], Normalizer]] = {
 
 def resolve_normalizer(
     spec: Annotated[
-        "str | Normalizer",
+        str | Normalizer,
         "A built-in name like 'e164' / 'iso_date' or any callable "
         "matching the Normalizer signature.",
     ],

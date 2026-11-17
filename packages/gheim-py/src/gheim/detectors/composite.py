@@ -224,9 +224,7 @@ def _is_implausible_swiss_phone(text: str, start: int, end: int) -> bool:
     id_context = ("doi:", "doi ", "issn", "isbn", "patent")
     if any(w in pre_window for w in id_context):
         return True
-    if _DOI_PREFIX_RE.search(pre_window):
-        return True
-    return False
+    return bool(_DOI_PREFIX_RE.search(pre_window))
 
 
 # Each entry: (label, regex, validator, context_filter, subtype). The
