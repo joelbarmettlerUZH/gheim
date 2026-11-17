@@ -274,6 +274,21 @@ describe("Session with sentinels already in the input", () => {
     expect(s.allocate("private_email", "a@b.ch")).toBe("<EMAIL_3>");
   });
 
+  test("reserve skips non-plain objects and survives cycles", () => {
+    const s = new Session();
+    const cyclic: Record<string, unknown> = { prompt: "<PERSON_2>" };
+    cyclic.self = cyclic;
+    class Upload {
+      name = "<PERSON_9>";
+    }
+    s.reserve({
+      body: cyclic,
+      file: new Upload(),
+      bytes: new TextEncoder().encode("<PERSON_7>"),
+    });
+    expect(s.allocate("private_person", "Anna")).toBe("<PERSON_3>");
+  });
+
   test("reserve leaves sentinels this session issued alone", () => {
     const s = new Session();
     expect(s.allocate("private_person", "Anna")).toBe("<PERSON_1>");
