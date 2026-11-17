@@ -48,6 +48,10 @@ export async function anonymizeMessages<M extends { content?: unknown }>(
   opts?: { detector?: Detector; model?: string },
 ): Promise<M[]> {
   const det = resolve(session, opts?.detector);
+  // Reserve every message's sentinels first (all fields, not just the ones
+  // anonymised here): allocating for message 1 must not hand out an index a
+  // later message already carries.
+  session.reserve(messages);
   const out: M[] = [];
   for (const msg of messages) {
     const content = (msg as { content?: unknown }).content;

@@ -18,6 +18,10 @@ export function resolveCallSession(
   if (!(session as unknown as { detector?: Detector }).detector) {
     (session as unknown as { detector: Detector }).detector = detector;
   }
+  // Reserve every sentinel already present anywhere in the request, so no
+  // field anonymised later (messages, names, tool descriptions, prompt
+  // lists, ...) is handed an index another field already carries.
+  session.reserve(rest);
   return { session, detector, rest };
 }
 

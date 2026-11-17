@@ -70,3 +70,19 @@ describe("plain API", () => {
     expect(out).toBe("Hi Joel!");
   });
 });
+
+describe("anonymizeMessages with sentinels already in the input", () => {
+  test("does not reuse an index a later message carries", async () => {
+    const s = sessionWith(new FakeDetector({ Anna: "private_person" }));
+    const out = await anonymizeMessages(
+      [
+        { role: "user", content: "Anna wrote" },
+        { role: "user", content: [{ type: "text", text: "<PERSON_1> replied" }] },
+      ],
+      s,
+    );
+    expect(out[0]!.content).toBe("<PERSON_2> wrote");
+    expect((out[1]!.content as Array<{ text: string }>)[0]!.text).toBe("<PERSON_1> replied");
+    expect(s.restore("<PERSON_1>, <PERSON_2>")).toBe("<PERSON_1>, Anna");
+  });
+});
