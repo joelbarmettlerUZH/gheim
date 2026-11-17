@@ -272,7 +272,25 @@ class Session:
         return SENTINEL_RE.sub(_sub, text)
 
     def to_json(self) -> str:
-        return json.dumps({"mapping": self.mapping})
+        """Serialise the session as ``{"mapping": {...}}``.
+
+        A ``"reserved": {tag: index}`` entry is added only for tags whose
+        counter ``reserve`` raised past every sentinel in ``mapping``, since
+        ``from_json`` rebuilds all other counters from the mapping itself.
+        """
+        data: dict[str, Any] = {"mapping": self.mapping}
+        reserved = self._reserved_beyond_mapping()
+        if reserved:
+            data["reserved"] = reserved
+        return json.dumps(data)
+
+    def _reserved_beyond_mapping(self) -> dict[str, int]:
+        issued: dict[str, int] = {}
+        for sentinel in self.mapping:
+            parsed = Sentinel.parse(sentinel)
+            if parsed is not None:
+                issued[parsed.tag] = max(issued.get(parsed.tag, 0), parsed.index)
+        return {tag: n for tag, n in self._counters.items() if n > issued.get(tag, 0)}
 
     @classmethod
     def from_json(
@@ -309,7 +327,18 @@ class Session:
                 normalized = _normalize_surface(surface)
             s._coalesce[(parsed.tag, normalized)] = sentinel
             s._bump_counter(parsed)
+        s._restore_reserved(data.get("reserved"))
         return s
+
+    def _restore_reserved(self, reserved: Any) -> None:
+        """Apply a ``to_json`` ``"reserved"`` entry; anything malformed is ignored."""
+        if not isinstance(reserved, dict):
+            return
+        for tag, index in reserved.items():
+            # bool is an int subclass; a float or string is not an index. A
+            # zero or negative index needs no check: bumping by it is a no-op.
+            if type(index) is int:
+                self._bump_counter(Sentinel(tag=tag, index=index))
 
 
 def _cut_out_sentinels(

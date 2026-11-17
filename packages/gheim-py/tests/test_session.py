@@ -1,3 +1,5 @@
+import json
+
 from gheim import Session, Span
 
 
@@ -221,3 +223,59 @@ def test_reserve_walks_nested_structures():
     assert s.allocate("private_person", "Anna") == "<PERSON_5>"
     assert s.allocate("private_email", "a@b.ch") == "<EMAIL_3>"
 
+
+
+# -- reserved indexes across to_json / from_json -------------------------------
+# A reserved index above everything the session issued is not implied by the
+# mapping, so it has to be written out, or a restored session hands it out again.
+
+
+def test_reserved_index_survives_json_round_trip():
+    s = Session()
+    s.reserve("forwarded by <EMAIL_2>")
+    rebuilt = Session.from_json(s.to_json())
+    assert rebuilt.allocate("private_email", "a@b.ch") == "<EMAIL_3>"
+    assert rebuilt.allocate("private_email", "c@d.ch") == "<EMAIL_4>"
+
+
+def test_reservation_of_index_one_survives_json_round_trip():
+    s = Session()
+    s.reserve("<EMAIL_1>")
+    rebuilt = Session.from_json(s.to_json())
+    assert rebuilt.allocate("private_email", "a@b.ch") == "<EMAIL_2>"
+
+
+def test_reservation_above_an_index_zero_entry_survives_json_round_trip():
+    # Only a hand-written or foreign payload carries index 0; it implies nothing.
+    s = Session.from_json(json.dumps({"mapping": {"<PERSON_0>": "Anna"}}))
+    s.reserve("<PERSON_1>")
+    rebuilt = Session.from_json(s.to_json())
+    assert rebuilt.allocate("private_person", "Bob") == "<PERSON_2>"
+
+
+def test_to_json_writes_only_reservations_the_mapping_does_not_imply():
+    s = Session()
+    s.reserve("<PERSON_2> and <EMAIL_5>")
+    s.allocate("private_person", "Anna")  # <PERSON_3> already implies 2
+    assert json.loads(s.to_json()) == {
+        "mapping": {"<PERSON_3>": "Anna"},
+        "reserved": {"EMAIL": 5},
+    }
+
+
+def test_from_json_ignores_malformed_reservations():
+    raw = json.dumps({
+        "mapping": {"<PERSON_1>": "Anna"},
+        "reserved": {"PERSON": 4, "EMAIL": "7", "PHONE": True, "DATE": -3, "URL": 2.5},
+    })
+    s = Session.from_json(raw)
+    assert s.allocate("private_person", "Bob") == "<PERSON_5>"
+    assert s.allocate("private_email", "a@b.ch") == "<EMAIL_1>"
+    assert s.allocate("private_phone", "044 000 00 00") == "<PHONE_1>"
+    assert s.allocate("private_date", "1. Mai") == "<DATE_1>"
+    assert s.allocate("private_url", "x.ch") == "<URL_1>"
+
+
+def test_from_json_ignores_a_reserved_field_that_is_not_an_object():
+    s = Session.from_json(json.dumps({"mapping": {}, "reserved": [["PERSON", 3]]}))
+    assert s.allocate("private_person", "Anna") == "<PERSON_1>"
