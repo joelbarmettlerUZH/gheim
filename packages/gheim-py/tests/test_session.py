@@ -187,3 +187,37 @@ def test_reserve_ignores_sentinels_this_session_issued():
     assert s.allocate("private_person", "Anna") == "<PERSON_1>"
     s.reserve("<PERSON_1>")
     assert s.allocate("private_person", "Bob") == "<PERSON_2>"
+
+
+def test_span_running_into_preexisting_sentinel_is_trimmed_not_dropped():
+    # A detector that bleeds across "<...>" must not cause the real PII next
+    # to the sentinel to go out in clear text.
+    s = Session()
+    text = "Dr. <PERSON_1> Meier called"
+    out = s.apply_spans(text, [Span("private_person", 4, 20, "<PERSON_1> Meier")])
+    assert out == "Dr. <PERSON_1> <PERSON_2> called"
+    assert s.mapping == {"<PERSON_2>": "Meier"}
+
+
+def test_span_around_preexisting_sentinel_keeps_both_sides():
+    s = Session()
+    text = "Anna <PERSON_1> Meier"
+    out = s.apply_spans(text, [Span("private_person", 0, len(text), text)])
+    assert out == "<PERSON_2> <PERSON_1> <PERSON_3>"
+    assert s.mapping == {"<PERSON_2>": "Anna", "<PERSON_3>": "Meier"}
+
+
+def test_unrelated_markup_token_does_not_unredact_adjacent_pii():
+    s = Session()
+    text = "<TICKET_4711>Anna Meier"
+    out = s.apply_spans(text, [Span("private_person", 0, len(text), text)])
+    assert out == "<TICKET_4711><PERSON_1>"
+    assert s.mapping == {"<PERSON_1>": "Anna Meier"}
+
+
+def test_reserve_walks_nested_structures():
+    s = Session()
+    s.reserve({"messages": [{"name": "<PERSON_4>", "content": ("<EMAIL_2>",)}], "n": 3})
+    assert s.allocate("private_person", "Anna") == "<PERSON_5>"
+    assert s.allocate("private_email", "a@b.ch") == "<EMAIL_3>"
+

@@ -13,10 +13,16 @@ from ..detectors import Detector
 def resolve_call_session(
     kwargs: dict[str, Any], default_det: Detector
 ) -> tuple[Session, Detector]:
-    """Pop ``gheim_session`` / ``gheim_detector`` from kwargs and resolve them."""
+    """Pop ``gheim_session`` / ``gheim_detector`` from kwargs and resolve them.
+
+    Also reserves every sentinel already present anywhere in the request, so
+    no field anonymised later (messages, names, tool descriptions, prompt
+    lists, ...) is handed an index another field already carries.
+    """
     session: Session | None = kwargs.pop("gheim_session", None)
     detector: Detector = kwargs.pop("gheim_detector", None) or default_det
     sess = session if session is not None else Session(detector=detector)
+    sess.reserve(kwargs)
     return sess, detector
 
 

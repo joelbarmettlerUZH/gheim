@@ -94,25 +94,14 @@ def anonymize_messages(
     """
     sess, _ = _resolve(session, detector)
     messages = list(messages)
-    # Reserve every message's sentinels first: allocating for message 1 must
-    # not hand out an index a later message already carries.
-    for text in _message_texts(messages):
-        sess.reserve(text)
+    # Reserve every message's sentinels first (all fields, not just the ones
+    # anonymised here): allocating for message 1 must not hand out an index a
+    # later message already carries.
+    sess.reserve(messages)
     out: list[ChatMessage] = []
     for msg in messages:
         out.append(_anonymize_message(msg, sess, detector=detector, model=model))
     return out
-
-
-def _message_texts(messages: list[ChatMessage]) -> Iterator[str]:
-    for msg in messages:
-        content = msg.get("content")
-        if isinstance(content, str):
-            yield content
-        elif isinstance(content, list):
-            for part in content:
-                if isinstance(part, dict) and isinstance(part.get("text"), str):
-                    yield part["text"]
 
 
 def _anonymize_message(

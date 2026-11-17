@@ -4,11 +4,12 @@ from __future__ import annotations
 import json
 import re
 import unicodedata
+from bisect import bisect_left
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Annotated, Any
 
-from .sentinels import SENTINEL_RE, Sentinel, label_tag
+from .sentinels import SENTINEL_RE, Sentinel, find_sentinels, label_tag
 
 if TYPE_CHECKING:
     from ..detectors.base import Detector, Span
@@ -157,19 +158,34 @@ class Session:
 
     def reserve(
         self,
-        text: Annotated[str, "Text that may already carry sentinels from an earlier anonymisation."],
+        value: Annotated[
+            Any,
+            "Text that may already carry sentinels from an earlier anonymisation, "
+            "or a list/tuple/dict of them (searched recursively, e.g. a whole "
+            "chat-message list or request kwargs).",
+        ],
     ) -> None:
-        """Keep sentinels this session did not issue from being allocated again.
+        """Make sure no sentinel already present in ``value`` is ever allocated again.
 
-        Raises each tag's counter past every foreign sentinel in ``text``, so a
-        caller's ``<PERSON_1>`` keeps its meaning and ``restore()`` leaves it
-        alone. ``apply_spans`` calls this on its own text; call it up front for
-        every text when one session anonymises several (see ``anonymize_messages``).
+        Raises each tag's counter to at least every sentinel index found, so a
+        caller's ``<PERSON_1>`` keeps its meaning and a newly detected entity
+        gets a fresh index. ``apply_spans`` does this for its own text; when one
+        session anonymises several texts, reserve all of them first (as
+        ``anonymize_messages`` and the OpenAI proxies do), otherwise allocating
+        for the first text can hand out an index a later one already carries.
         """
-        for m in SENTINEL_RE.finditer(text):
-            if m.group(0) not in self.mapping:
-                tag = m["tag"]
-                self._counters[tag] = max(self._counters.get(tag, 0), int(m["index"]))
+        if isinstance(value, str):
+            for _, _, sentinel in find_sentinels(value):
+                self._bump_counter(sentinel)
+        elif isinstance(value, Mapping):
+            for v in value.values():
+                self.reserve(v)
+        elif isinstance(value, (list, tuple)):
+            for v in value:
+                self.reserve(v)
+
+    def _bump_counter(self, sentinel: Sentinel) -> None:
+        self._counters[sentinel.tag] = max(self._counters.get(sentinel.tag, 0), sentinel.index)
 
     def apply_spans(
         self,
@@ -198,12 +214,12 @@ class Session:
         merge again on the same input. Pure convenience — no extra cost
         over ``apply_spans``.
         """
-        self.reserve(text)
-        # A sentinel already in the text is never PII: drop spans that touch one.
-        taken = [(m.start(), m.end()) for m in SENTINEL_RE.finditer(text)]
-        spans = [
-            s for s in spans if not any(s.start < te and s.end > ts for ts, te in taken)
-        ]
+        taken: list[tuple[int, int]] = []
+        for start, end, sentinel in find_sentinels(text):
+            self._bump_counter(sentinel)
+            taken.append((start, end))
+        if taken:
+            spans = _cut_out_sentinels(text, spans, taken)
         if not spans:
             return ApplySpansResult(redacted=text, merged=[])
         sorted_spans = sorted(spans, key=lambda s: (s.start, -(s.end - s.start)))
@@ -292,8 +308,55 @@ class Session:
             if normalized is None:
                 normalized = _normalize_surface(surface)
             s._coalesce[(parsed.tag, normalized)] = sentinel
-            s._counters[parsed.tag] = max(s._counters.get(parsed.tag, 0), parsed.index)
+            s._bump_counter(parsed)
         return s
+
+
+def _cut_out_sentinels(
+    text: str,
+    spans: list[Span],
+    taken: list[tuple[int, int]],
+) -> list[Span]:
+    """Remove pre-existing sentinel ranges from ``spans``.
+
+    A sentinel already in the text is never PII, but a detector span may run
+    into one (``"<PERSON_1> Meier"``). Dropping such a span whole would leak
+    the real PII next to the sentinel, so each span is split around the
+    sentinels it touches and the remaining pieces, trimmed of surrounding
+    whitespace, are kept with the span's label. ``taken`` is sorted by start
+    and non-overlapping (it comes from one left-to-right regex scan).
+    """
+    starts = [ts for ts, _ in taken]
+    out: list[Span] = []
+    for span in spans:
+        # First sentinel that could overlap: the one starting before span.end,
+        # walking back from there until sentinels end before span.start.
+        i = bisect_left(starts, span.end)
+        hits = []
+        while i > 0 and taken[i - 1][1] > span.start:
+            i -= 1
+            hits.append(taken[i])
+        if not hits:
+            out.append(span)
+            continue
+        cursor = span.start
+        for ts, te in sorted(hits):
+            out.extend(_trimmed_piece(text, span, cursor, ts))
+            cursor = max(cursor, te)
+        out.extend(_trimmed_piece(text, span, cursor, span.end))
+    return out
+
+
+def _trimmed_piece(text: str, span: Span, start: int, end: int) -> list[Span]:
+    from ..detectors.base import Span
+
+    while start < end and text[start].isspace():
+        start += 1
+    while end > start and text[end - 1].isspace():
+        end -= 1
+    if start >= end:
+        return []
+    return [Span(span.label, start, end, text[start:end], span.score)]
 
 
 def _recover_duplicate_occurrences(
