@@ -296,3 +296,60 @@ describe("Session with sentinels already in the input", () => {
     expect(s.allocate("private_person", "Bob")).toBe("<PERSON_2>");
   });
 });
+
+// A reserved index above everything the session issued is not implied by the
+// mapping, so toJSON has to write it out, or a restored session hands it out again.
+describe("Session JSON round-trip keeps reserved indexes", () => {
+  test("a reserved index survives the round trip", () => {
+    const s = new Session();
+    s.reserve("forwarded by <EMAIL_2>");
+    const r = Session.fromJSON(s.toJSON());
+    expect(r.allocate("private_email", "a@b.ch")).toBe("<EMAIL_3>");
+    expect(r.allocate("private_email", "c@d.ch")).toBe("<EMAIL_4>");
+  });
+
+  test("a reservation of index 1 survives the round trip", () => {
+    const s = new Session();
+    s.reserve("<EMAIL_1>");
+    const r = Session.fromJSON(s.toJSON());
+    expect(r.allocate("private_email", "a@b.ch")).toBe("<EMAIL_2>");
+  });
+
+  test("a reservation above an index-0 entry survives the round trip", () => {
+    // Only a hand-written or foreign payload carries index 0; it implies nothing.
+    const s = Session.fromJSON({ mapping: { "<PERSON_0>": "Anna" } });
+    s.reserve("<PERSON_1>");
+    const r = Session.fromJSON(s.toJSON());
+    expect(r.allocate("private_person", "Bob")).toBe("<PERSON_2>");
+  });
+
+  test("toJSON writes only reservations the mapping does not imply", () => {
+    const s = new Session();
+    s.reserve("<PERSON_2> and <EMAIL_5>");
+    s.allocate("private_person", "Anna"); // <PERSON_3> already implies 2
+    expect(s.toJSON()).toEqual({ mapping: { "<PERSON_3>": "Anna" }, reserved: { EMAIL: 5 } });
+  });
+
+  test("fromJSON ignores malformed reservations", () => {
+    const s = Session.fromJSON({
+      mapping: { "<PERSON_1>": "Anna" },
+      reserved: { PERSON: 4, EMAIL: "7", PHONE: true, DATE: -3, URL: 2.5, ACCOUNT: 1e308 },
+    } as never);
+    expect(s.allocate("private_person", "Bob")).toBe("<PERSON_5>");
+    expect(s.allocate("private_email", "a@b.ch")).toBe("<EMAIL_1>");
+    expect(s.allocate("private_phone", "044 000 00 00")).toBe("<PHONE_1>");
+    expect(s.allocate("private_date", "1. Mai")).toBe("<DATE_1>");
+    expect(s.allocate("private_url", "x.ch")).toBe("<URL_1>");
+    expect(s.allocate("account_number", "CH93 0076 2011 6238 5295 7")).toBe("<ACCOUNT_1>");
+  });
+
+  test("fromJSON ignores a reserved field that is not an object", () => {
+    const s = Session.fromJSON({ mapping: {}, reserved: [["PERSON", 3]] } as never);
+    expect(s.allocate("private_person", "Anna")).toBe("<PERSON_1>");
+  });
+
+  test("a Python-written reservation is honoured", () => {
+    const s = Session.fromJSON(JSON.parse('{"mapping": {}, "reserved": {"PERSON": 2}}'));
+    expect(s.allocate("private_person", "Anna")).toBe("<PERSON_3>");
+  });
+});
