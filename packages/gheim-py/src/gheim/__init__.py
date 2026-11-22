@@ -30,7 +30,7 @@ from .plain import (
     deanonymize_text,
 )
 
-__version__ = "0.1.13"
+__version__ = "0.1.15"
 
 __all__ = [
     "ApplySpansResult",

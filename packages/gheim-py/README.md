@@ -420,15 +420,21 @@ Setting `api_key` (or `GHEIM_API_KEY`) without `detector` selects `remote`.
 
 Scope: `/chat/completions` — text content (incl.
 multimodal text parts), restored in `content`, reasoning and tool-call
-arguments (JSON-escaped), streaming and non-streaming. The sentinel mapping
-stays in process memory and is never written to request metadata or logs.
+arguments (JSON-escaped), streaming and non-streaming — and the native
+Anthropic Messages route `/v1/messages`: `system`, text blocks, tool results
+and tool-use inputs are anonymized; text and tool-use inputs are restored in
+the response and in its SSE stream (re-framed event by event, so a sentinel
+split across reads is still restored). Signed `thinking` blocks are left as
+the model produced them in both directions, because a client replays them
+with their signature; they read `<PERSON_1>`. The sentinel mapping stays in
+process memory, keyed by LiteLLM's `litellm_call_id`, and is never written to
+the request, its metadata or logs.
 Placeholders already in the request (text anonymised earlier with gheim)
 pass through verbatim in both directions: they are never re-detected, and a
 newly detected entity never reuses their index. One limit: a placeholder that
 matches one this same session already issued (e.g. pasting your own earlier
 `<PERSON_1>` into a long-lived session that also has a `<PERSON_1>`) cannot be
 told apart and is restored to the session's value.
-Raw-byte passthrough streams (e.g. native Anthropic SSE) are not restored.
 
 Live tests against the official Docker image: `tests/litellm_live/run_live.sh`.
 

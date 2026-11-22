@@ -4,6 +4,11 @@ model_list:
       model: openai/fake
       api_base: http://127.0.0.1:9100/v1
       api_key: sk-fake
+  - model_name: fake-anthropic
+    litellm_params:
+      model: anthropic/fake
+      api_base: http://127.0.0.1:9100
+      api_key: sk-fake
 
 guardrails:
   - guardrail_name: gheim-pii
