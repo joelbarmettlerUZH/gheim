@@ -38,7 +38,7 @@ from litellm.types.utils import (
 from ..core.sentinels import SENTINEL_RE
 from ..core.session import Session
 from ..core.stream import StreamDeanonymizer
-from ..detectors import Detector
+from ..detectors import Detector, MemoDetector
 from ..plain import anonymize_messages
 from ._config import build_detector
 
@@ -125,7 +125,11 @@ class GheimGuardrail(CustomGuardrail):
     - ``restore_output``: restore sentinels in responses (default ``true``);
       ``false`` returns the model's anonymized output as-is;
     - ``session_ttl_seconds``: drop per-request state of calls that never
-      reach a response hook (default 3600).
+      reach a response hook (default 3600);
+    - ``memo_entries``: remember the detection results of this many distinct
+      texts (default 10000; ``0`` turns it off). A client re-sends its whole
+      history every turn, so without it each turn re-detects every earlier
+      message; see :class:`gheim.detectors.MemoDetector`.
 
     A detector knob the chosen detector would ignore is a startup error.
     """
@@ -153,6 +157,7 @@ class GheimGuardrail(CustomGuardrail):
         normalizers: dict[str, str] | None = None,
         restore_output: bool = True,
         session_ttl_seconds: float = 3600.0,
+        memo_entries: int = 10_000,
         **kwargs: Any,
     ) -> None:
         # LiteLLM only calls the response hooks of a guardrail whose mode
@@ -169,6 +174,11 @@ class GheimGuardrail(CustomGuardrail):
             propagate_names=propagate_names,
             propagate_surnames=propagate_surnames,
             api_key=api_key, api_base=api_base, timeout=timeout,
+        )
+        # What actually detects: the configured detector, behind the memo.
+        self._detect: Detector = (
+            MemoDetector(self.detector, max_entries=int(memo_entries))
+            if int(memo_entries) > 0 else self.detector
         )
         self.normalizers = normalizers
         self.restore_output = restore_output
@@ -210,10 +220,10 @@ class GheimGuardrail(CustomGuardrail):
             return data
 
         self._sweep()
-        session = Session(detector=self.detector, normalizers=self.normalizers)
+        session = Session(detector=self._detect, normalizers=self.normalizers)
         # Detection is blocking (model inference / HTTP): keep the event loop free.
         data["messages"] = await asyncio.to_thread(
-            anonymize_messages, messages, session, detector=self.detector
+            anonymize_messages, messages, session, detector=self._detect
         )
         if self.restore_output:
             key = uuid.uuid4().hex

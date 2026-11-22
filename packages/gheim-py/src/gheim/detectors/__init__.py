@@ -2,6 +2,7 @@ from .base import Detector, Span
 from .calibrated import CalibratedDetector
 from .composite import CompositeDetector, CustomPattern
 from .local import LocalDetector
+from .memo import MemoDetector
 from .remote import RemoteDetector
 
 __all__ = [
@@ -10,6 +11,7 @@ __all__ = [
     "CustomPattern",
     "Detector",
     "LocalDetector",
+    "MemoDetector",
     "RemoteDetector",
     "Span",
 ]
