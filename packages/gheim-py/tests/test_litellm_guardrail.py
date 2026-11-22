@@ -94,3 +94,37 @@ async def test_preexisting_sentinel_kept_verbatim_both_directions():
     assert data["messages"][0]["content"] == "<PERSON_1> asked <PERSON_2> to call back"
     out = await _collect(g, data, [_chunk((0, "<PERSON_1> and <PERSON_2>", "stop"))])
     assert _texts(out) == "<PERSON_1> and Anna Meier"
+
+
+class _Counting(_Names):
+    def __init__(self):
+        self.texts = []
+
+    def detect(self, text):
+        self.texts.append(text)
+        return super().detect(text)
+
+
+async def test_a_later_turn_only_detects_its_new_text():
+    # The client replays the (restored) history: only the new message is detected.
+    det = _Counting()
+    g = GheimGuardrail("t", detector=det, default_on=True)
+    first = {"role": "user", "content": "Hi Joel Barmettler"}
+    await g.async_pre_call_hook(None, None, {"messages": [first], "metadata": {}}, "completion")
+    turn2 = {"messages": [first, {"role": "assistant", "content": "Hello Joel Barmettler"},
+                          {"role": "user", "content": "and Anna Meier"}], "metadata": {}}
+    out = await g.async_pre_call_hook(None, None, turn2, "completion")
+    assert [m["content"] for m in out["messages"]] == [
+        "Hi <PERSON_1>", "Hello <PERSON_1>", "and <PERSON_2>"]
+    assert det.texts == ["Hi Joel Barmettler", "Hello Joel Barmettler", "and Anna Meier"]
+
+
+async def test_memo_entries_zero_turns_the_memo_off():
+    det = _Counting()
+    g = GheimGuardrail("t", detector=det, default_on=True, memo_entries=0)
+    for _ in range(2):
+        await g.async_pre_call_hook(
+            None, None, {"messages": [{"role": "user", "content": "Hi Joel Barmettler"}],
+                         "metadata": {}}, "completion")
+    assert det.texts == ["Hi Joel Barmettler"] * 2
+    assert g.detector is det and g._detect is det

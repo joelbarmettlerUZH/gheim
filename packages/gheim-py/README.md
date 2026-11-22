@@ -412,6 +412,7 @@ is the composite detector (checksum regexes + `gheim-ch-560m`), as in Python:
       timeout: 30
       restore_output: true       # false: return the model's anonymized output as-is
       session_ttl_seconds: 3600  # drop state of calls that never reach a response hook
+      memo_entries: 10000        # detect each distinct text once (history re-sent every turn); 0 = off
 ```
 
 A knob the chosen detector would ignore (say `o_bias` with `remote`, or
