@@ -94,3 +94,25 @@ async def test_preexisting_sentinel_kept_verbatim_both_directions():
     assert data["messages"][0]["content"] == "<PERSON_1> asked <PERSON_2> to call back"
     out = await _collect(g, data, [_chunk((0, "<PERSON_1> and <PERSON_2>", "stop"))])
     assert _texts(out) == "<PERSON_1> and Anna Meier"
+
+
+async def test_non_streamed_chat_response_is_restored_in_place():
+    from litellm.types.utils import ModelResponse
+
+    g, data = await _setup('Hi Joel Barmettler and Anna Meier')
+    response = ModelResponse(choices=[{"index": 0, "finish_reason": "stop", "message": {
+        "role": "assistant", "content": "Ciao <PERSON_1>", "reasoning_content": "about <PERSON_2>",
+        "tool_calls": [{"id": "c", "type": "function",
+                        "function": {"name": "f", "arguments": '{"q": "<PERSON_1> <PERSON_9>"}'}}]}}])
+    out = await g.async_post_call_success_hook(data, None, response)
+    msg = out.choices[0].message
+    assert msg.content == "Ciao Joel Barmettler"
+    assert msg.reasoning_content == "about Anna Meier"
+    assert msg.tool_calls[0].function.arguments == '{"q": "Joel Barmettler <PERSON_9>"}'
+    assert g._session_for(data) is None
+
+
+async def test_success_hook_without_session_returns_the_response_untouched():
+    g = GheimGuardrail("t", detector=_Names())
+    response = object()
+    assert await g.async_post_call_success_hook({"metadata": {}}, None, response) is response

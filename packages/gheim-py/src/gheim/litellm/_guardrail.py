@@ -3,6 +3,10 @@
 Request path (``async_pre_call_hook``): every chat message is anonymized into
 sentinels (``<PERSON_1>``) before the proxy forwards it to the provider.
 
+The native Anthropic Messages route (``/v1/messages``) is covered too: its
+``system``, content blocks, Anthropic ``message`` responses and raw SSE stream
+are handled by :mod:`gheim.litellm._anthropic`.
+
 Response path:
 
 - non-streaming: sentinels in ``content`` / reasoning / tool-call arguments
@@ -13,9 +17,11 @@ Response path:
   chunk cadence are preserved. Presidio's ``output_parse_pii`` instead buffers
   the whole stream and re-emits one chunk.
 
-The sentinel mapping is PII, so it lives only in this process, keyed by an
-opaque per-request id; it is never written into request metadata, which
-LiteLLM forwards to spend logs and callbacks.
+The sentinel mapping is PII, so it lives only in this process, keyed by
+LiteLLM's own per-request ``litellm_call_id``; it is never written into the
+request. Only a request without a call id gets an opaque key in its
+``metadata`` -- on ``/v1/messages`` that field is forwarded to the provider,
+whose schema rejects unknown keys.
 """
 from __future__ import annotations
 
@@ -40,6 +46,7 @@ from ..core.session import Session
 from ..core.stream import StreamDeanonymizer
 from ..detectors import Detector
 from ..plain import anonymize_messages
+from . import _anthropic
 from ._config import build_detector
 
 _CALL_KEY = "gheim_call_key"
@@ -64,6 +71,18 @@ class _StreamState:
             mapping = self._args_map if key[1] == "tool" else self._text_map
             buf = self._bufs[key] = StreamDeanonymizer(mapping)
         return buf.feed(text)
+
+    def delta(self, index: int, delta: Any) -> None:
+        """Restore one choice's delta in place: text fields and tool arguments."""
+        for name in _TEXT_FIELDS:
+            val = getattr(delta, name, None)
+            if isinstance(val, str):
+                setattr(delta, name, self.feed((index, name), val))
+        for tc in getattr(delta, "tool_calls", None) or []:
+            fn = getattr(tc, "function", None)
+            args = getattr(fn, "arguments", None)
+            if isinstance(args, str):
+                fn.arguments = self.feed((index, "tool", tc.index), args)
 
     def flush(self, choice_index: int | None = None) -> list[tuple[tuple, str]]:
         out = []
@@ -188,7 +207,18 @@ class GheimGuardrail(CustomGuardrail):
 
     @staticmethod
     def _key(data: dict | None) -> str | None:
-        return ((data or {}).get("metadata") or {}).get(_CALL_KEY)
+        data = data or {}
+        call_id = data.get("litellm_call_id")
+        if isinstance(call_id, str) and call_id:
+            return call_id
+        return (data.get("metadata") or {}).get(_CALL_KEY)
+
+    def _new_key(self, data: dict) -> str:
+        key = self._key(data)
+        if key is None:
+            key = uuid.uuid4().hex
+            data.setdefault("metadata", {})[_CALL_KEY] = key
+        return key
 
     def _session_for(self, data: dict | None) -> Session | None:
         key = self._key(data)
@@ -210,15 +240,21 @@ class GheimGuardrail(CustomGuardrail):
             return data
 
         self._sweep()
-        session = Session(detector=self.detector, normalizers=self.normalizers)
-        # Detection is blocking (model inference / HTTP): keep the event loop free.
-        data["messages"] = await asyncio.to_thread(
-            anonymize_messages, messages, session, detector=self.detector
+        # A second request pass of the same call (LiteLLM can run the hook again
+        # on the already-anonymized request) extends that call's session, so a
+        # span first found there stays restorable too.
+        session = self._session_for(data) or Session(
+            detector=self.detector, normalizers=self.normalizers
         )
+        # Detection is blocking (model inference / HTTP): keep the event loop free.
+        if call_type == _anthropic.CALL_TYPE:
+            data = await asyncio.to_thread(_anthropic.anonymize_request, data, session)
+        else:
+            data["messages"] = await asyncio.to_thread(
+                anonymize_messages, messages, session, detector=self.detector
+            )
         if self.restore_output:
-            key = uuid.uuid4().hex
-            data.setdefault("metadata", {})[_CALL_KEY] = key
-            self._sessions[key] = (session, time.monotonic())
+            self._sessions[self._new_key(data)] = (session, time.monotonic())
         return data
 
     # -- response, non-streaming ---------------------------------------------
@@ -228,24 +264,12 @@ class GheimGuardrail(CustomGuardrail):
         if session is None:
             return response
         self._drop(data)
-
-        def restore_args(s: str) -> str:
-            return SENTINEL_RE.sub(
-                lambda m: _json_escape(session.mapping.get(m.group(0), m.group(0))), s
-            )
-
+        if _anthropic.is_message(response):
+            return _anthropic.restore_message(response, session)
         for choice in getattr(response, "choices", None) or []:
             msg = getattr(choice, "message", None)
-            if msg is None:
-                continue
-            for name in _TEXT_FIELDS:
-                val = getattr(msg, name, None)
-                if isinstance(val, str):
-                    setattr(msg, name, session.restore(val))
-            for tc in getattr(msg, "tool_calls", None) or []:
-                fn = getattr(tc, "function", None)
-                if fn is not None and isinstance(getattr(fn, "arguments", None), str):
-                    fn.arguments = restore_args(fn.arguments)
+            if msg is not None:
+                _restore_chat_message(msg, session)
         return response
 
     async def async_post_call_failure_hook(  # type: ignore[override]
@@ -264,37 +288,58 @@ class GheimGuardrail(CustomGuardrail):
                 yield item
             return
 
-        state = _StreamState(session)
-        last: ModelResponseStream | None = None
+        state = _StreamRestorer(session)
         try:
-            async for chunk in response:
-                if not isinstance(chunk, ModelResponseStream):
-                    yield chunk  # raw bytes / non-chat events: pass through unchanged
-                    continue
-                last = chunk
-                held: list[tuple[tuple, str]] = []
-                for choice in chunk.choices:
-                    delta = choice.delta
-                    if delta is None:
-                        continue
-                    for name in _TEXT_FIELDS:
-                        val = getattr(delta, name, None)
-                        if isinstance(val, str):
-                            setattr(delta, name, state.feed((choice.index, name), val))
-                    for tc in getattr(delta, "tool_calls", None) or []:
-                        fn = getattr(tc, "function", None)
-                        args = getattr(fn, "arguments", None)
-                        if isinstance(args, str):
-                            fn.arguments = state.feed((choice.index, "tool", tc.index), args)
-                    if choice.finish_reason:
-                        held += state.flush(choice.index)
-                if held:
-                    # Text held back for finishing choices goes out before the
-                    # chunk that carries finish_reason.
-                    yield _tail_chunk(chunk, held)
-                yield chunk
-            held = state.flush()
-            if held and last is not None:
-                yield _tail_chunk(last, held)
+            async for item in response:
+                for out in state.item(item):
+                    yield out
+            for out in state.finish():
+                yield out
         finally:
             self._drop(request_data)
+
+
+def _restore_chat_message(msg: Any, session: Session) -> None:
+    """Content, reasoning and tool-call arguments of one chat message, in place."""
+    for name in _TEXT_FIELDS:
+        val = getattr(msg, name, None)
+        if isinstance(val, str):
+            setattr(msg, name, session.restore(val))
+    for tc in getattr(msg, "tool_calls", None) or []:
+        fn = getattr(tc, "function", None)
+        if fn is not None and isinstance(getattr(fn, "arguments", None), str):
+            fn.arguments = SENTINEL_RE.sub(
+                lambda m: _json_escape(session.mapping.get(m.group(0), m.group(0))), fn.arguments
+            )
+
+
+class _StreamRestorer:
+    """One streamed response: chat chunks, or raw Anthropic SSE on /v1/messages."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+        self._chat = _StreamState(session)
+        self._sse: _anthropic.SSERestorer | None = None
+        self._last: ModelResponseStream | None = None
+
+    def item(self, item: Any) -> list[Any]:
+        if isinstance(item, (bytes, str)):
+            self._sse = self._sse or _anthropic.SSERestorer(self._session)
+            return self._sse.feed(item)
+        if not isinstance(item, ModelResponseStream):
+            return [item]  # other non-chat events: pass through unchanged
+        self._last = item
+        held: list[tuple[tuple, str]] = []
+        for choice in item.choices:
+            if choice.delta is not None:
+                self._chat.delta(choice.index, choice.delta)
+            if choice.finish_reason:
+                held += self._chat.flush(choice.index)
+        # Text held back for finishing choices goes out before the chunk that
+        # carries finish_reason.
+        return ([_tail_chunk(item, held)] if held else []) + [item]
+
+    def finish(self) -> list[Any]:
+        held = self._chat.flush()
+        out = [_tail_chunk(self._last, held)] if held and self._last is not None else []
+        return out + (self._sse.finish() if self._sse else [])

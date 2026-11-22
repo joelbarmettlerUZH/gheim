@@ -145,3 +145,49 @@ def test_concurrent_streams_do_not_cross_sessions(client):
     with cf.ThreadPoolExecutor(8) as ex:
         for name, text in ex.map(run, range(16)):
             assert text == f"Echo: [slow] hello {name}"
+
+
+# -- native Anthropic Messages route (/v1/messages, anthropic/ model) ---------
+
+def _messages(content, stream=False, **kw):
+    body = {"model": "fake-anthropic", "max_tokens": 64, "stream": stream,
+            "system": "You help Anna Meier", "messages": [{"role": "user", "content": content}], **kw}
+    r = httpx.post(f"{PROXY}/v1/messages", json=body, timeout=60,
+                   headers={"x-api-key": "sk-test", "anthropic-version": "2023-06-01"})
+    r.raise_for_status()
+    if not stream:
+        return r.json()
+    text, args, deltas = "", "", 0
+    for line in r.text.splitlines():
+        if line.startswith("data: "):
+            event = json.loads(line[6:])
+            delta = event.get("delta") or {}
+            deltas += event.get("type") == "content_block_delta"
+            text += delta.get("text", "")
+            args += delta.get("partial_json", "")
+    return text, args, deltas
+
+
+def test_messages_round_trip_non_stream_and_stream():
+    content = [
+        {"type": "tool_result", "tool_use_id": "t1", "content": f"file of {EMAIL}"},
+        {"type": "text", "text": f"Hi, I am {PII}"},
+    ]
+    r = _messages(content)
+    assert r["content"][0]["text"] == f"Echo: file of {EMAIL} Hi, I am {PII}"
+    text, _, deltas = _messages(content, stream=True)
+    assert text == f"Echo: file of {EMAIL} Hi, I am {PII}"
+    assert deltas > 5  # restored incrementally, not buffered into one event
+    sent = _upstream_bodies()
+    assert PII not in sent and EMAIL not in sent and "Anna Meier" not in sent
+    assert "gheim_call_key" not in sent
+
+
+def test_messages_tool_use_input_restored_non_stream_and_stream():
+    tricky = 'Joel "JB" Barmettler'
+    tools = [{"name": "lookup", "input_schema": {"type": "object"}}]
+    r = _messages(tricky, tools=tools)
+    assert r["content"][0]["input"] == {"q": tricky}
+    _, args, _ = _messages(tricky, stream=True, tools=tools)
+    assert json.loads(args) == {"q": tricky}
+    assert "Barmettler" not in _upstream_bodies()

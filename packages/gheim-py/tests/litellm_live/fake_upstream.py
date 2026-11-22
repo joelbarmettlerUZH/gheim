@@ -10,6 +10,9 @@ Magic words in the user message:
   ``[trunc]`` — stream ends in the middle of a possible sentinel prefix
 Request with ``tools`` -> answers with a tool call whose JSON arguments embed
 the user message.
+
+``POST /v1/messages`` is the same echo in the native Anthropic Messages shape
+(content blocks; SSE events when streaming), for ``anthropic/`` models.
 """
 import asyncio
 import json
@@ -105,6 +108,61 @@ async def chat(req: Request):
             yield _chunk({}, None, usage={"prompt_tokens": 5, "completion_tokens": 5, "total_tokens": 10}) \
                 .replace('"choices": [{"index": 0, "delta": {}, "finish_reason": null}]', '"choices": []')
         yield "data: [DONE]\n\n"
+
+    return StreamingResponse(gen(), media_type="text/event-stream")
+
+
+def _sse(event: str, data: dict) -> str:
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
+
+def _anthropic_user_text(messages: list) -> str:
+    content = next(m["content"] for m in reversed(messages) if m["role"] == "user")
+    if isinstance(content, str):
+        return content
+    parts = []
+    for block in content:
+        if block.get("type") == "text":
+            parts.append(block["text"])
+        elif block.get("type") == "tool_result":
+            inner = block.get("content")
+            parts.append(inner if isinstance(inner, str) else " ".join(p.get("text", "") for p in inner))
+    return " ".join(parts)
+
+
+@app.post("/v1/messages")
+async def messages(req: Request):
+    body = await req.json()
+    received.append(body)
+    user = _anthropic_user_text(body["messages"])
+    tools = body.get("tools")
+    block = ({"type": "tool_use", "id": "toolu_1", "name": tools[0]["name"], "input": {"q": user}}
+             if tools else {"type": "text", "text": "Echo: " + user})
+    stop = "tool_use" if tools else "end_turn"
+    usage = {"input_tokens": 5, "output_tokens": 5}
+    if not body.get("stream"):
+        return JSONResponse({"id": "msg_fake", "type": "message", "role": "assistant", "model": "fake",
+                             "content": [block], "stop_reason": stop, "stop_sequence": None,
+                             "usage": usage})
+
+    async def gen():
+        yield _sse("message_start", {"type": "message_start", "message": {
+            "id": "msg_fake", "type": "message", "role": "assistant", "model": "fake", "content": [],
+            "stop_reason": None, "stop_sequence": None, "usage": usage}})
+        if tools:
+            start = {**block, "input": {}}
+            kind, field, text = "input_json_delta", "partial_json", json.dumps(block["input"])
+        else:
+            start = {"type": "text", "text": ""}
+            kind, field, text = "text_delta", "text", block["text"]
+        yield _sse("content_block_start", {"type": "content_block_start", "index": 0, "content_block": start})
+        for i in range(0, len(text), 3):
+            yield _sse("content_block_delta", {"type": "content_block_delta", "index": 0,
+                                               "delta": {"type": kind, field: text[i:i + 3]}})
+        yield _sse("content_block_stop", {"type": "content_block_stop", "index": 0})
+        yield _sse("message_delta", {"type": "message_delta", "delta": {"stop_reason": stop},
+                                     "usage": {"output_tokens": 5}})
+        yield _sse("message_stop", {"type": "message_stop"})
 
     return StreamingResponse(gen(), media_type="text/event-stream")
 
