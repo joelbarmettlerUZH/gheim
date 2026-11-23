@@ -101,6 +101,8 @@ const det = new RemoteDetector({ baseUrl: "http://your-host:8080", apiKey: "key_
 | `GHEIM_DEFAULT_MODEL` | `joelbarmettler/gheim-ch-560m` | model id used when the request body omits it |
 | `GHEIM_ALLOWED_MODELS` | *= `GHEIM_DEFAULT_MODEL`* | comma-separated model allowlist |
 | `GHEIM_SKIP_WARMUP` | *(unset)* | if `1`, skip model preload on startup (useful in tests) |
+| `GHEIM_DEVICE` | *(unset: `cuda` if available, else `cpu`)* | `cuda`, `mps` or `cpu`; an unavailable device falls back to `cpu` with a warning. On `mps`, requests run one at a time and the GPU cache is released after each |
+| `GHEIM_DTYPE` | *(unset: the model's own)* | `float32`, `float16` or `bfloat16` (`fp32`/`fp16`/`bf16`). `float16` halves memory; on Apple silicon gheim-ch-560m in `float16` matched `float32` on 4179 of 4181 spans of a 100 KB document |
 
 ## Run from source
 

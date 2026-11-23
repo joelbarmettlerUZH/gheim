@@ -63,7 +63,9 @@ def detect(req: DetectRequest, _: None = Depends(require_api_key)) -> DetectResp
         return DetectResponse(model=req.model, spans=[], elapsed_ms=0.0)
 
     t0 = time.perf_counter()
-    found = detector.detect(req.text)
+    with registry.inference_guard:
+        found = detector.detect(req.text)
+        registry.release_cache()
     elapsed_ms = (time.perf_counter() - t0) * 1000
 
     spans = [
